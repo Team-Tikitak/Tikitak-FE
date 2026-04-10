@@ -1,0 +1,130 @@
+name: Auto Create Branch
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Extract branch name from issue form
+        id: extract
+        run: |
+          cat << 'EOF' > issue_body.txt
+          ${{ github.event.issue.body }}
+          EOF
+
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+
+          BRANCH_NAME=$(grep -A 2 "브랜치명\|Branch" issue_body.txt | tail -1 | xargs)
+
+          if [ -z "$BRANCH_NAME" ] || [[ "$BRANCH_NAME" == "###"* ]] || [[ "$BRANCH_NAME" == "🌳"* ]]; then
+            BRANCH_NAME=$(sed -n '/Branch/,/###/{/Branch/n; /###/!p;}' issue_body.txt | grep -v "^$" | head -1 | xargs)
+          fi
+
+          BRANCH_TYPE=$(grep -A 2 "브랜치 타입\|branchType" issue_body.txt | tail -1 | xargs)
+
+          if [ -z "$BRANCH_TYPE" ] || [[ "$BRANCH_TYPE" == "###"* ]] || [[ "$BRANCH_TYPE" == "📂"* ]]; then
+            BRANCH_TYPE=$(sed -n '/브랜치 타입/,/###/{/브랜치 타입/n; /###/!p;}' issue_body.txt | grep -v "^$" | head -1 | xargs)
+          fi
+
+          if [ -n "$BRANCH_TYPE" ] && [ -n "$ISSUE_TITLE" ]; then
+            if [[ ! "$ISSUE_TITLE" =~ ^\[.*\] ]]; then
+              BRANCH_TYPE_PASCAL=$(echo "$BRANCH_TYPE" | sed 's/\b\(.\)/\u\1/')
+              NEW_ISSUE_TITLE="[${BRANCH_TYPE_PASCAL}] #${{ github.event.issue.number }} - ${ISSUE_TITLE}"
+            else
+              NEW_ISSUE_TITLE="$ISSUE_TITLE"
+            fi
+          else
+            NEW_ISSUE_TITLE="$ISSUE_TITLE"
+          fi
+
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME="issue-${{ github.event.issue.number }}"
+          else
+            BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/ /-/g')
+            BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[:^~?*\[\\]//g; s/\.\.//g; s/@{//g')
+            BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/--*/-/g; s/\/\/*\//\//g')
+            BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/^[-\/\.]*//; s/[-\/\.]*$//')
+
+            if [ -z "$BRANCH_NAME" ]; then
+              BRANCH_NAME="issue-${{ github.event.issue.number }}"
+            else
+              if [ -n "$BRANCH_TYPE" ]; then
+                if [[ ! "$BRANCH_NAME" =~ ^$BRANCH_TYPE/ ]]; then
+                  BRANCH_NAME="${BRANCH_TYPE}/${BRANCH_NAME}"
+                fi
+              fi
+
+              BRANCH_NAME="${{ github.event.issue.number }}-$BRANCH_NAME"
+            fi
+          fi
+
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "new_issue_title=$NEW_ISSUE_TITLE" >> $GITHUB_OUTPUT
+          echo "branch_type=$BRANCH_TYPE" >> $GITHUB_OUTPUT
+
+          rm -f issue_body.txt
+
+      - name: Update issue title and labels
+        run: |
+          NEW_TITLE="${{ steps.extract.outputs.new_issue_title }}"
+          BRANCH_TYPE="${{ steps.extract.outputs.branch_type }}"
+
+          case "$BRANCH_TYPE" in
+            "feat")     LABEL="✨Feature" ;;
+            "fix")      LABEL="🐛BugFix" ;;
+            "hotfix")   LABEL="🚨Hotfix" ;;
+            "refactor") LABEL="♻️Refactor" ;;
+            "test")     LABEL="✅Test" ;;
+            "docs")     LABEL="📝Docs" ;;
+            "chore")    LABEL="🛠️ Chore" ;;
+            *)          LABEL="$BRANCH_TYPE" ;;
+          esac
+
+          if [ -n "$NEW_TITLE" ] && [ -n "$LABEL" ]; then
+            curl -X PATCH \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+              -d "{\"title\":\"$NEW_TITLE\",\"labels\":[\"$LABEL\"],\"assignees\":[\"${{ github.event.issue.user.login }}\"]}"
+          fi
+
+      - name: Create branch
+        run: |
+          BRANCH_NAME="${{ steps.extract.outputs.branch_name }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout main
+          git pull origin main
+
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+
+      - name: Add comment to issue
+        env:
+          BRANCH_NAME: ${{ steps.extract.outputs.branch_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT=$(cat <<EOF
+          🌿 브랜치가 생성되었습니다!
+
+          \`\`\`
+          $BRANCH_NAME
+          \`\`\`
+          EOF
+          )
+
+          gh issue comment ${{ github.event.issue.number }} --body "$COMMENT"

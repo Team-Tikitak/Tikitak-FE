@@ -1,0 +1,141 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Format check
+        run: yarn format:check
+
+  ci:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Type check
+        id: type-check
+        continue-on-error: true
+        run: yarn type-check
+
+      - name: Lint check
+        id: lint
+        continue-on-error: true
+        run: yarn lint
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: yarn test
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: yarn build
+
+      - name: Check results
+        if: always()
+        run: |
+          if [[ "${{ steps.type-check.outcome }}" == "failure" ]] || \
+             [[ "${{ steps.lint.outcome }}" == "failure" ]] || \
+             [[ "${{ steps.test.outcome }}" == "failure" ]] || \
+             [[ "${{ steps.build.outcome }}" == "failure" ]]; then
+            echo "CI failed"
+            exit 1
+          fi
+
+  comment:
+    needs: [setup, ci]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Comment results on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+
+            const setupJob = jobs.jobs.find(j => j.name === 'setup');
+            const ciJob = jobs.jobs.find(j => j.name === 'ci');
+
+            const getStepResult = (job, stepName) => {
+              if (!job) return 'skipped';
+              const step = job.steps?.find(s => s.name === stepName);
+              return step?.conclusion || 'skipped';
+            };
+
+            const icon = (status) => status === 'success' ? '✅' : status === 'skipped' ? '⏭️' : '❌';
+            const label = (status) => status === 'success' ? '통과' : status === 'skipped' ? '스킵' : '실패';
+
+            const formatResult = getStepResult(setupJob, 'Format check');
+
+            let comment = '## 🔍 CI 검증 결과\n\n';
+            comment += `${icon(formatResult)} **Prettier**: ${label(formatResult)}\n\n`;
+            comment += '| 검증 항목 | 결과 |\n';
+            comment += '|-----------|------|\n';
+
+            for (const step of ['Type check', 'Lint check', 'Run tests', 'Build']) {
+              const result = getStepResult(ciJob, step);
+              const name = step.replace(' check', '').replace('Run ', '');
+              comment += `| **${name}** | ${icon(result)} ${label(result)} |\n`;
+            }
+
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment,
+              });
+            } catch (error) {
+              console.log('Failed to comment:', error.message);
+            }

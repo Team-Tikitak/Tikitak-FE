@@ -1,0 +1,9 @@
+# 모든 텍스트 파일 LF 통일
+* text=auto eol=lf
+
+# YAML 파일 명시적으로 LF사용
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Windows 배치 파일 CRLF
+*.bat text eol=crlf

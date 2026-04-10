@@ -1,0 +1,87 @@
+name: PR Auto Setup
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto assign and setup PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const prAuthor = context.payload.pull_request.user.login;
+            const branchName = context.payload.pull_request.head.ref;
+            const currentAssignees = context.payload.pull_request.assignees || [];
+
+            if (currentAssignees.length === 0) {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                assignees: [prAuthor]
+              });
+            }
+
+            const titleMatch = branchName.match(/(?:\d+-)?(\w+)\/(.+)/);
+            if (titleMatch) {
+              const prefix = titleMatch[1].charAt(0).toUpperCase() + titleMatch[1].slice(1);
+              const title = decodeURIComponent(titleMatch[2]).replace(/-/g, ' ');
+              const newTitle = `[${prefix}] ${title}`;
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                title: newTitle,
+              });
+            }
+
+            const reviewers = ['wlsldm', 'KyeongJooni'].filter(r => r !== prAuthor);
+            if (reviewers.length > 0) {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  reviewers: reviewers
+                });
+              } catch (error) {
+                console.log('Failed to request reviewers:', error.message);
+              }
+            }
+
+            const labelMatch = branchName.match(/(?:^\d+-)?(\w+)\//);
+            if (labelMatch) {
+              const labelMap = {
+                'feat': '✨Feature',
+                'fix': '🐛BugFix',
+                'hotfix': '🚨Hotfix',
+                'refactor': '♻️Refactor',
+                'test': '✅Test',
+                'docs': '📝Docs',
+                'chore': '🛠️ Chore'
+              };
+              const labelToAdd = labelMap[labelMatch[1].toLowerCase()];
+
+              if (labelToAdd) {
+                try {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    labels: [labelToAdd]
+                  });
+                } catch (error) {
+                  console.log('Failed to add label:', error.message);
+                }
+              }
+            }
