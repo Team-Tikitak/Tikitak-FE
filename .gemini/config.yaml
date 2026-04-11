@@ -1,0 +1,18 @@
+reviews:
+  language: 'ko-KR'
+  comment_severity: 'MEDIUM'
+
+  path_filters:
+    - '!.yarn/**'
+    - '!.pnp.*'
+    - '!yarn.lock'
+    - '!**/*.png'
+    - '!**/*.jpg'
+    - '!**/*.jpeg'
+    - '!**/*.gif'
+    - '!**/*.webp'
+    - '!**/*.svg'
+    - '!**/*.ico'
+    - '!coverage/**'
+    - '!**/storybook-static/**'
+    - '!**/*.snap'
