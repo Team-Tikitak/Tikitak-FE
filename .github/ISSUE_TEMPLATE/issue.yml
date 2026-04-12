@@ -5,8 +5,8 @@ body:
     id: branch
     attributes:
       label: '🌳 브랜치명 (Branch)'
-      description: '생성할 브랜치명을 입력해 주세요'
-      placeholder: '로그인 기능 구현'
+      description: '영어로 입력해 주세요 (예: login-page, token-expiry-fix)'
+      placeholder: 'login-page'
     validations:
       required: true
 
