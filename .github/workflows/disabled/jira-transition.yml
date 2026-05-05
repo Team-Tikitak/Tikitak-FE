@@ -1,0 +1,48 @@
+name: Jira Transition on PR Close
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  transition:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira key from PR body
+        id: extract
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          JIRA_KEY=$(echo "$PR_BODY" | grep -oP 'K01-\d+' | head -1)
+
+          if [ -z "$JIRA_KEY" ]; then
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+            JIRA_KEY=$(echo "$BRANCH" | grep -oP 'K01-\d+' | head -1)
+          fi
+
+          echo "jira_key=$JIRA_KEY" >> $GITHUB_OUTPUT
+
+      - name: Transition Jira ticket to Done
+        if: steps.extract.outputs.jira_key != ''
+        run: |
+          JIRA_KEY="${{ steps.extract.outputs.jira_key }}"
+
+          TRANSITIONS=$(curl -s \
+            -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions")
+
+          DONE_ID=$(echo "$TRANSITIONS" | jq -r '.transitions[] | select(.name | test("완료|Done|done")) | .id' | head -1)
+
+          if [ -n "$DONE_ID" ]; then
+            curl -s \
+              -X POST \
+              -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
+              -H "Content-Type: application/json" \
+              "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions" \
+              -d "{\"transition\": {\"id\": \"${DONE_ID}\"}}"
+
+            echo "Jira $JIRA_KEY → Done 전환 완료"
+          else
+            echo "Done 전환을 찾을 수 없습니다"
+          fi
