@@ -1,1 +1,279 @@
-@import "tailwindcss";
+@import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css');
+@import 'tailwindcss';
+
+@theme {
+  /* colors */
+  --color-black: #121212;
+  --color-white: #ffffff;
+  --color-main: #38bdf8;
+
+  --color-gray-100: #f8fafc;
+  --color-gray-200: #f1f5f9;
+  --color-gray-300: #e2e8f0;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+
+  --color-blue-100: #ebf8ff;
+  --color-blue-200: #bee3f8;
+  --color-blue-300: #90cdf4;
+  --color-blue-400: #63b3ed;
+  --color-blue-500: #4299e1;
+  --color-blue-600: #3182ce;
+  --color-blue-700: #2b6cb0;
+  --color-blue-800: #2c5282;
+  --color-blue-900: #2a4365;
+
+  /* dimension */
+  --dimension-scale: 2;
+  --dimension-xs: 4px;
+  --dimension-sm: 8px;
+  --dimension-md: 16px;
+  --dimension-lg: 18px;
+  --dimension-xl: 20px;
+  --dimension-max: 999px;
+
+  /* spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-xl: 20px;
+
+  /* radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-xl: 20px;
+  --radius-max: 999px;
+
+  /* opacity */
+  --opacity-low: 0.1;
+  --opacity-md: 0.5;
+  --opacity-high: 0.9;
+
+  /* font family */
+  --font-title: 'SUIT', sans-serif;
+  --font-body: 'SUIT', sans-serif;
+
+  /* font size */
+  --text-h1: 20px;
+  --text-h2: 18px;
+  --text-h3: 16px;
+  --text-h4: 14px;
+  --text-h5: 13px;
+  --text-h6: 12px;
+
+  --text-0: 12px;
+  --text-1: 13px;
+  --text-2: 14px;
+  --text-3: 16px;
+  --text-4: 18px;
+  --text-5: 20px;
+
+  /* line height */
+  --leading-0: 160%;
+  --leading-1: 160%;
+  --leading-2: 140%;
+  --leading-3: 140%;
+  --leading-4: 140%;
+  --leading-5: 140%;
+  --leading-6: 130%;
+  --leading-18: 145%;
+  --leading-body: 140%;
+
+  /* letter spacing */
+  --tracking-0: 0.004em;
+  --tracking-1: -0.04em;
+  --tracking-2: 0.04em;
+  --tracking-3: 0;
+  --tracking-4: 0;
+  --tracking-5: -0.004em;
+  --tracking-default: 0;
+  --tracking-increased: 1.5em;
+  --tracking-decreased: -0.05em;
+
+  /* shadow */
+  --shadow-picker: 3px 10px 24px 0 #00000033;
+  --shadow-default: 0 10px 100px 0 #0000004d;
+}
+
+/* ===== typography utilities ===== */
+
+@utility title-0 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-3);
+  line-height: var(--leading-0);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility title-1 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-h1);
+  line-height: var(--leading-0);
+  letter-spacing: var(--tracking-1);
+}
+
+@utility title-2 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-4);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-2);
+}
+
+@utility button-0 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: var(--text-2);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-3);
+}
+
+@utility button-1 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-1);
+}
+
+@utility button-2 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-2);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-4);
+}
+
+@utility button-3 {
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: var(--text-0);
+  line-height: var(--leading-6);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility button-4 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: var(--text-1);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-4);
+}
+
+@utility button-5 {
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: var(--text-1);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-4);
+}
+
+@utility button-6 {
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: var(--text-1);
+  line-height: var(--leading-6);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-1 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-2);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-2 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-3 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-1);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-2);
+}
+
+@utility body-5 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility body-6 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-1);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-7 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-2);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility body-8 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility body-9 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-3);
+  line-height: var(--leading-18);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility body-10 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-2);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
+@utility body-11 {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-0);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-0);
+}
+
+@utility body-12 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-0);
+}
