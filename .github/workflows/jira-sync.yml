@@ -96,11 +96,39 @@ jobs:
             const match = comments.data
               .map((comment) => comment.body)
               .join('\n')
-              .match(/[A-Z]+-\d+/);
+              .match(/[A-Z][A-Z0-9]+-\d+/);
             core.setOutput('jira_key', match ? match[0] : '');
 
+      - name: Find Jira key from Jira
+        id: search
+        if: steps.find.outputs.jira_key == ''
+        env:
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          if [ -z "${{ secrets.JIRA_USER_EMAIL }}" ] || \
+             [ -z "${{ secrets.JIRA_API_TOKEN }}" ] || \
+             [ -z "${{ secrets.JIRA_BASE_URL }}" ] || \
+             [ -z "${{ secrets.JIRA_PROJECT_KEY }}" ]; then
+            echo "Missing one or more Jira secrets: JIRA_USER_EMAIL, JIRA_API_TOKEN, JIRA_BASE_URL, JIRA_PROJECT_KEY"
+            exit 1
+          fi
+
+          JQL=$(jq -rn \
+            --arg project "${{ secrets.JIRA_PROJECT_KEY }}" \
+            --arg url "$ISSUE_URL" \
+            '$project + " AND text ~ " + ($url | @json)')
+          RESPONSE=$(curl -sS -G \
+            -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -H "Accept: application/json" \
+            --data-urlencode "jql=$JQL" \
+            --data-urlencode "maxResults=1" \
+            --data-urlencode "fields=key" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/search")
+          JIRA_KEY=$(echo "$RESPONSE" | jq -r '.issues[0].key // empty')
+          echo "jira_key=$JIRA_KEY" >> $GITHUB_OUTPUT
+
       - name: Transition to Done
-        if: steps.find.outputs.jira_key != ''
+        if: steps.find.outputs.jira_key != '' || steps.search.outputs.jira_key != ''
         run: |
           if [ -z "${{ secrets.JIRA_USER_EMAIL }}" ] || \
              [ -z "${{ secrets.JIRA_API_TOKEN }}" ] || \
@@ -109,18 +137,22 @@ jobs:
             exit 1
           fi
 
-          JIRA_KEY="${{ steps.find.outputs.jira_key }}"
+          JIRA_KEY="${{ steps.find.outputs.jira_key || steps.search.outputs.jira_key }}"
           TRANSITIONS=$(curl -sS \
             -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions")
           DONE_ID=$(echo "$TRANSITIONS" | jq -r '.transitions[] | select(.name | test("완료|Done|done")) | .id' | head -1)
 
-          if [ -n "$DONE_ID" ]; then
-            curl -sS -X POST \
-              -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions" \
-              -d "{\"transition\": {\"id\": \"${DONE_ID}\"}}"
-            echo "✓ $JIRA_KEY → Done"
+          if [ -z "$DONE_ID" ]; then
+            echo "No Done transition found for $JIRA_KEY"
+            echo "$TRANSITIONS" | jq .
+            exit 1
           fi
+
+          curl -sS -X POST \
+            -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions" \
+            -d "{\"transition\": {\"id\": \"${DONE_ID}\"}}"
+          echo "✓ $JIRA_KEY → Done"
