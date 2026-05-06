@@ -19,5 +19,6 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "npm.packageManager": "yarn",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.useWorkspaceTsdk": true
 }

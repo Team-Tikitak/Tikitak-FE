@@ -1,0 +1,88 @@
+name: Jira Sync
+
+on:
+  issues:
+    types: [opened, closed]
+
+jobs:
+  create:
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Jira issue
+        id: jira
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          AUTH=$(echo -n "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" | base64)
+          BODY=$(jq -n \
+            --arg title "$ISSUE_TITLE" \
+            --arg url "$ISSUE_URL" \
+            --arg project "${{ secrets.JIRA_PROJECT_KEY }}" \
+            '{
+              fields: {
+                project: { key: $project },
+                summary: $title,
+                issuetype: { name: "Story" },
+                description: {
+                  type: "doc", version: 1,
+                  content: [{ type: "paragraph", content: [{ type: "text", text: ("GitHub: " + $url) }] }]
+                }
+              }
+            }')
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Basic ${AUTH}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue" \
+            -d "$BODY")
+          echo "jira_key=$(echo $RESPONSE | jq -r '.key')" >> $GITHUB_OUTPUT
+
+      - name: Comment Jira link
+        if: steps.jira.outputs.jira_key != 'null'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const key = '${{ steps.jira.outputs.jira_key }}';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔗 Jira: [${key}](${{ secrets.JIRA_BASE_URL }}/browse/${key})`
+            });
+
+  close:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Jira key from comments
+        id: find
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const match = comments.data.map(c => c.body).join('\n').match(/[A-Z]+-\d+/);
+            core.setOutput('jira_key', match ? match[0] : '');
+
+      - name: Transition to Done
+        if: steps.find.outputs.jira_key != ''
+        run: |
+          AUTH=$(echo -n "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" | base64)
+          JIRA_KEY="${{ steps.find.outputs.jira_key }}"
+          TRANSITIONS=$(curl -s \
+            -H "Authorization: Basic ${AUTH}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions")
+          DONE_ID=$(echo "$TRANSITIONS" | jq -r '.transitions[] | select(.name | test("완료|Done|done")) | .id' | head -1)
+          if [ -n "$DONE_ID" ]; then
+            curl -s -X POST \
+              -H "Authorization: Basic ${AUTH}" \
+              -H "Content-Type: application/json" \
+              "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${JIRA_KEY}/transitions" \
+              -d "{\"transition\": {\"id\": \"${DONE_ID}\"}}"
+            echo "✓ $JIRA_KEY → Done"
+          fi
