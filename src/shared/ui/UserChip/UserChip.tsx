@@ -25,7 +25,7 @@ export const UserChip = ({
   ref,
   ...props
 }: UserChipProps) => {
-  const resolvedSize = size ?? 'md';
+  const resolvedSize = size;
   const textCls = selected
     ? 'button-4 text-main'
     : resolvedSize === 'sm'
