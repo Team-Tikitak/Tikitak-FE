@@ -1,18 +1,29 @@
-reviews:
-  language: 'ko-KR'
-  comment_severity: 'MEDIUM'
+have_fun: false
 
-  path_filters:
-    - '!.yarn/**'
-    - '!.pnp.*'
-    - '!yarn.lock'
-    - '!**/*.png'
-    - '!**/*.jpg'
-    - '!**/*.jpeg'
-    - '!**/*.gif'
-    - '!**/*.webp'
-    - '!**/*.svg'
-    - '!**/*.ico'
-    - '!coverage/**'
-    - '!**/storybook-static/**'
-    - '!**/*.snap'
+memory_config:
+  disabled: false
+
+code_review:
+  disable: false
+  comment_severity_threshold: HIGH
+  max_review_comments: -1
+  pull_request_opened:
+    help: false
+    summary: true
+    code_review: true
+    include_drafts: true
+
+ignore_patterns:
+  - '.yarn/**'
+  - '.pnp.*'
+  - 'yarn.lock'
+  - '**/*.png'
+  - '**/*.jpg'
+  - '**/*.jpeg'
+  - '**/*.gif'
+  - '**/*.webp'
+  - '**/*.svg'
+  - '**/*.ico'
+  - 'coverage/**'
+  - '**/storybook-static/**'
+  - '**/*.snap'
