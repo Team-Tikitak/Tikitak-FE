@@ -1,15 +1,16 @@
-import path from 'path';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+import path from 'path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
+import svgr from 'vite-plugin-svgr';
+import { defineConfig } from 'vitest/config';
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
