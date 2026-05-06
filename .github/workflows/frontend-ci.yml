@@ -87,29 +87,26 @@ jobs:
               run_id: context.runId,
             });
 
-            const ciJob = jobs.jobs.find(j => j.name === 'ci');
+            const ciJob = jobs.jobs.find((job) => job.name === 'ci');
 
             const getStepResult = (job, stepName) => {
               if (!job) return 'skipped';
-              const step = job.steps?.find(s => s.name === stepName);
+              const step = job.steps?.find((step) => step.name === stepName);
               return step?.conclusion || 'skipped';
             };
 
-            const icon = (status) => status === 'success' ? '✅' : status === 'skipped' ? '⏭️' : '❌';
-            const label = (status) => status === 'success' ? '통과' : status === 'skipped' ? '스킵' : '실패';
+            const line = (status, name, successLabel = '통과', failureLabel = '실패') => {
+              if (status === 'success') return `✅ **${name}**: ${successLabel}\n`;
+              if (status === 'skipped') return `⏭️ **${name}**: 스킵\n`;
+              return `❌ **${name}**: ${failureLabel}\n`;
+            };
 
-            const formatResult = getStepResult(ciJob, 'Format check');
-
-            let comment = '## 🔍 CI 검증 결과\n\n';
-            comment += `${icon(formatResult)} **Prettier**: ${label(formatResult)}\n\n`;
-            comment += '| 검증 항목 | 결과 |\n';
-            comment += '|-----------|------|\n';
-
-            for (const step of ['Type check', 'Lint check', 'Run tests', 'Build']) {
-              const result = getStepResult(ciJob, step);
-              const name = step.replace(' check', '').replace('Run ', '');
-              comment += `| **${name}** | ${icon(result)} ${label(result)} |\n`;
-            }
+            let comment = '## PR 검증 결과\n\n';
+            comment += line(getStepResult(ciJob, 'Format check'), 'Prettier', '통과', '포맷 필요');
+            comment += line(getStepResult(ciJob, 'Type check'), 'TypeScript');
+            comment += line(getStepResult(ciJob, 'Lint check'), 'ESLint');
+            comment += line(getStepResult(ciJob, 'Run tests'), 'Test');
+            comment += line(getStepResult(ciJob, 'Build'), 'Build', '성공', '실패');
 
             try {
               await github.rest.issues.createComment({
