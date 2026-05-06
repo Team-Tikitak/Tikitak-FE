@@ -31,18 +31,36 @@ jobs:
               });
             }
 
-            const titleMatch = branchName.match(/(?:\d+-)?(\w+)\/(.+)/);
+            const titleMatch = branchName.match(/^(\d+)-(\w+)\//);
             if (titleMatch) {
-              const prefix = titleMatch[1].charAt(0).toUpperCase() + titleMatch[1].slice(1);
-              const title = decodeURIComponent(titleMatch[2]).replace(/-/g, ' ');
-              const newTitle = `[${prefix}] ${title}`;
+              const issueNumber = parseInt(titleMatch[1], 10);
+              const prefix = titleMatch[2].charAt(0).toUpperCase() + titleMatch[2].slice(1);
 
-              await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                title: newTitle,
-              });
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                });
+                const issueTitle = issue.title.replace(/^\[.*?\]\s*-?\s*/, '').replace(/^#\d+\s*/, '');
+                const newTitle = `[${prefix}] ${issueTitle}`;
+
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  title: newTitle,
+                });
+              } catch (error) {
+                console.log('Failed to fetch issue title, falling back to branch name:', error.message);
+                const fallbackTitle = decodeURIComponent(branchName.split('/')[1] || '').replace(/-/g, ' ');
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  title: `[${prefix}] ${fallbackTitle}`,
+                });
+              }
             }
 
             const reviewers = ['wlsldm', 'KyeongJooni'].filter(r => r !== prAuthor);
