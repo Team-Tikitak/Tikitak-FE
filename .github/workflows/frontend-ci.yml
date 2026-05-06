@@ -15,30 +15,7 @@ permissions:
   actions: read
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-
-      - name: Install dependencies
-        run: yarn install --immutable
-
-      - name: Format check
-        run: yarn format:check
-
   ci:
-    needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -56,6 +33,11 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable
+
+      - name: Format check
+        id: format
+        continue-on-error: true
+        run: yarn format:check
 
       - name: Type check
         id: type-check
@@ -80,7 +62,8 @@ jobs:
       - name: Check results
         if: always()
         run: |
-          if [[ "${{ steps.type-check.outcome }}" == "failure" ]] || \
+          if [[ "${{ steps.format.outcome }}" == "failure" ]] || \
+             [[ "${{ steps.type-check.outcome }}" == "failure" ]] || \
              [[ "${{ steps.lint.outcome }}" == "failure" ]] || \
              [[ "${{ steps.test.outcome }}" == "failure" ]] || \
              [[ "${{ steps.build.outcome }}" == "failure" ]]; then
@@ -89,7 +72,7 @@ jobs:
           fi
 
   comment:
-    needs: [setup, ci]
+    needs: ci
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -104,7 +87,6 @@ jobs:
               run_id: context.runId,
             });
 
-            const setupJob = jobs.jobs.find(j => j.name === 'setup');
             const ciJob = jobs.jobs.find(j => j.name === 'ci');
 
             const getStepResult = (job, stepName) => {
@@ -116,7 +98,7 @@ jobs:
             const icon = (status) => status === 'success' ? '✅' : status === 'skipped' ? '⏭️' : '❌';
             const label = (status) => status === 'success' ? '통과' : status === 'skipped' ? '스킵' : '실패';
 
-            const formatResult = getStepResult(setupJob, 'Format check');
+            const formatResult = getStepResult(ciJob, 'Format check');
 
             let comment = '## 🔍 CI 검증 결과\n\n';
             comment += `${icon(formatResult)} **Prettier**: ${label(formatResult)}\n\n`;
