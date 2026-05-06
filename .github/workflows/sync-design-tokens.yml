@@ -1,0 +1,71 @@
+name: Sync Design Tokens
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * 0'
+
+concurrency:
+  group: sync-design-tokens
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Sync design tokens
+        run: yarn tokens:sync
+
+      - name: Build design tokens
+        run: yarn tokens:build
+
+      - name: Format generated files
+        run: yarn prettier --write tokens/tokens.studio.json tokens/tokens.json src/app/styles/tokens.css
+
+      - name: Verify generated files
+        run: yarn tokens:check
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: chore/sync-design-tokens
+          delete-branch: true
+          title: 'chore: sync design tokens'
+          commit-message: |
+            Sync design tokens from source repo
+
+            Constraint: Tokens are sourced from Team-Tikitak/Tikitak-DesignSystem.
+            Confidence: high
+            Scope-risk: narrow
+            Directive: Review generated token diffs before merging.
+            Tested: yarn tokens:check
+          body: |
+            This PR syncs the latest design tokens from Team-Tikitak/Tikitak-DesignSystem.
+
+            - `tokens/tokens.studio.json`
+            - `tokens/tokens.json`
+            - `src/app/styles/tokens.css`
+
+            Verified:
+            - `yarn tokens:check`
+          labels: design-tokens
