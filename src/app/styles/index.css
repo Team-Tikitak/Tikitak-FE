@@ -5,7 +5,9 @@
   /* colors */
   --color-black: #121212;
   --color-white: #ffffff;
-  --color-main: #38bdf8;
+  --color-main-000: #ebf8fe;
+  --color-main-001: #38bdf8;
+  --color-main-002: #0680b6;
 
   --color-gray-100: #f8fafc;
   --color-gray-200: #f1f5f9;
@@ -26,6 +28,16 @@
   --color-blue-700: #2b6cb0;
   --color-blue-800: #2c5282;
   --color-blue-900: #2a4365;
+
+  --color-red-100: #fff5f5;
+  --color-red-200: #fed7d7;
+  --color-red-300: #feb2b2;
+  --color-red-400: #fc8181;
+  --color-red-500: #f56565;
+  --color-red-600: #e53e3e;
+  --color-red-700: #c53030;
+  --color-red-800: #9b2c2c;
+  --color-red-900: #742a2a;
 
   /* dimension */
   --dimension-scale: 2;
@@ -75,13 +87,8 @@
 
   /* line height */
   --leading-0: 160%;
-  --leading-1: 160%;
   --leading-2: 140%;
-  --leading-3: 140%;
-  --leading-4: 140%;
-  --leading-5: 140%;
   --leading-6: 130%;
-  --leading-18: 145%;
   --leading-body: 140%;
 
   /* letter spacing */
@@ -182,6 +189,14 @@
   letter-spacing: var(--tracking-5);
 }
 
+@utility button-7 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
+}
+
 @utility body-1 {
   font-family: var(--font-body);
   font-weight: 400;
@@ -250,16 +265,16 @@
   font-family: var(--font-body);
   font-weight: 600;
   font-size: var(--text-3);
-  line-height: var(--leading-18);
+  line-height: var(--leading-2);
   letter-spacing: var(--tracking-0);
 }
 
 @utility body-10 {
   font-family: var(--font-body);
-  font-weight: 400;
-  font-size: var(--text-2);
+  font-weight: 500;
+  font-size: var(--text-0);
   line-height: var(--leading-2);
-  letter-spacing: var(--tracking-5);
+  letter-spacing: var(--tracking-0);
 }
 
 @utility body-11 {
