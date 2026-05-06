@@ -15,6 +15,9 @@
     "format:check": "prettier . --check",
     "gen:index": "tsx scripts/gen-index.ts",
     "gen:index:check": "tsx scripts/gen-index.ts --check",
+    "tokens:sync": "tsx scripts/sync-design-tokens.ts",
+    "tokens:build": "tsx scripts/build-design-tokens.ts",
+    "tokens:check": "yarn tokens:build && git diff --exit-code src/app/styles/tokens.css",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -69,6 +72,7 @@
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "storybook": "^10.3.6",
+    "style-dictionary": "^5.4.0",
     "tsx": "^4.21.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
