@@ -1,5 +1,5 @@
-import { cn } from '@/shared/lib';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
+import { cn } from '@/shared/lib';
 import type { ButtonHTMLAttributes } from 'react';
 
 type CameraButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
