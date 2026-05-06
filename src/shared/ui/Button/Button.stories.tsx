@@ -1,6 +1,6 @@
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button } from './Button';
-import type { StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Shared/UI/Button',
@@ -8,7 +8,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-};
+} satisfies Meta<typeof Button>;
 
 export default meta;
 
