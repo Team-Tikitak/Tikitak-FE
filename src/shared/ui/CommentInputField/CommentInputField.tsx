@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef } from 'react';
+import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, type Ref } from 'react';
 import ArrowUpIcon from '@/shared/assets/Icon/line-md_arrow-up.svg?react';
 import SearchIcon from '@/shared/assets/Icon/SearchIcon.svg?react';
 import { cn } from '@/shared/lib';
@@ -7,14 +7,16 @@ type CommentInputFieldOnlyProps = ComponentPropsWithRef<'input'> & {
   variant?: 'comment';
 };
 
-type CommentInputFieldWithIconProps = ComponentPropsWithRef<'div'> & {
+type CommentInputFieldWithIconProps = ComponentPropsWithoutRef<'div'> & {
   variant: 'searchbar';
-  inputProps?: ComponentPropsWithRef<'input'>;
+  ref?: Ref<HTMLInputElement>;
+  inputProps?: ComponentPropsWithoutRef<'input'>;
 };
 
-type CommentInputFieldWithSubmitProps = ComponentPropsWithRef<'div'> & {
+type CommentInputFieldWithSubmitProps = ComponentPropsWithoutRef<'div'> & {
   variant: 'commentup';
-  inputProps?: ComponentPropsWithRef<'input'>;
+  ref?: Ref<HTMLInputElement>;
+  inputProps?: ComponentPropsWithoutRef<'input'>;
   submitButtonProps?: ComponentPropsWithRef<'button'>;
 };
 
@@ -27,7 +29,7 @@ const DEFAULT_PLACEHOLDER = '\uB313\uAE00\uC744 \uB0A8\uACA8\uBCF4\uC138\uC694.'
 const SUBMIT_ARIA_LABEL = '\uB313\uAE00 \uB4F1\uB85D';
 
 const inputClassName =
-  'body-1 h-12 min-w-0 rounded-max bg-gray-200 px-5 text-gray-700 placeholder:text-gray-700 outline-none transition-colors focus:bg-gray-100 focus:ring-2 focus:ring-main-001/40 disabled:cursor-not-allowed disabled:opacity-50';
+  'body-1 h-12 min-w-0 rounded-max bg-gray-200 px-5 text-gray-700 placeholder:text-gray-700 outline-none transition-colors focus-within:bg-gray-100 focus-within:ring-2 focus-within:ring-main-001/40 disabled:cursor-not-allowed disabled:opacity-50';
 
 export const CommentInputField = (props: CommentInputFieldProps) => {
   if (props.variant === 'searchbar') {
@@ -40,11 +42,11 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
 
     return (
       <div
-        ref={ref}
         className={cn(inputClassName, 'flex w-full items-center gap-3 overflow-hidden', className)}
         {...containerProps}
       >
         <input
+          ref={ref}
           type="text"
           placeholder={placeholder}
           aria-label={restInputProps['aria-label'] ?? placeholder}
@@ -83,12 +85,9 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
     const isSubmitDisabled = submitDisabled ?? inputDisabled;
 
     return (
-      <div
-        ref={ref}
-        className={cn('flex w-full items-center gap-3', className)}
-        {...containerProps}
-      >
+      <div className={cn('flex w-full items-center gap-3', className)} {...containerProps}>
         <input
+          ref={ref}
           type="text"
           disabled={inputDisabled}
           placeholder={placeholder}
