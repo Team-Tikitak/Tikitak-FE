@@ -31,6 +31,7 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+.env.pr-inline-review
 
 *storybook.log
 storybook-static
@@ -44,6 +45,7 @@ storybook-static
 .vercel
 
 # AI
+tmp/
 CLAUDE.md
 AGENTS.md
 .claude/

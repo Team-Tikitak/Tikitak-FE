@@ -18,6 +18,12 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      format: ${{ steps.format.outcome }}
+      type-check: ${{ steps.type-check.outcome }}
+      lint: ${{ steps.lint.outcome }}
+      test: ${{ steps.test.outcome }}
+      build: ${{ steps.build.outcome }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -81,32 +87,26 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.runId,
-            });
-
-            const ciJob = jobs.jobs.find((job) => job.name === 'ci');
-
-            const getStepResult = (job, stepName) => {
-              if (!job) return 'skipped';
-              const step = job.steps?.find((step) => step.name === stepName);
-              return step?.conclusion || 'skipped';
+            const results = {
+              format: '${{ needs.ci.outputs.format }}',
+              typeCheck: '${{ needs.ci.outputs.type-check }}',
+              lint: '${{ needs.ci.outputs.lint }}',
+              test: '${{ needs.ci.outputs.test }}',
+              build: '${{ needs.ci.outputs.build }}',
             };
 
             const line = (status, name, successLabel = '통과', failureLabel = '실패') => {
               if (status === 'success') return `✅ **${name}**: ${successLabel}\n`;
-              if (status === 'skipped') return `⏭️ **${name}**: 스킵\n`;
+              if (status === 'skipped') return `⏭️ **${name}**: 건너뜀\n`;
               return `❌ **${name}**: ${failureLabel}\n`;
             };
 
             let comment = '## PR 검증 결과\n\n';
-            comment += line(getStepResult(ciJob, 'Format check'), 'Prettier', '통과', '포맷 필요');
-            comment += line(getStepResult(ciJob, 'Type check'), 'TypeScript');
-            comment += line(getStepResult(ciJob, 'Lint check'), 'ESLint');
-            comment += line(getStepResult(ciJob, 'Run tests'), 'Test');
-            comment += line(getStepResult(ciJob, 'Build'), 'Build', '성공', '실패');
+            comment += line(results.format, 'Prettier', '통과', '포맷 필요');
+            comment += line(results.typeCheck, 'TypeScript');
+            comment += line(results.lint, 'ESLint');
+            comment += line(results.test, 'Test');
+            comment += line(results.build, 'Build', '성공', '실패');
 
             try {
               await github.rest.issues.createComment({
