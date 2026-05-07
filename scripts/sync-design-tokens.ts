@@ -6,6 +6,7 @@ const DEFAULT_PATH = 'design/tokens.json';
 const DEFAULT_REF = 'design';
 const RAW_OUTPUT = 'tokens/tokens.studio.json';
 const STYLE_DICTIONARY_OUTPUT = 'tokens/tokens.json';
+const GITHUB_API_HOST = 'api.github.com';
 
 function cleanEnvValue(value: string | undefined) {
   return value?.trim().replace(/^['"]|['"]$/g, '');
@@ -32,22 +33,23 @@ type TokenNode = {
 };
 
 async function fetchDesignTokens() {
+  const tokenUrl = new URL(url);
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'User-Agent': 'tikitak-design-token-sync',
   };
 
-  if (token) {
+  if (token && tokenUrl.hostname === GITHUB_API_HOST) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, { headers });
+  const response = await fetch(tokenUrl, { headers });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch design tokens: ${response.status} ${response.statusText}`);
   }
 
-  if (url.includes('api.github.com/repos/')) {
+  if (tokenUrl.hostname === GITHUB_API_HOST && tokenUrl.pathname.startsWith('/repos/')) {
     const payload = (await response.json()) as { content?: string };
 
     if (!payload.content) {
@@ -74,9 +76,14 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 
 function ensureCompatibilityAliases(tokens: TokenTree) {
   const fontWeights = asRecord(tokens.fontWeights);
+  const colors = asRecord(tokens.colors);
 
   if (!fontWeights) {
     tokens.fontWeights = {};
+  }
+
+  if (!colors) {
+    tokens.colors = {};
   }
 
   const ensuredFontWeights = tokens.fontWeights as Record<string, unknown>;
@@ -92,6 +99,66 @@ function ensureCompatibilityAliases(tokens: TokenTree) {
     ensuredFontWeights.bodyMedium = {
       type: 'fontWeights',
       value: 'Medium',
+    };
+  }
+
+  const ensuredColors = tokens.colors as Record<string, unknown>;
+
+  if (!ensuredColors.main) {
+    ensuredColors.main = {
+      '000': {
+        type: 'color',
+        value: '#ebf8fe',
+      },
+      '001': {
+        type: 'color',
+        value: '#38bdf8',
+      },
+      '002': {
+        type: 'color',
+        value: '#0680b6',
+      },
+    };
+  }
+
+  if (!ensuredColors.red) {
+    ensuredColors.red = {
+      '100': {
+        type: 'color',
+        value: '#fff5f5',
+      },
+      '200': {
+        type: 'color',
+        value: '#fed7d7',
+      },
+      '300': {
+        type: 'color',
+        value: '#feb2b2',
+      },
+      '400': {
+        type: 'color',
+        value: '#fc8181',
+      },
+      '500': {
+        type: 'color',
+        value: '#f56565',
+      },
+      '600': {
+        type: 'color',
+        value: '#e53e3e',
+      },
+      '700': {
+        type: 'color',
+        value: '#c53030',
+      },
+      '800': {
+        type: 'color',
+        value: '#9b2c2c',
+      },
+      '900': {
+        type: 'color',
+        value: '#742a2a',
+      },
     };
   }
 }

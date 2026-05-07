@@ -37,6 +37,18 @@
   --color-blue-700: #2b6cb0;
   --color-blue-800: #2c5282;
   --color-blue-900: #2a4365;
+  --color-main-000: #ebf8fe;
+  --color-main-001: #38bdf8;
+  --color-main-002: #0680b6;
+  --color-red-100: #fff5f5;
+  --color-red-200: #fed7d7;
+  --color-red-300: #feb2b2;
+  --color-red-400: #fc8181;
+  --color-red-500: #f56565;
+  --color-red-600: #e53e3e;
+  --color-red-700: #c53030;
+  --color-red-800: #9b2c2c;
+  --color-red-900: #742a2a;
   --opacity-low: 0.1;
   --opacity-md: 0.5;
   --opacity-high: 0.9;
@@ -70,7 +82,7 @@
   --text-h6: var(--text-0);
   --dimension-max: 999px;
   --radius-max: 999px;
-  --color-main: var(--color-blue-400);
+  --color-main: var(--color-main-001);
 }
 
 /* ===== typography utilities ===== */
@@ -249,4 +261,12 @@
   font-size: 16px;
   line-height: 140%;
   letter-spacing: 0.004em;
+}
+
+@utility button-7 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: var(--text-3);
+  line-height: var(--leading-2);
+  letter-spacing: var(--tracking-5);
 }

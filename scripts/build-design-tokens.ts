@@ -123,6 +123,7 @@ function cssDeclaration(name: string, value: unknown) {
 
 function tokenDeclarations(allTokens: StyleDictionaryToken[]) {
   const declarations: string[] = [];
+  const tokenMap = byPath(allTokens);
 
   for (const token of allTokens) {
     const [category, ...rest] = token.path;
@@ -197,21 +198,10 @@ function tokenDeclarations(allTokens: StyleDictionaryToken[]) {
   declarations.push('  --text-h6: var(--text-0);');
   declarations.push('  --dimension-max: 999px;');
   declarations.push('  --radius-max: 999px;');
-  declarations.push('');
-  declarations.push('  --color-main-000: #ebf8fe;');
-  declarations.push('  --color-main-001: #38bdf8;');
-  declarations.push('  --color-main-002: #0680b6;');
-  declarations.push('  --color-main: var(--color-main-001);');
-  declarations.push('');
-  declarations.push('  --color-red-100: #fff5f5;');
-  declarations.push('  --color-red-200: #fed7d7;');
-  declarations.push('  --color-red-300: #feb2b2;');
-  declarations.push('  --color-red-400: #fc8181;');
-  declarations.push('  --color-red-500: #f56565;');
-  declarations.push('  --color-red-600: #e53e3e;');
-  declarations.push('  --color-red-700: #c53030;');
-  declarations.push('  --color-red-800: #9b2c2c;');
-  declarations.push('  --color-red-900: #742a2a;');
+
+  if (getToken(tokenMap, 'colors.main.001')) {
+    declarations.push('  --color-main: var(--color-main-001);');
+  }
 
   return declarations;
 }
