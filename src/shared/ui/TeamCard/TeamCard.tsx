@@ -25,13 +25,13 @@ export const TeamCard = ({
   return (
     <div
       className={cn(
-        'gap-sm flex items-end justify-between rounded-[12px] bg-[#EBF8FE] p-[18px]',
+        'bg-main-000 flex items-end justify-between gap-2 rounded-[12px] p-[18px]',
         className,
       )}
       {...props}
     >
       <div className="flex flex-col gap-1">
-        <div className="gap-xs flex items-center">
+        <div className="flex items-center gap-1">
           <span className="body-9 text-gray-900">{teamName}</span>
           {isLeader && <CrownIcon className="text-main-001 size-5" />}
         </div>

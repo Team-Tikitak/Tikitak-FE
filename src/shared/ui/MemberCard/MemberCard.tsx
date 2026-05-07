@@ -23,9 +23,9 @@ export const MemberCard = ({
       className={cn('flex w-full items-center justify-between gap-2 py-3 pr-4', className)}
       {...props}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2">
         <Avatar src={avatarSrc} alt={name} size="lg" />
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <span className="body-9 text-black">{name}</span>
           <span className="body-1 text-gray-700">{email}</span>
         </div>
