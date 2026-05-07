@@ -2,12 +2,9 @@
 /**
  * Barrel 파일(index.ts) 자동 동기화 스크립트
  *
- * FSD 아키텍처 기반으로 shared, pages 하위 디렉토리에
- * index.ts barrel 파일을 자동 생성합니다.
- *
  * 사용법:
- *   yarn gen:index          — barrel 파일 동기화
- *   yarn gen:index --check  — 변경 필요 여부만 확인 (CI용)
+ *   yarn gen:index
+ *   yarn gen:index --check
  */
 
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
@@ -15,14 +12,8 @@ import { basename, extname, join, relative } from 'node:path';
 
 const SRC = join(process.cwd(), 'src');
 
-const HEADER = [
-  '/**',
-  ' * ⚠️ 이 파일은 자동 생성됩니다. 직접 수정하지 마세요.',
-  ' * 생성: yarn gen:index',
-  ' */',
-].join('\n');
+const HEADER = ['/**', ' * 자동 생성 파일 수정 금지', ' */'].join('\n');
 
-/** barrel을 생성할 shared 하위 디렉토리 */
 const BARREL_DIRS = [
   'shared/ui',
   'shared/hooks',
@@ -35,6 +26,7 @@ const BARREL_DIRS = [
 
 const IGNORE = [
   /^index\.tsx?$/,
+  /\.stories\.tsx?$/,
   /\.test\.tsx?$/,
   /\.spec\.tsx?$/,
   /\.d\.ts$/,
@@ -44,7 +36,7 @@ const IGNORE = [
 ];
 
 function shouldIgnore(name: string): boolean {
-  return IGNORE.some((p) => p.test(name));
+  return IGNORE.some((pattern) => pattern.test(name));
 }
 
 function displayPath(filePath: string): string {
@@ -82,8 +74,13 @@ async function generateBarrelForDir(dirPath: string): Promise<BarrelResult[]> {
     if (stats.isDirectory()) {
       const subResults = await generateBarrelForDir(fullPath);
       results.push(...subResults);
-      exportLines.push(`export * from './${entry}';`);
-    } else if (/\.tsx?$/.test(entry)) {
+      if (subResults.length > 0) {
+        exportLines.push(`export * from './${entry}';`);
+      }
+      continue;
+    }
+
+    if (/\.tsx?$/.test(entry)) {
       const stem = basename(entry, extname(entry));
       const importPath = `./${stem}`;
 
@@ -102,7 +99,6 @@ async function generateBarrelForDir(dirPath: string): Promise<BarrelResult[]> {
   return results;
 }
 
-// pages/{page}/ui, pages/{page}/model barrel dirs
 async function findPageBarrelDirs(): Promise<string[]> {
   const pagesDir = join(SRC, 'pages');
   if (!(await dirExists(pagesDir))) return [];
@@ -126,13 +122,11 @@ async function main() {
   const isCheck = process.argv.includes('--check');
   const allResults: BarrelResult[] = [];
 
-  // 1. shared 하위 고정 디렉토리
   for (const dir of BARREL_DIRS) {
     const results = await generateBarrelForDir(join(SRC, dir));
     allResults.push(...results);
   }
 
-  // 2. pages/*/ui, pages/*/model 동적 탐지
   const pageDirs = await findPageBarrelDirs();
   for (const dir of pageDirs) {
     const results = await generateBarrelForDir(dir);
@@ -144,7 +138,6 @@ async function main() {
     return;
   }
 
-  // --check 모드: 변경 필요 여부만 확인
   if (isCheck) {
     const outdated: string[] = [];
 
@@ -152,8 +145,10 @@ async function main() {
       let existing = '';
       try {
         existing = await readFile(filePath, 'utf-8');
-      } catch {
-        /* 파일 없음 = 변경 필요 */
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+        outdated.push(displayPath(filePath));
+        continue;
       }
 
       if (existing !== content) {
@@ -163,7 +158,7 @@ async function main() {
 
     if (outdated.length > 0) {
       console.error('barrel 파일이 최신 상태가 아닙니다:\n');
-      outdated.forEach((d) => console.error(`  - ${d}`));
+      outdated.forEach((path) => console.error(`  - ${path}`));
       console.error('\n  yarn gen:index 를 실행하세요.');
       process.exit(1);
     }
@@ -172,7 +167,6 @@ async function main() {
     return;
   }
 
-  // 쓰기 모드
   for (const { path: filePath, content } of allResults) {
     await writeFile(filePath, content, 'utf-8');
     console.log(`  ${displayPath(filePath)}`);
