@@ -29,7 +29,7 @@ export const Header = ({
   ref,
   ...props
 }: HeaderProps) => {
-  const resolvedTitle = title ?? (variant === 'left' ? '피드' : '망원역');
+  const resolvedTitle = title ?? '';
   const resolvedRightIcon =
     rightIcon ?? (variant === 'left' ? <SearchIcon className="size-6" /> : null);
 
