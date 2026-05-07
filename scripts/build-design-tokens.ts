@@ -197,7 +197,21 @@ function tokenDeclarations(allTokens: StyleDictionaryToken[]) {
   declarations.push('  --text-h6: var(--text-0);');
   declarations.push('  --dimension-max: 999px;');
   declarations.push('  --radius-max: 999px;');
-  declarations.push('  --color-main: var(--color-blue-400);');
+  declarations.push('');
+  declarations.push('  --color-main-000: #ebf8fe;');
+  declarations.push('  --color-main-001: #38bdf8;');
+  declarations.push('  --color-main-002: #0680b6;');
+  declarations.push('  --color-main: var(--color-main-001);');
+  declarations.push('');
+  declarations.push('  --color-red-100: #fff5f5;');
+  declarations.push('  --color-red-200: #fed7d7;');
+  declarations.push('  --color-red-300: #feb2b2;');
+  declarations.push('  --color-red-400: #fc8181;');
+  declarations.push('  --color-red-500: #f56565;');
+  declarations.push('  --color-red-600: #e53e3e;');
+  declarations.push('  --color-red-700: #c53030;');
+  declarations.push('  --color-red-800: #9b2c2c;');
+  declarations.push('  --color-red-900: #742a2a;');
 
   return declarations;
 }
@@ -240,6 +254,17 @@ function typographyUtilities(allTokens: StyleDictionaryToken[]) {
     utilities.push('  font-family: var(--font-body);');
     utilities.push('  font-weight: 400;');
     utilities.push('  font-size: var(--text-2);');
+    utilities.push('  line-height: var(--leading-2);');
+    utilities.push('  letter-spacing: var(--tracking-5);');
+    utilities.push('}');
+    utilities.push('');
+  }
+
+  if (!getToken(tokenMap, 'button.button7')) {
+    utilities.push('@utility button-7 {');
+    utilities.push('  font-family: var(--font-title);');
+    utilities.push('  font-weight: 600;');
+    utilities.push('  font-size: var(--text-3);');
     utilities.push('  line-height: var(--leading-2);');
     utilities.push('  letter-spacing: var(--tracking-5);');
     utilities.push('}');
