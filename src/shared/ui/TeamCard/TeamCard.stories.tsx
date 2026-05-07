@@ -1,7 +1,7 @@
-import AvatarBuilder from '@/shared/assets/Character/TakBuilder.svg';
-import AvatarCloud from '@/shared/assets/Character/TakBurner.svg';
-import AvatarIdea from '@/shared/assets/Character/TakCare.svg';
-import AvatarSpark from '@/shared/assets/Character/TakFree.svg';
+import TakBuilder from '@/shared/assets/Character/TakBuilder.svg';
+import TakBurner from '@/shared/assets/Character/TakBurner.svg';
+import TakCare from '@/shared/assets/Character/TakCare.svg';
+import TakFree from '@/shared/assets/Character/TakFree.svg';
 import { TeamCard } from './TeamCard';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -26,10 +26,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const SAMPLE_USERS = [
-  { id: 1, src: AvatarBuilder },
-  { id: 2, src: AvatarSpark },
-  { id: 3, src: AvatarCloud },
-  { id: 4, src: AvatarIdea },
+  { id: 1, src: TakBuilder },
+  { id: 2, src: TakBurner },
+  { id: 3, src: TakCare },
+  { id: 4, src: TakFree },
 ];
 
 export const Leader: Story = {

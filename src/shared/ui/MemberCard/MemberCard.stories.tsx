@@ -1,3 +1,4 @@
+import TakBuilder from '@/shared/assets/Character/TakBuilder.svg';
 import { MemberCard } from './MemberCard';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -20,7 +21,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    avatarSrc: '/src/shared/assets/Character/TakBuilder.svg',
+    avatarSrc: TakBuilder,
     name: '지니지니',
     email: 'js21130@naver.com',
   },
