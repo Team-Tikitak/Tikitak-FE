@@ -3,7 +3,7 @@ import { Avatar } from '../Avatar/Avatar';
 import type { ComponentPropsWithoutRef } from 'react';
 import type { VariantProps } from 'tailwind-variants';
 
-type AvatarItem = {
+export type AvatarItem = {
   id: number;
   src: string;
   alt?: string;
