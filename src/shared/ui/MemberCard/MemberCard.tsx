@@ -26,8 +26,8 @@ export const MemberCard = ({
       <div className="flex min-w-0 items-center gap-2">
         <Avatar src={avatarSrc} alt={name} size="lg" />
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="body-9 text-black">{name}</span>
-          <span className="body-1 text-gray-700">{email}</span>
+          <span className="body-9 truncate text-black">{name}</span>
+          <span className="body-1 truncate text-gray-700">{email}</span>
         </div>
       </div>
       {onRemove && (
