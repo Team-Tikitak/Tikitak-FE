@@ -30,9 +30,11 @@ export const MemberCard = ({
           <span className="body-1 text-gray-700">{email}</span>
         </div>
       </div>
-      <button type="button" aria-label="멤버 삭제" onClick={onRemove}>
-        <CloseIcon className="size-6 cursor-pointer text-gray-700" />
-      </button>
+      {onRemove && (
+        <button type="button" aria-label="멤버 삭제" onClick={onRemove}>
+          <CloseIcon className="size-6 cursor-pointer text-gray-700" />
+        </button>
+      )}
     </div>
   );
 };
