@@ -42,7 +42,10 @@ jobs:
                   repo: context.repo.repo,
                   issue_number: issueNumber,
                 });
-                const issueTitle = issue.title.replace(/^\[.*?\]\s*-?\s*/, '').replace(/^#\d+\s*/, '');
+                const issueTitle = issue.title
+                  .replace(/^\[[^\]]+\]\s*/, '')
+                  .replace(/^#?\d+\s*[-:]?\s*/, '')
+                  .trim();
                 const newTitle = `[${prefix}] ${issueTitle}`;
 
                 await github.rest.pulls.update({
