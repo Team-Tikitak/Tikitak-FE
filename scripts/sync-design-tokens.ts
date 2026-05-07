@@ -145,16 +145,19 @@ function getByPath(tokens: TokenTree, referencePath: string) {
     .reduce<unknown>((current, part) => asRecord(current)?.[part], tokens);
 }
 
-function isArithmeticExpression(value: string) {
-  return /[*/()+-]/.test(value) && /^[\d\s.+\-*/()]+$/.test(value);
+function isNumericExpressionPart(value: string) {
+  return /^-?\d+(\.\d+)?$/.test(value.trim());
 }
 
 function evaluateArithmetic(value: string) {
-  if (!isArithmeticExpression(value)) {
+  const parts = value.split(/\s*\*\s*/).map((part) => part.trim());
+
+  // Keep token math intentionally narrow to avoid dynamic code execution.
+  if (parts.length < 2 || parts.some((part) => !isNumericExpressionPart(part))) {
     return value;
   }
 
-  return Function(`"use strict"; return (${value});`)() as number;
+  return parts.reduce((result, part) => result * Number(part), 1);
 }
 
 function resolveTokenValue(tokens: TokenTree, value: unknown, stack: string[] = []): unknown {
