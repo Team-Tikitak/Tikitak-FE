@@ -25,10 +25,16 @@ export function OnboardingCard({
   description,
   isSelected,
   className,
+  ref,
   ...props
 }: OnboardingCardProps) {
   return (
-    <button type="button" className={OnboardingCardVariants({ isSelected, className })} {...props}>
+    <button
+      type="button"
+      ref={ref}
+      className={OnboardingCardVariants({ isSelected, className })}
+      {...props}
+    >
       <p className="body-9 text-main-002">{title}</p>
       <p className="body-5 text-gray-600">{description}</p>
     </button>
