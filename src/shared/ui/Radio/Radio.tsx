@@ -10,9 +10,9 @@ type RadioProps = Omit<ComponentPropsWithRef<'input'>, 'type'>;
 export function Radio({ className, ref, ...props }: RadioProps) {
   return (
     <div className={radioContainerVariants({ className })}>
-      <input type="radio" className="sr-only" ref={ref} {...props} />
+      <input type="radio" className="peer sr-only" ref={ref} {...props} />
       <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200">
-        {props.checked && <div className="bg-main-001 h-[14px] w-[14px] rounded-full" />}
+        <div className="bg-main-001 hidden h-[14px] w-[14px] rounded-full peer-checked:block" />
       </div>
     </div>
   );
