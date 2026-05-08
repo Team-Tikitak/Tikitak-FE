@@ -21,7 +21,7 @@ export function TeamMenuItem({
       ref={ref}
       type="button"
       aria-pressed={selected}
-      className={cn('flex w-full max-w-[350px] items-center justify-center gap-4 py-3', className)}
+      className={cn('flex w-full items-center justify-center gap-4 py-3', className)}
       {...props}
     >
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">

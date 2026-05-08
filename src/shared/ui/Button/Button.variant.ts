@@ -3,7 +3,7 @@ import { tv } from 'tailwind-variants';
 export const ButtonVariants = tv({
   base: [
     'flex items-center justify-center',
-    'h-11 w-full max-w-[353px] rounded-max gap-xs button-7',
+    'h-11 w-full rounded-max gap-xs button-7',
     'active:bg-gray-300 active:text-gray-700 active:border-none',
     'disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-400',
   ],
