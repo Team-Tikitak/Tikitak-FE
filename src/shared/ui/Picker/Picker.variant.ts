@@ -9,7 +9,7 @@ export const PickerVariants = tv({
     },
     count: {
       single: 'w-11',
-      double: 'w-18',
+      multiple: 'w-18',
     },
   },
   defaultVariants: {

@@ -9,7 +9,7 @@ type PickerImage = {
 };
 
 type PickerVariant = 'default' | 'new';
-type PickerCount = 'single' | 'double';
+type PickerCount = 'single' | 'multiple';
 
 interface PickerProps extends ComponentPropsWithRef<'button'> {
   variant?: PickerVariant;
@@ -33,7 +33,7 @@ export function Picker({
       className={cn(PickerVariants({ variant, count }), className)}
       {...props}
     >
-      <div className={cn('flex items-center', count === 'double' && '-space-x-2')}>
+      <div className={cn('flex items-center', count === 'multiple' && '-space-x-2')}>
         {avatars.map((avatar) => (
           <img
             key={avatar.id}

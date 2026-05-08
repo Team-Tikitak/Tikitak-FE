@@ -23,7 +23,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const SingleNew: Story = {
+export const NewSingle: Story = {
   args: {
     variant: 'new',
     count: 'single',
@@ -37,7 +37,7 @@ export const SingleNew: Story = {
   },
 };
 
-export const SingleDefault: Story = {
+export const DefaultSingle: Story = {
   args: {
     variant: 'default',
     count: 'single',
@@ -51,10 +51,10 @@ export const SingleDefault: Story = {
   },
 };
 
-export const DoubleNew: Story = {
+export const NewMultiple: Story = {
   args: {
     variant: 'new',
-    count: 'double',
+    count: 'multiple',
 
     avatars: [
       {
@@ -69,10 +69,10 @@ export const DoubleNew: Story = {
   },
 };
 
-export const DoubleDefault: Story = {
+export const DefaultMultiple: Story = {
   args: {
     variant: 'default',
-    count: 'double',
+    count: 'multiple',
 
     avatars: [
       {
