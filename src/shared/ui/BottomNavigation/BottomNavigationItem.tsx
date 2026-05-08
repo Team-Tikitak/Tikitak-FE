@@ -20,13 +20,13 @@ export function BottomNavigationItem({
   onSelect,
 }: BottomNavigationItemProps) {
   return (
-    <li className="flex justify-center">
+    <li className="flex min-w-0 justify-center">
       <button
         type="button"
         aria-current={selected ? 'page' : undefined}
         onClick={() => onSelect?.(value)}
         className={cn(
-          'rounded-max flex h-[44px] w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500 transition-colors',
+          'rounded-max flex h-[44px] w-full max-w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500 transition-colors',
           selected && 'bg-main-000 text-main font-semibold',
         )}
       >
@@ -35,7 +35,7 @@ export function BottomNavigationItem({
           className={cn(
             'size-6 shrink-0',
             selected && fillsWhenSelected && '[&_path]:fill-current',
-            selected && value === 'my' && '[&_.my-icon-filled]:inline [&_.my-icon-outline]:hidden',
+            selected && '[&_.icon-filled]:inline [&_.icon-outline]:hidden',
           )}
         />
         <span>{label}</span>
