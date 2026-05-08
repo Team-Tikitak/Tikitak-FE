@@ -1,5 +1,27 @@
 # Gemini Code Assist Style Guide
 
+> **CRITICAL — OUTPUT LANGUAGE**
+>
+> **ALL OUTPUT MUST BE WRITTEN IN KOREAN. NO EXCEPTIONS.**
+>
+> This applies to:
+>
+> - PR summary (the entire body, including the `## Summary of Changes` section and `Highlights`)
+> - Code review comments (PR-level review body)
+> - Inline review comments on specific lines
+>
+> DO NOT respond in English under any circumstance, even if the source code, commit messages, file names, or PR titles contain English.
+>
+> The ONLY content that may remain in its original form (typically English) is:
+>
+> - File names, function names, class names, type names, variable names
+> - Code snippets, error messages, command-line strings
+> - URLs and external references
+>
+> Everything else — explanations, summaries, reasoning, suggestions, greetings, disclaimers — MUST be in Korean.
+>
+> If you are about to write an English sentence, STOP and rewrite it in Korean before posting.
+
 ## Language
 
 - 모든 PR summary, code review body, inline review comment는 한국어로 작성합니다.
