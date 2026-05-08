@@ -34,11 +34,11 @@ export function Picker({
       {...props}
     >
       <div className={cn('flex items-center', count === 'multiple' && '-space-x-2')}>
-        {avatars.map((avatar) => (
+        {avatars.slice(0, count === 'single' ? 1 : 2).map((avatar) => (
           <img
             key={avatar.id}
             src={avatar.src}
-            alt={avatar.alt ?? '캐릭터 이미지'}
+            alt=""
             aria-hidden="true"
             className="size-9 rounded-full bg-white"
           />
