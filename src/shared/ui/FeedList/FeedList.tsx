@@ -59,7 +59,7 @@ export function FeedList({
       <div className="relative shrink-0">
         <img src={imageSrc} alt={alt ?? '피드 이미지'} className="size-[92px]" />
 
-        {imageCount && (
+        {imageCount !== undefined && imageCount > 1 && (
           <span className="button-3 absolute top-1 right-1 flex size-[18px] items-center justify-center rounded-sm bg-black/60 text-white">
             {imageCount}
           </span>
