@@ -25,21 +25,20 @@ export const UserChip = ({
   ref,
   ...props
 }: UserChipProps) => {
-  const resolvedSize = size;
   const textCls = selected
     ? 'button-4 text-main'
-    : resolvedSize === 'sm'
+    : size === 'sm'
       ? 'button-5 text-gray-900'
       : 'button-2 text-gray-900';
 
   return (
     <div ref={ref} className={userChipVariants({ size, selected, className })} {...props}>
-      <div className={innerGapClass[resolvedSize]}>
+      <div className={innerGapClass[size]}>
         {avatarSrc && (
           <img
             src={avatarSrc}
             alt={avatarAlt}
-            className={`${avatarSizeClass[resolvedSize]} shrink-0 rounded-full object-cover`}
+            className={`${avatarSizeClass[size]} shrink-0 rounded-full object-cover`}
           />
         )}
         <span className={`${textCls} whitespace-nowrap`}>{name}</span>

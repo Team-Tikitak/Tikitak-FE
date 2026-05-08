@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
-      format: ${{ steps.format.outcome }}
       type-check: ${{ steps.type-check.outcome }}
+      format: ${{ steps.format.outcome }}
       lint: ${{ steps.lint.outcome }}
       test: ${{ steps.test.outcome }}
       build: ${{ steps.build.outcome }}
@@ -40,15 +40,15 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Format check
-        id: format
-        continue-on-error: true
-        run: yarn format:check
-
       - name: Type check
         id: type-check
         continue-on-error: true
         run: yarn type-check
+
+      - name: Format check
+        id: format
+        continue-on-error: true
+        run: yarn format:check
 
       - name: Lint check
         id: lint
@@ -68,8 +68,8 @@ jobs:
       - name: Check results
         if: always()
         run: |
-          if [[ "${{ steps.format.outcome }}" == "failure" ]] || \
-             [[ "${{ steps.type-check.outcome }}" == "failure" ]] || \
+          if [[ "${{ steps.type-check.outcome }}" == "failure" ]] || \
+             [[ "${{ steps.format.outcome }}" == "failure" ]] || \
              [[ "${{ steps.lint.outcome }}" == "failure" ]] || \
              [[ "${{ steps.test.outcome }}" == "failure" ]] || \
              [[ "${{ steps.build.outcome }}" == "failure" ]]; then
@@ -88,8 +88,8 @@ jobs:
         with:
           script: |
             const results = {
-              format: '${{ needs.ci.outputs.format }}',
               typeCheck: '${{ needs.ci.outputs.type-check }}',
+              format: '${{ needs.ci.outputs.format }}',
               lint: '${{ needs.ci.outputs.lint }}',
               test: '${{ needs.ci.outputs.test }}',
               build: '${{ needs.ci.outputs.build }}',
@@ -102,8 +102,8 @@ jobs:
             };
 
             let comment = '## PR 검증 결과\n\n';
-            comment += line(results.format, 'Prettier', '통과', '포맷 필요');
             comment += line(results.typeCheck, 'TypeScript');
+            comment += line(results.format, 'Prettier', '통과', '포맷 필요');
             comment += line(results.lint, 'ESLint');
             comment += line(results.test, 'Test');
             comment += line(results.build, 'Build', '성공', '실패');
