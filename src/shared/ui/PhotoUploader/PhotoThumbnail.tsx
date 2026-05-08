@@ -31,7 +31,7 @@ export function PhotoThumbnail({
           type="button"
           onClick={onRemove}
           aria-label="사진 삭제"
-          className="absolute top-2 right-2"
+          className="absolute top-2 right-2 text-gray-300"
         >
           <CancelIcon aria-hidden="true" className="block size-4" />
         </button>
