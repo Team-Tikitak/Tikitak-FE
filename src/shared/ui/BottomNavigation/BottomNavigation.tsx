@@ -24,7 +24,7 @@ export const BottomNavigation = ({
     <nav
       ref={ref}
       aria-label="하단 내비게이션"
-      className={cn('flex w-[353px] items-center justify-between', className)}
+      className={cn('flex w-full max-w-[353px] items-center justify-between gap-3', className)}
       {...props}
     >
       <BottomNavigationSelectedTab activeTab={activeTab} onTabChange={onTabChange} />

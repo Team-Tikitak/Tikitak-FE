@@ -35,7 +35,7 @@ export function BottomNavigationSelectedTab({
     <ul
       ref={ref}
       className={cn(
-        'rounded-max grid h-[60px] w-[276px] grid-cols-3 items-center border border-gray-300 bg-white px-3 py-2',
+        'rounded-max grid h-[60px] max-w-[276px] min-w-0 flex-1 grid-cols-3 items-center border border-gray-300 bg-white px-3 py-2',
         className,
       )}
       {...props}
