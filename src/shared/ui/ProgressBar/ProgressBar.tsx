@@ -1,9 +1,10 @@
+import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
 import { progressBarVariants } from './ProgressBar.variant';
 
-type OnboardingProgressBarProps = {
+interface OnboardingProgressBarProps extends ComponentPropsWithRef<'div'> {
   currentStep: 1 | 2 | 3;
-} & React.ComponentPropsWithRef<'div'>;
+}
 
 export function ProgressBar({ currentStep, className, ref, ...props }: OnboardingProgressBarProps) {
   const { container } = progressBarVariants();

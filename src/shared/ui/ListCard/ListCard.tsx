@@ -1,19 +1,20 @@
+import { type ComponentPropsWithoutRef } from 'react';
 import { tv } from 'tailwind-variants';
 import LeftIcon from '@/shared/assets/Icon/LeftIcon.svg?react';
 
 const ListCardVariants = tv({
-  base: 'w-full h-14 gap-2 px-[18px] py-[14px] flex items-center justify-between text-gray-900 border-b border-gray-200',
+  base: 'w-full h-14 gap-2 px-[18px] py-[14px] flex items-center justify-between text-gray-900 border-b border-gray-200 cursor-pointer',
 });
 
-export type ListCardProps = {
+export interface ListCardProps extends ComponentPropsWithoutRef<'button'> {
   title: string;
-} & React.ComponentPropsWithRef<'div'>;
+}
 
-export function ListCard({ title, ...props }: ListCardProps) {
+export function ListCard({ title, className, ...props }: ListCardProps) {
   return (
-    <div className={ListCardVariants()} {...props}>
+    <button type="button" className={ListCardVariants({ className })} {...props}>
       <span className="body-7">{title}</span>
       <LeftIcon className="size-5" />
-    </div>
+    </button>
   );
 }

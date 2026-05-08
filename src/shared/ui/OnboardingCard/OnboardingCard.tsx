@@ -1,3 +1,4 @@
+import { type ComponentPropsWithRef } from 'react';
 import { tv } from 'tailwind-variants';
 
 const OnboardingCardVariants = tv({
@@ -13,11 +14,11 @@ const OnboardingCardVariants = tv({
   },
 });
 
-export type OnboardingCardProps = {
+export interface OnboardingCardProps extends ComponentPropsWithRef<'button'> {
   title: string;
   description: string;
   isSelected?: boolean;
-} & React.ComponentPropsWithRef<'button'>;
+}
 
 export function OnboardingCard({
   title,
