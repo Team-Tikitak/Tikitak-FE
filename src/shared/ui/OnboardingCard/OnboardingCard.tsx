@@ -33,6 +33,7 @@ export function OnboardingCard({
       type="button"
       ref={ref}
       className={OnboardingCardVariants({ isSelected, className })}
+      aria-pressed={isSelected}
       {...props}
     >
       <p className="body-9 text-main-002">{title}</p>

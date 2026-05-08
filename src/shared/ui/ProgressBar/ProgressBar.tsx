@@ -10,7 +10,15 @@ export function ProgressBar({ currentStep, className, ref, ...props }: Onboardin
   const { container } = progressBarVariants();
 
   return (
-    <div ref={ref} className={cn(container(), className)} {...props}>
+    <div
+      role="progressbar"
+      aria-valuenow={currentStep}
+      aria-valuemin={1}
+      aria-valuemax={3}
+      ref={ref}
+      className={cn(container(), className)}
+      {...props}
+    >
       {Array.from({ length: 3 }).map((_, index) => {
         const isActive = index < currentStep;
 
