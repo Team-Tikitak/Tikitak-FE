@@ -8,6 +8,13 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
+  decorators: [
+    (Story) => (
+      <div className="w-[353px]">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof Button>;
 
 export default meta;
@@ -19,6 +26,30 @@ export const Default: Story = {
     variant: 'default',
     children: '팀 개설하기',
     buttonIcon: <PlusIcon />,
+  },
+};
+
+export const DefaultTap: Story = {
+  args: {
+    variant: 'default',
+    children: '팀 개설하기',
+    buttonIcon: <PlusIcon />,
+    className: 'border-none bg-gray-300 text-gray-700',
+  },
+};
+
+export const Primary: Story = {
+  args: {
+    variant: 'primary',
+    children: '시작하기',
+  },
+};
+
+export const PrimaryDisabled: Story = {
+  args: {
+    variant: 'primary',
+    children: '시작하기',
+    disabled: true,
   },
 };
 
