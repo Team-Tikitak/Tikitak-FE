@@ -14,6 +14,7 @@ export * from './Header';
 export * from './MemberCard';
 export * from './MenuButton';
 export * from './PhotoRadio';
+export * from './PhotoUploader';
 export * from './Radio';
 export * from './TeamCard';
 export * from './UserChip';
