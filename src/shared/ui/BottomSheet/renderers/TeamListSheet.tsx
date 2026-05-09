@@ -1,3 +1,4 @@
+import { cn } from '@/shared/lib';
 import { TeamMenuItem } from '../../TeamMenuItem';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
@@ -26,7 +27,7 @@ export function TeamListSheet({
   return (
     <BottomSheet
       title="팀 목록"
-      className={className ?? 'h-[294px]'}
+      className={cn('h-[294px]', className)}
       contentClassName="flex w-full max-w-[350px] flex-col items-start"
       {...props}
     >

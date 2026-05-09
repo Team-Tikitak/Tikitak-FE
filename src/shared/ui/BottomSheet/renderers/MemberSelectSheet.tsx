@@ -1,4 +1,5 @@
 import { type ComponentPropsWithRef } from 'react';
+import { cn } from '@/shared/lib';
 import { Button } from '../../Button';
 import { UserChip } from '../../UserChip';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
@@ -38,7 +39,7 @@ export function MemberSelectSheet({
   return (
     <BottomSheet
       title="인원 추가"
-      className={className ?? 'h-[290px]'}
+      className={cn('h-[290px]', className)}
       contentClassName="flex flex-col"
       {...props}
     >
@@ -63,7 +64,7 @@ export function MemberSelectSheet({
       </div>
       <Button
         variant="primary"
-        className={confirmButtonClassName ?? 'mt-[47px]'}
+        className={cn('mt-[47px]', confirmButtonClassName)}
         {...restConfirmButtonProps}
       >
         {confirmButtonChildren}

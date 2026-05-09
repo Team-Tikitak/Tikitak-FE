@@ -1,4 +1,5 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef } from 'react';
+import { cn } from '@/shared/lib';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
@@ -39,7 +40,7 @@ export function CommentSheet({
   return (
     <BottomSheet
       title="댓글"
-      className={className ?? 'h-[298px]'}
+      className={cn('h-[298px]', className)}
       contentClassName="flex flex-col"
       {...props}
     >
