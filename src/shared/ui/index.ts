@@ -5,6 +5,7 @@
 export * from './Avatar';
 export * from './AvatarGroup';
 export * from './BottomNavigation';
+export * from './BottomSheet';
 export * from './Button';
 export * from './CameraButton';
 export * from './Check';

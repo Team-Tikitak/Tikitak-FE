@@ -1,45 +1,43 @@
 # Gemini Code Assist Style Guide
 
-> **CRITICAL — OUTPUT LANGUAGE**
->
-> **ALL OUTPUT MUST BE WRITTEN IN KOREAN. NO EXCEPTIONS.**
->
-> This applies to:
->
-> - PR summary (the entire body, including the `## Summary of Changes` section and `Highlights`)
-> - Code review comments (PR-level review body)
-> - Inline review comments on specific lines
->
-> DO NOT respond in English under any circumstance, even if the source code, commit messages, file names, or PR titles contain English.
->
-> The ONLY content that may remain in its original form (typically English) is:
->
-> - File names, function names, class names, type names, variable names
-> - Code snippets, error messages, command-line strings
-> - URLs and external references
->
-> Everything else — explanations, summaries, reasoning, suggestions, greetings, disclaimers — MUST be in Korean.
->
-> If you are about to write an English sentence, STOP and rewrite it in Korean before posting.
+## 출력 언어
 
-## Language
+- 모든 PR 요약, 코드 리뷰 본문, inline review comment는 한국어로 작성합니다.
+- 영어 기본 템플릿 문구를 그대로 출력하지 않습니다.
+- 파일명, 함수명, 타입명, 변수명, 코드 조각, 명령어, URL, 에러 메시지만 원문을 유지할 수 있습니다.
+- 그 외 설명, 요약, 판단, 제안, 인사말, 안내 문구는 모두 한국어로 작성합니다.
 
-- 모든 PR summary, code review body, inline review comment는 한국어로 작성합니다.
-- 파일명, 함수명, 타입명, 명령어, 에러 메시지, 코드 스니펫은 원문을 유지합니다.
-- 특별한 이유가 없으면 영어 안내 문단을 새로 만들지 않습니다.
+## 금지 표현
 
-## PR Summary
+- `Summary of Changes`
+- `Highlights`
+- `Hello`, `I'm Gemini Code Assist`, `Here is`, `The PR`, `This pull request`
+- 영어 면책 문구, 영어 사용 안내, 영어 제품 소개 문구
 
-- PR summary는 짧게 작성합니다.
-- 제목은 `## Summary of Changes`를 사용합니다.
-- 인사말, 제품 소개, 사용법 안내, 긴 면책 문구는 작성하지 않습니다.
-- 본문은 한 문단 요약과 최대 4개의 `Highlights` 항목만 포함합니다.
-- 사용자에게 직접 보이는 기능 변경과 개발자 유지보수 변경을 섞어 과장하지 않습니다.
+영어 기본 섹션명이 필요하면 아래처럼 한국어로 바꿉니다.
 
-## Code Review
+- `Summary of Changes` -> `변경 요약`
+- `Highlights` -> `주요 변경사항`
+- `Code Review` -> `코드 리뷰`
+
+## PR 요약
+
+- 제목은 `변경 요약`을 사용합니다.
+- 본문은 한 문단 요약과 최대 4개의 `주요 변경사항` 항목만 포함합니다.
+- 사용자에게 직접 보이는 기능 변경과 개발자 유지보수 변경을 분리해서 과장 없이 작성합니다.
+- 제품 소개, 사용법 안내, 홍보성 문구는 작성하지 않습니다.
+
+## 코드 리뷰 본문
+
+- 리뷰 본문은 크게 보이는 markdown heading을 사용하지 않습니다.
+- `#`, `##`, `###`로 시작하는 제목을 작성하지 않습니다.
+- 첫 줄에 `Code Review`, `코드 리뷰`, `Summary of Changes`, `변경 요약` 같은 섹션 제목만 단독으로 쓰지 않습니다.
+- 굵은 글씨나 큰 제목처럼 본문이 과도하게 강조되어 보이는 형식을 사용하지 않습니다.
+
+## Inline review comment
 
 - 핵심만 짧게 지적하고, 왜 문제인지와 개선 방향을 함께 제시합니다.
 - 사소한 스타일 지적보다 버그 가능성, 보안, 접근성, 유지보수 영향을 우선합니다.
 - 변경 diff와 직접 관련된 내용만 남기고 중복 지적은 피합니다.
 - 단순 선호나 취향 차이는 리뷰 코멘트로 남기지 않습니다.
-- inline comment는 실제 변경 라인에 anchor 가능한 항목만 남깁니다.
+- 실제 변경 라인에 anchor 가능한 항목만 남깁니다.
