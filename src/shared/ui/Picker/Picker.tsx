@@ -10,11 +10,20 @@ type PickerImage = {
 
 type PickerVariant = 'default' | 'new';
 
-type PickerProps = ComponentPropsWithRef<'button'> & {
+type PickerBaseProps = ComponentPropsWithRef<'button'> & {
   variant?: PickerVariant;
-  count?: 'single' | 'multiple';
-  avatars: PickerImage[];
 };
+
+type SinglePickerProps = PickerBaseProps & {
+  count?: 'single';
+  avatars: [PickerImage];
+};
+type MultiplePickerProps = PickerBaseProps & {
+  count: 'multiple';
+  avatars: [PickerImage, PickerImage];
+};
+
+type PickerProps = SinglePickerProps | MultiplePickerProps;
 
 export function Picker({
   variant = 'default',
