@@ -1,7 +1,10 @@
 import { type ComponentPropsWithRef, type ReactNode } from 'react';
 import { cn } from '@/shared/lib';
 
-interface BottomSheetProps extends Omit<ComponentPropsWithRef<'section'>, 'children' | 'title'> {
+export interface BottomSheetProps extends Omit<
+  ComponentPropsWithRef<'section'>,
+  'children' | 'title'
+> {
   title?: ReactNode;
   children: ReactNode;
   contentClassName?: string;
