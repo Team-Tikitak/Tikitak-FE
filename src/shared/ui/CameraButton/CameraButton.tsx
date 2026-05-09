@@ -17,7 +17,7 @@ export function CameraButton({ className, ref, ...props }: CameraButtonProps) {
       className={cameraButtonVariants({ className })}
       {...props}
     >
-      <CameraIcon className="h-10 w-10" />
+      <CameraIcon className="h-10 w-10 text-white" />
     </button>
   );
 }
