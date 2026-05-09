@@ -5,6 +5,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import importPlugin from 'eslint-plugin-import';
@@ -37,6 +38,7 @@ export default defineConfig([
     },
     plugins: {
       react,
+      'react-compiler': reactCompiler,
       import: importPlugin,
       'jsx-a11y': jsxA11y,
       'unused-imports': unusedImports,
@@ -116,6 +118,7 @@ export default defineConfig([
       'react/no-unknown-property': ['error', { ignore: ['css'] }],
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
+      'react-compiler/react-compiler': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 
       // 접근성
