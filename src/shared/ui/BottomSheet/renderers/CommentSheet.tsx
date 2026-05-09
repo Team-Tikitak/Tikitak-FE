@@ -1,7 +1,7 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef } from 'react';
-import { Avatar } from '../Avatar';
-import { CommentInputField } from '../CommentInputField';
-import { BottomSheet } from './BottomSheet';
+import { Avatar } from '../../Avatar';
+import { CommentInputField } from '../../CommentInputField';
+import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
 export interface CommentSheetItem {
   id: string;
@@ -11,7 +11,7 @@ export interface CommentSheetItem {
   avatarAlt?: string;
 }
 
-type CommentSheetInputProps =
+export type CommentSheetInputProps =
   | {
       inputVariant?: 'comment';
       inputProps?: ComponentPropsWithRef<'input'>;
@@ -23,7 +23,7 @@ type CommentSheetInputProps =
       submitButtonProps?: ComponentPropsWithRef<'button'>;
     };
 
-type CommentSheetProps = Omit<ComponentPropsWithRef<typeof BottomSheet>, 'children' | 'title'> &
+export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
   CommentSheetInputProps & {
     comments: CommentSheetItem[];
   };
