@@ -59,15 +59,15 @@ export function FeedImageCarousel({ images, className, ref, ...props }: FeedImag
     <div className={cn('flex w-full flex-col items-center gap-3', className)} ref={ref} {...props}>
       <div className="relative w-full overflow-hidden">
         <div
-          className={cn('flex', !isDragging && 'transition-transform duration-300')}
+          className={cn('flex touch-pan-y', !isDragging && 'transition-transform duration-300')}
           style={{ transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))` }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={resetDrag}
           onPointerCancel={resetDrag}
         >
-          {images.map((image, i) => (
-            <FeedImageDetail key={i} src={image.src} alt={image.alt} pins={image.pins} />
+          {images.map((image) => (
+            <FeedImageDetail key={image.src} src={image.src} alt={image.alt} pins={image.pins} />
           ))}
         </div>
         {images.length > 1 && (
