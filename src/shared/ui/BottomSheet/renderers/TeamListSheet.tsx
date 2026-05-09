@@ -1,6 +1,5 @@
-import { type ComponentPropsWithRef } from 'react';
-import { TeamMenuItem } from '../TeamMenuItem';
-import { BottomSheet } from './BottomSheet';
+import { TeamMenuItem } from '../../TeamMenuItem';
+import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
 export interface TeamListSheetItem {
   id: string;
@@ -8,8 +7,8 @@ export interface TeamListSheetItem {
   description: string;
 }
 
-interface TeamListSheetProps extends Omit<
-  ComponentPropsWithRef<typeof BottomSheet>,
+export interface TeamListSheetProps extends Omit<
+  BottomSheetProps,
   'children' | 'title' | 'onSelect'
 > {
   teams: TeamListSheetItem[];
