@@ -1,10 +1,11 @@
 import './styles/index.css';
+import { LoginPage } from '@/pages/login';
 import { QueryProviders } from './providers/QueryProviders';
 
 function App() {
   return (
     <QueryProviders>
-      <div>app</div>
+      <LoginPage />
     </QueryProviders>
   );
 }
