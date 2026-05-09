@@ -10,11 +10,20 @@ type PickerImage = {
 
 type PickerVariant = 'default' | 'new';
 
-type PickerProps = ComponentPropsWithRef<'button'> & {
+type PickerBaseProps = ComponentPropsWithRef<'button'> & {
   variant?: PickerVariant;
-  count?: 'single' | 'multiple';
-  avatars: PickerImage[];
 };
+
+type SinglePickerProps = PickerBaseProps & {
+  count?: 'single';
+  avatars: [PickerImage];
+};
+type MultiplePickerProps = PickerBaseProps & {
+  count: 'multiple';
+  avatars: [PickerImage, PickerImage];
+};
+
+type PickerProps = SinglePickerProps | MultiplePickerProps;
 
 export function Picker({
   variant = 'default',
@@ -33,7 +42,7 @@ export function Picker({
       {...props}
     >
       <div className={cn('flex items-center', count === 'multiple' && '-space-x-2')}>
-        {avatars.map((avatar) => (
+        {avatars.slice(0, count === 'multiple' ? 2 : 1).map((avatar) => (
           <img
             key={avatar.id}
             src={avatar.src}
