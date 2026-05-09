@@ -28,19 +28,21 @@ const meta = {
       </div>
     ),
   ],
-  args: {
-    comments: COMMENTS,
-  },
 } satisfies Meta<typeof CommentSheet>;
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof CommentSheet>;
 
-export const Comment: Story = {};
+export const Comment: Story = {
+  args: {
+    comments: COMMENTS,
+  },
+};
 
 export const CommentUp: Story = {
   args: {
+    comments: COMMENTS,
     inputVariant: 'commentup',
   },
 };
