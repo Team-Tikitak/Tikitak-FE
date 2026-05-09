@@ -3,5 +3,4 @@
  */
 
 export * from './BottomSheet';
-export * from './BottomSheet.types';
 export * from './renderers';
