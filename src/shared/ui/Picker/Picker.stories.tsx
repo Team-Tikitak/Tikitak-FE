@@ -1,7 +1,8 @@
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg';
 import TakBurner from '@/shared/assets/Character/TakBurner.svg';
 import { Picker } from './Picker';
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ComponentProps } from 'react';
 
 const meta = {
   component: Picker,
@@ -20,8 +21,9 @@ const meta = {
 } satisfies Meta<typeof Picker>;
 
 export default meta;
+type Story = Omit<StoryObj<typeof meta>, 'args'> & { args?: ComponentProps<typeof Picker> };
 
-export const NewSingle = {
+export const NewSingle: Story = {
   args: {
     variant: 'new',
     count: 'single',
@@ -29,7 +31,7 @@ export const NewSingle = {
   },
 };
 
-export const DefaultSingle = {
+export const DefaultSingle: Story = {
   args: {
     variant: 'default',
     count: 'single',
@@ -37,7 +39,7 @@ export const DefaultSingle = {
   },
 };
 
-export const NewMultiple = {
+export const NewMultiple: Story = {
   args: {
     variant: 'new',
     count: 'multiple',
@@ -48,7 +50,7 @@ export const NewMultiple = {
   },
 };
 
-export const DefaultMultiple = {
+export const DefaultMultiple: Story = {
   args: {
     variant: 'default',
     count: 'multiple',

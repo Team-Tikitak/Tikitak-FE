@@ -40,9 +40,7 @@ export function FeedImageDetail({
       {pins.map((pin) => (
         <Picker
           key={pin.id}
-          {...(pin.count === 'multiple'
-            ? { count: 'multiple', avatars: pin.avatars }
-            : { avatars: pin.avatars })}
+          {...pin}
           variant={pin.variant}
           onClick={pin.onClick}
           className="absolute -translate-y-full"

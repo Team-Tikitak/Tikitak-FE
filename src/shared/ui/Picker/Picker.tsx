@@ -42,7 +42,7 @@ export function Picker({
       {...props}
     >
       <div className={cn('flex items-center', count === 'multiple' && '-space-x-2')}>
-        {avatars.slice(0, count === 'multiple' ? 2 : 1).map((avatar) => (
+        {avatars.map((avatar) => (
           <img
             key={avatar.id}
             src={avatar.src}
