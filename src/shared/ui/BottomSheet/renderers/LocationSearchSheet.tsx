@@ -1,4 +1,5 @@
 import { type ComponentPropsWithoutRef } from 'react';
+import { cn } from '@/shared/lib';
 import { CommentInputField } from '../../CommentInputField';
 import { Divider } from '../../Divider';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
@@ -28,14 +29,14 @@ export function LocationSearchSheet({
   return (
     <BottomSheet
       aria-label="장소 검색"
-      className={className ?? 'h-[294px]'}
+      className={cn('h-[294px]', className)}
       contentClassName="flex flex-col"
       {...props}
     >
       <CommentInputField variant="searchbar" inputProps={inputProps} />
-      <div className="mt-5 flex w-full flex-col gap-4">
+      <ul className="mt-5 flex w-full flex-col gap-4">
         {locations.map((location, index) => (
-          <div key={location.id} className="flex flex-col gap-4">
+          <li key={location.id} className="flex flex-col gap-4">
             <button
               type="button"
               className="flex h-[42px] w-full flex-col items-start gap-0.5 text-left"
@@ -45,9 +46,9 @@ export function LocationSearchSheet({
               <span className="body-1 w-full truncate text-gray-600">{location.description}</span>
             </button>
             {index < locations.length - 1 && <Divider />}
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </BottomSheet>
   );
 }
