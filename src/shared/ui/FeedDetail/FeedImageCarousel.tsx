@@ -1,0 +1,98 @@
+import { useState, useRef, type ComponentPropsWithRef } from 'react';
+import { cn } from '@/shared/lib';
+import { FeedImageDetail, type Pin } from './FeedImageDetail';
+
+export type CarouselImage = {
+  src: string;
+  alt?: string;
+  pins?: Pin[];
+};
+
+type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
+  images: CarouselImage[];
+};
+
+const SWIPE_THRESHOLD = 50;
+
+export function FeedImageCarousel({ images, className, ref, ...props }: FeedImageCarouselProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startXRef = useRef<number | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    startXRef.current = e.clientX;
+    setIsDragging(true);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (startXRef.current === null) return;
+
+    const diff = e.clientX - startXRef.current;
+    const isAtStart = currentIndex === 0 && diff > 0;
+    const isAtEnd = currentIndex === images.length - 1 && diff < 0;
+
+    if (isAtStart || isAtEnd) return;
+
+    setDragOffset(diff);
+  };
+
+  const resetDrag = (e: React.PointerEvent) => {
+    if (startXRef.current === null) return;
+
+    const diff = startXRef.current - e.clientX;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    if (diff > SWIPE_THRESHOLD && currentIndex < images.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else if (diff < -SWIPE_THRESHOLD && currentIndex > 0) {
+      setCurrentIndex((i) => i - 1);
+    }
+    startXRef.current = null;
+  };
+
+  if (images.length === 0) return null;
+
+  return (
+    <div className={cn('flex w-full flex-col items-center gap-3', className)} ref={ref} {...props}>
+      <div className="relative w-full overflow-hidden">
+        <div
+          className={cn('flex', !isDragging && 'transition-transform duration-300')}
+          style={{ transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))` }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={resetDrag}
+          onPointerCancel={resetDrag}
+        >
+          {images.map((image, i) => (
+            <FeedImageDetail key={i} src={image.src} alt={image.alt} pins={image.pins} />
+          ))}
+        </div>
+        {images.length > 1 && (
+          <span className="button-6 absolute top-4 right-3 rounded-full bg-black/60 px-2.5 py-1 text-white">
+            {currentIndex + 1}/{images.length}
+          </span>
+        )}
+      </div>
+
+      {images.length > 1 && (
+        <div className="flex gap-1.5">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrentIndex(i)}
+              className={cn(
+                'size-1.5 rounded-full transition-colors',
+                i === currentIndex ? 'bg-main-001' : 'bg-gray-300',
+              )}
+              aria-label={`${i + 1}번째 사진`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
