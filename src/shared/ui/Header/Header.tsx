@@ -31,7 +31,7 @@ export const Header = ({
 }: HeaderProps) => {
   const resolvedTitle = title ?? '';
   const resolvedRightIcon =
-    rightIcon ?? (variant === 'left' ? <SearchIcon className="size-6" /> : null);
+    rightIcon !== undefined ? rightIcon : variant === 'left' ? <SearchIcon className="size-6" /> : null;
 
   if (variant === 'left') {
     return (

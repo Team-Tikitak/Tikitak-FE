@@ -14,7 +14,7 @@ export const MyPage = () => {
   return (
     <div>
       <AppLayout.Header>
-        <Header title="마이페이지" variant="left" />
+        <Header title="마이페이지" variant="left" rightIcon={null} />
       </AppLayout.Header>
 
       <AppLayout.Content>
