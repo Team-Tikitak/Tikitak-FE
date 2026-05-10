@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib';
 
 type HeaderVariant = 'center' | 'left';
 
-interface HeaderProps extends ComponentPropsWithRef<'header'> {
+interface HeaderProps extends ComponentPropsWithRef<'div'> {
   title?: string;
   variant?: HeaderVariant;
   showBackButton?: boolean;
@@ -35,11 +35,7 @@ export const Header = ({
 
   if (variant === 'left') {
     return (
-      <header
-        ref={ref}
-        className={cn('flex h-[52px] w-full items-center px-5', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('flex h-[52px] w-full items-center px-5', className)} {...props}>
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <h1 className="title-2 min-w-0 flex-1 truncate text-left text-black">{resolvedTitle}</h1>
           {resolvedRightIcon && (
@@ -53,12 +49,12 @@ export const Header = ({
             </button>
           )}
         </div>
-      </header>
+      </div>
     );
   }
 
   return (
-    <header
+    <div
       ref={ref}
       className={cn('grid h-[52px] w-full grid-cols-[24px_1fr_24px] items-center px-5', className)}
       {...props}
@@ -90,6 +86,6 @@ export const Header = ({
       ) : (
         <span aria-hidden="true" className="size-6" />
       )}
-    </header>
+    </div>
   );
 };
