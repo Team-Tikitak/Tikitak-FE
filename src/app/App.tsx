@@ -1,10 +1,12 @@
 import './styles/index.css';
+import { RouterProvider } from 'react-router';
 import { QueryProviders } from './providers/QueryProviders';
+import { router } from './routes';
 
 function App() {
   return (
     <QueryProviders>
-      <div>app</div>
+      <RouterProvider router={router} />
     </QueryProviders>
   );
 }
