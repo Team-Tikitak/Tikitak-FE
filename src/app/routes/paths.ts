@@ -1,6 +1,8 @@
 export const PATHS = {
   ROOT: '/',
   LOGIN: '/login',
+  TERMS: '/terms',
+  HOME: '/home',
   MY_PAGE: '/mypage',
   TEAM_DETAIL: '/teams/:teamId',
   TEAM_CREATE: '/teams/new',
