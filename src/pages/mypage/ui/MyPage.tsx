@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router';
 import { AppLayout } from '@/app/layout';
-import { Button, Header, ListCard, TeamCard } from '@/shared/ui';
 import { PATHS, toTeamDetail } from '@/app/routes/paths';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
+import { Button, Header, ListCard, TeamCard } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
 import { MOCK_MY_TEAMS } from '../model/mock';
 
