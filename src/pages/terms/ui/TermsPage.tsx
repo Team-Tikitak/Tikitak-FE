@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { AppLayout } from '@/app/layout';
+import { PATHS } from '@/app/routes/paths';
 import { Button } from '@/shared/ui/Button';
 import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
@@ -13,7 +14,7 @@ export const TermsPage = () => {
 
   const handleStart = () => {
     if (!allChecked) return;
-    // TODO: 다음 온보딩 단계로 이동
+    navigate(PATHS.HOME);
   };
 
   return (
@@ -45,7 +46,7 @@ export const TermsPage = () => {
             label="(필수) 서비스 이용약관"
             onToggle={() => toggle('service')}
             onDetailClick={() => {
-              // TODO: 약관 상세 보기
+              // NOTE: 약관 상세 보기
             }}
           />
           <TermsCheckRow
@@ -54,7 +55,7 @@ export const TermsPage = () => {
             label="(필수) 개인정보 처리방침"
             onToggle={() => toggle('privacy')}
             onDetailClick={() => {
-              // TODO: 개인정보 처리방침 상세 보기
+              // NOTE: 개인정보 처리방침 상세 보기
             }}
           />
         </section>
