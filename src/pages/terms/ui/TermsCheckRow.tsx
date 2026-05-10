@@ -1,5 +1,4 @@
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
-import { cn } from '@/shared/lib';
 import { Check } from '@/shared/ui/Check';
 
 type TermsCheckRowProps =
@@ -45,7 +44,7 @@ export const TermsCheckRow = ({
         type="button"
         onClick={onToggle}
         aria-pressed={checked}
-        className={cn('flex items-center gap-[9px] text-left')}
+        className="flex items-center gap-[9px] text-left"
       >
         <Check checked={checked} />
         <span className="body-2 text-gray-800">{label}</span>
