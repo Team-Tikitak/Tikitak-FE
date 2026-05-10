@@ -6,7 +6,6 @@ import { PageSection } from '@/shared/ui/PageSection/PageSection';
 import { MOCK_TEAM_DETAIL, MOCK_TEAM_MEMBERS } from '../model/mock';
 
 export const TeamDetailPage = () => {
-  //const { teamId } = useParams();
   const navigate = useNavigate();
   const team = MOCK_TEAM_DETAIL;
   const members = MOCK_TEAM_MEMBERS;
