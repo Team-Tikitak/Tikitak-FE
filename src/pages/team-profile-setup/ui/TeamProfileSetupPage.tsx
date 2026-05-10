@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import { AppLayout } from '@/app/layout';
+import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { Button, CommentInputField, Header } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
@@ -8,8 +9,10 @@ import { PageSection } from '@/shared/ui/PageSection/PageSection';
 export const TeamProfileSetupPage = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const teamName = state?.name ?? '';
   const [nickname, setNickname] = useState('');
+
+  if (!state?.name) return <Navigate to={PATHS.TEAM_CREATE} replace />;
+  const teamName = state.name as string;
   const isDisabled = !nickname.trim();
 
   return (
