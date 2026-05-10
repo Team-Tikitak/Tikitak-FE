@@ -3,4 +3,5 @@ export const PATHS = {
   LOGIN: '/login',
   TERMS: '/terms',
   HOME: '/home',
+  ONBOARDING: '/onboarding',
 } as const;
