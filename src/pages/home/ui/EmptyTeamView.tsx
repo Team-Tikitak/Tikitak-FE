@@ -2,7 +2,7 @@ import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 import { Button } from '@/shared/ui/Button';
 
 interface EmptyTeamViewProps {
-  onCreateTeam?: () => void;
+  onCreateTeam: () => void;
 }
 
 export const EmptyTeamView = ({ onCreateTeam }: EmptyTeamViewProps) => {
