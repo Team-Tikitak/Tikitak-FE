@@ -2,7 +2,7 @@ import type { TeamDetail, TeamMember } from './types';
 
 export const MOCK_TEAM_DETAIL: TeamDetail = {
   teamId: 10,
-  name: '캡스톤 디자인',
+  name: '티키탁',
   description: '우리 팀 공간',
   teamImageUrl: 'https://picsum.photos/seed/team1/100',
   status: 'ACTIVE',

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { AppLayout } from '@/app/layout';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button, Header, MemberCard } from '@/shared/ui';
@@ -6,10 +6,27 @@ import { PageSection } from '@/shared/ui/PageSection/PageSection';
 import { MOCK_TEAM_DETAIL, MOCK_TEAM_MEMBERS } from '../model/mock';
 
 export const TeamDetailPage = () => {
+  const { teamId } = useParams();
   const navigate = useNavigate();
-  const team = MOCK_TEAM_DETAIL;
-  const members = MOCK_TEAM_MEMBERS;
-  const isOwner = team.myRole === 'OWNER';
+
+  const team = Number(teamId) === MOCK_TEAM_DETAIL.teamId ? MOCK_TEAM_DETAIL : null;
+  const members = team ? MOCK_TEAM_MEMBERS : [];
+  const isOwner = team?.myRole === 'OWNER';
+
+  if (!team) {
+    return (
+      <div>
+        <AppLayout.Header>
+          <Header title="팀 상세" showBackButton onBack={() => navigate(-1)} />
+        </AppLayout.Header>
+        <AppLayout.Content>
+          <div className="flex h-full items-center justify-center py-7">
+            <p className="body-2 text-gray-500">팀을 찾을 수 없어요.</p>
+          </div>
+        </AppLayout.Content>
+      </div>
+    );
+  }
   return (
     <div>
       <AppLayout.Header>
