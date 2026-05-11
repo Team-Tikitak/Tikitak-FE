@@ -1,17 +1,13 @@
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button, Header, MemberCard } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
-import { MOCK_TEAM_DETAIL, MOCK_TEAM_MEMBERS } from '../model/mock';
+import { useTeamDetail } from '../hooks/useTeamDetail';
 
 export const TeamDetailPage = () => {
-  const { teamId } = useParams();
   const navigate = useNavigate();
-
-  const team = Number(teamId) === MOCK_TEAM_DETAIL.teamId ? MOCK_TEAM_DETAIL : null;
-  const members = team ? MOCK_TEAM_MEMBERS : [];
-  const isOwner = team?.myRole === 'OWNER';
+  const { team, members, isOwner } = useTeamDetail();
 
   if (!team) {
     return (
