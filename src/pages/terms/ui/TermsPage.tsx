@@ -14,7 +14,7 @@ export const TermsPage = () => {
 
   const handleStart = () => {
     if (!allChecked) return;
-    navigate(PATHS.HOME);
+    navigate(PATHS.ONBOARDING);
   };
 
   return (
