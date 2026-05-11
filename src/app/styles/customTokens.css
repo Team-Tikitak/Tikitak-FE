@@ -1,0 +1,49 @@
+@theme {
+  --color-kakao-yellow: #ffe809;
+  --font-pretendard: 'Pretendard', sans-serif;
+
+  --animate-marquee-left: marquee-left 29s linear infinite;
+  --animate-marquee-right: marquee-right 25s linear infinite;
+  --animate-bubble-pop: bubble-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-card-enter: card-enter 200ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes bubble-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

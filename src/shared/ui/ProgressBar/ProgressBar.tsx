@@ -22,11 +22,15 @@ export function ProgressBar({ currentStep, className, ref, ...props }: Onboardin
       {Array.from({ length: 3 }).map((_, index) => {
         const isActive = index < currentStep;
 
-        const { item } = progressBarVariants({
+        const { item, fill } = progressBarVariants({
           active: isActive,
         });
 
-        return <div key={index} className={item()} />;
+        return (
+          <div key={index} className={item()}>
+            <div className={fill()} />
+          </div>
+        );
       })}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { AppLayout } from '@/app/layout';
+import { PageShell } from '@/app/layout';
 import { Header } from '@/shared/ui/Header';
 import { EmptyTeamView } from './EmptyTeamView';
 
@@ -16,14 +16,11 @@ export const HomePage = () => {
   };
 
   return (
-    <>
-      <AppLayout.Header>
-        <Header showBackButton onBack={() => navigate(-1)} />
-      </AppLayout.Header>
-
-      <AppLayout.Content className="flex flex-col">
-        {hasTeams ? null : <EmptyTeamView onCreateTeam={handleCreateTeam} />}
-      </AppLayout.Content>
-    </>
+    <PageShell
+      header={<Header showBackButton onBack={() => navigate(-1)} />}
+      contentClassName="flex flex-col"
+    >
+      {hasTeams ? null : <EmptyTeamView onCreateTeam={handleCreateTeam} />}
+    </PageShell>
   );
 };

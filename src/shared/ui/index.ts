@@ -19,7 +19,6 @@ export * from './ImageWithFallback';
 export * from './ListCard';
 export * from './MemberCard';
 export * from './MenuButton';
-export * from './OnboardingCard';
 export * from './PhotoRadio';
 export * from './PhotoUploader';
 export * from './Picker';

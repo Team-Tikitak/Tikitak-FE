@@ -3,6 +3,7 @@ export const PATHS = {
   LOGIN: '/login',
   TERMS: '/terms',
   HOME: '/home',
+  ONBOARDING: '/onboarding',
   MY_PAGE: '/mypage',
   TEAM_DETAIL: '/teams/:teamId',
   TEAM_CREATE: '/teams/new',
