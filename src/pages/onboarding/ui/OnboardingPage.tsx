@@ -5,10 +5,10 @@ import { QuestionStep } from './QuestionStep';
 import { ResultStep } from './ResultStep';
 import { QUESTIONS } from '../constants/questions';
 import { useOnboardingFlow } from '../hooks/useOnboardingFlow';
-import type { QuestionId } from '../model/types';
+import { QUESTION_IDS, type OnboardingStep, type QuestionId } from '../model/types';
 
-const isQuestionStep = (step: string): step is QuestionId =>
-  step === 'q1' || step === 'q2' || step === 'q3';
+const isQuestionStep = (step: OnboardingStep): step is QuestionId =>
+  (QUESTION_IDS as readonly OnboardingStep[]).includes(step);
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();
