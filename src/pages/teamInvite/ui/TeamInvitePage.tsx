@@ -22,8 +22,13 @@ export const TeamInvitePage = () => {
           value={inviteUrl}
           className="body-1 w-53 truncate rounded-xs border border-gray-300 px-1 outline-none"
         />
-        <button type="button" aria-label="초대 링크 복사" onClick={handleCopy}>
-          <CopyIcon className="size-5 cursor-pointer text-gray-700 active:text-gray-300" />
+        <button
+          type="button"
+          aria-label="초대 링크 복사"
+          className="cursor-pointer"
+          onClick={handleCopy}
+        >
+          <CopyIcon className="size-5 text-gray-700 active:text-gray-300" />
         </button>
       </div>
     </PageShell>

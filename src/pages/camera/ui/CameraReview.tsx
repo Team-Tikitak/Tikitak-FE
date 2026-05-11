@@ -22,10 +22,9 @@ export const CameraReview = ({ capturedImage, onRetake }: CameraReviewProps) => 
       >
         <CloseIcon className="size-4 text-white" />
       </button>
-      <StickerIcon
-        aria-label="스티커 추가"
-        className="absolute top-15 right-6 size-7 cursor-pointer text-white"
-      />
+      <button aria-label="스티커 추가" className="absolute top-15 right-6 cursor-pointer">
+        <StickerIcon className="size-7" />
+      </button>
     </PageShell>
   );
 };
