@@ -34,7 +34,7 @@ export const TeamDetailPage = () => {
       }
     >
       <PageSection title="내 프로필">
-        <div className="bg-main-000 flex items-center gap-3 rounded-[8px] p-4">
+        <div className="bg-main-000 flex items-center gap-3 rounded-lg p-4">
           <img
             src={team.myProfileImageUrl}
             alt={team.myNickname}
