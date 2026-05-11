@@ -167,6 +167,14 @@
   letter-spacing: -0.004em;
 }
 
+@utility button-7 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: -0.004em;
+}
+
 @utility body-1 {
   font-family: var(--font-body);
   font-weight: 400;
@@ -261,12 +269,4 @@
   font-size: 16px;
   line-height: 140%;
   letter-spacing: 0.004em;
-}
-
-@utility button-7 {
-  font-family: var(--font-title);
-  font-weight: 600;
-  font-size: var(--text-3);
-  line-height: var(--leading-2);
-  letter-spacing: var(--tracking-5);
 }

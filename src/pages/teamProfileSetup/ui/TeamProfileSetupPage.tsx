@@ -1,19 +1,19 @@
-import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { Button, CommentInputField, Header } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
+import { useTeamProfileSetupForm } from '../hooks/useTeamProfileSetupForm';
+import type { TeamDraftRouteState } from '../model/types';
 
 export const TeamProfileSetupPage = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const [nickname, setNickname] = useState('');
+  const state = useLocation().state as TeamDraftRouteState | null;
+  const { nickname, setNickname, isDisabled } = useTeamProfileSetupForm();
 
   if (!state?.name) return <Navigate to={PATHS.TEAM_CREATE} replace />;
-  const teamName = state.name as string;
-  const isDisabled = !nickname.trim();
+  const teamName = state.name;
 
   return (
     <PageShell

@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { Button, CommentInputField, Header } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
+import { useTeamCreateForm } from '../hooks/useTeamCreateForm';
 
 export const TeamCreatePage = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const isDisabled = !name.trim() || !description.trim();
+  const { name, setName, description, setDescription, isDisabled, draft } = useTeamCreateForm();
 
   return (
     <PageShell
@@ -19,7 +17,7 @@ export const TeamCreatePage = () => {
         <Button
           variant="primary"
           disabled={isDisabled}
-          onClick={() => navigate(PATHS.TEAM_PROFILE_SETUP, { state: { name, description } })}
+          onClick={() => navigate(PATHS.TEAM_PROFILE_SETUP, { state: draft })}
         >
           완료
         </Button>

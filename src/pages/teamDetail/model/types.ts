@@ -1,12 +1,14 @@
+import type { TeamRole, TeamStatus } from '@/shared/types';
+
 export interface TeamDetail {
   teamId: number;
   name: string;
   description: string;
   teamImageUrl: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: TeamStatus;
   memberCount: number;
   myTeamMemberId: number;
-  myRole: 'OWNER' | 'MEMBER';
+  myRole: TeamRole;
   myNickname: string;
   myProfileImageUrl: string;
   createdAt: string;
@@ -17,8 +19,8 @@ export interface TeamMember {
   memberId: number;
   nickname: string;
   profileImageUrl: string | null;
-  role: 'OWNER' | 'MEMBER';
+  role: TeamRole;
   email: string | null;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: TeamStatus;
   joinedAt: string;
 }
