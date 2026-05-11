@@ -6,4 +6,5 @@ export * from './CharacterPreviewStep';
 export * from './OnboardingCard';
 export * from './OnboardingPage';
 export * from './QuestionStep';
+export * from './ResultStep';
 export * from './SpeechBubble';
