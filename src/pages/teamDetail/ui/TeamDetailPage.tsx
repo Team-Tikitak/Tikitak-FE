@@ -57,7 +57,7 @@ export const TeamDetailPage = () => {
         </div>
       </PageSection>
       <div className="flex flex-col gap-3">
-        <Button buttonIcon={<PlusIcon />}>초대하기</Button>
+        <Button buttonIcon={<PlusIcon className="size-5" />}>초대하기</Button>
         {isOwner && <Button variant="destructive">그룹 삭제</Button>}
       </div>
     </PageShell>
