@@ -19,11 +19,16 @@ export const useOnboardingFlow = () => {
   const currentIndex = ONBOARDING_STEPS.indexOf(step);
   const canGoBack = currentIndex > 0;
 
-  const goTo = (next: OnboardingStep) => setStep(next);
+  const goTo = (next: OnboardingStep) => {
+    setStep(next);
+    if (next === 'character-preview') {
+      setAnswers({});
+    }
+  };
 
   const goBack = () => {
     if (!canGoBack) return;
-    setStep(ONBOARDING_STEPS[currentIndex - 1]);
+    goTo(ONBOARDING_STEPS[currentIndex - 1]);
   };
 
   const recordAnswerAndAdvance = (question: QuestionId, optionId: string) => {
