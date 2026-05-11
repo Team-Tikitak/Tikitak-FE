@@ -35,9 +35,14 @@ export const QuestionStep = ({
         <p className="body-1 text-gray-700">{question.subtitle}</p>
       </div>
 
-      <ul className="flex flex-col gap-2 pb-6">
-        {question.options.map((option) => (
-          <li key={option.id}>
+      {/* key={question.id} 로 step 전환 시 카드 enter 애니메이션 재생 */}
+      <ul key={question.id} className="flex flex-col gap-2 pb-6">
+        {question.options.map((option, index) => (
+          <li
+            key={option.id}
+            className="animate-card-enter motion-reduce:animate-none"
+            style={{ animationDelay: `${index * 16}ms` }}
+          >
             <OnboardingCard
               title={option.title}
               description={option.description}
