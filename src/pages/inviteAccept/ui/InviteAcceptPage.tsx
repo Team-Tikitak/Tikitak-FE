@@ -1,6 +1,6 @@
 import { PageShell } from '@/app/layout';
 import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
-import TikiTackIcon from '@/shared/assets/Logo/tikitack.svg?react';
+import TikiTackIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
 import { Button, UserChip } from '@/shared/ui';
 import { InvalidInvite } from './InvalidInvite';
 import { InviteBackground } from './InviteBackground';
