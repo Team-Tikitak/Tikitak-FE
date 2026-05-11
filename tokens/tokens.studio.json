@@ -250,6 +250,14 @@
       "bodySemibold": {
         "$type": "fontWeights",
         "$value": "SemiBold"
+      },
+      "titleBold": {
+        "$type": "fontWeights",
+        "$value": "Bold"
+      },
+      "bodyMedium": {
+        "$type": "fontWeights",
+        "$value": "Medium"
       }
     },
     "boxshadow": {
@@ -440,6 +448,20 @@
           "fontSize": "{fontSize.1}",
           "letterSpacing": "{letterSpacing.5}",
           "paragraphSpacing": "{paragraphSpacing.0}",
+          "paragraphIndent": "{paragraphIndent.0}",
+          "textCase": "{textCase.none}",
+          "textDecoration": "{textDecoration.none}"
+        }
+      },
+      "button7": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{fontFamilies.title}",
+          "fontWeight": "{fontWeights.bodySemibold}",
+          "lineHeight": "{lineHeights.2}",
+          "fontSize": "{fontSize.3}",
+          "letterSpacing": "{letterSpacing.5}",
+          "paragraphSpacing": "{paragraphSpacing.1}",
           "paragraphIndent": "{paragraphIndent.0}",
           "textCase": "{textCase.none}",
           "textDecoration": "{textDecoration.none}"
@@ -642,6 +664,36 @@
       "none": {
         "$type": "textCase",
         "$value": "none"
+      }
+    },
+    "nav": {
+      "nav0": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{fontFamilies.title}",
+          "fontWeight": "{fontWeights.bodySemibold}",
+          "lineHeight": "{lineHeights.2}",
+          "fontSize": "{fontSize.0}",
+          "letterSpacing": "{letterSpacing.3}",
+          "paragraphSpacing": "{paragraphSpacing.0}",
+          "paragraphIndent": "{paragraphIndent.0}",
+          "textCase": "{textCase.none}",
+          "textDecoration": "{textDecoration.none}"
+        }
+      },
+      "nav1": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{fontFamilies.title}",
+          "fontWeight": "{fontWeights.bodyMedium}",
+          "lineHeight": "{lineHeights.2}",
+          "fontSize": "{fontSize.0}",
+          "letterSpacing": "{letterSpacing.3}",
+          "paragraphSpacing": "{paragraphSpacing.0}",
+          "paragraphIndent": "{paragraphIndent.0}",
+          "textCase": "{textCase.none}",
+          "textDecoration": "{textDecoration.none}"
+        }
       }
     }
   },
