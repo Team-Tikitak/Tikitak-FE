@@ -3,11 +3,11 @@ import { MainLayout } from '@/app/layout';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { HomePage } from '@/pages/home/ui';
 import { LoginPage } from '@/pages/login/ui';
-import { MyPage } from '@/pages/mypage/ui/MyPage';
-import { NotFoundPage } from '@/pages/not-found/NotFoundPage';
-import { TeamCreatePage } from '@/pages/team-create/ui/TeamCreatePage';
-import { TeamDetailPage } from '@/pages/team-detail/ui/TeamDetailPage';
-import { TeamProfileSetupPage } from '@/pages/team-profile-setup/ui/TeamProfileSetupPage';
+import { MyPage } from '@/pages/myPage/ui/MyPage';
+import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
+import { TeamCreatePage } from '@/pages/teamCreate/ui/TeamCreatePage';
+import { TeamDetailPage } from '@/pages/teamDetail/ui/TeamDetailPage';
+import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui/TeamProfileSetupPage';
 import { TermsPage } from '@/pages/terms/ui';
 import { PATHS } from './paths';
 
