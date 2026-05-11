@@ -1,12 +1,14 @@
+import type { TeamRole, TeamStatus } from '@/shared/types';
+
 export interface TeamItem {
   teamId: number;
   teamMemberId: number;
   name: string;
   description: string;
   teamImageUrl: string;
-  role: 'OWNER' | 'MEMBER';
-  memberStatus: 'ACTIVE' | 'INACTIVE';
-  teamStatus: 'ACTIVE' | 'INACTIVE';
+  role: TeamRole;
+  memberStatus: TeamStatus;
+  teamStatus: TeamStatus;
   nickname: string;
   profileImageUrl: string;
   memberCount: number;
