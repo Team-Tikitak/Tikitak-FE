@@ -5,13 +5,13 @@ const OnboardingCardVariants = tv({
   base: [
     'flex h-21 w-full cursor-pointer flex-col items-start justify-center gap-1 rounded-sm border p-[18px]',
     'touch-manipulation select-none',
-    'transition-[background-color,border-color,transform] duration-100 ease-out',
-    'active:scale-[0.985]',
+    'transition-[background-color,border-color,transform] duration-150 ease-out',
+    'active:scale-[0.97]',
   ],
   variants: {
     isSelected: {
       true: 'border-main-002 bg-main-000',
-      false: 'border-transparent bg-gray-100',
+      false: 'border-transparent bg-gray-100 active:bg-gray-200',
     },
   },
   defaultVariants: {
