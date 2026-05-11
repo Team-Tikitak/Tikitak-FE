@@ -9,7 +9,7 @@ import type { TeamDraftRouteState } from '../model/types';
 
 export const TeamProfileSetupPage = () => {
   const navigate = useNavigate();
-  const { state } = useLocation() as { state: TeamDraftRouteState | null };
+  const state = useLocation().state as TeamDraftRouteState | null;
   const { nickname, setNickname, isDisabled } = useTeamProfileSetupForm();
 
   if (!state?.name) return <Navigate to={PATHS.TEAM_CREATE} replace />;
