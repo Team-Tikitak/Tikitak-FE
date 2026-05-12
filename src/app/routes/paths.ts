@@ -8,6 +8,10 @@ export const PATHS = {
   TEAM_DETAIL: '/teams/:teamId',
   TEAM_CREATE: '/teams/new',
   TEAM_PROFILE_SETUP: '/teams/new/profile',
+  TEAM_INVITE: '/teams/:teamId/invite',
+  INVITE_ACCEPT: '/invite/:inviteId',
+  CAMERA: '/camera',
+  GALLERY: '/gallery',
 } as const;
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;

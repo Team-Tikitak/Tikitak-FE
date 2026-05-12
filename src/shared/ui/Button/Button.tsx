@@ -15,7 +15,7 @@ export function Button({ variant, buttonIcon, className, ref, children, ...props
       className={cn(ButtonVariants({ variant }), className)}
       {...props}
     >
-      {buttonIcon && <span className="flex h-5 w-5 items-center">{buttonIcon}</span>}
+      {buttonIcon && <span className="flex items-center">{buttonIcon}</span>}
       {children}
     </button>
   );

@@ -12,6 +12,7 @@ export const ButtonVariants = tv({
     variant: {
       default: 'border border-gray-400 bg-white text-gray-700',
       primary: 'h-12 bg-main-001 px-4 py-3 button-1 text-white',
+      secondary: 'border border-invite-border bg-white button-0 text-black',
       destructive: 'bg-red-100 text-red-600',
     },
   },

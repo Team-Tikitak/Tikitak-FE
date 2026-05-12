@@ -27,7 +27,10 @@ export const MyPage = () => {
             onClick={() => navigate(toTeamDetail(team.teamId))}
           />
         ))}
-        <Button buttonIcon={<PlusIcon />} onClick={() => navigate(PATHS.TEAM_CREATE)}>
+        <Button
+          buttonIcon={<PlusIcon className="size-5" />}
+          onClick={() => navigate(PATHS.TEAM_CREATE)}
+        >
           팀 개설하기
         </Button>
       </PageSection>
