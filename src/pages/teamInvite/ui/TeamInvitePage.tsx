@@ -11,7 +11,11 @@ export const TeamInvitePage = () => {
   return (
     <PageShell
       header={<Header title={teamName} showBackButton onBack={() => navigate(-1)} />}
-      bottom={<Button variant="primary">완료</Button>}
+      bottom={
+        <Button variant="primary" onClick={() => navigate(-1)}>
+          완료
+        </Button>
+      }
       contentClassName="flex flex-col gap-4 pt-18 items-center"
     >
       <div className="bg-main-000 size-60 rounded-md p-4.5">{/* TODO: QR 코드 이미지 */}</div>

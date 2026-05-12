@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button, Header, MemberCard } from '@/shared/ui';
@@ -7,6 +7,7 @@ import { useTeamDetail } from '../hooks/useTeamDetail';
 
 export const TeamDetailPage = () => {
   const navigate = useNavigate();
+  const { teamId } = useParams();
   const { team, members, isOwner } = useTeamDetail();
 
   if (!team) {
@@ -57,7 +58,12 @@ export const TeamDetailPage = () => {
         </div>
       </PageSection>
       <div className="flex flex-col gap-3">
-        <Button buttonIcon={<PlusIcon className="size-5" />}>초대하기</Button>
+        <Button
+          buttonIcon={<PlusIcon className="size-5" />}
+          onClick={() => navigate(`/teams/${teamId}/invite`)}
+        >
+          초대하기
+        </Button>
         {isOwner && <Button variant="destructive">그룹 삭제</Button>}
       </div>
     </PageShell>
