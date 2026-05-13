@@ -2,8 +2,6 @@ import BellIcon from '@/shared/assets/Icon/BellIcon.svg?react';
 import ChevronDownIcon from '@/shared/assets/Icon/ChevronDownIcon.svg?react';
 import TikiTakLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 
-export const HOME_HEADER_HEIGHT = 72;
-
 interface HomeHeaderProps {
   teamName: string;
   onTeamSelect?: () => void;

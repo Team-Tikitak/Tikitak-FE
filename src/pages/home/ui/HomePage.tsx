@@ -6,7 +6,7 @@ import { PATHS } from '@/app/routes';
 import { BottomSheetOverlay, TeamListSheet, type TeamListSheetItem } from '@/shared/ui/BottomSheet';
 import { Header } from '@/shared/ui/Header';
 import { EmptyTeamView } from './EmptyTeamView';
-import { HOME_HEADER_HEIGHT, HomeHeader } from './HomeHeader';
+import { HomeHeader } from './HomeHeader';
 import { MapView } from './MapView';
 
 // NOTE: useTeams() hook integration pending; temporary data for sheet behavior.
@@ -23,6 +23,7 @@ const MOCK_TEAMS = [
 ] satisfies TeamListSheetItem[];
 
 const TEAM_SHEET_COLLAPSED_HEIGHT = 278;
+const TEAM_SHEET_TOP_GAP = 80;
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export const HomePage = () => {
 
     const expandedHeight = Math.max(
       TEAM_SHEET_COLLAPSED_HEIGHT,
-      window.innerHeight - HOME_HEADER_HEIGHT,
+      window.innerHeight - TEAM_SHEET_TOP_GAP,
     );
     const collapsedSnap = `${TEAM_SHEET_COLLAPSED_HEIGHT}px`;
     const expandedSnap = `${expandedHeight}px`;
