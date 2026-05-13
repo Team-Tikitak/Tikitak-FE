@@ -61,7 +61,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.21.3, @babel/core@npm:^7.24.4, @babel/core@npm:^7.28.0":
+"@babel/core@npm:^7.21.3, @babel/core@npm:^7.24.4, @babel/core@npm:^7.26.10, @babel/core@npm:^7.28.0":
   version: 7.29.0
   resolution: "@babel/core@npm:7.29.0"
   dependencies:
@@ -1370,6 +1370,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ssgoi/core@npm:^5.2.0":
+  version: 5.2.1
+  resolution: "@ssgoi/core@npm:5.2.1"
+  checksum: 10c0/937f61d9635c516dd85bdd8f36eb0b88af4438286f99811e838c80e60b9c4a4dc61f4848049220b3e7fb65549162ca542db4d8cd6b679e71a03ecec0dd9de7b1
+  languageName: node
+  linkType: hard
+
+"@ssgoi/react@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@ssgoi/react@npm:5.2.0"
+  dependencies:
+    "@babel/core": "npm:^7.26.10"
+    "@ssgoi/core": "npm:^5.2.0"
+    unplugin: "npm:^2.3.2"
+  checksum: 10c0/48525d9ee83dd4e2d4bdb59e95d826edb951ccbada2696c368d0e3d0535207154bfcb724a4712bde25a7a748e4a13425e1a5d51de4a53b8e67838e6921b6a27a
+  languageName: node
+  linkType: hard
+
 "@standard-schema/spec@npm:^1.1.0":
   version: 1.1.0
   resolution: "@standard-schema/spec@npm:1.1.0"
@@ -2515,6 +2533,7 @@ __metadata:
     "@eslint/js": "npm:^9.39.4"
     "@hookform/resolvers": "npm:^5.2.2"
     "@rolldown/plugin-babel": "npm:^0.2.3"
+    "@ssgoi/react": "npm:^5.2.0"
     "@storybook/addon-a11y": "npm:^10.3.6"
     "@storybook/addon-docs": "npm:^10.3.6"
     "@storybook/addon-onboarding": "npm:^10.3.6"
@@ -7566,7 +7585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unplugin@npm:^2.3.5":
+"unplugin@npm:^2.3.2, unplugin@npm:^2.3.5":
   version: 2.3.11
   resolution: "unplugin@npm:2.3.11"
   dependencies:
