@@ -1,3 +1,4 @@
+import TakSpark from '@/shared/assets/Character/TakSpark.svg';
 import FrontIcon from '@/shared/assets/Icon/FrontIcon.svg?react';
 import { ImageWithFallback } from '@/shared/ui';
 
@@ -19,7 +20,7 @@ export const TodayQuestion = ({ question, imageUrls, onClick }: TodayQuestionPro
         <span className="body-7 mt-[2px] text-left">{question}</span>
         <div className="mt-2 flex items-center -space-x-1">
           {imageUrls.map((url) => (
-            <ImageWithFallback key={url} src={url} fallbackSrc={url} />
+            <ImageWithFallback key={url} src={url} fallbackSrc={TakSpark} />
           ))}
         </div>
       </div>
