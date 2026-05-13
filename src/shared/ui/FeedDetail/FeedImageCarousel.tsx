@@ -15,7 +15,13 @@ type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
 
 const SWIPE_THRESHOLD = 50;
 
-export function FeedImageCarousel({ images, onLongPress, className, ref, ...props }: FeedImageCarouselProps) {
+export function FeedImageCarousel({
+  images,
+  onLongPress,
+  className,
+  ref,
+  ...props
+}: FeedImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -75,7 +81,13 @@ export function FeedImageCarousel({ images, onLongPress, className, ref, ...prop
           onPointerCancel={resetDrag}
         >
           {images.map((image) => (
-            <FeedImageDetail key={image.src} src={image.src} alt={image.alt} pins={image.pins} onLongPress={onLongPress} />
+            <FeedImageDetail
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+              pins={image.pins}
+              onLongPress={onLongPress}
+            />
           ))}
         </div>
         {images.length > 1 && (

@@ -65,7 +65,7 @@ export function FeedImageDetail({
       onPointerUp={cancelLongPress}
       onPointerLeave={cancelLongPress}
       onPointerCancel={cancelLongPress}
-      onContextMenu={e => e.preventDefault()}
+      onContextMenu={(e) => e.preventDefault()}
       {...props}
     >
       <img src={src} alt={alt} className="h-full w-full object-cover" draggable={false} />
