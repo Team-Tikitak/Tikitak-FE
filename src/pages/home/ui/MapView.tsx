@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { BottomNavigation } from '@/shared/ui';
 import { Map } from './Map';
 import { TodayQuestion } from './TodayQuestion';
@@ -17,13 +18,13 @@ export const MapView = () => {
     'https://picsum.photos/seed/d/40',
   ];
 
-  const handlePinClick = () => {
+  const handlePinClick = useCallback(() => {
     //TODO: 지도 피드 페이지로 이동
-  };
+  }, []);
 
-  const handleQuestionClick = () => {
+  const handleQuestionClick = useCallback(() => {
     //TODO: 게시물 작성 페이지로 이동
-  };
+  }, []);
 
   return (
     <div className="pointer-events-none relative isolate flex-1">
