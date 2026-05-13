@@ -2,8 +2,7 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toTeamDetail } from '@/app/routes/paths';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { BottomNavigation, Button, Header, ListCard, TeamCard } from '@/shared/ui';
-import { PageSection } from '@/shared/ui/PageSection/PageSection';
+import { BottomNavigation, Button, Header, ListCard, PageSection, TeamCard } from '@/shared/ui';
 import { MOCK_MY_TEAMS } from '../model/mock';
 
 const teams = MOCK_MY_TEAMS;

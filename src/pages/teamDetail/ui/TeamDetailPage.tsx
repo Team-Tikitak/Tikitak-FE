@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { Button, Header, MemberCard } from '@/shared/ui';
-import { PageSection } from '@/shared/ui/PageSection/PageSection';
+import { Button, Header, MemberCard, PageSection } from '@/shared/ui';
 import { useTeamDetail } from '../hooks/useTeamDetail';
 
 export const TeamDetailPage = () => {

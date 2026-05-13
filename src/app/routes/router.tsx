@@ -1,19 +1,19 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
-import { CameraPage } from '@/pages/camera/ui/CameraPage';
+import { CameraPage } from '@/pages/camera/ui';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
-import { GalleryPage } from '@/pages/gallery/ui/GalleryPage';
+import { GalleryPage } from '@/pages/gallery/ui';
 import { HomePage } from '@/pages/home/ui';
-import { InviteAcceptPage } from '@/pages/inviteAccept/ui/InviteAcceptPage';
+import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
 import { LoginPage } from '@/pages/login/ui';
-import { MyPage } from '@/pages/myPage/ui/MyPage';
+import { MyPage } from '@/pages/myPage/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { OnboardingPage } from '@/pages/onboarding/ui';
 import { SplashPage } from '@/pages/splash/ui';
-import { TeamCreatePage } from '@/pages/teamCreate/ui/TeamCreatePage';
-import { TeamDetailPage } from '@/pages/teamDetail/ui/TeamDetailPage';
-import { TeamInvitePage } from '@/pages/teamInvite/ui/TeamInvitePage';
-import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui/TeamProfileSetupPage';
+import { TeamCreatePage } from '@/pages/teamCreate/ui';
+import { TeamDetailPage } from '@/pages/teamDetail/ui';
+import { TeamInvitePage } from '@/pages/teamInvite/ui';
+import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui';
 import { TermsPage } from '@/pages/terms/ui';
 import { PATHS } from './paths';
 
