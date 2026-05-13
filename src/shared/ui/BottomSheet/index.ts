@@ -3,4 +3,5 @@
  */
 
 export * from './BottomSheet';
+export * from './BottomSheetOverlay';
 export * from './renderers';

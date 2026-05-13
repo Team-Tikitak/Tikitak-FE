@@ -3,3 +3,5 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import './customTokens.css';
+@import './animations.css';
+@import './base.css';
