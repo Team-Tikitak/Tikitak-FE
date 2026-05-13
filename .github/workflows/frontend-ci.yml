@@ -58,7 +58,7 @@ jobs:
       - name: Run tests
         id: test
         continue-on-error: true
-        run: yarn test
+        run: yarn test --run
 
       - name: Build
         id: build

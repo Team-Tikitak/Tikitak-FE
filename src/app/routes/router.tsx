@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
 import { CameraPage } from '@/pages/camera/ui/CameraPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
@@ -9,6 +9,7 @@ import { LoginPage } from '@/pages/login/ui';
 import { MyPage } from '@/pages/myPage/ui/MyPage';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { OnboardingPage } from '@/pages/onboarding/ui';
+import { SplashPage } from '@/pages/splash/ui';
 import { TeamCreatePage } from '@/pages/teamCreate/ui/TeamCreatePage';
 import { TeamDetailPage } from '@/pages/teamDetail/ui/TeamDetailPage';
 import { TeamInvitePage } from '@/pages/teamInvite/ui/TeamInvitePage';
@@ -23,7 +24,7 @@ export const router = createBrowserRouter([
       {
         errorElement: <RootErrorBoundary />,
         children: [
-          { index: true, element: <Navigate to={PATHS.LOGIN} replace /> },
+          { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
           { path: PATHS.TERMS, element: <TermsPage /> },
           { path: PATHS.HOME, element: <HomePage /> },
