@@ -12,6 +12,8 @@ export const PATHS = {
   INVITE_ACCEPT: '/invite/:inviteId',
   CAMERA: '/camera',
   GALLERY: '/gallery',
+  PLACE_DETAIL: '/place/:placeId',
 } as const;
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
+export const toPlaceDetail = (placeId: string) => `/place/${placeId}`;
