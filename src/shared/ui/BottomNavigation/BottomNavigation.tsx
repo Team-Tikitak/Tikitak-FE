@@ -1,4 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
+import { useNavigate } from 'react-router';
+import { PATHS } from '@/app/routes';
 import { cn } from '@/shared/lib';
 import { FloatingButton } from '../FloatingButton';
 import { type BottomNavigationTab } from './BottomNavigation.types';
@@ -6,20 +8,26 @@ import { BottomNavigationSelectedTab } from './BottomNavigationSelectedTab';
 
 interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onChange'> {
   activeTab?: BottomNavigationTab;
-  onTabChange?: (tab: BottomNavigationTab) => void;
   onCreateClick?: () => void;
   createAriaLabel?: string;
 }
 
 export const BottomNavigation = ({
   activeTab = 'home',
-  onTabChange,
   onCreateClick,
   createAriaLabel = '추가',
   className,
   ref,
   ...props
 }: BottomNavigationProps) => {
+  const navigate = useNavigate();
+
+  const handleTabChange = (tab: BottomNavigationTab) => {
+    if (tab === 'home') navigate(PATHS.HOME);
+    if (tab === 'my') navigate(PATHS.MY_PAGE);
+    //TODO: feed 경로 추가 시 연결
+  };
+
   return (
     <nav
       ref={ref}
@@ -27,7 +35,7 @@ export const BottomNavigation = ({
       className={cn('flex w-full max-w-[353px] items-center justify-between gap-3', className)}
       {...props}
     >
-      <BottomNavigationSelectedTab activeTab={activeTab} onTabChange={onTabChange} />
+      <BottomNavigationSelectedTab activeTab={activeTab} onTabChange={handleTabChange} />
       <FloatingButton aria-label={createAriaLabel} onClick={onCreateClick} className="shrink-0" />
     </nav>
   );
