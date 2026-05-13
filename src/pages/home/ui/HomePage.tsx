@@ -6,10 +6,8 @@ import { EmptyTeamView } from './EmptyTeamView';
 export const HomePage = () => {
   const navigate = useNavigate();
 
-  // NOTE: useTeams() 훅으로 팀 목록 조회 후 분기
-  // - teams.length === 0 → EmptyTeamView
-  // - teams.length > 0   → MapView (다음 단계에서 구현)
-  const hasTeams = false;
+  // TODO: useTeams() 훅으로 팀 목록 조회 후 분기
+
 
   const handleCreateTeam = () => {
     // NOTE: 팀 개설 플로우로 이동
