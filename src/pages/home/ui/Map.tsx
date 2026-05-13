@@ -7,7 +7,7 @@ import { type Pin } from '../model/types';
 interface MapProps {
   pins: Pin[];
   initialCenter: { latitude: number; longitude: number };
-  onPinClick?: () => void;
+  onPinClick?: (pin: Pin) => void;
 }
 
 export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
@@ -26,7 +26,11 @@ export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
     <div ref={mapRef} className="pointer-events-auto absolute inset-0 -z-10">
       {overlayEntries.map(({ container, pin }) =>
         createPortal(
-          <MapImage src={pin.thumbnailImageUrl} count={pin.feedCount} onClick={onPinClick} />,
+          <MapImage
+            src={pin.thumbnailImageUrl}
+            count={pin.feedCount}
+            onClick={() => onPinClick?.(pin)}
+          />,
           container,
           `${pin.latitude}-${pin.longitude}`,
         ),
