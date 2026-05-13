@@ -6,7 +6,7 @@ import { MapImage } from '../ui/MapImage';
 type WithSetMap = { setMap: (m: unknown) => void };
 type OverlayEntry = { overlay: WithSetMap; root: ReturnType<typeof createRoot> };
 
-// setMapReady 등 React 렌더 사이클과 겹치지 않도록 다음 틱에 unmount
+// React 렌더 사이클과 겹치지 않도록 unmount 조정
 const deferUnmount = (root: ReturnType<typeof createRoot>) => {
   setTimeout(() => root.unmount(), 0);
 };
@@ -33,7 +33,7 @@ export const useKakaoMap = (
   const overlaysRef = useRef<OverlayEntry[]>([]);
   const [mapReady, setMapReady] = useState(false);
 
-  // 지도 초기화만 담당 — onPinClick 의존성 없음
+  // 지도 초기화
   useEffect(() => {
     if (mapInstanceRef.current || !mapRef.current) return;
 
