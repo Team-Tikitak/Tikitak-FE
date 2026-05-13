@@ -8,7 +8,7 @@ export const MapImage = ({ src = 'https://picsum.photos/87', count, onClick }: M
   return (
     <button
       type="button"
-      className="rounded-1.5 absolute size-[87px] overflow-hidden border-4 border-white"
+      className="absolute size-[87px] overflow-hidden rounded-[6px] border-4 border-white"
       onClick={onClick}
     >
       <img src={src} alt="" className="size-full object-cover" />
