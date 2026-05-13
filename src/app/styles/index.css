@@ -3,7 +3,5 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import './customTokens.css';
-
-body {
-  background-color: #1a1c1f;
-}
+@import './animations.css';
+@import './base.css';
