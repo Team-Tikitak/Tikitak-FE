@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toTeamDetail } from '@/app/routes/paths';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { Button, Header, ListCard, TeamCard } from '@/shared/ui';
+import { BottomNavigation, Button, Header, ListCard, TeamCard } from '@/shared/ui';
 import { PageSection } from '@/shared/ui/PageSection/PageSection';
 import { MOCK_MY_TEAMS } from '../model/mock';
 
@@ -15,6 +15,7 @@ export const MyPage = () => {
     <PageShell
       header={<Header title="마이페이지" variant="left" rightIcon={null} />}
       contentClassName="flex flex-col gap-8 px-5 py-7"
+      bottom={<BottomNavigation activeTab="my" />}
     >
       <PageSection title="내 팀" className="gap-3">
         {teams.map((team) => (
