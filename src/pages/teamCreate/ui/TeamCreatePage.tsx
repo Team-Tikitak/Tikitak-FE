@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
-import { Button, CommentInputField, Header } from '@/shared/ui';
-import { PageSection } from '@/shared/ui/PageSection/PageSection';
+import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamCreateForm } from '../hooks/useTeamCreateForm';
 
 export const TeamCreatePage = () => {

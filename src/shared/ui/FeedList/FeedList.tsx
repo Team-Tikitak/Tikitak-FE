@@ -1,6 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
-import { ImageWithFallback } from '@/shared/ui/ImageWithFallback/ImageWithFallback';
+import { ImageWithFallback } from '../ImageWithFallback';
 
 type AvatarItem = {
   id: number;

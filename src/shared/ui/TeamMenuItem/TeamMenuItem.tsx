@@ -25,8 +25,8 @@ export function TeamMenuItem({
       {...props}
     >
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
-        <span className="body-2 w-full truncate text-black">{title}</span>
-        <span className="body-1 w-full truncate text-gray-700">{description}</span>
+        <span className="body-2 w-full truncate break-keep text-black">{title}</span>
+        <span className="body-1 w-full truncate break-keep text-gray-700">{description}</span>
       </span>
       {selected && <Check checked className="shrink-0" />}
     </button>
