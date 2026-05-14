@@ -5,6 +5,7 @@ import { MOCK_PLACE_FEEDS } from '../model/mock';
 
 export const PlaceDetailPage = () => {
   const navigate = useNavigate();
+  // TODO: useParams()의 placeId로 API 조회
   const { placeName, feeds } = MOCK_PLACE_FEEDS;
 
   const handleLongPress = (_position: PressPosition) => {
