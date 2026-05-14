@@ -1,9 +1,10 @@
 import { cn } from '@/shared/lib';
 import { FeedImageCarousel, type CarouselImage } from './FeedImageCarousel';
+import { type PressPosition } from './FeedImageDetail';
 import { ParticipantChipList, type Participant } from './ParticipantChipList';
 import type { ComponentPropsWithRef } from 'react';
 
-export type { Participant };
+export type { Participant, PressPosition };
 
 type FeedDetailProps = ComponentPropsWithRef<'div'> & {
   participants: Participant[];
@@ -12,6 +13,7 @@ type FeedDetailProps = ComponentPropsWithRef<'div'> & {
   content: string;
   date: string;
   onMoreParticipantsClick?: () => void;
+  onLongPress?: (position: PressPosition) => void;
 };
 
 export function FeedDetail({
@@ -21,6 +23,7 @@ export function FeedDetail({
   content,
   date,
   onMoreParticipantsClick,
+  onLongPress,
   className,
   ref,
   ...props
@@ -32,7 +35,7 @@ export function FeedDetail({
         className="mx-auto"
         onMoreClick={onMoreParticipantsClick}
       />
-      <FeedImageCarousel images={images} />
+      <FeedImageCarousel images={images} onLongPress={onLongPress} />
       <div className="flex flex-col gap-1 px-5">
         <p className="body-5 text-black">
           <span className="body-4 mr-2">{authorName}</span>

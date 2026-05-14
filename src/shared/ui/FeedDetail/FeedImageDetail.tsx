@@ -1,6 +1,6 @@
+import { type ComponentPropsWithRef, useRef } from 'react';
 import { cn } from '@/shared/lib';
 import { Picker } from '../Picker/Picker';
-import type { ComponentPropsWithRef } from 'react';
 
 type PinAvatar = { id: string; src: string; alt?: string };
 
@@ -16,27 +16,81 @@ export type Pin =
   | (PinBase & { count?: 'single'; avatars: [PinAvatar] })
   | (PinBase & { count: 'multiple'; avatars: [PinAvatar, PinAvatar] });
 
+export type PressPosition = { x: number; y: number };
+
 type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   src: string;
   alt?: string;
   pins?: Pin[];
+  onLongPress?: (position: PressPosition) => void;
 };
+
+const LONG_PRESS_DELAY = 500;
+const MOVE_CANCEL_THRESHOLD = 6;
 
 export function FeedImageDetail({
   src,
   alt = '',
   pins = [],
+  onLongPress,
   className,
   ref,
   ...props
 }: FeedImageDetailProps) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      startPosRef.current = null;
+
+      onLongPress?.({ x, y });
+    }, LONG_PRESS_DELAY);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (!timerRef.current || !startPosRef.current) return;
+
+    const dx = e.clientX - startPosRef.current.x;
+    const dy = e.clientY - startPosRef.current.y;
+
+    if (dx * dx + dy * dy > MOVE_CANCEL_THRESHOLD ** 2) {
+      cancelLongPress();
+    }
+  };
+
+  const cancelLongPress = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    startPosRef.current = null;
+  };
+
   return (
     <figure
       className={cn('relative w-full shrink-0 overflow-hidden', className)}
       ref={ref}
+      onContextMenu={(e) => e.preventDefault()}
       {...props}
     >
-      <img src={src} alt={alt} className="h-full w-full object-cover" draggable={false} />
+      <img
+        src={src}
+        alt={alt}
+        className="h-full w-full object-cover"
+        draggable={false}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={cancelLongPress}
+        onPointerLeave={cancelLongPress}
+        onPointerCancel={cancelLongPress}
+      />
       {pins.map((pin) => (
         <Picker
           key={pin.id}

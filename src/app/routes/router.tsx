@@ -9,6 +9,7 @@ import { LoginPage } from '@/pages/login/ui';
 import { MyPage } from '@/pages/myPage/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { OnboardingPage } from '@/pages/onboarding/ui';
+import { PlaceDetailPage } from '@/pages/placeDetail/ui/PlaceDetailPage';
 import { SplashPage } from '@/pages/splash/ui';
 import { TeamCreatePage } from '@/pages/teamCreate/ui';
 import { TeamDetailPage } from '@/pages/teamDetail/ui';
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
           { path: PATHS.INVITE_ACCEPT, element: <InviteAcceptPage /> },
           { path: PATHS.CAMERA, element: <CameraPage /> },
           { path: PATHS.GALLERY, element: <GalleryPage /> },
+          { path: PATHS.PLACE_DETAIL, element: <PlaceDetailPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

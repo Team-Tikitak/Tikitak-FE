@@ -1,10 +1,15 @@
 import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { toPlaceDetail } from '@/app/routes';
 import { BottomNavigation } from '@/shared/ui';
 import { DailyQuestion } from './DailyQuestion';
 import { Map } from './Map';
 import { MOCK_PINS } from '../model/mock';
+import { type Pin } from '../model/types';
 
 export const MapView = () => {
+  const navigate = useNavigate();
+
   // TODO: 핀 목록 조회
   const pins = MOCK_PINS;
   const initialCenter = { latitude: 37.5507563, longitude: 126.9254901 };
@@ -18,9 +23,12 @@ export const MapView = () => {
     'https://picsum.photos/seed/d/40',
   ];
 
-  const handlePinClick = useCallback(() => {
-    //TODO: 지도 피드 페이지로 이동
-  }, []);
+  const handlePinClick = useCallback(
+    (pin: Pin) => {
+      navigate(toPlaceDetail(pin.placeId));
+    },
+    [navigate],
+  );
 
   const handleQuestionClick = useCallback(() => {
     //TODO: 게시물 작성 페이지로 이동
