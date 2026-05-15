@@ -22,7 +22,7 @@ const MOCK_TEAMS = [
   { id: 'research', title: '사용자 리서치 팀', description: '새로운 게시글 +19' },
 ] satisfies TeamListSheetItem[];
 
-const TEAM_SHEET_COLLAPSED_HEIGHT = 278;
+const TEAM_SHEET_COLLAPSED_HEIGHT = 294;
 const TEAM_SHEET_TOP_GAP = 80;
 
 export const HomePage = () => {

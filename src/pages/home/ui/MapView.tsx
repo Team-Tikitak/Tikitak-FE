@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { toPlaceDetail } from '@/app/routes';
-import { BottomNavigation } from '@/shared/ui';
 import { DailyQuestion } from './DailyQuestion';
 import { Map } from './Map';
 import { MOCK_PINS } from '../model/mock';
@@ -37,11 +36,8 @@ export const MapView = () => {
   return (
     <div className="pointer-events-none relative isolate flex-1">
       <Map pins={pins} initialCenter={initialCenter} onPinClick={handlePinClick} />
-      <div className="pointer-events-auto absolute inset-x-0 top-4 px-5 pt-2">
+      <div className="pointer-events-auto absolute inset-x-0 top-4 z-10 px-5 pt-2">
         <DailyQuestion question={question} imageUrls={imageUrls} onClick={handleQuestionClick} />
-      </div>
-      <div className="pointer-events-auto absolute inset-x-0 bottom-[calc(16px+env(safe-area-inset-bottom))] flex justify-center px-5">
-        <BottomNavigation activeTab="home" />
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
-import { CameraPage } from '@/pages/camera/ui';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
+import { FeedPage } from '@/pages/feed/ui';
+import { FeedCreatePage } from '@/pages/feedCreate/ui';
 import { GalleryPage } from '@/pages/gallery/ui';
 import { HomePage } from '@/pages/home/ui';
 import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
@@ -29,6 +30,8 @@ export const router = createBrowserRouter([
           { path: PATHS.LOGIN, element: <LoginPage /> },
           { path: PATHS.TERMS, element: <TermsPage /> },
           { path: PATHS.HOME, element: <HomePage /> },
+          { path: PATHS.FEED, element: <FeedPage /> },
+          { path: PATHS.FEED_CREATE, element: <FeedCreatePage /> },
           { path: PATHS.ONBOARDING, element: <OnboardingPage /> },
           { path: PATHS.MY_PAGE, element: <MyPage /> },
           { path: PATHS.TEAM_DETAIL, element: <TeamDetailPage /> },
@@ -36,7 +39,6 @@ export const router = createBrowserRouter([
           { path: PATHS.TEAM_PROFILE_SETUP, element: <TeamProfileSetupPage /> },
           { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
           { path: PATHS.INVITE_ACCEPT, element: <InviteAcceptPage /> },
-          { path: PATHS.CAMERA, element: <CameraPage /> },
           { path: PATHS.GALLERY, element: <GalleryPage /> },
           { path: PATHS.PLACE_DETAIL, element: <PlaceDetailPage /> },
           { path: '*', element: <NotFoundPage /> },

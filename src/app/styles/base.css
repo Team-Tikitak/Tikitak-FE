@@ -1,5 +1,7 @@
 @layer base {
   body {
     background-color: #1a1c1f;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

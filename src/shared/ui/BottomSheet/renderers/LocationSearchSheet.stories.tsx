@@ -28,9 +28,6 @@ const meta = {
   ],
   args: {
     locations: LOCATIONS,
-    inputProps: {
-      placeholder: '장소 검색',
-    },
   },
 } satisfies Meta<typeof LocationSearchSheet>;
 

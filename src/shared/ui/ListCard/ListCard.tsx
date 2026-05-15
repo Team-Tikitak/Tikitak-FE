@@ -3,7 +3,7 @@ import { tv } from 'tailwind-variants';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 
 const ListCardVariants = tv({
-  base: 'w-full h-14 gap-2 px-[18px] py-[14px] flex items-center justify-between text-gray-900 border-b border-gray-200 cursor-pointer',
+  base: 'w-full p-3 gap-2 flex items-center justify-between text-gray-900 border-b border-gray-200 cursor-pointer',
 });
 
 export interface ListCardProps extends ComponentPropsWithRef<'button'> {
