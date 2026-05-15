@@ -1,6 +1,6 @@
 import { useState, useRef, type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
-import { FeedImageDetail, type Pin } from './FeedImageDetail';
+import { FeedImageDetail, type Pin, type PressPosition } from './FeedImageDetail';
 
 export type CarouselImage = {
   src: string;
@@ -10,26 +10,40 @@ export type CarouselImage = {
 
 type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
   images: CarouselImage[];
+  onLongPress?: (position: PressPosition) => void;
 };
 
 const SWIPE_THRESHOLD = 50;
 
-export function FeedImageCarousel({ images, className, ref, ...props }: FeedImageCarouselProps) {
+export function FeedImageCarousel({
+  images,
+  onLongPress,
+  className,
+  ref,
+  ...props
+}: FeedImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef<number | null>(null);
+  const hasCapturedRef = useRef(false);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     startXRef.current = e.clientX;
+    hasCapturedRef.current = false;
     setIsDragging(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (startXRef.current === null) return;
 
     const diff = e.clientX - startXRef.current;
+
+    if (!hasCapturedRef.current && Math.abs(diff) > 10) {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      hasCapturedRef.current = true;
+    }
+
     const isAtStart = currentIndex === 0 && diff > 0;
     const isAtEnd = currentIndex === images.length - 1 && diff < 0;
 
@@ -67,7 +81,13 @@ export function FeedImageCarousel({ images, className, ref, ...props }: FeedImag
           onPointerCancel={resetDrag}
         >
           {images.map((image) => (
-            <FeedImageDetail key={image.src} src={image.src} alt={image.alt} pins={image.pins} />
+            <FeedImageDetail
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+              pins={image.pins}
+              onLongPress={onLongPress}
+            />
           ))}
         </div>
         {images.length > 1 && (
