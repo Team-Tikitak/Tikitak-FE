@@ -11,7 +11,7 @@ export function FloatingButton({ className, ref, ...props }: FloatingButtonProps
       type="button"
       aria-label="추가"
       className={cn(
-        'relative flex size-14 items-center justify-center overflow-visible rounded-full',
+        'press-feedback relative flex size-14 items-center justify-center overflow-visible rounded-full',
         className,
       )}
       {...props}
