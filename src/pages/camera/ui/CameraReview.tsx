@@ -12,6 +12,7 @@ import { type PlacedSticker } from '../model/types';
 interface CameraReviewProps {
   imageUrl: string;
   stickers: PlacedSticker[];
+  isConfirming?: boolean;
   onAddSticker: (stickerId: StickerId) => void;
   onMoveSticker: (id: string, xRatio: number, yRatio: number) => void;
   onScaleSticker: (id: string, scale: number) => void;
@@ -23,6 +24,7 @@ interface CameraReviewProps {
 export const CameraReview = ({
   imageUrl,
   stickers,
+  isConfirming = false,
   onAddSticker,
   onMoveSticker,
   onScaleSticker,
@@ -114,7 +116,7 @@ export const CameraReview = ({
 
       {!isPickerOpen && !draggingId && (
         <div className="absolute right-0 bottom-[calc(env(safe-area-inset-bottom)+16px)] left-0 z-10 px-5">
-          <Button variant="primary" onClick={onConfirm}>
+          <Button variant="primary" disabled={isConfirming} onClick={onConfirm}>
             업로드
           </Button>
         </div>

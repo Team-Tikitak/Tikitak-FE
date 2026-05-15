@@ -15,6 +15,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     pendingPreview,
     error,
     isReady,
+    isConfirming,
     handleCapture,
     handleRetake,
     handleAddSticker,
@@ -43,6 +44,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
           <CameraReview
             imageUrl={pendingPreview.previewUrl}
             stickers={pendingPreview.stickers}
+            isConfirming={isConfirming}
             onAddSticker={handleAddSticker}
             onMoveSticker={handleMoveSticker}
             onScaleSticker={handleScaleSticker}
