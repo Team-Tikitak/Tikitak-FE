@@ -24,9 +24,11 @@ export const BottomNavigation = ({
 
   const handleTabChange = (tab: BottomNavigationTab) => {
     if (tab === 'home') navigate(PATHS.HOME);
+    if (tab === 'feed') navigate(PATHS.FEED);
     if (tab === 'my') navigate(PATHS.MY_PAGE);
-    //TODO: feed 경로 추가 시 연결
   };
+
+  const handleCreateClick = onCreateClick ?? (() => navigate(PATHS.FEED_CREATE));
 
   return (
     <nav
@@ -36,7 +38,11 @@ export const BottomNavigation = ({
       {...props}
     >
       <BottomNavigationSelectedTab activeTab={activeTab} onTabChange={handleTabChange} />
-      <FloatingButton aria-label={createAriaLabel} onClick={onCreateClick} className="shrink-0" />
+      <FloatingButton
+        aria-label={createAriaLabel}
+        onClick={handleCreateClick}
+        className="shrink-0"
+      />
     </nav>
   );
 };
