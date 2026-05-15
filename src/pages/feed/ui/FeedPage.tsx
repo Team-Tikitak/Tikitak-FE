@@ -9,7 +9,7 @@ import { MOCK_FEEDS } from '../model/mock';
 export const FeedPage = () => {
   const [viewMode, setViewMode] = useState<FeedViewMode>('list');
   const feeds = MOCK_FEEDS;
-  const totalCount = feeds.length > 0 ? 172 : 0;
+  const totalCount = feeds.length;
 
   return (
     <PageShell
