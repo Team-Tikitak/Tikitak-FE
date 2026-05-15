@@ -3,6 +3,8 @@ export const PATHS = {
   LOGIN: '/login',
   TERMS: '/terms',
   HOME: '/home',
+  FEED: '/feed',
+  FEED_CREATE: '/feed/new',
   ONBOARDING: '/onboarding',
   MY_PAGE: '/mypage',
   TEAM_DETAIL: '/teams/:teamId',
@@ -10,7 +12,6 @@ export const PATHS = {
   TEAM_PROFILE_SETUP: '/teams/new/profile',
   TEAM_INVITE: '/teams/:teamId/invite',
   INVITE_ACCEPT: '/invite/:inviteId',
-  CAMERA: '/camera',
   GALLERY: '/gallery',
 } as const;
 
