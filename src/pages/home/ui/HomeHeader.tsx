@@ -21,7 +21,7 @@ export const HomeHeader = ({ teamName, onTeamSelect }: HomeHeaderProps) => {
           <ChevronDownIcon />
         </button>
       </div>
-      <BellIcon />
+      <BellIcon className="text-black" />
     </header>
   );
 };
