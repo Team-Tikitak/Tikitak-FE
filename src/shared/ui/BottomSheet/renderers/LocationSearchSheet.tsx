@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef } from 'react';
+import { useState } from 'react';
 import { cn } from '@/shared/lib';
 import { CommentInputField } from '../../CommentInputField';
 import { Divider } from '../../Divider';
@@ -15,27 +15,37 @@ export interface LocationSearchSheetProps extends Omit<
   'children' | 'title' | 'onSelect'
 > {
   locations: LocationSearchSheetItem[];
-  inputProps?: ComponentPropsWithoutRef<'input'>;
   onSelect?: (locationId: string) => void;
 }
 
 export function LocationSearchSheet({
   locations,
-  inputProps,
   onSelect,
   className,
   ...props
 }: LocationSearchSheetProps) {
+  const [query, setQuery] = useState('');
+  const trimmed = query.trim().toLowerCase();
+  const results = trimmed
+    ? locations.filter((location) => location.title.toLowerCase().includes(trimmed))
+    : [];
+
   return (
     <BottomSheet
       aria-label="장소 검색"
-      className={cn('h-[294px]', className)}
+      className={cn('bottom-sheet-base', className)}
       contentClassName="flex flex-col"
       {...props}
     >
-      <CommentInputField variant="searchbar" inputProps={inputProps} />
+      <CommentInputField
+        variant="searchbar"
+        inputProps={{
+          value: query,
+          onChange: (event) => setQuery(event.target.value),
+        }}
+      />
       <ul className="mt-5 flex w-full flex-col gap-4">
-        {locations.map((location, index) => (
+        {results.map((location, index) => (
           <li key={location.id} className="flex flex-col gap-4">
             <button
               type="button"
@@ -45,7 +55,7 @@ export function LocationSearchSheet({
               <span className="body-7 w-full truncate text-black">{location.title}</span>
               <span className="body-1 w-full truncate text-gray-600">{location.description}</span>
             </button>
-            {index < locations.length - 1 && <Divider />}
+            {index < results.length - 1 && <Divider />}
           </li>
         ))}
       </ul>
