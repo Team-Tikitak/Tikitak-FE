@@ -16,14 +16,14 @@ export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
 
   if (sdkError) {
     return (
-      <div className="pointer-events-auto absolute inset-0 -z-10 flex items-center justify-center bg-gray-100">
+      <div className="pointer-events-auto absolute inset-0 z-0 flex items-center justify-center bg-gray-100">
         <p className="text-sm text-gray-500">지도를 불러올 수 없습니다</p>
       </div>
     );
   }
 
   return (
-    <div ref={mapRef} className="pointer-events-auto absolute inset-0 -z-10">
+    <div ref={mapRef} className="pointer-events-auto absolute inset-0 z-0">
       {overlayEntries.map(({ container, pin }) =>
         createPortal(
           <MapImage src={pin.thumbnailImageUrl} count={pin.feedCount} onClick={onPinClick} />,
