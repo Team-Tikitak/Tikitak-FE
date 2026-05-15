@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
 import { composePhotoWithStickers } from '../lib/composePhoto';
+import { computeCaptureRect } from '../lib/computeCaptureRect';
 import { type PlacedSticker } from '../model/types';
 
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
@@ -40,6 +41,7 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     isCameraSupported() ? null : 'unsupported',
   );
   const [isReady, setIsReady] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -85,13 +87,32 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     const video = videoRef.current;
     if (!video || !streamRef.current) return;
 
+    const displayRect = video.getBoundingClientRect();
+    const rect = computeCaptureRect(
+      video.videoWidth,
+      video.videoHeight,
+      displayRect.width,
+      displayRect.height,
+    );
+    if (!rect) return;
+
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = rect.sourceWidth;
+    canvas.height = rect.sourceHeight;
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    context.drawImage(video, 0, 0);
+    context.drawImage(
+      video,
+      rect.sourceX,
+      rect.sourceY,
+      rect.sourceWidth,
+      rect.sourceHeight,
+      0,
+      0,
+      rect.sourceWidth,
+      rect.sourceHeight,
+    );
 
     canvas.toBlob(
       (blob) => {
@@ -168,20 +189,27 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
   }, []);
 
   const handleConfirm = useCallback(async () => {
-    if (!pending) return;
-    const composedBlob =
-      pending.stickers.length > 0
-        ? await composePhotoWithStickers(pending.rawBlob, pending.stickers)
-        : pending.rawBlob;
-    const photo: CapturedPhoto = {
-      id: crypto.randomUUID(),
-      url: URL.createObjectURL(composedBlob),
-      blob: composedBlob,
-    };
-    URL.revokeObjectURL(pending.previewUrl);
-    setPending(null);
-    onCapture(photo);
-  }, [onCapture, pending]);
+    if (!pending || isConfirming) return;
+    setIsConfirming(true);
+    try {
+      const composedBlob =
+        pending.stickers.length > 0
+          ? await composePhotoWithStickers(pending.rawBlob, pending.stickers)
+          : pending.rawBlob;
+      const photo: CapturedPhoto = {
+        id: crypto.randomUUID(),
+        url: URL.createObjectURL(composedBlob),
+        blob: composedBlob,
+      };
+      URL.revokeObjectURL(pending.previewUrl);
+      setPending(null);
+      onCapture(photo);
+    } catch (cause) {
+      console.error('사진 합성 실패', cause);
+    } finally {
+      setIsConfirming(false);
+    }
+  }, [isConfirming, onCapture, pending]);
 
   const handleClose = useCallback(() => {
     if (pending) {
@@ -197,6 +225,7 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     pendingPreview: pending,
     error,
     isReady,
+    isConfirming,
     handleCapture,
     handleRetake,
     handleAddSticker,
