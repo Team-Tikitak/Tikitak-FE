@@ -94,9 +94,9 @@ export const CameraReview = ({
         ref={trashRef}
         aria-hidden={!draggingId}
         className={cn(
-          'pointer-events-none absolute bottom-[calc(env(safe-area-inset-bottom)+24px)] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-all duration-150',
+          'pointer-events-none absolute bottom-[calc(env(safe-area-inset-bottom)+24px)] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
           draggingId ? 'opacity-100' : 'opacity-0',
-          isOverTrash ? 'scale-125 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
+          isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
         )}
       >
         <TrashIcon className="size-5 text-white" />
