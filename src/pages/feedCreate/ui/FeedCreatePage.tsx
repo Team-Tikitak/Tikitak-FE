@@ -128,7 +128,7 @@ export const FeedCreatePage = () => {
     >
       <section className="flex h-9 shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white">
         <span className="logo shrink-0 text-white">Today’s Tiki-tak!</span>
-        <span className="min-w-0 truncate text-[12px] leading-[1.5] font-bold text-white">
+        <span className="min-w-0 truncate text-[12px] leading-normal font-bold text-white">
           {TODAY_QUESTION}
         </span>
       </section>
