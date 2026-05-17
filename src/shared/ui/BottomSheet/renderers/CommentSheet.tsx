@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
 import { cn } from '@/shared/lib';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
@@ -27,6 +27,7 @@ export type CommentSheetInputProps =
 export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
   CommentSheetInputProps & {
     comments: CommentSheetItem[];
+    onSubmitComment?: (text: string) => void;
   };
 
 export function CommentSheet({
@@ -34,17 +35,28 @@ export function CommentSheet({
   inputVariant = 'comment',
   inputProps,
   submitButtonProps,
+  onSubmitComment,
   className,
   ...props
 }: CommentSheetProps) {
+  const [value, setValue] = useState('');
+  const hasValue = value.trim().length > 0;
+
+  const submit = () => {
+    const text = value.trim();
+    if (!text) return;
+    setValue('');
+    onSubmitComment?.(text);
+  };
+
   return (
     <BottomSheet
       title="댓글"
-      className={cn('bottom-sheet-base', className)}
-      contentClassName="flex flex-col"
+      className={cn('bottom-sheet-base flex flex-col', className)}
+      contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >
-      <div className="flex w-full flex-col gap-5">
+      <div className="no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-5 overflow-y-auto">
         {comments.map((comment) => (
           <article key={comment.id} className="flex w-full items-center gap-3">
             <Avatar
@@ -63,12 +75,35 @@ export function CommentSheet({
       {inputVariant === 'commentup' ? (
         <CommentInputField
           variant="commentup"
-          className="mt-7"
-          inputProps={inputProps}
-          submitButtonProps={submitButtonProps}
+          className="mt-6 mb-4 shrink-0 gap-0"
+          inputProps={{
+            value,
+            onChange: (event) => setValue(event.target.value),
+            onKeyDown: (event) => {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+                event.preventDefault();
+                submit();
+              }
+            },
+            ...inputProps,
+          }}
+          submitButtonProps={{
+            onClick: submit,
+            ...submitButtonProps,
+            style: {
+              ...submitButtonProps?.style,
+              width: hasValue ? '40px' : '0',
+              marginLeft: hasValue ? '12px' : '0',
+              opacity: hasValue ? 1 : 0,
+              overflow: 'hidden',
+              transition:
+                'width 240ms cubic-bezier(0.34, 1.56, 0.64, 1), margin-left 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 180ms ease-out',
+              pointerEvents: hasValue ? 'auto' : 'none',
+            },
+          }}
         />
       ) : (
-        <CommentInputField className="mt-7" {...inputProps} />
+        <CommentInputField className="mt-6 mb-4 shrink-0" {...inputProps} />
       )}
     </BottomSheet>
   );
