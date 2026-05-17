@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { MapImage } from './MapImage';
 import { useKakaoMap } from '../hooks/useKakaoMap';
 import { type Pin } from '../model/types';
@@ -10,9 +9,11 @@ interface MapProps {
   onPinClick?: (pin: Pin) => void;
 }
 
+const PIN_SIZE = 87;
+
 export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const { overlayEntries, sdkError } = useKakaoMap(mapRef, pins, initialCenter);
+  const { pinPositions, sdkError } = useKakaoMap(mapRef, pins, initialCenter);
 
   if (sdkError) {
     return (
@@ -22,19 +23,36 @@ export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
     );
   }
 
+  const pinByPlaceId = new globalThis.Map(pins.map((pin) => [pin.placeId, pin] as const));
+
   return (
-    <div ref={mapRef} className="pointer-events-auto absolute inset-0 z-0">
-      {overlayEntries.map(({ container, pin }) =>
-        createPortal(
-          <MapImage
-            src={pin.thumbnailImageUrl}
-            count={pin.feedCount}
-            onClick={() => onPinClick?.(pin)}
-          />,
-          container,
-          `${pin.latitude}-${pin.longitude}`,
-        ),
-      )}
-    </div>
+    <>
+      <div ref={mapRef} className="pointer-events-auto absolute inset-0 z-0" />
+      <div className="pointer-events-none absolute inset-0 z-0">
+        {pinPositions.map(({ placeId, x, y }) => {
+          const pin = pinByPlaceId.get(placeId);
+          if (!pin) return null;
+          return (
+            <div
+              key={placeId}
+              data-hero-key={`pin-${placeId}`}
+              className="pointer-events-auto absolute"
+              style={{
+                left: x - PIN_SIZE / 2,
+                top: y - PIN_SIZE,
+                width: PIN_SIZE,
+                height: PIN_SIZE,
+              }}
+            >
+              <MapImage
+                src={pin.thumbnailImageUrl}
+                count={pin.feedCount}
+                onClick={() => onPinClick?.(pin)}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
