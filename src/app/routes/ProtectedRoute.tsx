@@ -1,9 +1,13 @@
 import { Navigate, Outlet } from 'react-router';
-import { getAccessToken } from '@/shared/api/instance';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { PATHS } from './paths';
 
 export const ProtectedRoute = () => {
-  if (!getAccessToken()) return <Navigate to={PATHS.LOGIN} replace />;
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  if (!accessToken) {
+    return <Navigate to={PATHS.LOGIN} replace />;
+  }
 
   return <Outlet />;
 };

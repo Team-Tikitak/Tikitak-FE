@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { PATHS } from '@/app/routes/paths';
+import { useAuthStore } from '../stores/authStore';
 
 export const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -8,13 +9,13 @@ export const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-let accessToken: string | null = null;
-export const getAccessToken = () => accessToken;
+const accessToken: string | null = null;
+export const getAccessToken = () => useAuthStore.getState().accessToken;
 export const setAccessToken = (token: string) => {
-  accessToken = token;
+  useAuthStore.getState().setAccessToken(token);
 };
 export const clearAccessToken = () => {
-  accessToken = null;
+  useAuthStore.getState().clearAccessToken();
 };
 
 instance.interceptors.request.use((config) => {
