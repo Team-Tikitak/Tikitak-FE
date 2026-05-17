@@ -28,15 +28,16 @@ export const PlacedStickerView = ({
   onScale,
 }: PlacedStickerViewProps) => {
   const { Component, label } = getSticker(sticker.stickerId);
-  const { handlePointerDown, handlePointerMove, handlePointerUp } = usePinchDrag({
-    id: sticker.id,
-    scale: sticker.scale,
-    containerRef,
-    onDragStart,
-    onDragMove,
-    onDragEnd,
-    onScale,
-  });
+  const { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel } =
+    usePinchDrag({
+      id: sticker.id,
+      scale: sticker.scale,
+      containerRef,
+      onDragStart,
+      onDragMove,
+      onDragEnd,
+      onScale,
+    });
 
   const size = BASE_STICKER_SIZE_PX * sticker.scale;
 
@@ -47,7 +48,7 @@ export const PlacedStickerView = ({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       style={{
         left: `${sticker.xRatio * 100}%`,
         top: `${sticker.yRatio * 100}%`,

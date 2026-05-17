@@ -79,7 +79,13 @@ export const usePinchDrag = ({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
-    if (pointersRef.current.size < 2) {
+    if (pointersRef.current.size === 2) {
+      const [p1, p2] = Array.from(pointersRef.current.values());
+      pinchStartRef.current = {
+        distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+        scale,
+      };
+    } else {
       pinchStartRef.current = null;
     }
     if (wasPinch && pointersRef.current.size === 1 && isDraggingRef.current) {
@@ -91,5 +97,10 @@ export const usePinchDrag = ({
     }
   };
 
-  return { handlePointerDown, handlePointerMove, handlePointerUp };
+  return {
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handlePointerCancel: handlePointerUp,
+  };
 };
