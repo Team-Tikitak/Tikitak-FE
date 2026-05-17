@@ -1,5 +1,20 @@
-import { type Participant } from '@/shared/ui';
+import { type CommentSheetItem, type Participant } from '@/shared/ui';
 import type { PlaceFeedsMock } from './types';
+
+export const MOCK_PIN_COMMENTS: CommentSheetItem[] = [
+  {
+    id: '1',
+    authorName: '이경준',
+    text: '디자인은 최고다',
+    avatarSrc: 'https://i.pravatar.cc/40?img=4',
+  },
+  {
+    id: '2',
+    authorName: '이한진',
+    text: '우와 펭!',
+    avatarSrc: 'https://i.pravatar.cc/40?img=5',
+  },
+];
 
 const PARTICIPANTS: Participant[] = [
   { id: 1, name: '성정수', avatarSrc: 'https://i.pravatar.cc/24?img=1' },

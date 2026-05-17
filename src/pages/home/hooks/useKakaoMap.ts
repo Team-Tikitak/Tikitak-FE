@@ -1,9 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { type Pin } from '../model/types';
 
-type WithSetMap = { setMap: (m: unknown) => void };
+type KakaoProjection = {
+  containerPointFromCoords: (latLng: unknown) => { x: number; y: number };
+};
+type KakaoMap = {
+  getProjection: () => KakaoProjection;
+};
 
-export type OverlayEntry = { container: HTMLDivElement; pin: Pin };
+export type PinScreenPosition = { placeId: string; x: number; y: number };
+
+const positionCache = new globalThis.Map<string, { x: number; y: number }>();
+
+const restoreCachedPositions = (pins: Pin[]): PinScreenPosition[] =>
+  pins
+    .map((pin) => {
+      const cached = positionCache.get(pin.placeId);
+      return cached ? { placeId: pin.placeId, x: cached.x, y: cached.y } : null;
+    })
+    .filter((entry): entry is PinScreenPosition => entry !== null);
 
 export const useKakaoMap = (
   mapRef: React.RefObject<HTMLDivElement | null>,
@@ -12,8 +27,9 @@ export const useKakaoMap = (
 ) => {
   const mapInstanceRef = useRef<unknown>(null);
   const initialCenterRef = useRef(initialCenter);
-  const kakaoOverlaysRef = useRef<WithSetMap[]>([]);
-  const [overlayEntries, setOverlayEntries] = useState<OverlayEntry[]>([]);
+  const [pinPositions, setPinPositions] = useState<PinScreenPosition[]>(() =>
+    restoreCachedPositions(pins),
+  );
   const [mapReady, setMapReady] = useState(false);
   const [sdkError] = useState(() => !window.kakao?.maps);
 
@@ -39,36 +55,31 @@ export const useKakaoMap = (
 
     return () => {
       cancelled = true;
-      kakaoOverlaysRef.current.forEach((o) => o.setMap(null));
-      kakaoOverlaysRef.current = [];
-      setOverlayEntries([]);
     };
   }, [mapRef, sdkError]);
 
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current) return;
+    const map = mapInstanceRef.current as KakaoMap;
 
-    kakaoOverlaysRef.current.forEach((o) => o.setMap(null));
-    kakaoOverlaysRef.current = [];
-
-    const entries: OverlayEntry[] = pins.map((pin) => {
-      const container = document.createElement('div');
-      const position = new window.kakao.maps.LatLng(pin.latitude, pin.longitude);
-
-      const overlay = new window.kakao.maps.CustomOverlay({
-        position,
-        content: container,
-        yAnchor: 1,
+    const updatePositions = () => {
+      const proj = map.getProjection();
+      const positions = pins.map((pin) => {
+        const latLng = new window.kakao.maps.LatLng(pin.latitude, pin.longitude);
+        const point = proj.containerPointFromCoords(latLng);
+        positionCache.set(pin.placeId, { x: point.x, y: point.y });
+        return { placeId: pin.placeId, x: point.x, y: point.y };
       });
-      (overlay as WithSetMap).setMap(mapInstanceRef.current);
+      setPinPositions(positions);
+    };
 
-      kakaoOverlaysRef.current.push(overlay as WithSetMap);
+    updatePositions();
+    window.kakao.maps.event.addListener(map, 'idle', updatePositions);
 
-      return { container, pin };
-    });
-
-    setOverlayEntries(entries);
+    return () => {
+      window.kakao.maps.event.removeListener(map, 'idle', updatePositions);
+    };
   }, [mapReady, pins]);
 
-  return { overlayEntries, sdkError };
+  return { pinPositions, sdkError };
 };

@@ -38,7 +38,7 @@ export const UserChip = ({
           <img
             src={avatarSrc}
             alt={avatarAlt}
-            className={`${avatarSizeClass[size]} shrink-0 rounded-full object-cover`}
+            className={`${avatarSizeClass[size]} no-native-image shrink-0 rounded-full object-cover`}
           />
         )}
         <span className={`${textCls} whitespace-nowrap`}>{name}</span>

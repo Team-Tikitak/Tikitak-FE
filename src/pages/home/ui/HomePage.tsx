@@ -1,8 +1,8 @@
-import { overlay } from 'overlay-kit';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes';
+import { openOverlay } from '@/shared/lib';
 import { BottomSheetOverlay, TeamListSheet, type TeamListSheetItem } from '@/shared/ui/BottomSheet';
 import { Header } from '@/shared/ui/Header';
 import { EmptyTeamView } from './EmptyTeamView';
@@ -33,8 +33,6 @@ export const HomePage = () => {
   const selectedTeam = MOCK_TEAMS.find((team) => team.id === selectedTeamId) ?? MOCK_TEAMS[0];
 
   const openTeamSheet = () => {
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-
     const expandedHeight = Math.max(
       TEAM_SHEET_COLLAPSED_HEIGHT,
       window.innerHeight - TEAM_SHEET_TOP_GAP,
@@ -43,7 +41,7 @@ export const HomePage = () => {
     const expandedSnap = `${expandedHeight}px`;
     const snapPoints = [collapsedSnap, expandedSnap];
 
-    overlay.open(({ isOpen, close, unmount }) => (
+    openOverlay(({ isOpen, close, unmount }) => (
       <BottomSheetOverlay
         open={isOpen}
         onClose={close}

@@ -1,5 +1,5 @@
-import { type PointerEvent, useRef } from 'react';
 import { getSticker } from '@/shared/assets/Sticker/catalog';
+import { usePinchDrag } from '../hooks/usePinchDrag';
 import { type PlacedSticker } from '../model/types';
 
 interface PlacedStickerViewProps {
@@ -18,8 +18,6 @@ interface PlacedStickerViewProps {
 }
 
 const BASE_STICKER_SIZE_PX = 88;
-const MIN_SCALE = 0.4;
-const MAX_SCALE = 3;
 
 export const PlacedStickerView = ({
   sticker,
@@ -30,65 +28,16 @@ export const PlacedStickerView = ({
   onScale,
 }: PlacedStickerViewProps) => {
   const { Component, label } = getSticker(sticker.stickerId);
-  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
-  const pinchStartRef = useRef<{ distance: number; scale: number } | null>(null);
-  const isDraggingRef = useRef(false);
-
-  const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    if (pointersRef.current.size === 1) {
-      isDraggingRef.current = true;
-      onDragStart(sticker.id);
-    } else if (pointersRef.current.size === 2) {
-      const [p1, p2] = Array.from(pointersRef.current.values());
-      pinchStartRef.current = {
-        distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
-        scale: sticker.scale,
-      };
-    }
-  };
-
-  const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!pointersRef.current.has(event.pointerId)) return;
-    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    if (pointersRef.current.size === 2 && pinchStartRef.current) {
-      const [p1, p2] = Array.from(pointersRef.current.values());
-      const currentDistance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      const nextScale =
-        pinchStartRef.current.scale * (currentDistance / pinchStartRef.current.distance);
-      const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, nextScale));
-      onScale(sticker.id, clamped);
-      return;
-    }
-
-    if (pointersRef.current.size === 1 && isDraggingRef.current) {
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const xRatio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-      const yRatio = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
-      onDragMove(sticker.id, xRatio, yRatio, event.clientX, event.clientY);
-    }
-  };
-
-  const handlePointerUp = (event: PointerEvent<HTMLButtonElement>) => {
-    pointersRef.current.delete(event.pointerId);
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    if (pointersRef.current.size < 2) {
-      pinchStartRef.current = null;
-    }
-    if (pointersRef.current.size === 0 && isDraggingRef.current) {
-      isDraggingRef.current = false;
-      onDragEnd(sticker.id);
-    }
-  };
+  const { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel } =
+    usePinchDrag({
+      id: sticker.id,
+      scale: sticker.scale,
+      containerRef,
+      onDragStart,
+      onDragMove,
+      onDragEnd,
+      onScale,
+    });
 
   const size = BASE_STICKER_SIZE_PX * sticker.scale;
 
@@ -99,7 +48,7 @@ export const PlacedStickerView = ({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       style={{
         left: `${sticker.xRatio * 100}%`,
         top: `${sticker.yRatio * 100}%`,

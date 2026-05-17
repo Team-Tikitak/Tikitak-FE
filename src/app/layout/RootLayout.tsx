@@ -1,5 +1,5 @@
 import { Ssgoi, SsgoiTransition } from '@ssgoi/react';
-import { fade, sheet } from '@ssgoi/react/view-transitions';
+import { hero, sheet, slide } from '@ssgoi/react/view-transitions';
 import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
 import { PATHS } from '@/app/routes';
@@ -10,15 +10,52 @@ interface RootLayoutProps {
   className?: string;
 }
 
-const INSTANT_PHYSICS = { spring: { stiffness: 1500, damping: 80 } };
-const FAST_PHYSICS = { spring: { stiffness: 1000, damping: 55 } };
+const SHEET_PHYSICS = { spring: { stiffness: 600, damping: 45 } };
+const HERO_PHYSICS = { spring: { stiffness: 350, damping: 32 } };
+
+const slideForward = slide({ direction: 'left' });
+const slideBack = slide({ direction: 'right' });
+const heroTransition = hero({ physics: HERO_PHYSICS });
+const sheetEnter = sheet({ physics: SHEET_PHYSICS });
+const sheetExit = sheet({ direction: 'exit', physics: SHEET_PHYSICS });
+
+const sheetPair = (a: string, b: string) => [
+  { from: a, to: b, transition: sheetEnter },
+  { from: b, to: a, transition: sheetExit },
+];
+const pushPair = (a: string, b: string) => [
+  { from: a, to: b, transition: slideForward },
+  { from: b, to: a, transition: slideBack },
+];
 
 const ssgoiConfig = {
-  defaultTransition: fade({ physics: INSTANT_PHYSICS }),
+  defaultTransition: {},
   transitions: [
-    { from: PATHS.HOME, to: PATHS.FEED_CREATE, transition: sheet({ physics: FAST_PHYSICS }) },
-    { from: PATHS.FEED, to: PATHS.FEED_CREATE, transition: sheet({ physics: FAST_PHYSICS }) },
-    { from: PATHS.MY_PAGE, to: PATHS.FEED_CREATE, transition: sheet({ physics: FAST_PHYSICS }) },
+    // 스플래시 → 로그인: 로고 morph
+    { from: PATHS.ROOT, to: PATHS.LOGIN, transition: {}, symmetric: true },
+
+    // FEED_CREATE: 시트 진입/퇴장
+    ...sheetPair(PATHS.HOME, PATHS.FEED_CREATE),
+    ...sheetPair(PATHS.FEED, PATHS.FEED_CREATE),
+    ...sheetPair(PATHS.MY_PAGE, PATHS.FEED_CREATE),
+
+    // 온보딩 플로우: iOS 푸시 슬라이드
+    ...pushPair(PATHS.LOGIN, PATHS.TERMS),
+    ...pushPair(PATHS.TERMS, PATHS.ONBOARDING),
+    { from: PATHS.ONBOARDING, to: PATHS.HOME, transition: slideForward },
+
+    // 팀 생성: 모달성 task → sheet, 내부 단계는 푸시
+    ...sheetPair(PATHS.HOME, PATHS.TEAM_CREATE),
+    ...sheetPair(PATHS.MY_PAGE, PATHS.TEAM_CREATE),
+    ...pushPair(PATHS.TEAM_CREATE, PATHS.TEAM_PROFILE_SETUP),
+
+    // 팀 상세 / 초대 (dynamic teamId 와일드카드)
+    ...pushPair(PATHS.HOME, '/teams/*'),
+    ...pushPair('/teams/*', '/teams/*/invite'),
+
+    // 핀 → 장소 상세 hero morph
+    { from: PATHS.HOME, to: '/place/*', transition: heroTransition },
+    { from: '/place/*', to: PATHS.HOME, transition: heroTransition },
   ],
 };
 

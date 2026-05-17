@@ -1,5 +1,15 @@
 import { type Pin } from './types';
 
+export const MOCK_DAILY_QUESTION = {
+  question: '오늘 OOTD에서 가장 마음에 드는 포인트는?',
+  imageUrls: [
+    'https://picsum.photos/seed/a/40',
+    'https://picsum.photos/seed/b/40',
+    'https://picsum.photos/seed/c/40',
+    'https://picsum.photos/seed/d/40',
+  ],
+};
+
 export const MOCK_PINS: Pin[] = [
   {
     placeId: '1',

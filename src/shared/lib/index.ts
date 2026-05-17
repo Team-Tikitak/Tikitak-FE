@@ -3,3 +3,6 @@
  */
 
 export * from './cn';
+export * from './getPointerRatio';
+export * from './loadImage';
+export * from './openOverlay';
