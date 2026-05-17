@@ -33,7 +33,7 @@ export const FeedListItem = ({ item, className, ref, ...props }: FeedListItemPro
         <p className="body-10 text-gray-500">{item.date}</p>
       </div>
       <div className="relative size-[92px] shrink-0 overflow-hidden rounded-sm">
-        <img src={item.thumbnailUrl} alt="" className="size-full object-cover" />
+        <img src={item.thumbnailUrl} alt="" className="no-native-image size-full object-cover" />
         <span className="font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white">
           {item.photoCount}
         </span>

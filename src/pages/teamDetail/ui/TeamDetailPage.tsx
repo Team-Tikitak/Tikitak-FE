@@ -34,7 +34,7 @@ export const TeamDetailPage = () => {
           <img
             src={team.myProfileImageUrl}
             alt={team.myNickname}
-            className="size-10 rounded-full"
+            className="no-native-image size-10 rounded-full"
           />
           <h3 className="body-9 text-gray-900">{team.myNickname}</h3>
           <button aria-label="프로필 변경" className="body-4 text-main-001 ml-auto cursor-pointer">
