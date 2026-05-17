@@ -13,6 +13,7 @@ export const PATHS = {
   CAMERA: '/camera',
   GALLERY: '/gallery',
   PLACE_DETAIL: '/place/:placeId',
+  AUTH_CALLBACK: '/oauth/callback',
 } as const;
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
