@@ -10,7 +10,8 @@ export type CarouselImage = {
 
 type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
   images: CarouselImage[];
-  onLongPress?: (position: PressPosition) => void;
+  onLongPress?: (position: PressPosition, imageIndex: number) => void;
+  heroKey?: string;
 };
 
 const SWIPE_THRESHOLD = 50;
@@ -18,6 +19,7 @@ const SWIPE_THRESHOLD = 50;
 export function FeedImageCarousel({
   images,
   onLongPress,
+  heroKey,
   className,
   ref,
   ...props
@@ -80,18 +82,19 @@ export function FeedImageCarousel({
           onPointerUp={resetDrag}
           onPointerCancel={resetDrag}
         >
-          {images.map((image) => (
+          {images.map((image, index) => (
             <FeedImageDetail
               key={image.src}
               src={image.src}
               alt={image.alt}
               pins={image.pins}
-              onLongPress={onLongPress}
+              onLongPress={onLongPress && ((position) => onLongPress(position, index))}
+              {...(index === 0 && heroKey ? { 'data-hero-key': heroKey } : {})}
             />
           ))}
         </div>
         {images.length > 1 && (
-          <span className="button-6 absolute top-4 right-3 rounded-full bg-black/60 px-2.5 py-1 text-white">
+          <span className="button-6 absolute top-4 right-3 rounded-full bg-[rgba(30,31,31,0.6)] px-2.5 py-1 text-white">
             {currentIndex + 1}/{images.length}
           </span>
         )}

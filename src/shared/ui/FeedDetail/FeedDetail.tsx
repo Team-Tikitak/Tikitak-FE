@@ -13,7 +13,8 @@ type FeedDetailProps = ComponentPropsWithRef<'div'> & {
   content: string;
   date: string;
   onMoreParticipantsClick?: () => void;
-  onLongPress?: (position: PressPosition) => void;
+  onLongPress?: (position: PressPosition, imageIndex: number) => void;
+  heroKey?: string;
 };
 
 export function FeedDetail({
@@ -24,6 +25,7 @@ export function FeedDetail({
   date,
   onMoreParticipantsClick,
   onLongPress,
+  heroKey,
   className,
   ref,
   ...props
@@ -35,7 +37,7 @@ export function FeedDetail({
         className="mx-auto"
         onMoreClick={onMoreParticipantsClick}
       />
-      <FeedImageCarousel images={images} onLongPress={onLongPress} />
+      <FeedImageCarousel images={images} onLongPress={onLongPress} heroKey={heroKey} />
       <div className="flex flex-col gap-1 px-5">
         <p className="body-5 text-black">
           <span className="body-4 mr-2">{authorName}</span>

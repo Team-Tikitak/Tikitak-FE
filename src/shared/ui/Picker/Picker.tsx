@@ -48,7 +48,7 @@ export function Picker({
             src={avatar.src}
             alt=""
             aria-hidden="true"
-            className="size-9 rounded-full bg-white"
+            className="no-native-image size-9 rounded-full bg-white"
           />
         ))}
       </div>

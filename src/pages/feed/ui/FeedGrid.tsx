@@ -14,7 +14,7 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
           <img
             src={item.thumbnailUrl}
             alt={item.title}
-            className="aspect-square size-full object-cover"
+            className="no-native-image aspect-square size-full object-cover"
           />
         </li>
       ))}

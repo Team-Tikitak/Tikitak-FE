@@ -1,5 +1,5 @@
 import { type ComponentPropsWithRef, useRef } from 'react';
-import { cn } from '@/shared/lib';
+import { cn, getPointerRatio } from '@/shared/lib';
 import { Picker } from '../Picker/Picker';
 
 type PinAvatar = { id: string; src: string; alt?: string };
@@ -25,7 +25,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   onLongPress?: (position: PressPosition) => void;
 };
 
-const LONG_PRESS_DELAY = 500;
+const LONG_PRESS_DELAY = 800;
 const MOVE_CANCEL_THRESHOLD = 6;
 
 export function FeedImageDetail({
@@ -41,9 +41,9 @@ export function FeedImageDetail({
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const { x: xRatio, y: yRatio } = getPointerRatio(e, e.currentTarget);
+    const x = xRatio * 100;
+    const y = yRatio * 100;
     startPosRef.current = { x: e.clientX, y: e.clientY };
 
     timerRef.current = setTimeout(() => {
@@ -75,7 +75,7 @@ export function FeedImageDetail({
 
   return (
     <figure
-      className={cn('relative w-full shrink-0 overflow-hidden', className)}
+      className={cn('relative h-[524px] w-full shrink-0 overflow-hidden bg-black', className)}
       ref={ref}
       onContextMenu={(e) => e.preventDefault()}
       {...props}
@@ -83,8 +83,11 @@ export function FeedImageDetail({
       <img
         src={src}
         alt={alt}
-        className="h-full w-full object-cover"
+        className="no-native-image h-full w-full object-contain"
         draggable={false}
+      />
+      <div
+        className="absolute inset-0 touch-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={cancelLongPress}
@@ -100,7 +103,7 @@ export function FeedImageDetail({
           variant={pin.variant}
           onClick={pin.onClick}
           className="absolute -translate-y-full"
-          style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+          style={{ left: `${pin.x}%`, top: `${pin.y}%`, zIndex: 1 }}
         />
       ))}
     </figure>

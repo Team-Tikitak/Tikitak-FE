@@ -1,3 +1,4 @@
+import { QRCodeSVG } from 'qrcode.react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import CopyIcon from '@/shared/assets/Icon/CopyIcon.svg?react';
@@ -18,7 +19,17 @@ export const TeamInvitePage = () => {
       }
       contentClassName="flex flex-col gap-4 pt-18 items-center"
     >
-      <div className="bg-main-000 size-60 rounded-md p-4.5">{/* TODO: QR 코드 이미지 */}</div>
+      <div className="bg-main-000 flex size-60 items-center justify-center rounded-md p-4.5">
+        <QRCodeSVG
+          value={inviteUrl}
+          size={204}
+          bgColor="transparent"
+          fgColor="#121212"
+          level="M"
+          includeMargin={false}
+          title={`${teamName} 초대 QR 코드`}
+        />
+      </div>
       <div className="flex items-center gap-2">
         <input
           type="text"

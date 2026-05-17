@@ -22,7 +22,10 @@ export function ImageWithFallback({
     <img
       src={imageSrc || fallbackSrc}
       alt={alt}
-      className={cn('rounded-max size-6 border border-white object-cover', className)}
+      className={cn(
+        'no-native-image rounded-max size-6 border border-white object-cover',
+        className,
+      )}
       onError={() => {
         setImageSrc(fallbackSrc);
       }}

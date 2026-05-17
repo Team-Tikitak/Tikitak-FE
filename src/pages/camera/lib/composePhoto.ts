@@ -1,16 +1,8 @@
 import { getSticker } from '@/shared/assets/Sticker/catalog';
+import { loadImage } from '@/shared/lib';
 import { type PlacedSticker } from '../model/types';
 
 const STICKER_SIZE_RATIO = 0.18; // 합성 시 스티커 폭이 사진 폭의 18%
-
-const loadImage = (src: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-    image.src = src;
-  });
 
 export const composePhotoWithStickers = async (
   photoBlob: Blob,

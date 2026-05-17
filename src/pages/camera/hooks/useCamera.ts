@@ -36,12 +36,26 @@ interface PendingState {
 export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isMountedRef = useRef(true);
+  const pendingRef = useRef<PendingState | null>(null);
   const [pending, setPending] = useState<PendingState | null>(null);
   const [error, setError] = useState<CameraError | null>(() =>
     isCameraSupported() ? null : 'unsupported',
   );
   const [isReady, setIsReady] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+
+  useEffect(() => {
+    pendingRef.current = pending;
+  }, [pending]);
+
+  useEffect(
+    () => () => {
+      isMountedRef.current = false;
+      if (pendingRef.current) URL.revokeObjectURL(pendingRef.current.previewUrl);
+    },
+    [],
+  );
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -63,8 +77,10 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
           return;
         }
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          void video.play().catch(() => {});
         }
         setIsReady(true);
         setError(null);
@@ -116,7 +132,7 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
 
     canvas.toBlob(
       (blob) => {
-        if (!blob) return;
+        if (!blob || !isMountedRef.current) return;
         setPending({
           rawBlob: blob,
           previewUrl: URL.createObjectURL(blob),
@@ -136,57 +152,44 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     setPending(null);
   }, [pending]);
 
-  const handleAddSticker = useCallback((stickerId: StickerId) => {
-    setPending((prev) =>
-      prev
-        ? {
-            ...prev,
-            stickers: [
-              ...prev.stickers,
-              {
-                id: crypto.randomUUID(),
-                stickerId,
-                xRatio: 0.5,
-                yRatio: 0.5,
-                scale: 1,
-              },
-            ],
-          }
-        : prev,
-    );
+  const updateStickers = useCallback((updater: (stickers: PlacedSticker[]) => PlacedSticker[]) => {
+    setPending((prev) => (prev ? { ...prev, stickers: updater(prev.stickers) } : prev));
   }, []);
 
-  const handleMoveSticker = useCallback((id: string, xRatio: number, yRatio: number) => {
-    setPending((prev) =>
-      prev
-        ? {
-            ...prev,
-            stickers: prev.stickers.map((sticker) =>
-              sticker.id === id ? { ...sticker, xRatio, yRatio } : sticker,
-            ),
-          }
-        : prev,
-    );
-  }, []);
+  const handleAddSticker = useCallback(
+    (stickerId: StickerId) => {
+      updateStickers((stickers) => [
+        ...stickers,
+        { id: crypto.randomUUID(), stickerId, xRatio: 0.5, yRatio: 0.5, scale: 1 },
+      ]);
+    },
+    [updateStickers],
+  );
 
-  const handleScaleSticker = useCallback((id: string, scale: number) => {
-    setPending((prev) =>
-      prev
-        ? {
-            ...prev,
-            stickers: prev.stickers.map((sticker) =>
-              sticker.id === id ? { ...sticker, scale } : sticker,
-            ),
-          }
-        : prev,
-    );
-  }, []);
+  const handleMoveSticker = useCallback(
+    (id: string, xRatio: number, yRatio: number) => {
+      updateStickers((stickers) =>
+        stickers.map((sticker) => (sticker.id === id ? { ...sticker, xRatio, yRatio } : sticker)),
+      );
+    },
+    [updateStickers],
+  );
 
-  const handleRemoveSticker = useCallback((id: string) => {
-    setPending((prev) =>
-      prev ? { ...prev, stickers: prev.stickers.filter((sticker) => sticker.id !== id) } : prev,
-    );
-  }, []);
+  const handleScaleSticker = useCallback(
+    (id: string, scale: number) => {
+      updateStickers((stickers) =>
+        stickers.map((sticker) => (sticker.id === id ? { ...sticker, scale } : sticker)),
+      );
+    },
+    [updateStickers],
+  );
+
+  const handleRemoveSticker = useCallback(
+    (id: string) => {
+      updateStickers((stickers) => stickers.filter((sticker) => sticker.id !== id));
+    },
+    [updateStickers],
+  );
 
   const handleConfirm = useCallback(async () => {
     if (!pending || isConfirming) return;
@@ -196,6 +199,10 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
         pending.stickers.length > 0
           ? await composePhotoWithStickers(pending.rawBlob, pending.stickers)
           : pending.rawBlob;
+      if (!isMountedRef.current) {
+        URL.revokeObjectURL(pending.previewUrl);
+        return;
+      }
       const photo: CapturedPhoto = {
         id: crypto.randomUUID(),
         url: URL.createObjectURL(composedBlob),
@@ -207,7 +214,7 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     } catch (cause) {
       console.error('사진 합성 실패', cause);
     } finally {
-      setIsConfirming(false);
+      if (isMountedRef.current) setIsConfirming(false);
     }
   }, [isConfirming, onCapture, pending]);
 
