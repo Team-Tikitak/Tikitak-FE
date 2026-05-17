@@ -64,6 +64,15 @@ describe('useTrashDragZone', () => {
     expect(result.current.isOverTrash).toBe(false);
   });
 
+  it('handleDragMove without preceding handleDragStart never reports isOverTrash', () => {
+    const onMove = vi.fn();
+    const { result } = renderHook(() => useTrashDragZone({ onMove, onRemove: vi.fn() }));
+    attachTrash(result.current.trashRef, { left: 0, top: 0, width: 100, height: 100 });
+    act(() => result.current.handleDragMove('sticker-1', 0.5, 0.5, 50, 50));
+    expect(result.current.isOverTrash).toBe(false);
+    expect(onMove).toHaveBeenCalledWith('sticker-1', 0.5, 0.5);
+  });
+
   it('handleDragEnd outside trash does not call onRemove', () => {
     const onRemove = vi.fn();
     const { result } = renderHook(() => useTrashDragZone({ onMove: vi.fn(), onRemove }));
