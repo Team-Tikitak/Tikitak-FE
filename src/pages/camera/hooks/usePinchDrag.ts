@@ -1,4 +1,4 @@
-import { type PointerEvent, type RefObject, useRef } from 'react';
+import { type PointerEvent, type RefObject, useEffect, useRef } from 'react';
 import { getPointerRatio } from '@/shared/lib';
 
 interface UsePinchDragOptions {
@@ -33,6 +33,18 @@ export const usePinchDrag = ({
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const pinchStartRef = useRef<{ distance: number; scale: number } | null>(null);
   const isDraggingRef = useRef(false);
+  const scaleRef = useRef(scale);
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
+  const recomputePinchStart = () => {
+    const [p1, p2] = Array.from(pointersRef.current.values());
+    pinchStartRef.current = {
+      distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+      scale: scaleRef.current,
+    };
+  };
 
   const handlePointerDown = (event: PointerEvent<HTMLElement>) => {
     event.preventDefault();
@@ -43,11 +55,7 @@ export const usePinchDrag = ({
       isDraggingRef.current = true;
       onDragStart(id);
     } else if (pointersRef.current.size === 2) {
-      const [p1, p2] = Array.from(pointersRef.current.values());
-      pinchStartRef.current = {
-        distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
-        scale,
-      };
+      recomputePinchStart();
     }
   };
 
@@ -80,11 +88,7 @@ export const usePinchDrag = ({
     }
 
     if (pointersRef.current.size === 2) {
-      const [p1, p2] = Array.from(pointersRef.current.values());
-      pinchStartRef.current = {
-        distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
-        scale,
-      };
+      recomputePinchStart();
     } else {
       pinchStartRef.current = null;
     }
