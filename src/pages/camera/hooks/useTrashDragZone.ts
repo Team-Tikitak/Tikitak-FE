@@ -46,6 +46,7 @@ export const useTrashDragZone = ({ onMove, onRemove }: UseTrashDragZoneOptions) 
     if (isOverTrashRef.current) onRemove(id);
     setDraggingId(null);
     setOverTrash(false);
+    trashRectRef.current = null;
   };
 
   return {
