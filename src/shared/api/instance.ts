@@ -72,6 +72,8 @@ instance.interceptors.response.use(
 
         const newAccessToken = data.data?.accessToken;
 
+        if (!newAccessToken) throw new Error('Access token not found');
+
         setAccessToken(newAccessToken);
         processQueue(null, newAccessToken);
 
