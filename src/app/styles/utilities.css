@@ -1,0 +1,38 @@
+@utility invite-body {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-h5);
+  line-height: 140%;
+  letter-spacing: -0.05em;
+}
+
+@utility logo {
+  font-family: var(--font-orange);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 150%;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility bottom-sheet-base {
+  height: calc(294px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility press-feedback {
+  transition-property: transform, background-color, color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}

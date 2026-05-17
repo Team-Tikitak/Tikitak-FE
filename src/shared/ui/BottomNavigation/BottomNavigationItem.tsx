@@ -26,7 +26,7 @@ export function BottomNavigationItem({
         aria-current={selected ? 'page' : undefined}
         onClick={() => onSelect?.(value)}
         className={cn(
-          'rounded-max flex h-[44px] w-full max-w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500 transition-colors',
+          'rounded-max press-feedback flex h-[44px] w-full max-w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500',
           selected && 'bg-main-000 text-main font-semibold',
         )}
       >

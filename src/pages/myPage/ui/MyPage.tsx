@@ -3,7 +3,7 @@ import { PageShell } from '@/app/layout';
 import { PATHS, toTeamDetail } from '@/app/routes/paths';
 import { useLogout } from '@/shared/api/auth/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { BottomNavigation, Button, Header, ListCard, PageSection, TeamCard } from '@/shared/ui';
+import { Button, Header, ListCard, PageSection, TeamCard } from '@/shared/ui';
 import { MOCK_MY_TEAMS } from '../model/mock';
 
 const teams = MOCK_MY_TEAMS;
@@ -15,8 +15,7 @@ export const MyPage = () => {
   return (
     <PageShell
       header={<Header title="마이페이지" variant="left" rightIcon={null} />}
-      contentClassName="flex flex-col gap-8 px-5 py-7"
-      bottom={<BottomNavigation activeTab="my" />}
+      contentClassName="no-scrollbar flex flex-col gap-8 px-5 pt-7 pb-28"
     >
       <PageSection title="내 팀" className="gap-3">
         {teams.map((team) => (

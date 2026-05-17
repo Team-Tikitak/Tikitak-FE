@@ -1,5 +1,5 @@
 import { type ComponentPropsWithRef } from 'react';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon.svg?react';
+import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import {
   userChipVariants,
   avatarSizeClass,
@@ -47,10 +47,10 @@ export const UserChip = ({
         <button
           type="button"
           onClick={onRemove}
-          className="shrink-0 p-0 text-gray-500"
+          className="shrink-0 p-[3px] text-gray-300"
           aria-label="제거"
         >
-          <CloseIcon className="size-3" />
+          <CloseIcon className="size-4" />
         </button>
       )}
     </div>

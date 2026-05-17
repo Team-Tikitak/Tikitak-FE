@@ -40,7 +40,7 @@ export function CommentSheet({
   return (
     <BottomSheet
       title="댓글"
-      className={cn('h-[298px]', className)}
+      className={cn('bottom-sheet-base', className)}
       contentClassName="flex flex-col"
       {...props}
     >

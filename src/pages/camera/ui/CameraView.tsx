@@ -1,25 +1,54 @@
-import { PageShell } from '@/app/layout';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon.svg?react';
+import { type RefObject } from 'react';
+import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { CameraButton } from '@/shared/ui';
+import { type CameraError } from '../hooks/useCamera';
+
+const ERROR_MESSAGES = {
+  permission: '카메라 권한이 필요합니다. 설정에서 권한을 허용해주세요.',
+  unsupported: '이 브라우저에서는 카메라를 사용할 수 없습니다.',
+  unknown: '카메라를 켜는 중 오류가 발생했습니다.',
+} satisfies Record<CameraError, string>;
 
 interface CameraViewProps {
+  videoRef: RefObject<HTMLVideoElement | null>;
+  error: CameraError | null;
+  isReady: boolean;
   onCapture: () => void;
   onClose: () => void;
 }
 
-export const CameraView = ({ onCapture, onClose }: CameraViewProps) => {
+export const CameraView = ({ videoRef, error, isReady, onCapture, onClose }: CameraViewProps) => {
   return (
-    <PageShell contentClassName="relative flex flex-1 justify-center bg-black">
+    <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+
       <button
+        type="button"
         aria-label="카메라 닫기"
         onClick={onClose}
-        className="absolute top-15 left-6 cursor-pointer"
+        className="press-feedback absolute top-[calc(env(safe-area-inset-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
       >
-        <CloseIcon className="size-4 text-white" />
+        <CloseIcon3 className="size-[18px]" />
       </button>
 
-      <CameraButton className="absolute bottom-10" onClick={onCapture} />
-      {/* TODO: 카메라 촬영 기능 구현 */}
-    </PageShell>
+      {error && (
+        <p className="text-h4 absolute top-1/2 left-1/2 z-10 w-[280px] -translate-x-1/2 -translate-y-1/2 text-center text-white">
+          {ERROR_MESSAGES[error]}
+        </p>
+      )}
+
+      {isReady && !error && (
+        <CameraButton
+          className="absolute bottom-[calc(env(safe-area-inset-bottom)+40px)] z-10"
+          onClick={onCapture}
+        />
+      )}
+    </div>
   );
 };

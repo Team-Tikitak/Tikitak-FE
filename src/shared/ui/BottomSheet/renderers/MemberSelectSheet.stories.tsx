@@ -58,7 +58,7 @@ const meta = {
   ],
   args: {
     members: MEMBERS,
-    selectedMemberIds: ['sung', 'bogyu', 'sujin'],
+    initialSelectedIds: ['sung', 'bogyu', 'sujin'],
   },
 } satisfies Meta<typeof MemberSelectSheet>;
 
