@@ -70,12 +70,12 @@ instance.interceptors.response.use(
           { withCredentials: true },
         );
 
-        const newAccessToken = data.accessToken;
+        const newAccessToken = data.data?.accessToken;
 
         setAccessToken(newAccessToken);
         processQueue(null, newAccessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return instance(originalRequest);
       } catch (refreshError) {
