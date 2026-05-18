@@ -1,6 +1,6 @@
 export type ApiResponse<T> = {
   success: boolean;
-  status: string;
+  status: number;
   data: T;
   timestamp: string;
 };
