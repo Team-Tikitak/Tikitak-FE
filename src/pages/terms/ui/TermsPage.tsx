@@ -19,7 +19,7 @@ export const TermsPage = () => {
 
   return (
     <PageShell
-      header={<Header showBackButton onBack={() => navigate(-1)} />}
+      header={<Header showBackButton onBack={() => navigate(PATHS.LOGIN, { replace: true })} />}
       contentClassName="flex flex-col gap-10 px-5 pt-2"
       bottom={
         <Button
