@@ -7,17 +7,16 @@ const socialLoginButton = tv({
   variants: {
     provider: {
       kakao: 'bg-kakao-yellow text-black',
-      //TODO: 버튼 디자인 나오면 추가 필요
-      google: '',
-      apple: '',
+      google: 'border border-invite-border ',
+      apple: 'bg-black text-white',
     },
   },
 });
 
 const LABEL: Record<OAuthProvider, string> = {
   kakao: '카카오톡 로그인',
-  google: '구글로 로그인',
-  apple: '애플로 로그인',
+  google: '구글 로그인',
+  apple: '애플 로그인',
 };
 
 type SocialLoginButtonProps = {
