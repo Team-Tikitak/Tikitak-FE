@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { PATHS } from '@/app/routes/paths';
 import { useAuthStore } from '../stores/authStore';
+import { AUTH_ENDPOINTS } from './auth/endpoints';
 
 export const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -9,7 +10,6 @@ export const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-const accessToken: string | null = null;
 export const getAccessToken = () => useAuthStore.getState().accessToken;
 export const setAccessToken = (token: string) => {
   useAuthStore.getState().setAccessToken(token);
@@ -18,9 +18,16 @@ export const clearAccessToken = () => {
   useAuthStore.getState().clearAccessToken();
 };
 
+const AUTH_EXCLUDED_PATHS = [AUTH_ENDPOINTS.OAUTH_PREFIX, AUTH_ENDPOINTS.TOKEN_REFRESH] as const;
+const isAuthExcluded = (url?: string) => {
+  if (!url) return false;
+  return AUTH_EXCLUDED_PATHS.some((path) => url.startsWith(path));
+};
+
 instance.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -47,6 +54,10 @@ instance.interceptors.response.use(
 
     if (!status) return Promise.reject(error);
 
+    if (isAuthExcluded(originalRequest?.url)) {
+      return Promise.reject(error);
+    }
+
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -66,7 +77,7 @@ instance.interceptors.response.use(
 
       try {
         const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/token/refresh`,
+          `${import.meta.env.VITE_API_BASE_URL}${AUTH_ENDPOINTS.TOKEN_REFRESH}`,
           null,
           { withCredentials: true },
         );
