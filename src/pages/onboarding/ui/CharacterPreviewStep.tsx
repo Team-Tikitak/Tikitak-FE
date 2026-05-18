@@ -42,20 +42,36 @@ export const CharacterPreviewStep = ({ onBack, onStart }: CharacterPreviewStepPr
       <div className="mt-[100px]">
         <SpeechBubble
           text="내 캐릭터는 뭐가 나올까?"
-          className="animate-bubble-pop ml-16 origin-bottom motion-reduce:animate-none"
+          className="animate-bubble-pop ml-16 origin-bottom [animation-delay:400ms] motion-reduce:animate-none"
         />
 
         <div className="mt-[19px] flex flex-col gap-6">
-          <div className="overflow-hidden">
-            <div className="animate-marquee-left flex w-max gap-2 motion-reduce:animate-none">
+          <div
+            className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
+            style={{
+              maskImage:
+                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
+              WebkitMaskImage:
+                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
+            }}
+          >
+            <div className="animate-marquee-left flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
               {[...TOP_ROW_CHARACTERS, ...TOP_ROW_CHARACTERS].map((char, index) =>
                 renderCircle(char, `top-${char.id}-${index}`),
               )}
             </div>
           </div>
 
-          <div className="overflow-hidden">
-            <div className="animate-marquee-right flex w-max gap-2 motion-reduce:animate-none">
+          <div
+            className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
+            style={{
+              maskImage:
+                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
+              WebkitMaskImage:
+                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
+            }}
+          >
+            <div className="animate-marquee-right flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
               {[...BOTTOM_ROW_CHARACTERS, ...BOTTOM_ROW_CHARACTERS].map((char, index) =>
                 renderCircle(char, `bottom-${char.id}-${index}`),
               )}
