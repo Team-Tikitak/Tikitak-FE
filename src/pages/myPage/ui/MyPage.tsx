@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toTeamDetail } from '@/app/routes/paths';
+import { useLogout } from '@/shared/api/auth/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button, Header, ListCard, PageSection, TeamCard } from '@/shared/ui';
 import { MOCK_MY_TEAMS } from '../model/mock';
@@ -9,6 +10,7 @@ const teams = MOCK_MY_TEAMS;
 
 export const MyPage = () => {
   const navigate = useNavigate();
+  const { mutate: logout } = useLogout();
 
   return (
     <PageShell
@@ -41,7 +43,7 @@ export const MyPage = () => {
 
       <PageSection title="고객 지원">
         <ListCard title="고객센터" />
-        <ListCard title="로그아웃" />
+        <ListCard title="로그아웃" onClick={() => logout()} />
         <ListCard title="회원 탈퇴" />
       </PageSection>
     </PageShell>
