@@ -3,3 +3,4 @@
  */
 
 export * from './LoginPage';
+export * from './SocialLoginButton';
