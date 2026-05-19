@@ -6,6 +6,13 @@ import { BOTTOM_ROW_CHARACTERS, TOP_ROW_CHARACTERS } from '../constants/characte
 
 type RowCharacter = (typeof TOP_ROW_CHARACTERS)[number];
 
+const MARQUEE_EDGE_MASK =
+  'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)';
+const marqueeRowStyle = {
+  maskImage: MARQUEE_EDGE_MASK,
+  WebkitMaskImage: MARQUEE_EDGE_MASK,
+};
+
 const renderCircle = (char: RowCharacter, key: string) => {
   const { label, Icon, offsetClass } = char;
   return (
@@ -48,12 +55,7 @@ export const CharacterPreviewStep = ({ onBack, onStart }: CharacterPreviewStepPr
         <div className="mt-[19px] flex flex-col gap-6">
           <div
             className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
-            style={{
-              maskImage:
-                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
-              WebkitMaskImage:
-                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
-            }}
+            style={marqueeRowStyle}
           >
             <div className="animate-marquee-left flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
               {[...TOP_ROW_CHARACTERS, ...TOP_ROW_CHARACTERS].map((char, index) =>
@@ -64,12 +66,7 @@ export const CharacterPreviewStep = ({ onBack, onStart }: CharacterPreviewStepPr
 
           <div
             className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
-            style={{
-              maskImage:
-                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
-              WebkitMaskImage:
-                'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)',
-            }}
+            style={marqueeRowStyle}
           >
             <div className="animate-marquee-right flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
               {[...BOTTOM_ROW_CHARACTERS, ...BOTTOM_ROW_CHARACTERS].map((char, index) =>
