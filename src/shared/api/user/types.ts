@@ -11,3 +11,14 @@ export interface MeResponse {
   hasTeam: boolean;
   createdAt: string;
 }
+
+export interface AgreementsResponse {
+  termsAgreed: boolean;
+  privacyAgreed: boolean;
+  termsAgreedAt: string;
+}
+
+export interface AgreementsRequest {
+  termsAgreed: boolean;
+  privacyAgreed: boolean;
+}
