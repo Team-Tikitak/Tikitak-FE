@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
-import { AuthCallbackPage } from '@/pages/authCallback/ui/AuthCallbackPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
@@ -18,6 +17,7 @@ import { TeamDetailPage } from '@/pages/teamDetail/ui';
 import { TeamInvitePage } from '@/pages/teamInvite/ui';
 import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui';
 import { TermsPage } from '@/pages/terms/ui';
+import { authCallbackLoader, setupFlowLoader } from './loaders';
 import { PATHS } from './paths';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -31,9 +31,10 @@ export const router = createBrowserRouter([
           { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
           { path: PATHS.INVITE_ACCEPT, element: <InviteAcceptPage /> },
-          { path: PATHS.AUTH_CALLBACK, element: <AuthCallbackPage /> },
+          { path: PATHS.AUTH_CALLBACK, loader: authCallbackLoader },
           {
             element: <ProtectedRoute />,
+            loader: setupFlowLoader,
             children: [
               { path: PATHS.TERMS, element: <TermsPage /> },
               { path: PATHS.ONBOARDING, element: <OnboardingPage /> },

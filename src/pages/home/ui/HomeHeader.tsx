@@ -9,7 +9,7 @@ interface HomeHeaderProps {
 
 export const HomeHeader = ({ teamName, onTeamSelect }: HomeHeaderProps) => {
   return (
-    <header className="flex h-[72px] w-full items-start justify-between bg-white px-5 pt-2 pb-[3px]">
+    <header className="flex w-full items-start justify-between bg-white px-5 pt-2 pb-[15px]">
       <div className="flex flex-col gap-2">
         <TikiTakLogo className="h-[29px] w-[76px]" />
         <button
