@@ -1,31 +1,23 @@
-import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes/paths';
 import { Button } from '@/shared/ui/Button';
 import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
 import { TermsCheckRow } from './TermsCheckRow';
 import { PERMISSIONS } from '../constants/permissions';
-import { useTermsAgreement } from '../hooks/useTermsAgreement';
+import { useTermsFlow } from '../hooks/useTermsFlow';
 
 export const TermsPage = () => {
-  const navigate = useNavigate();
-  const { terms, allChecked, toggleAll, toggle } = useTermsAgreement();
-
-  const handleStart = () => {
-    if (!allChecked) return;
-    navigate(PATHS.ONBOARDING);
-  };
+  const { terms, allChecked, isSubmitting, toggleAll, toggle, submit, goBack } = useTermsFlow();
 
   return (
     <PageShell
-      header={<Header showBackButton onBack={() => navigate(PATHS.LOGIN, { replace: true })} />}
+      header={<Header showBackButton onBack={goBack} />}
       contentClassName="flex flex-col gap-10 px-5 pt-2"
       bottom={
         <Button
           variant="primary"
-          disabled={!allChecked}
-          onClick={handleStart}
+          disabled={!allChecked || isSubmitting}
+          onClick={submit}
           className="disabled:opacity-30"
         >
           시작하기
