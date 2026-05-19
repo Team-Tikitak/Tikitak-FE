@@ -25,6 +25,9 @@ const isAuthExcluded = (url?: string) => {
 };
 
 instance.interceptors.request.use((config) => {
+  if (isAuthExcluded(config.url)) {
+    return config;
+  }
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
