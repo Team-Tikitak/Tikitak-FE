@@ -11,7 +11,7 @@ export const PATHS = {
   TEAM_CREATE: '/teams/new',
   TEAM_PROFILE_SETUP: '/teams/new/profile',
   TEAM_INVITE: '/teams/:teamId/invite',
-  INVITE_ACCEPT: '/invite/:inviteId',
+  INVITE_ACCEPT: '/invite/:token',
   GALLERY: '/gallery',
   PLACE_DETAIL: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',

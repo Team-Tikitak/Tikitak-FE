@@ -10,6 +10,13 @@ export const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+export const pulbicInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 10000,
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+});
+
 export const getAccessToken = () => useAuthStore.getState().accessToken;
 export const setAccessToken = (token: string) => {
   useAuthStore.getState().setAccessToken(token);
