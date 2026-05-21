@@ -1,4 +1,5 @@
 export interface InvitationLinkResponse {
+  teamName: string;
   expiresAt: string;
   inviteToken: string;
 }
