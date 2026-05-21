@@ -39,4 +39,6 @@ export type Team = {
   isActive: boolean;
 };
 
-export type TeamListResponse = { teams: Team[] };
+export interface TeamListResponse {
+  teams: Team[];
+}
