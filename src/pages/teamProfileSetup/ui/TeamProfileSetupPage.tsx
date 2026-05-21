@@ -1,21 +1,29 @@
 import { useRef } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
+import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
 import { useTeamProfileSetupForm } from '../hooks/useTeamProfileSetupForm';
-import type { TeamDraftRouteState } from '../model/types';
+
+const HEADER_TITLE = {
+  create: '팀 개설',
+  join: '팀 참여',
+  edit: '프로필 수정',
+} as const;
 
 export const TeamProfileSetupPage = () => {
   const navigate = useNavigate();
-  const state = useLocation().state as TeamDraftRouteState | null;
-  const { nickname, setNickname, avatarPreviewUrl, setAvatar, isDisabled } =
+  const { state, teamName, submit, isPending } = useTeamProfileSetupFlow();
+  const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
     useTeamProfileSetupForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!state?.name) return <Navigate to={PATHS.TEAM_CREATE} replace />;
-  const teamName = state.name;
+  if (!state) return <Navigate to={PATHS.TEAM_CREATE} replace />;
+  if (state.mode === 'create' && !state.name) return <Navigate to={PATHS.TEAM_CREATE} replace />;
+  if (state.mode === 'edit' && !state.teamName)
+    return <Navigate to={`/teams/${state.teamId}`} replace />;
 
   const handlePickAvatar = () => {
     fileInputRef.current?.click();
@@ -29,10 +37,16 @@ export const TeamProfileSetupPage = () => {
 
   return (
     <PageShell
-      header={<Header title="팀 개설" showBackButton onBack={() => navigate(-1)} />}
+      header={
+        <Header title={HEADER_TITLE[state.mode]} showBackButton onBack={() => navigate(-1)} />
+      }
       contentClassName="flex flex-col px-5 py-7"
       bottom={
-        <Button variant="primary" disabled={isDisabled}>
+        <Button
+          variant="primary"
+          disabled={isDisabled || isPending}
+          onClick={() => submit({ nickname, avatarFile })}
+        >
           완료
         </Button>
       }
