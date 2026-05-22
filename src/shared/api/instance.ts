@@ -10,7 +10,7 @@ export const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-export const pulbicInstance = axios.create({
+export const publicInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   withCredentials: true,

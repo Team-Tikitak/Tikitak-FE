@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { useNavigate } from 'react-router';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import {
   postAcceptInvitation,
   getInvitationLink,
@@ -27,7 +27,6 @@ export const useInvitationLink = (teamId: number) =>
         throw error;
       }
     },
-    enabled: Boolean(teamId),
   });
 
 export const useInvitationPreview = (token: string) =>
@@ -54,6 +53,9 @@ export const useAcceptInvitation = () => {
       });
 
       navigate(PATHS.HOME, { replace: false });
+    },
+    onError: () => {
+      // TODO: 요청 실패 처리
     },
   });
 };

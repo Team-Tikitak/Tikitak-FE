@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { deleteMe, getMe, getTeams, putAgreements } from './api';
 import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';

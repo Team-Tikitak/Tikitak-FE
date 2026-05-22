@@ -19,3 +19,4 @@ export const PATHS = {
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toPlaceDetail = (placeId: string) => `/place/${placeId}`;
+export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;

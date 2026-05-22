@@ -1,4 +1,4 @@
-import { instance, pulbicInstance } from '../instance';
+import { instance, publicInstance } from '../instance';
 import { INVITATION_ENDPOINTS } from './endpoints';
 import type { ApiResponse } from '../type';
 import type {
@@ -17,4 +17,4 @@ export const postAcceptInvitation = ({ token, body }: AcceptInvitationVariables)
   instance.post<ApiResponse<void>>(INVITATION_ENDPOINTS.ACCEPT(token), body);
 
 export const getInvitationPreview = (token: string) =>
-  pulbicInstance.get<ApiResponse<InvitationPreviewResponse>>(INVITATION_ENDPOINTS.PREVIEW(token));
+  publicInstance.get<ApiResponse<InvitationPreviewResponse>>(INVITATION_ENDPOINTS.PREVIEW(token));

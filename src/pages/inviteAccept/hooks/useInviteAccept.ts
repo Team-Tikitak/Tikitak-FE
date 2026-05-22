@@ -8,7 +8,8 @@ export const useInviteAccept = () => {
   const { token } = useParams();
   const { data, isError } = useInvitationPreview(token ?? '');
 
-  const isInvalidInvite = token || isError;
+  const isInvalidInvite = isError;
+
   const isLoggedIn = Boolean(getAccessToken());
 
   const inviterName = data?.inviterName ?? '';
