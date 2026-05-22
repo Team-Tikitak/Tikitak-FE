@@ -2,6 +2,16 @@ import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTeamInvite } from './useTeamInvite';
 
+vi.mock('react-router', () => ({
+  useParams: () => ({ teamId: '1' }),
+}));
+
+vi.mock('@/shared/api/invitation/queries', () => ({
+  useInvitationLink: () => ({
+    data: { teamName: '테스트팀', inviteToken: 'test-token', expiresAt: '2099-01-01' },
+  }),
+}));
+
 describe('useTeamInvite', () => {
   let writeText: ReturnType<typeof vi.fn>;
   const originalClipboard = navigator.clipboard;
