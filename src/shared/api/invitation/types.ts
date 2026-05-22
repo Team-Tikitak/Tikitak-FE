@@ -17,6 +17,11 @@ export interface AcceptInvitationRequest {
   profileImgUrl: string;
 }
 
+export interface AcceptInvitationResponse {
+  teamId: number;
+  teamName: string;
+}
+
 export type AcceptInvitationVariables = {
   token: string;
   body: AcceptInvitationRequest;

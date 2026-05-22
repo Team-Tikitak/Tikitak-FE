@@ -5,6 +5,7 @@ import type {
   AcceptInvitationVariables,
   InvitationPreviewResponse,
   InvitationLinkResponse,
+  AcceptInvitationResponse,
 } from './types';
 
 export const getInvitationLink = (teamId: number) =>
@@ -14,7 +15,7 @@ export const putInvitationLink = (teamId: number) =>
   instance.put<ApiResponse<InvitationLinkResponse>>(INVITATION_ENDPOINTS.INVITE_LINK(teamId));
 
 export const postAcceptInvitation = ({ token, body }: AcceptInvitationVariables) =>
-  instance.post<ApiResponse<void>>(INVITATION_ENDPOINTS.ACCEPT(token), body);
+  instance.post<ApiResponse<AcceptInvitationResponse>>(INVITATION_ENDPOINTS.ACCEPT(token), body);
 
 export const getInvitationPreview = (token: string) =>
   publicInstance.get<ApiResponse<InvitationPreviewResponse>>(INVITATION_ENDPOINTS.PREVIEW(token));
