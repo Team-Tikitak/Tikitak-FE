@@ -24,7 +24,8 @@ export const TeamCard = ({
   return (
     <div
       className={cn(
-        `flex items-end justify-between gap-2 rounded-[12px] p-[18px] ${isLeader ? 'bg-main-000' : 'bg-gray-200'}`,
+        'flex items-end justify-between gap-2 rounded-[12px] p-[18px]',
+        isLeader ? 'bg-main-000' : 'bg-gray-200',
         className,
       )}
       {...props}

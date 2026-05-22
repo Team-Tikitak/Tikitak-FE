@@ -32,7 +32,7 @@ export const MyPage = () => {
             memberCount={team.memberCount}
             users={[{ id: team.teamMemberId, src: team.profileImageUrl }]}
             isLeader={team.role === 'OWNER'}
-            onClick={() => navigate(toTeamDetail(Number(team.teamId)))}
+            onClick={() => navigate(toTeamDetail(team.teamId))}
           />
         ))}
       </PageSection>

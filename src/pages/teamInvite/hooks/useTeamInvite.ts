@@ -9,7 +9,7 @@ export const useTeamInvite = (): {
   const { teamId } = useParams();
   const { data } = useInvitationLink(Number(teamId));
   const teamName = data?.teamName || '';
-  const inviteUrl = `http://localhost:5173/invite/${data?.inviteToken}`;
+  const inviteUrl = `${window.location.origin}/invite/${data?.inviteToken}`;
 
   const handleCopy = async () => {
     try {
