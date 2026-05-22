@@ -9,6 +9,7 @@ export interface MeResponse {
   socialProvider: SocialProvider;
   status: MemberStatus;
   hasAgreedRequiredTerms: boolean;
+  onboardingCompleted: boolean;
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
