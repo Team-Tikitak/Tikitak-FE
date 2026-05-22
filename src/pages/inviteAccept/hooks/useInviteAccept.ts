@@ -12,9 +12,11 @@ export const useInviteAccept = () => {
 
   const isLoggedIn = Boolean(getAccessToken());
 
-  const inviterName = data?.inviterName ?? '';
   const teamName = data?.teamName ?? '';
-  const avatarUrl = data?.avatarUrl ?? '';
+
+  //todo: ui 변경 후 삭제
+  const inviterName = '';
+  const avatarUrl = '';
 
   const handleConfirm = () => {
     if (!isLoggedIn) {
