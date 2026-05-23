@@ -4,14 +4,14 @@ import { PATHS } from '@/app/routes/paths';
 import { clearAccessToken, setAccessToken } from '@/shared/api/instance';
 import { postLogout, postRefreshToken } from './api';
 import { authKeys } from './keys';
+import { unwrap } from '../request';
 import { userKeys } from '../user/keys';
 
 export const useAuthInit = () =>
   useQuery({
     queryKey: authKeys.session(),
     queryFn: async () => {
-      const res = await postRefreshToken();
-      const accessToken = res.data.data.accessToken;
+      const { accessToken } = await unwrap(() => postRefreshToken());
       setAccessToken(accessToken);
       return accessToken;
     },
