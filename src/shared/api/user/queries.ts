@@ -1,16 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
-import { deleteMe, getMe, getTeams, putAgreements } from './api';
+import { deleteMe, getAgreements, getMe, getTeams, patchOnboarding, putAgreements } from './api';
 import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
+import { unwrap } from '../request';
 
 export const useMe = () =>
   useQuery({
     queryKey: userKeys.me(),
-    queryFn: () => getMe().then((res) => res.data.data),
+    queryFn: () => unwrap(() => getMe()),
     retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useGetAgreements = () =>
+  useQuery({
+    queryKey: userKeys.agreements(),
+    queryFn: () => unwrap(() => getAgreements()),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -27,9 +35,19 @@ export const usePutAgreements = () => {
 export const useGetTeams = () =>
   useQuery({
     queryKey: userKeys.teams(),
-    queryFn: () => getTeams().then((res) => res.data.data.teams ?? []),
+    queryFn: async () => (await unwrap(() => getTeams())).teams ?? [],
     staleTime: 5 * 60 * 1000,
   });
+
+export const usePatchOnboarding = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: patchOnboarding,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
+    },
+  });
+};
 
 export const useDeleteMe = () => {
   const navigate = useNavigate();

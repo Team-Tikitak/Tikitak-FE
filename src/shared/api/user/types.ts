@@ -3,6 +3,23 @@ import type { TeamRole } from '@/shared/types';
 export type SocialProvider = 'KAKAO' | 'GOOGLE' | 'APPLE';
 export type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'WITHDRAWN';
 
+export type ProfileCharacterType =
+  | 'TAK_LEADER'
+  | 'TAK_SPARK'
+  | 'TAK_BURNER'
+  | 'TAK_BUILDER'
+  | 'TAK_FREE'
+  | 'TAK_CARE';
+
+export interface OnboardingPatchRequest {
+  profileCharacterType: ProfileCharacterType;
+}
+
+export interface OnboardingPatchResponse {
+  onboardingCompleted: boolean;
+  profileCharacterType: ProfileCharacterType;
+}
+
 export interface MeResponse {
   memberId: number;
   email: string;
