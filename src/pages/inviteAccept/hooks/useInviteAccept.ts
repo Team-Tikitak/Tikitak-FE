@@ -14,18 +14,16 @@ export const useInviteAccept = () => {
 
   const teamName = data?.teamName ?? '';
 
-  //todo: ui 변경 후 삭제
-  const inviterName = '';
-  const avatarUrl = '';
-
   const handleConfirm = () => {
     if (!isLoggedIn) {
+      sessionStorage.setItem('redirectAfterLogin', `/invite/${token}`);
       navigate(PATHS.LOGIN);
+      return;
     }
     navigate(PATHS.TEAM_PROFILE_SETUP, {
       state: { mode: 'join', token, name: teamName },
     });
   };
 
-  return { inviterName, teamName, avatarUrl, isInvalidInvite, handleConfirm };
+  return { teamName, isInvalidInvite, handleConfirm };
 };
