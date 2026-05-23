@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes';
-import { useGetTeams } from '@/shared/api/user/queries';
+import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { openOverlay } from '@/shared/lib';
 import { BottomSheetOverlay, TeamListSheet } from '@/shared/ui/BottomSheet';
 import { Header } from '@/shared/ui/Header';
@@ -15,17 +15,17 @@ const TEAM_SHEET_TOP_GAP = 80;
 
 export const HomePage = () => {
   const navigate = useNavigate();
+  const { data: me } = useMe();
   const { data: teams, isPending } = useGetTeams();
-  const teamItems = (teams ?? []).map((team) => ({
-    id: String(team.teamId),
-    title: team.teamName,
-    description: team.description,
-  }));
+  const { mutate: patchActiveTeam } = usePatchActiveTeam();
 
-  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+  const hasTeams = me?.hasTeam ?? false;
+  const teamItems = teams ?? [];
 
-  const hasTeams = teamItems.length > 0;
-  const selectedTeam = teamItems.find((team) => team.id === selectedTeamId) ?? teamItems[0];
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
+    () => me?.activeTeamId ?? null,
+  );
+  const selectedTeam = teamItems.find((team) => team.teamId === selectedTeamId) ?? teamItems[0];
 
   const openTeamSheet = () => {
     const expandedHeight = Math.max(
@@ -49,11 +49,16 @@ export const HomePage = () => {
       >
         {({ activeSnapPoint }) => (
           <TeamListSheet
-            teams={teamItems}
-            selectedTeamId={selectedTeam?.id}
+            teams={teamItems.map((team) => ({
+              id: team.teamId,
+              title: team.teamName,
+              description: team.description,
+            }))}
+            selectedTeamId={selectedTeam ? selectedTeam.teamId : undefined}
             scrollable={activeSnapPoint === expandedSnap}
             onSelect={(teamId) => {
-              setSelectedTeamId(teamId);
+              setSelectedTeamId(Number(teamId));
+              patchActiveTeam(Number(teamId));
               close();
             }}
           />
@@ -67,7 +72,7 @@ export const HomePage = () => {
   if (hasTeams) {
     return (
       <PageShell
-        header={<HomeHeader teamName={selectedTeam?.title ?? ''} onTeamSelect={openTeamSheet} />}
+        header={<HomeHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
         <MapView />
@@ -76,7 +81,10 @@ export const HomePage = () => {
   }
 
   return (
-    <PageShell header={<Header showBackButton onBack={() => navigate(-1)} />}>
+    <PageShell
+      header={<Header showBackButton onBack={() => navigate(-1)} />}
+      contentClassName="flex flex-1 flex-col"
+    >
       <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
     </PageShell>
   );
