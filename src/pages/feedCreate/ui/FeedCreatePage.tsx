@@ -2,6 +2,8 @@ import { type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
+import { useTeamMembers } from '@/shared/api/team/queries';
+import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
@@ -9,27 +11,26 @@ import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { openOverlay } from '@/shared/lib';
 import { Button, Chip, Header, UserChip } from '@/shared/ui';
-import {
-  BottomSheetOverlay,
-  LocationSearchSheet,
-  MemberSelectSheet,
-} from '@/shared/ui/BottomSheet';
+import { LocationSearchOverlay } from './LocationSearchOverlay';
+import { MemberSelectOverlay } from './MemberSelectOverlay';
 import { useFeedCreateForm } from '../hooks/useFeedCreateForm';
-import { MOCK_LOCATIONS, MOCK_MEMBERS } from '../model/mock';
+import { useFeedShare } from '../hooks/useFeedShare';
 
 interface FormRowButtonProps {
   icon: ReactNode;
   label: string;
   onClick: () => void;
+  disabled?: boolean;
 }
 
 const TODAY_QUESTION = '오늘 OOTD에서 가장 마음에 드는 포인트는?';
 
-const FormRowButton = ({ icon, label, onClick }: FormRowButtonProps) => (
+const FormRowButton = ({ icon, label, onClick, disabled }: FormRowButtonProps) => (
   <button
     type="button"
     onClick={onClick}
-    className="press-feedback flex h-6 w-full items-center justify-between"
+    disabled={disabled}
+    className="press-feedback flex h-6 w-full items-center justify-between disabled:opacity-50"
   >
     <span className="flex items-center gap-2">
       {icon}
@@ -43,6 +44,8 @@ const FormRowButton = ({ icon, label, onClick }: FormRowButtonProps) => (
 
 export const FeedCreatePage = () => {
   const navigate = useNavigate();
+  const { data: me } = useMe();
+  const teamId = me?.activeTeamId ?? null;
   const {
     content,
     setContent,
@@ -52,15 +55,24 @@ export const FeedCreatePage = () => {
     removePhoto,
     maxPhotoCount,
     maxContentLength,
-    selectedLocationTitle,
-    selectedMemberIds,
+    selectedPlace,
+    selectPlace,
     selectedMembers,
-    selectLocation,
     commitMembers,
     removeMember,
-    handleShare,
     isShareDisabled,
   } = useFeedCreateForm();
+
+  const { data: teamMembersData } = useTeamMembers(teamId);
+  const teamMembers = teamMembersData?.members ?? [];
+
+  const { share, isSharing } = useFeedShare({
+    teamId,
+    content,
+    photos,
+    selectedPlace,
+    selectedMembers,
+  });
 
   const handleAddPhoto = () => {
     if (!canAddMorePhotos) return;
@@ -71,44 +83,35 @@ export const FeedCreatePage = () => {
 
   const handleAddLocation = () => {
     openOverlay(({ isOpen, close, unmount }) => (
-      <BottomSheetOverlay
+      <LocationSearchOverlay
         open={isOpen}
         onClose={close}
         onExitComplete={unmount}
-        ariaTitle="장소 검색"
-        ariaDescription="장소를 검색해 추가하세요"
-      >
-        <LocationSearchSheet
-          locations={MOCK_LOCATIONS}
-          onSelect={(locationId) => {
-            selectLocation(locationId);
-            close();
-          }}
-        />
-      </BottomSheetOverlay>
+        onSelect={(place) => {
+          selectPlace(place);
+          close();
+        }}
+      />
     ));
   };
 
   const handleAddMembers = () => {
     openOverlay(({ isOpen, close, unmount }) => (
-      <BottomSheetOverlay
+      <MemberSelectOverlay
         open={isOpen}
         onClose={close}
         onExitComplete={unmount}
-        ariaTitle="인원 추가"
-        ariaDescription="이번 게시물에 함께한 인원을 선택하세요"
-      >
-        <MemberSelectSheet
-          members={MOCK_MEMBERS}
-          initialSelectedIds={selectedMemberIds}
-          onConfirm={(memberIds) => {
-            commitMembers(memberIds);
-            close();
-          }}
-        />
-      </BottomSheetOverlay>
+        teamMembers={teamMembers}
+        selectedMembers={selectedMembers}
+        onConfirm={(picked) => {
+          commitMembers(picked);
+          close();
+        }}
+      />
     ));
   };
+
+  const shareDisabled = isShareDisabled || !teamId || isSharing;
 
   return (
     <PageShell
@@ -118,11 +121,11 @@ export const FeedCreatePage = () => {
       bottom={
         <Button
           variant="primary"
-          disabled={isShareDisabled}
-          onClick={handleShare}
+          disabled={shareDisabled}
+          onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          공유하기
+          {isSharing ? '공유 중...' : '공유하기'}
         </Button>
       }
     >
@@ -184,23 +187,24 @@ export const FeedCreatePage = () => {
               label="위치 추가"
               onClick={handleAddLocation}
             />
-            {selectedLocationTitle && <Chip>{selectedLocationTitle}</Chip>}
+            {selectedPlace && <Chip>{selectedPlace.name}</Chip>}
           </li>
           <li className="flex flex-col gap-3">
             <FormRowButton
               icon={<UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />}
               label="인원 추가"
               onClick={handleAddMembers}
+              disabled={!teamId}
             />
             {selectedMembers.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedMembers.map((member) => (
                   <UserChip
-                    key={member.id}
-                    name={member.name}
-                    avatarSrc={member.avatarSrc}
+                    key={member.teamMemberId}
+                    name={member.nickname}
+                    avatarSrc={member.profileImgUrl || undefined}
                     size="sm"
-                    onRemove={() => removeMember(member.id)}
+                    onRemove={() => removeMember(member.teamMemberId)}
                   />
                 ))}
               </div>

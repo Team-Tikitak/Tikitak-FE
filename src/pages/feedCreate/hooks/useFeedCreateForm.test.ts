@@ -1,12 +1,29 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
+import type { FeedPlace } from '@/shared/api/feed/types';
+import type { TeamMember } from '@/shared/api/team/types';
 import { useFeedCreateForm } from './useFeedCreateForm';
 
 const makePhoto = (id: string): CapturedPhoto => ({
   id,
   url: `blob:${id}`,
   blob: new Blob(),
+});
+
+const makePlace = (placeId: string, name: string): FeedPlace => ({
+  placeId,
+  name,
+  latitude: 37.5,
+  longitude: 127.0,
+  address: '서울 어딘가',
+});
+
+const makeMember = (teamMemberId: number, nickname: string): TeamMember => ({
+  teamMemberId,
+  nickname,
+  role: 'MEMBER',
+  profileImgUrl: '',
 });
 
 describe('useFeedCreateForm', () => {
@@ -25,7 +42,7 @@ describe('useFeedCreateForm', () => {
     expect(result.current.photos).toEqual([]);
     expect(result.current.isShareDisabled).toBe(true);
     expect(result.current.canAddMorePhotos).toBe(true);
-    expect(result.current.selectedLocationTitle).toBeUndefined();
+    expect(result.current.selectedPlace).toBeNull();
     expect(result.current.selectedMembers).toEqual([]);
   });
 
@@ -74,17 +91,19 @@ describe('useFeedCreateForm', () => {
     expect(result.current.isShareDisabled).toBe(false);
   });
 
-  it('selectLocation reflects via selectedLocationTitle', () => {
+  it('selectPlace stores the place object', () => {
     const { result } = renderHook(() => useFeedCreateForm());
-    act(() => result.current.selectLocation('loc-1'));
-    expect(result.current.selectedLocationTitle).toBe('망원동 센토브');
+    const place = makePlace('kakao-1', '망원동 센토브');
+    act(() => result.current.selectPlace(place));
+    expect(result.current.selectedPlace).toEqual(place);
   });
 
-  it('commitMembers and removeMember', () => {
+  it('commitMembers caps at 11 and removeMember filters', () => {
     const { result } = renderHook(() => useFeedCreateForm());
-    act(() => result.current.commitMembers(['m-1', 'm-2']));
-    expect(result.current.selectedMembers.map((member) => member.id)).toEqual(['m-1', 'm-2']);
-    act(() => result.current.removeMember('m-1'));
-    expect(result.current.selectedMembers.map((member) => member.id)).toEqual(['m-2']);
+    const members = Array.from({ length: 15 }, (_, i) => makeMember(i + 1, `m${i + 1}`));
+    act(() => result.current.commitMembers(members));
+    expect(result.current.selectedMembers).toHaveLength(11);
+    act(() => result.current.removeMember(1));
+    expect(result.current.selectedMembers.find((m) => m.teamMemberId === 1)).toBeUndefined();
   });
 });
