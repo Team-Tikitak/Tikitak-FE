@@ -44,6 +44,8 @@ export const useFeedShare = ({
       navigate(-1);
     } catch (error) {
       console.error('피드 작성 실패', error);
+      // TODO: 글로벌 토스트 도입 시 교체
+      alert('피드 작성에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setIsSharing(false);
     }

@@ -5,7 +5,7 @@ import type { TeamMember } from '@/shared/api/team/types';
 
 const MAX_CONTENT_LENGTH = 1000;
 const MAX_PHOTO_COUNT = 10;
-const MAX_TAGGED_MEMBERS = 11;
+export const MAX_TAGGED_MEMBERS = 11;
 
 export const useFeedCreateForm = () => {
   const [content, setContentRaw] = useState('');

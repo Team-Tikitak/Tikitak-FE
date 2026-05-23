@@ -4,6 +4,7 @@ import {
   MemberSelectSheet,
   type MemberSelectSheetItem,
 } from '@/shared/ui/BottomSheet';
+import { MAX_TAGGED_MEMBERS } from '../hooks/useFeedCreateForm';
 
 interface MemberSelectOverlayProps {
   open: boolean;
@@ -40,6 +41,7 @@ export const MemberSelectOverlay = ({
       <MemberSelectSheet
         members={items}
         initialSelectedIds={initialSelectedIds}
+        maxSelection={MAX_TAGGED_MEMBERS}
         onConfirm={(memberIds) => {
           const idSet = new Set(memberIds);
           const picked = teamMembers.filter((member) => idSet.has(String(member.teamMemberId)));
