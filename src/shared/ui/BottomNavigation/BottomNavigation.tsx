@@ -50,7 +50,7 @@ export const BottomNavigation = ({
       ref={ref}
       aria-label="하단 내비게이션"
       className={cn(
-        'relative flex h-[60px] w-full items-center overflow-visible border-t border-gray-300 bg-white',
+        'relative flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-center overflow-visible border-t border-gray-300 bg-white pb-[env(safe-area-inset-bottom)]',
         className,
       )}
       {...props}

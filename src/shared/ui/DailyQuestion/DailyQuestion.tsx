@@ -7,8 +7,8 @@ export const DailyQuestion = ({
   question: string;
   onClick?: () => void;
 }) => (
-  <section
-    className="flex h-9 shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white"
+  <button
+    className="flex h-9 w-full shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white"
     onClick={onClick}
   >
     <span className="logo shrink-0 text-white">Today's Tiki-tak!</span>
@@ -16,5 +16,5 @@ export const DailyQuestion = ({
       {question}
     </span>
     {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
-  </section>
+  </button>
 );
