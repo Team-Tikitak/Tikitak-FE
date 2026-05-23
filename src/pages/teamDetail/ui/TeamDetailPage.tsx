@@ -1,15 +1,22 @@
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { PATHS, toTeamInvite } from '@/app/routes/paths';
+import { useDeleteTeamMember, useLeaveTeam, useTeamDelete } from '@/shared/api/team/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Button, Header, MemberCard, PageSection } from '@/shared/ui';
 import { useTeamDetail } from '../hooks/useTeamDetail';
 
 export const TeamDetailPage = () => {
   const navigate = useNavigate();
-  const { teamId } = useParams();
-  const { team, members, isOwner } = useTeamDetail();
+  const { teamId: teamParams } = useParams();
+  const teamId = Number(teamParams);
 
-  if (!team) {
+  const { teamName, myProfile, members, isOwner, isError } = useTeamDetail(teamId);
+  const { mutate: mutateLeaveTeam } = useLeaveTeam();
+  const { mutate: postTeamDelete } = useTeamDelete();
+  const { mutate: removeMember } = useDeleteTeamMember();
+
+  if (isError) {
     return (
       <PageShell
         header={<Header title="팀 상세" showBackButton onBack={() => navigate(-1)} />}
@@ -21,10 +28,13 @@ export const TeamDetailPage = () => {
   }
   return (
     <PageShell
-      header={<Header title={team.name} showBackButton onBack={() => navigate(-1)} />}
+      header={<Header title={teamName} showBackButton onBack={() => navigate(-1)} />}
       contentClassName="flex flex-col gap-8 px-5 py-7"
       bottom={
-        <button className="body-2 w-full cursor-pointer text-center text-gray-500 underline">
+        <button
+          className="body-2 w-full cursor-pointer text-center text-gray-500 underline"
+          onClick={() => mutateLeaveTeam(teamId)}
+        >
           그룹 나가기
         </button>
       }
@@ -32,12 +42,24 @@ export const TeamDetailPage = () => {
       <PageSection title="내 프로필">
         <div className="bg-main-000 flex items-center gap-3 rounded-lg p-4">
           <img
-            src={team.myProfileImageUrl}
-            alt={team.myNickname}
+            src={myProfile?.profileImageUrl}
+            alt={myProfile?.nickname}
             className="no-native-image size-10 rounded-full"
           />
-          <h3 className="body-9 text-gray-900">{team.myNickname}</h3>
-          <button aria-label="프로필 변경" className="body-4 text-main-001 ml-auto cursor-pointer">
+          <h3 className="body-9 text-gray-900">{myProfile?.nickname}</h3>
+          <button
+            aria-label="프로필 변경"
+            className="body-4 text-main-001 ml-auto cursor-pointer"
+            onClick={() =>
+              navigate(PATHS.TEAM_PROFILE_SETUP, {
+                state: {
+                  mode: 'edit',
+                  teamId: teamId,
+                  teamName: teamName,
+                },
+              })
+            }
+          >
             변경
           </button>
         </div>
@@ -50,8 +72,16 @@ export const TeamDetailPage = () => {
               key={member.teamMemberId}
               avatarSrc={member.profileImageUrl ?? ''}
               name={member.nickname}
-              email={member.email ?? ''}
-              onRemove={isOwner ? () => {} : undefined}
+              email={member.email}
+              onRemove={
+                isOwner
+                  ? () =>
+                      removeMember({
+                        teamId: teamId,
+                        targetTeamMemberId: member.teamMemberId,
+                      })
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -59,11 +89,15 @@ export const TeamDetailPage = () => {
       <div className="flex flex-col gap-3">
         <Button
           buttonIcon={<PlusIcon className="size-5" />}
-          onClick={() => navigate(`/teams/${teamId}/invite`)}
+          onClick={() => navigate(toTeamInvite(teamId))}
         >
           초대하기
         </Button>
-        {isOwner && <Button variant="destructive">그룹 삭제</Button>}
+        {isOwner && (
+          <Button onClick={() => postTeamDelete(teamId)} variant="destructive">
+            그룹 삭제
+          </Button>
+        )}
       </div>
     </PageShell>
   );

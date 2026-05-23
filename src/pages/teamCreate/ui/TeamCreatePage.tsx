@@ -16,7 +16,9 @@ export const TeamCreatePage = () => {
         <Button
           variant="primary"
           disabled={isDisabled}
-          onClick={() => navigate(PATHS.TEAM_PROFILE_SETUP, { state: draft })}
+          onClick={() =>
+            navigate(PATHS.TEAM_PROFILE_SETUP, { state: { ...draft, mode: 'create' } })
+          }
         >
           완료
         </Button>

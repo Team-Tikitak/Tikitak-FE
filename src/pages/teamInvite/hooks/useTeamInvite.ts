@@ -1,9 +1,21 @@
-export const useTeamInvite = () => {
-  const teamName = '스핀기타'; // TODO: 서버에서 받아올 팀 이름
-  // TODO: 초대 생성 API 연결 시 응답으로 받은 URL만 이 값에 주입하면 QR/복사가 함께 갱신됩니다.
-  const inviteUrl = `http://tikitak.com/invite/test-invite-token`; // TODO: 서버에서 받아올 초대 URL
+import { useParams } from 'react-router';
+import { useInvitationLink } from '@/shared/api/invitation/queries';
+
+export const useTeamInvite = (): {
+  teamName: string;
+  inviteUrl: string | null;
+  handleCopy: () => Promise<void>;
+  isLoading: boolean;
+} => {
+  const { teamId } = useParams();
+  const { data, isPending } = useInvitationLink(Number(teamId));
+  const teamName = data?.teamName || '';
+  const inviteUrl = data?.inviteToken
+    ? `${window.location.origin}/invite/${data.inviteToken}`
+    : null;
 
   const handleCopy = async () => {
+    if (!inviteUrl) return;
     try {
       await navigator.clipboard.writeText(inviteUrl);
     } catch {
@@ -11,5 +23,5 @@ export const useTeamInvite = () => {
     }
   };
 
-  return { teamName, inviteUrl, handleCopy };
+  return { teamName, inviteUrl, handleCopy, isLoading: isPending };
 };
