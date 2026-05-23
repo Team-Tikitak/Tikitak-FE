@@ -11,7 +11,7 @@ export const PATHS = {
   TEAM_CREATE: '/teams/new',
   TEAM_PROFILE_SETUP: '/teams/new/profile',
   TEAM_INVITE: '/teams/:teamId/invite',
-  INVITE_ACCEPT: '/invite/:inviteId',
+  INVITE_ACCEPT: '/invite/:token',
   GALLERY: '/gallery',
   PLACE_DETAIL: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',
@@ -19,3 +19,4 @@ export const PATHS = {
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toPlaceDetail = (placeId: string) => `/place/${placeId}`;
+export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;

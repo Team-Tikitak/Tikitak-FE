@@ -1,11 +1,12 @@
-import { useParams } from 'react-router';
-import { MOCK_TEAM_DETAIL, MOCK_TEAM_MEMBERS } from '../model/mock';
+import { useGetTeamDetail } from '@/shared/api/team/queries';
 
-export const useTeamDetail = () => {
-  const { teamId } = useParams();
-  const team = Number(teamId) === MOCK_TEAM_DETAIL.teamId ? MOCK_TEAM_DETAIL : null;
-  const members = team ? MOCK_TEAM_MEMBERS : [];
-  const isOwner = team?.myRole === 'OWNER';
+export const useTeamDetail = (teamId: number) => {
+  const { data, isError } = useGetTeamDetail(teamId);
 
-  return { team, members, isOwner };
+  const teamName = data?.teamName || '';
+  const myProfile = data?.myProfile;
+  const members = data?.teamMembers || [];
+  const isOwner = data?.myProfile?.teamMemberRole === 'OWNER';
+
+  return { teamName, myProfile, members, isOwner, isError };
 };

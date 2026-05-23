@@ -1,21 +1,29 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
-import { MOCK_INVITE_INFO } from '../model/mock';
+import { getAccessToken } from '@/shared/api/instance';
+import { useInvitationPreview } from '@/shared/api/invitation/queries';
 
 export const useInviteAccept = () => {
   const navigate = useNavigate();
+  const { token } = useParams();
+  const { data, isError } = useInvitationPreview(token ?? '');
 
-  const isInvalidInvite = false;
-  const isAlreadyMember = false; // TODO: 서버에서 받아올 팀 참여 여부
-  const { inviterName, teamName, avatarUrl } = MOCK_INVITE_INFO;
+  const isInvalidInvite = isError;
+
+  const isLoggedIn = Boolean(getAccessToken());
+
+  const teamName = data?.teamName ?? '';
 
   const handleConfirm = () => {
-    if (isAlreadyMember) {
-      navigate(PATHS.HOME);
-    } else {
-      navigate(PATHS.TEAM_PROFILE_SETUP, { state: { name: teamName } });
+    if (!isLoggedIn) {
+      sessionStorage.setItem('redirectAfterLogin', `/invite/${token}`);
+      navigate(PATHS.LOGIN);
+      return;
     }
+    navigate(PATHS.TEAM_PROFILE_SETUP, {
+      state: { mode: 'join', token, name: teamName },
+    });
   };
 
-  return { inviterName, teamName, avatarUrl, isInvalidInvite, handleConfirm };
+  return { teamName, isInvalidInvite, handleConfirm };
 };

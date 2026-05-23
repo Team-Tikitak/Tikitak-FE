@@ -1,13 +1,14 @@
 import { PageShell } from '@/app/layout';
+import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 import TikiTackIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
-import { Button, UserChip } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 import { InvalidInvite } from './InvalidInvite';
 import { InviteBackground } from './InviteBackground';
 import { useInviteAccept } from '../hooks/useInviteAccept';
 
 export const InviteAcceptPage = () => {
-  const { inviterName, teamName, avatarUrl, isInvalidInvite, handleConfirm } = useInviteAccept();
+  const { teamName, isInvalidInvite, handleConfirm } = useInviteAccept();
 
   if (isInvalidInvite) {
     return <InvalidInvite />;
@@ -21,17 +22,15 @@ export const InviteAcceptPage = () => {
         <div className="flex flex-col items-center justify-center gap-2.5">
           <div className="flex items-center gap-2.5">
             <TikiTackLogo className="w-[91px]" />
-            <span className="title-0 text-black">초대장</span>
+            <span className="title-1 text-black">초대장</span>
           </div>
-          <p className="invite-body text-gray-600">
-            <span className="text-main-001">{inviterName}</span>님이{' '}
+          <p className="body-2 text-gray-600">
             <span className="text-main-001">{teamName}</span>팀으로 초대합니다!
           </p>
         </div>
 
         <div className="mt-[53px] flex flex-col items-center gap-[23px]">
-          <img src={avatarUrl} alt={inviterName} className="size-[120px]" />
-          <UserChip name={inviterName} avatarSrc={avatarUrl} />
+          <TakLeader className="w-full max-w-[169px]" />
         </div>
 
         <div className="mt-25 flex w-full flex-col items-center justify-center gap-3">

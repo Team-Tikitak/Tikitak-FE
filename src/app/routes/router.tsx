@@ -17,7 +17,7 @@ import { TeamDetailPage } from '@/pages/teamDetail/ui';
 import { TeamInvitePage } from '@/pages/teamInvite/ui';
 import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui';
 import { TermsPage } from '@/pages/terms/ui';
-import { authCallbackLoader, setupFlowLoader } from './loaders';
+import { authCallbackLoader, inviteAcceptLoader, setupFlowLoader } from './loaders';
 import { PATHS } from './paths';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
-          { path: PATHS.INVITE_ACCEPT, element: <InviteAcceptPage /> },
+          { path: PATHS.INVITE_ACCEPT, loader: inviteAcceptLoader, element: <InviteAcceptPage /> },
           { path: PATHS.AUTH_CALLBACK, loader: authCallbackLoader },
           {
             element: <ProtectedRoute />,
