@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { toPlaceDetail } from '@/app/routes';
-import { DailyQuestion } from './DailyQuestion';
 import { Map } from './Map';
+import { DailyQuestion } from '../../../shared/ui/DailyQuestion/DailyQuestion';
 import { MOCK_DAILY_QUESTION, MOCK_PINS } from '../model/mock';
 import { type Pin } from '../model/types';
 
@@ -26,12 +26,8 @@ export const MapView = () => {
   return (
     <div className="pointer-events-none relative isolate flex-1">
       <Map pins={MOCK_PINS} initialCenter={INITIAL_CENTER} onPinClick={handlePinClick} />
-      <div className="pointer-events-auto absolute inset-x-0 top-4 z-10 px-5 pt-2">
-        <DailyQuestion
-          question={MOCK_DAILY_QUESTION.question}
-          imageUrls={MOCK_DAILY_QUESTION.imageUrls}
-          onClick={handleQuestionClick}
-        />
+      <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
+        <DailyQuestion question={MOCK_DAILY_QUESTION.question} onClick={handleQuestionClick} />
       </div>
     </div>
   );

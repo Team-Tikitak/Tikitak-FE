@@ -2,7 +2,7 @@
  * 자동 생성 파일 수정 금지
  */
 
-export * from './DailyQuestion';
+export * from '../../../shared/ui/DailyQuestion/DailyQuestion';
 export * from './EmptyTeamView';
 export * from './HomeHeader';
 export * from './HomePage';

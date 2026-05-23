@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
+import { ActivityPage } from '@/pages/activity/ui/activityPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
               { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
               { path: PATHS.GALLERY, element: <GalleryPage /> },
               { path: PATHS.PLACE_DETAIL, element: <PlaceDetailPage /> },
+              { path: PATHS.ACTIVITY, element: <ActivityPage /> },
             ],
           },
           { path: '*', element: <NotFoundPage /> },
