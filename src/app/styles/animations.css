@@ -82,9 +82,25 @@
 @keyframes login-fade-in {
   0% {
     opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  65% {
+    opacity: 1;
   }
   100% {
     opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-slogan-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -132,22 +148,37 @@
 }
 
 .login-stagger-slogan {
-  animation: var(--animate-login-fade-in);
-  animation-delay: 0.1s;
+  animation: login-slogan-fade-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
 .login-stagger-button {
   animation: var(--animate-login-fade-in);
-  animation-delay: 0.4s;
+}
+
+.login-stagger-button-1 {
+  animation-delay: 0.36s;
+}
+
+.login-stagger-button-2 {
+  animation-delay: 0.5s;
+}
+
+.login-stagger-button-3 {
+  animation-delay: 0.64s;
 }
 
 .view-transition-logo {
   view-transition-name: tikitak-logo;
 }
 
+::view-transition-image-pair(tikitak-logo) {
+  isolation: auto;
+}
 ::view-transition-old(tikitak-logo),
 ::view-transition-new(tikitak-logo) {
-  animation-duration: 300ms;
+  animation: none;
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 
 @keyframes page-fade-in {
