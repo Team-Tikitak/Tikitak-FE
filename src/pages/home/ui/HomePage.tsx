@@ -15,8 +15,8 @@ const TEAM_SHEET_TOP_GAP = 80;
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const { data: teams = [] } = useGetTeams();
-  const teamItems = teams.map((team) => ({
+  const { data: teams, isPending } = useGetTeams();
+  const teamItems = (teams ?? []).map((team) => ({
     id: String(team.teamId),
     title: team.teamName,
     description: team.description,
@@ -61,6 +61,8 @@ export const HomePage = () => {
       </BottomSheetOverlay>
     ));
   };
+
+  if (isPending) return null;
 
   if (hasTeams) {
     return (
