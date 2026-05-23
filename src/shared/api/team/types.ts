@@ -16,6 +16,7 @@ export type TeamMemberItem = {
   teamMemberRole: TeamRole;
   email: string;
   profileImageUrl: string;
+  teamMemberId: number;
 };
 
 export interface TeamDetailResponse {

@@ -68,9 +68,8 @@ export const TeamDetailPage = () => {
       <PageSection title="팀 멤버">
         <div className="flex flex-col gap-3">
           {members.map((member) => (
-            //Todo: teamMemberId 내려주면 key와 삭제 id 전달
             <MemberCard
-              key={member.email}
+              key={member.teamMemberId}
               avatarSrc={member.profileImageUrl ?? ''}
               name={member.nickname}
               email={member.email}
@@ -79,7 +78,7 @@ export const TeamDetailPage = () => {
                   ? () =>
                       removeMember({
                         teamId: teamId,
-                        targetTeamMemberId: 0,
+                        targetTeamMemberId: member.teamMemberId,
                       })
                   : undefined
               }
