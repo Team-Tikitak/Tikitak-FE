@@ -47,13 +47,8 @@ describe('useOnboardingFlow', () => {
     act(() => {
       result.current.recordAnswerAndAdvance('q2', 'B');
     });
-    expect(result.current.step).toBe('q3');
-
-    act(() => {
-      result.current.recordAnswerAndAdvance('q3', 'C');
-    });
     expect(result.current.step).toBe('result');
-    expect(result.current.answers).toEqual({ q1: 'A', q2: 'B', q3: 'C' });
+    expect(result.current.answers).toEqual({ q1: 'A', q2: 'B' });
   });
 
   it('canGoBack 이 false 일 때 goBack 은 step 을 바꾸지 않는다', () => {
