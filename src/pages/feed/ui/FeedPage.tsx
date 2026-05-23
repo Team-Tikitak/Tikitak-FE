@@ -1,14 +1,20 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PageShell } from '@/app/layout';
+import { useFeeds } from '@/shared/api/feed/queries';
+import { useMe } from '@/shared/api/user/queries';
 import { Divider, Header } from '@/shared/ui';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
 import { FeedListItem } from './FeedListItem';
-import { MOCK_FEEDS } from '../model/mock';
+import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 
 export const FeedPage = () => {
   const [viewMode, setViewMode] = useState<FeedViewMode>('list');
-  const feeds = MOCK_FEEDS;
+  const { data: me } = useMe();
+  const teamId = me?.activeTeamId ?? null;
+  const { data, isLoading, isError } = useFeeds(teamId);
+
+  const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
   const totalCount = feeds.length;
 
   return (
@@ -25,7 +31,15 @@ export const FeedPage = () => {
           onViewModeChange={setViewMode}
           className="mb-6"
         />
-        {viewMode === 'grid' ? (
+        {isLoading ? (
+          <p className="body-3 mt-10 text-center text-gray-500">불러오는 중...</p>
+        ) : isError ? (
+          <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
+        ) : !teamId ? (
+          <p className="body-3 mt-10 text-center text-gray-500">활성 팀을 먼저 선택해주세요.</p>
+        ) : feeds.length === 0 ? (
+          <p className="body-3 mt-10 text-center text-gray-500">아직 작성된 피드가 없습니다.</p>
+        ) : viewMode === 'grid' ? (
           <FeedGrid items={feeds} />
         ) : (
           <ul className="flex flex-col gap-5">
