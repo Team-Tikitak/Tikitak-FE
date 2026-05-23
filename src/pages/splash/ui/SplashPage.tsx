@@ -7,7 +7,7 @@ export const SplashPage = () => {
   if (alreadySeen) return null;
 
   return (
-    <div className="flex flex-1 flex-col items-center pt-[35dvh]">
+    <div className="flex flex-1 flex-col items-center pt-[31dvh]">
       <TikiTakSplashLogo className="view-transition-logo" aria-label="tiki-tak!" />
     </div>
   );

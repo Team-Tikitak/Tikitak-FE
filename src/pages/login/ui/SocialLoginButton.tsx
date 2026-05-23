@@ -23,14 +23,25 @@ type SocialLoginButtonProps = {
   provider: OAuthProvider;
   icon: React.ReactNode;
   animate?: boolean;
+  animationOrder?: 1 | 2 | 3;
 };
 
-export const SocialLoginButton = ({ provider, icon, animate }: SocialLoginButtonProps) => {
+export const SocialLoginButton = ({
+  provider,
+  icon,
+  animate,
+  animationOrder,
+}: SocialLoginButtonProps) => {
   return (
     <button
       type="button"
       onClick={() => getStartOAuthLogin(provider)}
-      className={socialLoginButton({ provider, className: animate ? 'login-stagger-button' : '' })}
+      className={socialLoginButton({
+        provider,
+        className: animate
+          ? `login-stagger-button login-stagger-button-${animationOrder ?? 1}`
+          : '',
+      })}
     >
       {icon}
       {LABEL[provider]}

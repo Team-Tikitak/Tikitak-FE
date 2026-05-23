@@ -7,6 +7,21 @@ const SHEET_PHYSICS = { spring: { stiffness: 600, damping: 45 } };
 const HERO_PHYSICS = { spring: { stiffness: 350, damping: 32 } };
 
 const fadeTransition = fade({ physics: { spring: { stiffness: 3200, damping: 60 } } });
+const splashToLoginTransition = {
+  in: () => ({
+    prepare: () => {},
+    css: () => ({ opacity: 1 }),
+  }),
+  out: (element: HTMLElement) => ({
+    prepare: () => {
+      element.style.opacity = '0';
+    },
+    css: () => ({ opacity: 0 }),
+    onEnd: () => {
+      element.style.opacity = '';
+    },
+  }),
+};
 const slideForward = slide({ direction: 'left' });
 const slideBack = slide({ direction: 'right' });
 const heroTransition = hero({ physics: HERO_PHYSICS });
@@ -25,7 +40,7 @@ const pushPair = (a: string, b: string) => [
 const ssgoiConfig = {
   defaultTransition: fadeTransition,
   transitions: [
-    { from: PATHS.ROOT, to: PATHS.LOGIN, transition: fadeTransition, symmetric: true },
+    { from: PATHS.ROOT, to: PATHS.LOGIN, transition: splashToLoginTransition },
 
     ...sheetPair(PATHS.HOME, PATHS.FEED_CREATE),
     ...sheetPair(PATHS.FEED, PATHS.FEED_CREATE),
