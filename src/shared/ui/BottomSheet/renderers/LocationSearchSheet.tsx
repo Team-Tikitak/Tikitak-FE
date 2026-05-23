@@ -16,18 +16,25 @@ export interface LocationSearchSheetProps extends Omit<
 > {
   locations: LocationSearchSheetItem[];
   onSelect?: (locationId: string) => void;
+  onQueryChange?: (query: string) => void;
+  emptyMessage?: string;
 }
 
 export function LocationSearchSheet({
   locations,
   onSelect,
+  onQueryChange,
+  emptyMessage,
   className,
   ...props
 }: LocationSearchSheetProps) {
   const [query, setQuery] = useState('');
   const trimmed = query.trim().toLowerCase();
+  const serverMode = typeof onQueryChange === 'function';
   const results = trimmed
-    ? locations.filter((location) => location.title.toLowerCase().includes(trimmed))
+    ? serverMode
+      ? locations
+      : locations.filter((location) => location.title.toLowerCase().includes(trimmed))
     : [];
 
   return (
@@ -41,9 +48,16 @@ export function LocationSearchSheet({
         variant="searchbar"
         inputProps={{
           value: query,
-          onChange: (event) => setQuery(event.target.value),
+          onChange: (event) => {
+            const next = event.target.value;
+            setQuery(next);
+            onQueryChange?.(next);
+          },
         }}
       />
+      {trimmed && results.length === 0 && emptyMessage && (
+        <p className="body-3 mt-5 w-full text-center text-gray-500">{emptyMessage}</p>
+      )}
       <ul className="mt-5 flex w-full flex-col gap-4">
         {results.map((location, index) => (
           <li key={location.id} className="flex flex-col gap-4">

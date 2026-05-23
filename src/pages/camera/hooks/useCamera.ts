@@ -49,13 +49,13 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     pendingRef.current = pending;
   }, [pending]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
       isMountedRef.current = false;
       if (pendingRef.current) URL.revokeObjectURL(pendingRef.current.previewUrl);
-    },
-    [],
-  );
+    };
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -77,13 +77,24 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
           return;
         }
         streamRef.current = stream;
-        const video = videoRef.current;
-        if (video) {
-          video.srcObject = stream;
-          void video.play().catch(() => {});
-        }
-        setIsReady(true);
         setError(null);
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.srcObject = stream;
+        void video.play().catch(() => {});
+
+        // videoWidth/Height가 채워지는 시점은 loadedmetadata 이후이므로
+        // 그 전에 캡처 버튼을 노출하면 사용자가 눌러도 빈 프레임으로 종료됨
+        if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          setIsReady(true);
+          return;
+        }
+        const handleLoaded = () => {
+          if (cancelled) return;
+          setIsReady(true);
+        };
+        video.addEventListener('loadedmetadata', handleLoaded, { once: true });
       })
       .catch((cause) => {
         if (cancelled) return;

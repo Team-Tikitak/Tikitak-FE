@@ -3,3 +3,5 @@
  */
 
 export * from './FeedCreatePage';
+export * from './LocationSearchOverlay';
+export * from './MemberSelectOverlay';

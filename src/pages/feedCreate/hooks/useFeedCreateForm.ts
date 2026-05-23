@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
-import { MOCK_LOCATIONS, MOCK_MEMBERS } from '../model/mock';
+import type { FeedPlace } from '@/shared/api/feed/types';
+import type { TeamMember } from '@/shared/api/team/types';
 
 const MAX_CONTENT_LENGTH = 1000;
 const MAX_PHOTO_COUNT = 10;
+export const MAX_TAGGED_MEMBERS = 11;
 
 export const useFeedCreateForm = () => {
   const [content, setContentRaw] = useState('');
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<FeedPlace | null>(null);
+  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
 
-  // 언마운트 시점의 photos를 ref로 참조해 Object URL 해제 (Hook deps에 photos 안 넣어도 안전)
+  // 언마운트 시점의 photos를 ref로 참조해 Object URL 해제
   const photosRef = useRef(photos);
   useEffect(() => {
     photosRef.current = photos;
@@ -38,45 +40,35 @@ export const useFeedCreateForm = () => {
     });
   };
 
-  const selectLocation = (locationId: string) => {
-    setSelectedLocationId(locationId);
+  const selectPlace = (place: FeedPlace) => {
+    setSelectedPlace(place);
   };
 
-  const commitMembers = (memberIds: string[]) => {
-    setSelectedMemberIds(memberIds);
+  const commitMembers = (members: TeamMember[]) => {
+    setSelectedMembers(members.slice(0, MAX_TAGGED_MEMBERS));
   };
 
-  const removeMember = (memberId: string) => {
-    setSelectedMemberIds((prev) => prev.filter((id) => id !== memberId));
+  const removeMember = (teamMemberId: number) => {
+    setSelectedMembers((prev) => prev.filter((member) => member.teamMemberId !== teamMemberId));
   };
 
-  const handleShare = () => {
-    // TODO: 게시물 작성 API 연동 (photos[].blob을 FormData로 전송)
-  };
-
-  const selectedLocationTitle = MOCK_LOCATIONS.find(
-    (location) => location.id === selectedLocationId,
-  )?.title;
-  const selectedMembers = MOCK_MEMBERS.filter((member) => selectedMemberIds.includes(member.id));
-  const isShareDisabled = photos.length === 0;
   const canAddMorePhotos = photos.length < MAX_PHOTO_COUNT;
+  const isShareDisabled = photos.length === 0;
 
   return {
     content,
     setContent,
     photos,
-    canAddMorePhotos,
     addPhoto,
     removePhoto,
+    canAddMorePhotos,
     maxPhotoCount: MAX_PHOTO_COUNT,
     maxContentLength: MAX_CONTENT_LENGTH,
-    selectedLocationTitle,
-    selectedMemberIds,
+    selectedPlace,
+    selectPlace,
     selectedMembers,
-    selectLocation,
     commitMembers,
     removeMember,
-    handleShare,
     isShareDisabled,
   };
 };

@@ -5,6 +5,7 @@ import {
   deleteTeamMember,
   deleteTeamMemberMe,
   getTeamDetail,
+  getTeamMembers,
   patchTeamProfile,
   postTeamDeleteRequest,
 } from './api';
@@ -80,4 +81,12 @@ export const useGetTeamDetail = (teamId: number) =>
   useQuery({
     queryKey: teamKeys.detail(teamId),
     queryFn: () => getTeamDetail(teamId).then((res) => res.data.data),
+  });
+
+export const useTeamMembers = (teamId: number | null | undefined) =>
+  useQuery({
+    queryKey: teamKeys.members(teamId ?? 0),
+    queryFn: () => getTeamMembers(teamId as number).then((res) => res.data.data),
+    enabled: typeof teamId === 'number',
+    staleTime: 60 * 1000,
   });
