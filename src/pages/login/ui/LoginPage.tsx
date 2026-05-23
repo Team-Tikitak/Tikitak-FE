@@ -20,16 +20,19 @@ export const LoginPage = () => {
           provider="kakao"
           icon={<KakaoIcon className="h-5 w-5" aria-hidden="true" />}
           animate={fromSplash}
+          animationOrder={1}
         />
         <SocialLoginButton
           provider="google"
           icon={<GoogleIcon className="h-5 w-5" aria-hidden="true" />}
           animate={fromSplash}
+          animationOrder={2}
         />
         <SocialLoginButton
           provider="apple"
           icon={<AppleIcon className="h-5 w-5" aria-hidden="true" />}
           animate={fromSplash}
+          animationOrder={3}
         />
       </div>
     </div>
