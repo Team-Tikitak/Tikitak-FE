@@ -3,15 +3,19 @@ import { useInvitationLink } from '@/shared/api/invitation/queries';
 
 export const useTeamInvite = (): {
   teamName: string;
-  inviteUrl: string;
+  inviteUrl: string | null;
   handleCopy: () => Promise<void>;
+  isLoading: boolean;
 } => {
   const { teamId } = useParams();
-  const { data } = useInvitationLink(Number(teamId));
+  const { data, isPending } = useInvitationLink(Number(teamId));
   const teamName = data?.teamName || '';
-  const inviteUrl = `${window.location.origin}/invite/${data?.inviteToken}`;
+  const inviteUrl = data?.inviteToken
+    ? `${window.location.origin}/invite/${data.inviteToken}`
+    : null;
 
   const handleCopy = async () => {
+    if (!inviteUrl) return;
     try {
       await navigator.clipboard.writeText(inviteUrl);
     } catch {
@@ -19,5 +23,5 @@ export const useTeamInvite = (): {
     }
   };
 
-  return { teamName, inviteUrl, handleCopy };
+  return { teamName, inviteUrl, handleCopy, isLoading: isPending };
 };
