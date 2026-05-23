@@ -6,6 +6,7 @@ import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
 import { unwrap } from '../request';
+import type { OnboardingPatchRequest } from './types';
 
 export const useMe = () =>
   useQuery({
@@ -42,7 +43,7 @@ export const useGetTeams = () =>
 export const usePatchOnboarding = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: patchOnboarding,
+    mutationFn: (body: OnboardingPatchRequest) => unwrap(() => patchOnboarding(body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
