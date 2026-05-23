@@ -29,9 +29,3 @@ export const Step2: Story = {
     currentStep: 2,
   },
 };
-
-export const Step3: Story = {
-  args: {
-    currentStep: 3,
-  },
-};
