@@ -14,3 +14,6 @@ export const putAgreements = (body: AgreementsRequest) =>
 export const getTeams = () => instance.get<ApiResponse<TeamListResponse>>(USER_ENDPOINTS.TEAMS);
 
 export const deleteMe = () => instance.delete<ApiResponse<string>>(USER_ENDPOINTS.ME);
+
+export const patchActiveTeam = (body: { teamId: number }) =>
+  instance.patch<ApiResponse<number>>(USER_ENDPOINTS.ACTIVE_TEAM, body);

@@ -10,7 +10,7 @@ import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { openOverlay } from '@/shared/lib';
-import { Button, Chip, Header, UserChip } from '@/shared/ui';
+import { DailyQuestion, Button, Chip, Header, UserChip } from '@/shared/ui';
 import { LocationSearchOverlay } from './LocationSearchOverlay';
 import { MemberSelectOverlay } from './MemberSelectOverlay';
 import { useFeedCreateForm } from '../hooks/useFeedCreateForm';
@@ -129,12 +129,7 @@ export const FeedCreatePage = () => {
         </Button>
       }
     >
-      <section className="flex h-9 shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white">
-        <span className="logo shrink-0 text-white">Today’s Tiki-tak!</span>
-        <span className="min-w-0 truncate text-[12px] leading-normal font-bold text-white">
-          {TODAY_QUESTION}
-        </span>
-      </section>
+      <DailyQuestion question={TODAY_QUESTION} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
         <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">

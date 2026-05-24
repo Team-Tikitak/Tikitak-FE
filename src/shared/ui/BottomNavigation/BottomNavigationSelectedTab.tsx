@@ -1,4 +1,5 @@
 import { type ComponentPropsWithRef, type ComponentType, type SVGProps } from 'react';
+import ActivityIcon from '@/shared/assets/Icon/ActivityIcon.svg?react';
 import FeedIcon from '@/shared/assets/Icon/FeedIcon.svg?react';
 import HomeIcon from '@/shared/assets/Icon/HomeIcon.svg?react';
 import MyIcon from '@/shared/assets/Icon/MyIcon.svg?react';
@@ -21,6 +22,7 @@ interface BottomNavigationSelectedTabProps extends Omit<ComponentPropsWithRef<'u
 const BOTTOM_NAVIGATION_ITEM_CONFIGS = {
   home: { label: '홈', icon: HomeIcon, fillsWhenSelected: true },
   feed: { label: '피드', icon: FeedIcon, fillsWhenSelected: true },
+  activity: { label: '활동', icon: ActivityIcon, fillsWhenSelected: true },
   my: { label: '마이', icon: MyIcon, fillsWhenSelected: true },
 } satisfies Record<BottomNavigationTab, Omit<BottomNavigationItemConfig, 'value'>>;
 
@@ -35,7 +37,7 @@ export function BottomNavigationSelectedTab({
     <ul
       ref={ref}
       className={cn(
-        'rounded-max grid h-[60px] max-w-[276px] min-w-0 flex-1 grid-cols-3 items-center border border-gray-300 bg-white px-3 py-2',
+        'grid h-[60px] max-w-[276px] min-w-0 flex-1 grid-cols-4 items-center border border-gray-300 bg-white px-3 py-2',
         className,
       )}
       {...props}

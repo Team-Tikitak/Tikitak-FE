@@ -1,16 +1,30 @@
 import { type ComponentPropsWithRef } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes';
+import ActivityIcon from '@/shared/assets/Icon/ActivityIcon.svg?react';
+import FeedIcon from '@/shared/assets/Icon/FeedIcon.svg?react';
+import HomeIcon from '@/shared/assets/Icon/HomeIcon.svg?react';
+import MyIcon from '@/shared/assets/Icon/MyIcon.svg?react';
 import { cn } from '@/shared/lib';
 import { FloatingButton } from '../FloatingButton';
 import { type BottomNavigationTab } from './BottomNavigation.types';
-import { BottomNavigationSelectedTab } from './BottomNavigationSelectedTab';
+import { BottomNavigationItem } from './BottomNavigationItem';
 
 interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onChange'> {
   activeTab?: BottomNavigationTab;
   onCreateClick?: () => void;
   createAriaLabel?: string;
 }
+
+const LEFT_TABS = [
+  { value: 'home' as const, label: '홈', icon: HomeIcon, fillsWhenSelected: true },
+  { value: 'feed' as const, label: '피드', icon: FeedIcon, fillsWhenSelected: true },
+];
+
+const RIGHT_TABS = [
+  { value: 'activity' as const, label: '활동', icon: ActivityIcon, fillsWhenSelected: true },
+  { value: 'my' as const, label: '마이', icon: MyIcon, fillsWhenSelected: true },
+];
 
 export const BottomNavigation = ({
   activeTab = 'home',
@@ -25,6 +39,7 @@ export const BottomNavigation = ({
   const handleTabChange = (tab: BottomNavigationTab) => {
     if (tab === 'home') navigate(PATHS.HOME);
     if (tab === 'feed') navigate(PATHS.FEED);
+    if (tab === 'activity') navigate(PATHS.ACTIVITY);
     if (tab === 'my') navigate(PATHS.MY_PAGE);
   };
 
@@ -34,15 +49,37 @@ export const BottomNavigation = ({
     <nav
       ref={ref}
       aria-label="하단 내비게이션"
-      className={cn('flex w-full max-w-[353px] items-center justify-between gap-3', className)}
+      className={cn(
+        'relative flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-center overflow-visible border-t border-gray-300 bg-white pb-[env(safe-area-inset-bottom)]',
+        className,
+      )}
       {...props}
     >
-      <BottomNavigationSelectedTab activeTab={activeTab} onTabChange={handleTabChange} />
+      <ul className="flex flex-1 justify-around">
+        {LEFT_TABS.map((tab) => (
+          <BottomNavigationItem
+            key={tab.value}
+            {...tab}
+            selected={activeTab === tab.value}
+            onSelect={handleTabChange}
+          />
+        ))}
+      </ul>
       <FloatingButton
         aria-label={createAriaLabel}
         onClick={handleCreateClick}
-        className="shrink-0"
+        className="shrink-0 -translate-y-5"
       />
+      <ul className="flex flex-1 justify-around">
+        {RIGHT_TABS.map((tab) => (
+          <BottomNavigationItem
+            key={tab.value}
+            {...tab}
+            selected={activeTab === tab.value}
+            onSelect={handleTabChange}
+          />
+        ))}
+      </ul>
     </nav>
   );
 };
