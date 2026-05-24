@@ -4,6 +4,7 @@ export const PATHS = {
   TERMS: '/terms',
   HOME: '/home',
   FEED: '/feed',
+  ACTIVITY: '/activity',
   FEED_CREATE: '/feed/new',
   ONBOARDING: '/onboarding',
   MY_PAGE: '/mypage',

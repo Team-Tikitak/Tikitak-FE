@@ -10,12 +10,13 @@ interface RootLayoutProps {
   className?: string;
 }
 
-const TAB_PATHS = [PATHS.HOME, PATHS.FEED, PATHS.MY_PAGE] as const;
+const TAB_PATHS = [PATHS.HOME, PATHS.FEED, PATHS.ACTIVITY, PATHS.MY_PAGE] as const;
 type TabPath = (typeof TAB_PATHS)[number];
 
 const ACTIVE_TAB_BY_PATH = {
   [PATHS.HOME]: 'home',
   [PATHS.FEED]: 'feed',
+  [PATHS.ACTIVITY]: 'activity',
   [PATHS.MY_PAGE]: 'my',
 } satisfies Record<TabPath, BottomNavigationTab>;
 
@@ -48,7 +49,7 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
             </SsgoiTransition>
           </OverlayProvider>
           {showTabBar && (
-            <div className="pointer-events-auto absolute bottom-[calc(8px+env(safe-area-inset-bottom))] left-1/2 z-30 flex w-full max-w-[393px] -translate-x-1/2 justify-center px-5">
+            <div className="pointer-events-auto absolute bottom-0 left-1/2 z-30 w-full max-w-[393px] -translate-x-1/2">
               <BottomNavigation activeTab={activeTab} />
             </div>
           )}

@@ -3,7 +3,7 @@ import { TeamMenuItem } from '../../TeamMenuItem';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
 export interface TeamListSheetItem {
-  id: string;
+  id: number;
   title: string;
   description: string;
 }
@@ -13,8 +13,8 @@ export interface TeamListSheetProps extends Omit<
   'children' | 'title' | 'onSelect'
 > {
   teams: TeamListSheetItem[];
-  selectedTeamId?: string;
-  onSelect?: (teamId: string) => void;
+  selectedTeamId?: number;
+  onSelect?: (teamId: number) => void;
   scrollable?: boolean;
 }
 

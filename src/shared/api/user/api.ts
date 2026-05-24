@@ -24,3 +24,6 @@ export const patchOnboarding = (body: OnboardingPatchRequest) =>
   instance.patch<ApiResponse<OnboardingPatchResponse>>(USER_ENDPOINTS.ONBOARDING, body);
 
 export const deleteMe = () => instance.delete<ApiResponse<string>>(USER_ENDPOINTS.ME);
+
+export const patchActiveTeam = (body: { teamId: number }) =>
+  instance.patch<ApiResponse<number>>(USER_ENDPOINTS.ACTIVE_TEAM, body);

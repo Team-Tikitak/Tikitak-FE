@@ -1,7 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
-import { deleteMe, getAgreements, getMe, getTeams, patchOnboarding, putAgreements } from './api';
+import {
+  deleteMe,
+  getAgreements,
+  getMe,
+  getTeams,
+  patchActiveTeam,
+  patchOnboarding,
+  putAgreements,
+} from './api';
 import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
@@ -60,6 +68,16 @@ export const useDeleteMe = () => {
       queryClient.removeQueries({ queryKey: authKeys.all });
       clearAccessToken();
       navigate(PATHS.LOGIN, { replace: true });
+    },
+  });
+};
+
+export const usePatchActiveTeam = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (teamId: number) => patchActiveTeam({ teamId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
   });
 };
