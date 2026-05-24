@@ -1,4 +1,5 @@
 import { postMediaUploadComplete, postMediaUploads, putMediaToR2 } from './api';
+import { unwrap } from '../request';
 import type { MediaUploadPurpose } from './types';
 
 interface UploadMediaInput {
@@ -16,21 +17,21 @@ export const uploadMediaBlobs = async ({
 }: UploadMediaInput): Promise<string[]> => {
   if (blobs.length === 0) return [];
 
-  const presignRes = await postMediaUploads({
-    purpose,
-    teamId,
-    files: blobs.map((blob, index) => {
-      const contentType = blob.type || 'image/jpeg';
-      const extension = contentType.split('/')[1] ?? 'jpg';
-      return {
-        fileName: `${fileNamePrefix}-${Date.now()}-${index}.${extension}`,
-        contentType,
-        size: blob.size,
-      };
+  const { uploadId, items } = await unwrap(() =>
+    postMediaUploads({
+      purpose,
+      teamId,
+      files: blobs.map((blob, index) => {
+        const contentType = blob.type || 'image/jpeg';
+        const extension = contentType.split('/')[1] ?? 'jpg';
+        return {
+          fileName: `${fileNamePrefix}-${Date.now()}-${index}.${extension}`,
+          contentType,
+          size: blob.size,
+        };
+      }),
     }),
-  });
-
-  const { uploadId, items } = presignRes.data.data;
+  );
 
   await Promise.all(
     items.map((item, index) => putMediaToR2(item.uploadUrl, blobs[index], item.contentType)),

@@ -3,7 +3,7 @@ import { cn } from '@/shared/lib';
 import { progressBarVariants } from './ProgressBar.variant';
 
 interface OnboardingProgressBarProps extends ComponentPropsWithRef<'div'> {
-  currentStep: 1 | 2 | 3;
+  currentStep: 1 | 2;
 }
 
 export function ProgressBar({ currentStep, className, ref, ...props }: OnboardingProgressBarProps) {
@@ -14,12 +14,12 @@ export function ProgressBar({ currentStep, className, ref, ...props }: Onboardin
       role="progressbar"
       aria-valuenow={currentStep}
       aria-valuemin={1}
-      aria-valuemax={3}
+      aria-valuemax={2}
       ref={ref}
       className={cn(container(), className)}
       {...props}
     >
-      {Array.from({ length: 3 }).map((_, index) => {
+      {Array.from({ length: 2 }).map((_, index) => {
         const isActive = index < currentStep;
 
         const { item, fill } = progressBarVariants({

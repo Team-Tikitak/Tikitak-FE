@@ -5,7 +5,8 @@ import { authKeys } from '@/shared/api/auth/keys';
 import { getAccessToken, setAccessToken } from '@/shared/api/instance';
 import { getInvitationPreview } from '@/shared/api/invitation/api';
 import { invitationKeys } from '@/shared/api/invitation/keys';
-import { getMe, getTeams } from '@/shared/api/user/api';
+import { unwrap } from '@/shared/api/request';
+import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { PATHS } from './paths';
 
@@ -31,22 +32,22 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
     if (!getAccessToken()) {
       await queryClient.fetchQuery({
         queryKey: authKeys.session(),
-        queryFn: () =>
-          postRefreshToken().then((res) => {
-            setAccessToken(res.data.data.accessToken);
-            return res.data.data.accessToken;
-          }),
+        queryFn: async () => {
+          const { accessToken } = await unwrap(() => postRefreshToken());
+          setAccessToken(accessToken);
+          return accessToken;
+        },
       });
     }
 
     const [preview, teams] = await Promise.all([
       queryClient.fetchQuery({
         queryKey: invitationKeys.preview(token),
-        queryFn: () => getInvitationPreview(token).then((res) => res.data.data),
+        queryFn: () => unwrap(() => getInvitationPreview(token)),
       }),
       queryClient.fetchQuery({
         queryKey: userKeys.teams(),
-        queryFn: () => getTeams().then((res) => res.data.data.teams ?? []),
+        queryFn: async () => (await unwrap(() => getTeams())).teams ?? [],
       }),
     ]);
 
@@ -62,22 +63,35 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
   if (!getAccessToken()) {
     await queryClient.fetchQuery({
       queryKey: authKeys.session(),
-      queryFn: () =>
-        postRefreshToken().then((res) => {
-          const accessToken = res.data.data.accessToken;
-          setAccessToken(accessToken);
-          return accessToken;
-        }),
+      queryFn: async () => {
+        const { accessToken } = await unwrap(() => postRefreshToken());
+        setAccessToken(accessToken);
+        return accessToken;
+      },
     });
   }
 
-  const me = await queryClient.fetchQuery({
-    queryKey: userKeys.me(),
-    queryFn: () => getMe().then((res) => res.data.data),
-  });
+  const [, agreements] = await Promise.all([
+    queryClient.fetchQuery({
+      queryKey: userKeys.me(),
+      queryFn: () => unwrap(() => getMe()),
+    }),
+    queryClient.fetchQuery({
+      queryKey: userKeys.agreements(),
+      queryFn: () => unwrap(() => getAgreements()),
+      staleTime: 5 * 60 * 1000,
+    }),
+  ]);
+
+  const hasAgreedAll = agreements.termsAgreed && agreements.privacyAgreed;
   const url = new URL(request.url);
-  if (!me.hasAgreedRequiredTerms && url.pathname !== PATHS.TERMS) {
+  const isTermsPath = url.pathname === PATHS.TERMS;
+
+  if (!hasAgreedAll && !isTermsPath) {
     return redirect(PATHS.TERMS);
+  }
+  if (hasAgreedAll && isTermsPath) {
+    return redirect(PATHS.ONBOARDING);
   }
 
   return null;

@@ -4,10 +4,9 @@ import { ProgressBar } from '@/shared/ui/ProgressBar';
 import { OnboardingCard } from './OnboardingCard';
 import type { Question, QuestionId } from '../model/types';
 
-const QUESTION_PROGRESS: Record<QuestionId, 1 | 2 | 3> = {
+const QUESTION_PROGRESS: Record<QuestionId, 1 | 2> = {
   q1: 1,
   q2: 2,
-  q3: 3,
 };
 
 interface QuestionStepProps {
