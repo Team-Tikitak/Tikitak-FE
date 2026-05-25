@@ -47,7 +47,9 @@ export function TeamListSheet({
         className={cn(
           'flex min-h-0 w-full flex-1 flex-col items-start px-5',
           scrollable ? 'overflow-y-auto' : 'overflow-hidden',
-          onCreateTeam && 'pb-[88px]',
+          onCreateTeam
+            ? 'pb-[calc(88px+env(safe-area-inset-bottom))]'
+            : 'pb-[calc(16px+env(safe-area-inset-bottom))]',
         )}
       >
         {teams.map((team) => (
