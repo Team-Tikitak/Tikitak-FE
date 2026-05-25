@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
-import { makeSlot, makePosKey, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
+import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { toAbsoluteUrl } from '@/shared/lib/toAbsoluteUrl';
 import { type Pin, type CommentSheetItem } from '@/shared/ui';
 
@@ -93,7 +93,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
 
     const grouped = groupCommentsByPos(commentsData?.items ?? [], feedImageId);
 
-    const apiPins: Pin[] = Object.values(grouped).map((group) => {
+    const apiPins: Pin[] = grouped.map((group) => {
       const onClick = () => {
         setPendingPosition({ feedImageId, x: group[0].positionX, y: group[0].positionY });
         openSheet(makeSlot(feedId, imageIndex));
@@ -119,8 +119,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
           .filter(
             (c) =>
               c.feedImageId === pendingPosition.feedImageId &&
-              makePosKey(c.positionX, c.positionY) ===
-                makePosKey(pendingPosition.x, pendingPosition.y),
+              isSamePos(c.positionX, c.positionY, pendingPosition.x, pendingPosition.y),
           )
           .map((c) => ({
             id: String(c.commentId),

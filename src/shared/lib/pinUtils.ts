@@ -8,15 +8,20 @@ const POS_EPSILON = 0.005;
 export const isSamePos = (x: number, y: number, px: number, py: number) =>
   Math.abs(x - px) < POS_EPSILON && Math.abs(y - py) < POS_EPSILON;
 
-export const groupCommentsByPos = (comments: FeedComment[], feedImageId: number) =>
-  comments
-    .filter((c) => c.feedImageId === feedImageId)
-    .reduce<Record<string, FeedComment[]>>((acc, c) => {
-      const key = makePosKey(c.positionX, c.positionY);
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(c);
-      return acc;
-    }, {});
+export const groupCommentsByPos = (
+  comments: FeedComment[],
+  feedImageId: number,
+): FeedComment[][] => {
+  const groups: FeedComment[][] = [];
+  for (const comment of comments.filter((c) => c.feedImageId === feedImageId)) {
+    const group = groups.find((g) =>
+      isSamePos(comment.positionX, comment.positionY, g[0].positionX, g[0].positionY),
+    );
+    if (group) group.push(comment);
+    else groups.push([comment]);
+  }
+  return groups;
+};
 
 export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
   const first = group[0];
