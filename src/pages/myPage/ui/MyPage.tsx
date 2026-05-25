@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS, toTeamDetail } from '@/app/routes/paths';
+import { PATHS } from '@/app/routes/paths';
 import { useLogout } from '@/shared/api/auth/queries';
 import { useDeleteMe, useGetTeams } from '@/shared/api/user/queries';
-import type { Team } from '@/shared/api/user/types';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { Header, ListCard, PageSection, TeamCard } from '@/shared/ui';
+import { Header, ListCard, PageSection } from '@/shared/ui';
+import { MyPageTeamCard } from './MyPageTeamCard';
 import { EXTERNAL_LINKS } from '../constants/externalLinks';
 
 export const MyPage = () => {
@@ -25,15 +25,8 @@ export const MyPage = () => {
         iconClick={() => navigate(PATHS.TEAM_CREATE)}
         className="gap-3"
       >
-        {teams.map((team: Team) => (
-          <TeamCard
-            key={team.teamId}
-            teamName={team.teamName}
-            memberCount={team.memberCount}
-            users={[{ id: team.teamMemberId, src: team.profileImageUrl }]}
-            isLeader={team.role === 'OWNER'}
-            onClick={() => navigate(toTeamDetail(team.teamId))}
-          />
+        {teams.map((team) => (
+          <MyPageTeamCard key={team.teamId} team={team} />
         ))}
       </PageSection>
 
