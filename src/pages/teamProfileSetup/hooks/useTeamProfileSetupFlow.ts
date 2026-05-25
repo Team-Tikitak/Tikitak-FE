@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router';
 import { useAcceptInvitation } from '@/shared/api/invitation/queries';
-import { usePatchTeamProfile } from '@/shared/api/team/queries';
+import { useCreateTeam, usePatchTeamProfile } from '@/shared/api/team/queries';
 import type { SubmitProfile, TeamDraftRouteState } from '../model';
 
 export const useTeamProfileSetupFlow = () => {
@@ -8,15 +8,22 @@ export const useTeamProfileSetupFlow = () => {
 
   const { mutate: acceptInvitation, isPending: isAccepting } = useAcceptInvitation();
   const { mutate: patchTeamProfile, isPending: isPatching } = usePatchTeamProfile();
+  const { mutate: createTeam, isPending: isCreating } = useCreateTeam();
 
   const teamName = state ? (state.mode === 'edit' ? state.teamName : state.name) : '';
-  const isPending = isAccepting || isPatching;
+  const isPending = isAccepting || isPatching || isCreating;
 
   const submit = ({ nickname }: SubmitProfile) => {
     if (!state) return;
 
     if (state.mode === 'create') {
-      //팀 생성 로직 연결
+      createTeam({
+        teamName: state.name,
+        introduction: state.description,
+        profileImageUrl: '',
+        nickName: nickname,
+      });
+      return;
     }
 
     if (state.mode === 'join') {
