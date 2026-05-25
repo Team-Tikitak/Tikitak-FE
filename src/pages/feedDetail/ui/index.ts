@@ -3,4 +3,3 @@
  */
 
 export * from './FeedDetailPage';
-export * from './LongPressHint';
