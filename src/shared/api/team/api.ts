@@ -1,6 +1,8 @@
 import { instance } from '../instance';
 import { TEAM_ENDPOINTS } from './endpoints';
 import type {
+  CreateTeamRequest,
+  CreateTeamResponse,
   DeleteTeamMemberVariables,
   PatchTeamProfileRequest,
   PatchTeamProfileVariables,
@@ -8,6 +10,9 @@ import type {
   TeamMembersResponse,
 } from './types';
 import type { ApiResponse } from '../type';
+
+export const postTeam = (body: CreateTeamRequest) =>
+  instance.post<ApiResponse<CreateTeamResponse>>(TEAM_ENDPOINTS.TEAMS, body);
 
 export const postTeamDeleteRequest = (teamId: number) =>
   instance.post<ApiResponse<string>>(TEAM_ENDPOINTS.DELETE_REQUEST(teamId));
