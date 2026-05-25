@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPlacesSearch } from './api';
 import { placeKeys } from './keys';
+import { unwrap } from '../request';
 import type { PlaceSearchParams } from './types';
 
 interface UseSearchPlacesOptions {
@@ -13,7 +14,7 @@ export const useSearchPlaces = (
 ) =>
   useQuery({
     queryKey: placeKeys.search(params),
-    queryFn: () => getPlacesSearch(params).then((res) => res.data.data),
+    queryFn: () => unwrap(() => getPlacesSearch(params)),
     enabled: enabled && params.query.trim().length > 0,
     staleTime: 60 * 1000,
   });

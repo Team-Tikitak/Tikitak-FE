@@ -9,6 +9,7 @@ import {
   putInvitationLink,
 } from './api';
 import { invitationKeys } from './keys';
+import { unwrap } from '../request';
 import { teamKeys } from '../team/keys';
 import { userKeys } from '../user/keys';
 
@@ -17,12 +18,10 @@ export const useInvitationLink = (teamId: number) =>
     queryKey: invitationKeys.teamLink(teamId),
     queryFn: async () => {
       try {
-        const res = await getInvitationLink(teamId);
-        return res.data.data;
+        return await unwrap(() => getInvitationLink(teamId));
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 404) {
-          const res = await putInvitationLink(teamId);
-          return res.data.data;
+          return unwrap(() => putInvitationLink(teamId));
         }
         throw error;
       }
@@ -32,7 +31,7 @@ export const useInvitationLink = (teamId: number) =>
 export const useInvitationPreview = (token: string) =>
   useQuery({
     queryKey: invitationKeys.preview(token),
-    queryFn: () => getInvitationPreview(token).then((res) => res.data.data),
+    queryFn: () => unwrap(() => getInvitationPreview(token)),
     enabled: Boolean(token),
     retry: false,
   });

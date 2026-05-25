@@ -1,4 +1,5 @@
 export const TEAM_ENDPOINTS = {
+  TEAMS: '/api/v1/teams',
   TEAM: (teamId: number) => `/api/v1/teams/${teamId}`,
   MEMBER: (teamId: number) => `/api/v1/teams/${teamId}/members`,
   MEMBER_ME: (teamId: number) => `/api/v1/teams/${teamId}/members/me`,

@@ -1,8 +1,14 @@
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
+import { usePatchOnboarding } from '@/shared/api/user/queries';
 import { CharacterPreviewStep } from './CharacterPreviewStep';
 import { QuestionStep } from './QuestionStep';
 import { ResultStep } from './ResultStep';
+import {
+  CHARACTER_TO_PROFILE_TYPE,
+  isCharacterId,
+  type CharacterId,
+} from '../constants/characters';
 import { QUESTIONS } from '../constants/questions';
 import { useOnboardingFlow } from '../hooks/useOnboardingFlow';
 import { QUESTION_IDS, type OnboardingStep, type QuestionId } from '../model/types';
@@ -10,9 +16,12 @@ import { QUESTION_IDS, type OnboardingStep, type QuestionId } from '../model/typ
 const isQuestionStep = (step: OnboardingStep): step is QuestionId =>
   (QUESTION_IDS as readonly OnboardingStep[]).includes(step);
 
+const FALLBACK_CHARACTER: CharacterId = 'leader';
+
 export const OnboardingPage = () => {
   const navigate = useNavigate();
   const { step, answers, canGoBack, goBack, goTo, recordAnswerAndAdvance } = useOnboardingFlow();
+  const patchOnboarding = usePatchOnboarding();
 
   const handleBack = () => {
     if (canGoBack) {
@@ -37,15 +46,29 @@ export const OnboardingPage = () => {
     );
   }
 
-  // step === 'result'
+  const characterId: CharacterId = isCharacterId(answers.q2) ? answers.q2 : FALLBACK_CHARACTER;
+
+  const handleComplete = async () => {
+    try {
+      await patchOnboarding.mutateAsync({
+        profileCharacterType: CHARACTER_TO_PROFILE_TYPE[characterId],
+      });
+      navigate(PATHS.HOME);
+    } catch (error) {
+      console.error('온보딩 저장 실패', error);
+      // TODO: 글로벌 토스트 도입 시 교체
+      alert('온보딩 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
+
   return (
     <ResultStep
-      // TODO: answers → character 매핑 알고리즘 적용
-      characterId="leader"
+      characterId={characterId}
       // TODO: 사용자 데이터 연동
       userName="이현진"
+      isLoading={patchOnboarding.isPending}
       onBack={handleBack}
-      onComplete={() => navigate(PATHS.HOME)}
+      onComplete={handleComplete}
     />
   );
 };

@@ -6,11 +6,18 @@ import { CHARACTER_RESULTS, getCharacter, type CharacterId } from '../constants/
 interface ResultStepProps {
   characterId: CharacterId;
   userName: string;
+  isLoading?: boolean;
   onBack: () => void;
   onComplete: () => void;
 }
 
-export const ResultStep = ({ characterId, userName, onBack, onComplete }: ResultStepProps) => {
+export const ResultStep = ({
+  characterId,
+  userName,
+  isLoading,
+  onBack,
+  onComplete,
+}: ResultStepProps) => {
   const character = getCharacter(characterId);
   const { headline, summary } = CHARACTER_RESULTS[characterId];
   const { Icon, name } = character;
@@ -20,8 +27,8 @@ export const ResultStep = ({ characterId, userName, onBack, onComplete }: Result
       header={<Header showBackButton onBack={onBack} />}
       contentClassName="flex flex-col gap-[143px] px-5 pt-2"
       bottom={
-        <Button variant="primary" onClick={onComplete}>
-          시작하기
+        <Button variant="primary" disabled={isLoading} onClick={onComplete}>
+          {isLoading ? '저장 중...' : '시작하기'}
         </Button>
       }
     >

@@ -41,44 +41,6 @@ const Q1: Question = {
 
 const Q2: Question = {
   id: 'q2',
-  title: '팀에서 나는 어떤 순간에\n가장 에너지가 올라가나요?',
-  subtitle: '나의 강점이 빛나는 장면을 떠올려 보세요.',
-  options: [
-    {
-      id: 'leader',
-      title: '팀이 내 방향을 따를 때',
-      description: '내가 제시한 비전이 팀 전체의 움직임이 되는 순간',
-    },
-    {
-      id: 'spark',
-      title: '아이디어가 폭발할 때',
-      description: '회의에서 아이디어가 터지고 팀이 흥분할 때',
-    },
-    {
-      id: 'builder',
-      title: '맡은 것을 완료했을 때',
-      description: '어떤 상황에서도 내 파트만큼은 해냈다는 확신',
-    },
-    {
-      id: 'burner',
-      title: '문제의 핵심을 찾았을 때',
-      description: '복잡한 상황을 구조화하고 해결책이 보이는 순간',
-    },
-    {
-      id: 'free',
-      title: '나만의 방식으로 기여할 때',
-      description: '틀에 얽매이지 않고 독창적으로 문제를 푼 순간',
-    },
-    {
-      id: 'care',
-      title: '팀원이 잘 됐다고 할 때',
-      description: '내 도움으로 누군가가 더 잘할 수 있게 된 그 순간',
-    },
-  ],
-};
-
-const Q3: Question = {
-  id: 'q3',
   title: '함께한 팀원들이 나를\n어떻게 기억할 것 같나요?',
   subtitle: '내가 가장 가깝다고 느끼는 문장을 골라주세요.',
   options: [
@@ -118,5 +80,4 @@ const Q3: Question = {
 export const QUESTIONS: Record<QuestionId, Question> = {
   q1: Q1,
   q2: Q2,
-  q3: Q3,
 };

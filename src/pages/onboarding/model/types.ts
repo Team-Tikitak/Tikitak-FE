@@ -1,10 +1,10 @@
-export const ONBOARDING_STEPS = ['character-preview', 'q1', 'q2', 'q3', 'result'] as const;
+export const ONBOARDING_STEPS = ['character-preview', 'q1', 'q2', 'result'] as const;
 
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 export type QuestionId = Exclude<OnboardingStep, 'character-preview' | 'result'>;
 
-export const QUESTION_IDS = ['q1', 'q2', 'q3'] as const satisfies readonly QuestionId[];
+export const QUESTION_IDS = ['q1', 'q2'] as const satisfies readonly QuestionId[];
 
 export type OnboardingAnswers = Partial<Record<QuestionId, string>>;
 

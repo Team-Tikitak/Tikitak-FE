@@ -34,6 +34,7 @@ const meta = {
   args: {
     teams: TEAMS,
     selectedTeamId: 0,
+    onCreateTeam: () => {},
   },
 } satisfies Meta<typeof TeamListSheet>;
 

@@ -1,3 +1,4 @@
+import type { ProfileCharacterType } from '@/shared/api/user/types';
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
 import TakBurner from '@/shared/assets/Character/TakBurner.svg?react';
 import TakCare from '@/shared/assets/Character/TakCare.svg?react';
@@ -21,6 +22,27 @@ const CHARACTER_BY_ID = {
 } as const;
 
 export type CharacterId = keyof typeof CHARACTER_BY_ID;
+
+export const CHARACTER_IDS = [
+  'leader',
+  'spark',
+  'burner',
+  'builder',
+  'free',
+  'care',
+] as const satisfies readonly CharacterId[];
+
+export const isCharacterId = (value: string | undefined): value is CharacterId =>
+  value !== undefined && (CHARACTER_IDS as readonly string[]).includes(value);
+
+export const CHARACTER_TO_PROFILE_TYPE = {
+  leader: 'TAK_LEADER',
+  spark: 'TAK_SPARK',
+  burner: 'TAK_BURNER',
+  builder: 'TAK_BUILDER',
+  free: 'TAK_FREE',
+  care: 'TAK_CARE',
+} as const satisfies Record<CharacterId, ProfileCharacterType>;
 
 const toRow = (ids: readonly CharacterId[]) => ids.map((id) => ({ id, ...CHARACTER_BY_ID[id] }));
 

@@ -8,8 +8,7 @@ import {
 
 const QUESTION_TO_NEXT_STEP: Record<QuestionId, OnboardingStep> = {
   q1: 'q2',
-  q2: 'q3',
-  q3: 'result',
+  q2: 'result',
 };
 
 export const useOnboardingFlow = () => {

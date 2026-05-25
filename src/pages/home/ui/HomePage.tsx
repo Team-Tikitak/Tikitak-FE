@@ -49,6 +49,8 @@ export const HomePage = () => {
       >
         {({ activeSnapPoint }) => (
           <TeamListSheet
+            open={isOpen}
+            initialOffset={collapsedSnap}
             teams={teamItems.map((team) => ({
               id: team.teamId,
               title: team.teamName,
@@ -60,6 +62,10 @@ export const HomePage = () => {
               setSelectedTeamId(Number(teamId));
               patchActiveTeam(Number(teamId));
               close();
+            }}
+            onCreateTeam={() => {
+              close();
+              navigate(PATHS.TEAM_CREATE);
             }}
           />
         )}
