@@ -106,4 +106,23 @@ describe('useFeedCreateForm', () => {
     act(() => result.current.removeMember(1));
     expect(result.current.selectedMembers.find((m) => m.teamMemberId === 1)).toBeUndefined();
   });
+
+  it('maxPhotoCount 옵션 없으면 기본 10 이다', () => {
+    const { result } = renderHook(() => useFeedCreateForm());
+    expect(result.current.maxPhotoCount).toBe(10);
+  });
+
+  it('maxPhotoCount=1 이면 한 장만 허용한다', () => {
+    const { result } = renderHook(() => useFeedCreateForm({ maxPhotoCount: 1 }));
+    expect(result.current.maxPhotoCount).toBe(1);
+
+    act(() => {
+      result.current.addPhoto(makePhoto('p-1'));
+      result.current.addPhoto(makePhoto('p-2'));
+    });
+
+    expect(result.current.photos).toHaveLength(1);
+    expect(result.current.photos[0].id).toBe('p-1');
+    expect(result.current.canAddMorePhotos).toBe(false);
+  });
 });
