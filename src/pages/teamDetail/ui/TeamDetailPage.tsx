@@ -3,6 +3,7 @@ import { PageShell } from '@/app/layout';
 import { PATHS, toTeamInvite } from '@/app/routes/paths';
 import { useDeleteTeamMember, useLeaveTeam, useTeamDelete } from '@/shared/api/team/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
+import { normalizeImageUrl } from '@/shared/lib';
 import { Button, Header, MemberCard, PageSection } from '@/shared/ui';
 import { useTeamDetail } from '../hooks/useTeamDetail';
 
@@ -42,7 +43,7 @@ export const TeamDetailPage = () => {
       <PageSection title="내 프로필">
         <div className="bg-main-000 flex items-center gap-3 rounded-lg p-4">
           <img
-            src={myProfile?.profileImageUrl}
+            src={normalizeImageUrl(myProfile?.profileImgUrl)}
             alt={myProfile?.nickname}
             className="no-native-image size-10 rounded-full"
           />
