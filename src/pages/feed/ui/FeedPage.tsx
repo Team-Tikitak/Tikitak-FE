@@ -3,6 +3,7 @@ import { PageShell } from '@/app/layout';
 import { useFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { Divider, Header } from '@/shared/ui';
+import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
 import { FeedListItem } from './FeedListItem';
@@ -24,7 +25,7 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-24">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24">
         <FeedCountToolbar
           count={totalCount}
           viewMode={viewMode}
@@ -38,7 +39,9 @@ export const FeedPage = () => {
         ) : !teamId ? (
           <p className="body-3 mt-10 text-center text-gray-500">활성 팀을 먼저 선택해주세요.</p>
         ) : feeds.length === 0 ? (
-          <p className="body-3 mt-10 text-center text-gray-500">아직 작성된 피드가 없습니다.</p>
+          <div className="flex flex-1 items-center justify-center">
+            <EmptyFeedView />
+          </div>
         ) : viewMode === 'grid' ? (
           <FeedGrid items={feeds} />
         ) : (
