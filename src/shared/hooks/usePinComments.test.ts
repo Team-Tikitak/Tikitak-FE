@@ -91,13 +91,13 @@ describe('usePinComments', () => {
     expect(result.current.decoratePins(42, 0, undefined)).toHaveLength(0);
   });
 
-  it('submitComment 후 닫으면 핀이 유지됨', () => {
+  it('submitComment 후 닫으면 ghost 핀이 제거됨', () => {
     const { result } = renderHook(() => usePinComments(defaultParams));
     act(() => result.current.addPinAt(42, 0, 30, 40));
     act(() => result.current.submitComment('하이'));
     act(() => result.current.closeSheet());
     act(() => result.current.completeClose());
-    expect(result.current.decoratePins(42, 0, undefined)).toHaveLength(1);
+    expect(result.current.decoratePins(42, 0, undefined)).toHaveLength(0);
   });
 
   it('submitComment는 postComment를 호출함', () => {
