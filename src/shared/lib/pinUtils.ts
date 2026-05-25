@@ -4,7 +4,9 @@ import type { Pin } from '@/shared/ui';
 
 export const makeSlot = (feedId: number, imageIndex: number) => `${feedId}-${imageIndex}`;
 export const makePosKey = (x: number, y: number) => `${x},${y}`;
-export const isSamePos = (x: number, y: number, px: number, py: number) => x === px && y === py;
+const POS_EPSILON = 0.005;
+export const isSamePos = (x: number, y: number, px: number, py: number) =>
+  Math.abs(x - px) < POS_EPSILON && Math.abs(y - py) < POS_EPSILON;
 
 export const groupCommentsByPos = (comments: FeedComment[], feedImageId: number) =>
   comments
