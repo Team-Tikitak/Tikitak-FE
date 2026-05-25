@@ -3,7 +3,6 @@
  */
 
 export * from './EmptyTeamView';
-export * from './HomeHeader';
 export * from './HomePage';
 export * from './Map';
 export * from './MapImage';

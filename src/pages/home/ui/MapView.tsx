@@ -20,7 +20,7 @@ export const MapView = () => {
   );
 
   const handleQuestionClick = useCallback(() => {
-    navigate(PATHS.FEED_CREATE);
+    navigate(PATHS.DAILY_FEED_CREATE);
   }, [navigate]);
 
   return (
