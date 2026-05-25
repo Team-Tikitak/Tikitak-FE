@@ -119,7 +119,8 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
           .filter(
             (c) =>
               c.feedImageId === pendingPosition.feedImageId &&
-              makePosKey(c.positionX, c.positionY) === makePosKey(pendingPosition.x, pendingPosition.y),
+              makePosKey(c.positionX, c.positionY) ===
+                makePosKey(pendingPosition.x, pendingPosition.y),
           )
           .map((c) => ({
             id: String(c.commentId),
