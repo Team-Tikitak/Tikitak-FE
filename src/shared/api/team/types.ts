@@ -45,3 +45,14 @@ export type TeamMember = {
 export interface TeamMembersResponse {
   members: TeamMember[];
 }
+
+export interface CreateTeamRequest {
+  teamName: string;
+  introduction: string;
+  profileImageUrl: string;
+  nickName: string;
+}
+
+export interface CreateTeamResponse {
+  teamName: string;
+}

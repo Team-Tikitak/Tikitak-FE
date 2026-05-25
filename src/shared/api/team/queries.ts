@@ -7,13 +7,35 @@ import {
   getTeamDetail,
   getTeamMembers,
   patchTeamProfile,
+  postTeam,
   postTeamDeleteRequest,
 } from './api';
 import { teamKeys } from './keys';
 import { unwrap } from '../request';
 import { userKeys } from '../user/keys';
-import type { DeleteTeamMemberVariables, PatchTeamProfileVariables } from './types';
+import type {
+  CreateTeamRequest,
+  DeleteTeamMemberVariables,
+  PatchTeamProfileVariables,
+} from './types';
 import type { Team } from '../user/types';
+
+export const useCreateTeam = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: CreateTeamRequest) => unwrap(() => postTeam(body)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      queryClient.invalidateQueries({ queryKey: teamKeys.all });
+      navigate(PATHS.HOME, { replace: true });
+    },
+    onError: () => {
+      // TODO: 요청 실패 처리
+    },
+  });
+};
 
 export const useLeaveTeam = () => {
   const navigate = useNavigate();

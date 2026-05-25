@@ -11,6 +11,7 @@ export * from './CameraButton';
 export * from './Check';
 export * from './Chip';
 export * from './CommentInputField';
+export * from './ConfirmDialog';
 export * from './DailyQuestion';
 export * from './Divider';
 export * from './FeedDetail';
