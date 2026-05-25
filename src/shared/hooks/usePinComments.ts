@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
+import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { toAbsoluteUrl } from '@/shared/lib/toAbsoluteUrl';
 import { type Pin, type CommentSheetItem } from '@/shared/ui';
-import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '../lib/pinUtils';
 
 interface UsePinCommentsParams {
   teamId: number;

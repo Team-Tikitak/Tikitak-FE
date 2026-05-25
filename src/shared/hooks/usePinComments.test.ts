@@ -48,13 +48,15 @@ const makeComment = (
 describe('usePinComments', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.mocked(useGetFeedComments).mockReturnValue({ data: { items: [] } } as ReturnType<
+    vi.mocked(useGetFeedComments).mockReturnValue({ data: { items: [] } } as unknown as ReturnType<
       typeof useGetFeedComments
     >);
-    vi.mocked(usePostFeedComment).mockReturnValue({ mutate: mockPostComment } as ReturnType<
-      typeof usePostFeedComment
+    vi.mocked(usePostFeedComment).mockReturnValue({
+      mutate: mockPostComment,
+    } as unknown as ReturnType<typeof usePostFeedComment>);
+    vi.mocked(useGetTeams).mockReturnValue({ data: [] } as unknown as ReturnType<
+      typeof useGetTeams
     >);
-    vi.mocked(useGetTeams).mockReturnValue({ data: [] } as ReturnType<typeof useGetTeams>);
   });
 
   it('초기 sheet key는 null', () => {
@@ -121,7 +123,7 @@ describe('usePinComments', () => {
           makeComment({ commentId: 2, teamMemberId: 2 }),
         ],
       },
-    } as ReturnType<typeof useGetFeedComments>);
+    } as unknown as ReturnType<typeof useGetFeedComments>);
     const { result } = renderHook(() => usePinComments(defaultParams));
     const pins = result.current.decoratePins(42, 0, undefined);
     expect(pins).toHaveLength(1);
@@ -136,7 +138,7 @@ describe('usePinComments', () => {
           makeComment({ commentId: 2, teamMemberId: 1 }),
         ],
       },
-    } as ReturnType<typeof useGetFeedComments>);
+    } as unknown as ReturnType<typeof useGetFeedComments>);
     const { result } = renderHook(() => usePinComments(defaultParams));
     const pins = result.current.decoratePins(42, 0, undefined);
     expect(pins).toHaveLength(1);
@@ -151,7 +153,7 @@ describe('usePinComments', () => {
           makeComment({ commentId: 2, positionX: 0.6, positionY: 0.7 }),
         ],
       },
-    } as ReturnType<typeof useGetFeedComments>);
+    } as unknown as ReturnType<typeof useGetFeedComments>);
     const { result } = renderHook(() => usePinComments(defaultParams));
     const pins = result.current.decoratePins(42, 0, undefined);
     expect(pins).toHaveLength(2);
