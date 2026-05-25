@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
-import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
+import { makeSlot, makePosKey, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { toAbsoluteUrl } from '@/shared/lib/toAbsoluteUrl';
 import { type Pin, type CommentSheetItem } from '@/shared/ui';
 
@@ -55,26 +55,32 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
       positionX: pendingPosition.x,
       positionY: pendingPosition.y,
     });
-    setPendingNewPin(null);
+    if (pendingNewPin) {
+      setAddedPins((prev) => ({
+        ...prev,
+        [pendingNewPin.slot]: (prev[pendingNewPin.slot] ?? []).filter(
+          (p) => p.id !== pendingNewPin.id,
+        ),
+      }));
+      setPendingNewPin(null);
+    }
   };
 
   const addPinAt = (feedId: number, imageIndex: number, x: number, y: number) => {
     const slot = makeSlot(feedId, imageIndex);
     const feedImageId = feedImageIds[imageIndex];
+    const posX = parseFloat((x / 100).toFixed(2));
+    const posY = parseFloat((y / 100).toFixed(2));
     const newPin: Pin = {
       id: crypto.randomUUID(),
-      x: Math.round(x),
-      y: Math.round(y),
+      x: posX * 100,
+      y: posY * 100,
       variant: 'new',
       avatars: [{ id: 'me', src: myProfileImageUrl }],
     };
     setAddedPins((prev) => ({ ...prev, [slot]: [...(prev[slot] ?? []), newPin] }));
     setPendingNewPin({ slot, id: newPin.id });
-    setPendingPosition({
-      feedImageId,
-      x: parseFloat((x / 100).toFixed(2)),
-      y: parseFloat((y / 100).toFixed(2)),
-    });
+    setPendingPosition({ feedImageId, x: posX, y: posY });
     openSheet(slot);
   };
 
@@ -98,7 +104,10 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
     const slot = makeSlot(feedId, imageIndex);
     const newPins = (addedPins[slot] ?? []).map((pin) => ({
       ...pin,
-      onClick: () => openSheet(slot),
+      onClick: () => {
+        setPendingPosition({ feedImageId, x: pin.x / 100, y: pin.y / 100 });
+        openSheet(slot);
+      },
     }));
 
     return [...apiPins, ...newPins];
@@ -110,7 +119,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
           .filter(
             (c) =>
               c.feedImageId === pendingPosition.feedImageId &&
-              isSamePos(c.positionX, c.positionY, pendingPosition.x, pendingPosition.y),
+              makePosKey(c.positionX, c.positionY) === makePosKey(pendingPosition.x, pendingPosition.y),
           )
           .map((c) => ({
             id: String(c.commentId),

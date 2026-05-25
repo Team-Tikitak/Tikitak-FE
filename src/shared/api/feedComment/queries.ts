@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFeedComments, postFeedComment } from './api';
 import { feedCommentKeys } from './keys';
-import type { FeedCommentListParams, createFeedCommentRequest } from './types';
+import type {
+  FeedComment,
+  FeedCommentListParams,
+  FeedCommentListResponse,
+  createFeedCommentRequest,
+} from './types';
 
 export const useGetFeedComments = (
   teamId: number,
@@ -21,8 +26,14 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
   return useMutation({
     mutationFn: (body: createFeedCommentRequest) =>
       postFeedComment(teamId, feedId, body).then((res) => res.data.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: feedCommentKeys.comments(teamId, feedId) });
+    onSuccess: (newComment: FeedComment) => {
+      queryClient.setQueryData<FeedCommentListResponse>(
+        feedCommentKeys.comments(teamId, feedId),
+        (old) => {
+          if (!old) return old;
+          return { ...old, items: [...old.items, newComment] };
+        },
+      );
     },
   });
 };

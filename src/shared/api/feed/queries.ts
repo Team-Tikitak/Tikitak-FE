@@ -27,6 +27,6 @@ export const useGetFeedDetail = (teamId: number, feedId: number) =>
   useQuery({
     queryKey: feedKeys.detail(teamId, feedId),
     queryFn: () => getFeedDetail(teamId, feedId).then((res) => res.data.data),
-    enabled: typeof teamId === 'number' && Boolean(feedId),
+    enabled: teamId > 0 && Boolean(feedId),
     staleTime: 30 * 1000,
   });
