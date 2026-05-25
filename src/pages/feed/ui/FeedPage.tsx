@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { toFeedDetail } from '@/app/routes';
 import { useFeeds } from '@/shared/api/feed/queries';
@@ -16,7 +16,6 @@ export const FeedPage = () => {
   const teamId = me?.activeTeamId ?? null;
   const { data, isLoading, isError } = useFeeds(teamId);
 
-  const navigate = useNavigate();
   const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
   const totalCount = feeds.length;
 
@@ -48,7 +47,9 @@ export const FeedPage = () => {
           <ul className="flex flex-col gap-5">
             {feeds.map((feed) => (
               <li key={feed.id} className="flex flex-col gap-5">
-                <FeedListItem item={feed} onClick={() => navigate(toFeedDetail(feed.id))} />
+                <Link to={toFeedDetail(feed.id)} className="block">
+                  <FeedListItem item={feed} />
+                </Link>
                 <Divider />
               </li>
             ))}
