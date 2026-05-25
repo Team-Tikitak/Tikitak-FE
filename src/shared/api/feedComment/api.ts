@@ -4,9 +4,9 @@ import type { ApiResponse } from '../type';
 import type {
   FeedCommentListResponse,
   FeedCommentListParams,
-  createFeedCommentRequest,
-  patchFeedCommentRequest,
   FeedComment,
+  PatchFeedCommentRequest,
+  FeedCommentRequest,
 } from './types';
 
 export const getFeedComments = (teamId: number, feedId: number, params?: FeedCommentListParams) =>
@@ -15,7 +15,7 @@ export const getFeedComments = (teamId: number, feedId: number, params?: FeedCom
     { params },
   );
 
-export const postFeedComment = (teamId: number, feedId: number, body: createFeedCommentRequest) =>
+export const postFeedComment = (teamId: number, feedId: number, body: FeedCommentRequest) =>
   instance.post<ApiResponse<FeedComment>>(FEED_COMMENT_ENDPOINTS.COMMENTS(teamId, feedId), body);
 
 export const deleteFeedComment = (teamId: number, feedId: number, commentId: number) =>
@@ -25,7 +25,7 @@ export const patchFeedComment = (
   teamId: number,
   feedId: number,
   commentId: number,
-  body: patchFeedCommentRequest,
+  body: PatchFeedCommentRequest,
 ) =>
   instance.patch<ApiResponse<FeedComment>>(
     FEED_COMMENT_ENDPOINTS.COMMENT(teamId, feedId, commentId),

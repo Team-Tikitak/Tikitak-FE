@@ -1,4 +1,4 @@
-export interface commentAuthor {
+export interface CommentAuthor {
   teamMemberId: number;
   nickname: string;
   profileImageUrl: string;
@@ -13,7 +13,7 @@ export interface FeedComment {
   content: string;
   positionX: number;
   positionY: number;
-  author: commentAuthor;
+  author: CommentAuthor;
   createdAt: string;
   updatedAt: string;
   mine: boolean;
@@ -37,21 +37,14 @@ export interface FeedCommentListParams {
   size?: number;
 }
 
-export interface FeedCommentCreateRequest {
+export interface FeedCommentRequest {
   feedImageId: number;
   content: string;
   positionX: number;
   positionY: number;
 }
 
-export interface createFeedCommentRequest {
-  feedImageId: number;
-  content: string;
-  positionX: number;
-  positionY: number;
-}
-
-export interface patchFeedCommentRequest {
+export interface PatchFeedCommentRequest {
   content: string;
   positionX: number;
   positionY: number;

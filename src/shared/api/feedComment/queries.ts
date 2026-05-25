@@ -5,7 +5,7 @@ import type {
   FeedComment,
   FeedCommentListParams,
   FeedCommentListResponse,
-  createFeedCommentRequest,
+  FeedCommentRequest,
 } from './types';
 
 export const useGetFeedComments = (
@@ -24,7 +24,7 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: createFeedCommentRequest) =>
+    mutationFn: (body: FeedCommentRequest) =>
       postFeedComment(teamId, feedId, body).then((res) => res.data.data),
     onSuccess: (newComment: FeedComment) => {
       queryClient.setQueryData<FeedCommentListResponse>(
