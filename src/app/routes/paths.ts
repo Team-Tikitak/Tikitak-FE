@@ -14,10 +14,10 @@ export const PATHS = {
   TEAM_INVITE: '/teams/:teamId/invite',
   INVITE_ACCEPT: '/invite/:token',
   GALLERY: '/gallery',
-  PLACE_DETAIL: '/place/:placeId',
+  FEED_DETAIL: '/feed/:feedId',
   AUTH_CALLBACK: '/oauth/callback',
 } as const;
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
-export const toPlaceDetail = (placeId: string) => `/place/${placeId}`;
+export const toFeedDetail = (feedId: string) => `/feed/${feedId}`;
 export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFeeds, postFeed } from './api';
+import { getFeedDetail, getFeeds, postFeed } from './api';
 import { feedKeys } from './keys';
 import type { FeedCreateRequest, FeedListParams } from './types';
 
@@ -19,5 +19,13 @@ export const useFeeds = (teamId: number | null | undefined, params: FeedListPara
     queryKey: feedKeys.listFiltered(teamId ?? 0, params),
     queryFn: () => getFeeds(teamId as number, params).then((res) => res.data.data),
     enabled: typeof teamId === 'number',
+    staleTime: 30 * 1000,
+  });
+
+export const useGetFeedDetail = (teamId: number, feedId: number) =>
+  useQuery({
+    queryKey: feedKeys.detail(teamId, feedId),
+    queryFn: () => getFeedDetail(teamId, feedId).then((res) => res.data.data),
+    enabled: typeof teamId === 'number' && Boolean(feedId),
     staleTime: 30 * 1000,
   });

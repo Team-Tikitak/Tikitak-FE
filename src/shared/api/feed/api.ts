@@ -3,6 +3,7 @@ import { FEED_ENDPOINTS } from './endpoints';
 import type { ApiResponse } from '../type';
 import type {
   FeedCreateRequest,
+  FeedDetailResponse,
   FeedListParams,
   FeedListResponse,
   FeedMutationResponse,
@@ -13,3 +14,6 @@ export const postFeed = (teamId: number, body: FeedCreateRequest) =>
 
 export const getFeeds = (teamId: number, params?: FeedListParams) =>
   instance.get<ApiResponse<FeedListResponse>>(FEED_ENDPOINTS.FEEDS(teamId), { params });
+
+export const getFeedDetail = (teamId: number, feedId: number) =>
+  instance.get<ApiResponse<FeedDetailResponse>>(FEED_ENDPOINTS.FEED(teamId, feedId));
