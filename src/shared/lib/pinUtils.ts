@@ -31,8 +31,8 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
       y,
       count: 'multiple' as const,
       avatars: [
-        { id: String(a.teamMemberId), src: toAbsoluteUrl(a.profileImageUrl) },
-        { id: String(b.teamMemberId), src: toAbsoluteUrl(b.profileImageUrl) },
+        { id: String(a.teamMemberId), src: toAbsoluteUrl(a.profileImageUrl) ?? '' },
+        { id: String(b.teamMemberId), src: toAbsoluteUrl(b.profileImageUrl) ?? '' },
       ],
       onClick,
     };
@@ -45,7 +45,7 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
     avatars: [
       {
         id: String(first.author.teamMemberId),
-        src: toAbsoluteUrl(first.author.profileImageUrl),
+        src: toAbsoluteUrl(first.author.profileImageUrl) ?? '',
       },
     ],
     onClick,

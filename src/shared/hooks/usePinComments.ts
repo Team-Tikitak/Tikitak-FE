@@ -23,7 +23,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
   const [pendingNewPin, setPendingNewPin] = useState<{ slot: string; id: string } | null>(null);
 
   const { data: teams } = useGetTeams();
-  const myProfileImageUrl = teams?.find((t) => t.isActive)?.profileImageUrl ?? '';
+  const myProfileImageUrl = toAbsoluteUrl(teams?.find((t) => t.isActive)?.profileImageUrl) ?? '';
 
   const { data: commentsData } = useGetFeedComments(teamId, feedId);
   const { mutate: postComment } = usePostFeedComment(teamId, feedId);
@@ -116,7 +116,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
             id: String(c.commentId),
             authorName: c.author.nickname,
             text: c.content,
-            avatarSrc: toAbsoluteUrl(c.author.profileImageUrl),
+            avatarSrc: toAbsoluteUrl(c.author.profileImageUrl) ?? '',
           }))
       : [];
 

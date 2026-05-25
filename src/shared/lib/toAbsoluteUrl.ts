@@ -1,2 +1,4 @@
-export const toAbsoluteUrl = (url: string) =>
-  url.startsWith('http') ? url : `https://${url}`;
+export const toAbsoluteUrl = (url: string | undefined | null) => {
+  if (!url) return undefined;
+  return url.startsWith('http') ? url : `https://${url}`;
+};
