@@ -1,19 +1,22 @@
 import { useFeedData } from '@/shared/hooks/useFeedData';
-import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
 import { usePinComments } from '@/shared/hooks/usePinComments';
 import { FeedDetail } from './FeedDetail';
 import { BottomSheetOverlay, CommentSheet } from '../BottomSheet';
 import { LongPressHint } from './LongPressHint';
 
-const FEED_DETAIL_HINT_KEY = 'feed-detail-long-press-hint-seen';
-
 interface FeedDetailContentProps {
   teamId: number;
   feedId: number;
+  showHint?: boolean;
+  onHintDismiss?: () => void;
 }
 
-export const FeedDetailContent = ({ teamId, feedId }: FeedDetailContentProps) => {
-  const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
+export const FeedDetailContent = ({
+  teamId,
+  feedId,
+  showHint = false,
+  onHintDismiss,
+}: FeedDetailContentProps) => {
   const { authorName, participants, images, feedImageIds, content, date } = useFeedData(
     teamId,
     feedId,
@@ -31,7 +34,7 @@ export const FeedDetailContent = ({ teamId, feedId }: FeedDetailContentProps) =>
 
   return (
     <>
-      {!seen && <LongPressHint onDismiss={markSeen} />}
+      {showHint && <LongPressHint onDismiss={onHintDismiss ?? (() => {})} />}
       <FeedDetail
         heroKey={`pin-${feedId}`}
         participants={participants}
