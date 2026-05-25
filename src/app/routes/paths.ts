@@ -6,6 +6,7 @@ export const PATHS = {
   FEED: '/feed',
   ACTIVITY: '/activity',
   FEED_CREATE: '/feed/new',
+  DAILY_FEED_CREATE: '/feed/new/daily',
   ONBOARDING: '/onboarding',
   MY_PAGE: '/mypage',
   TEAM_DETAIL: '/teams/:teamId',

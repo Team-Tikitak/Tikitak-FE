@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
 import { ActivityPage } from '@/pages/activity/ui/activityPage';
+import { DailyFeedCreatePage } from '@/pages/dailyFeedCreate/ui';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
@@ -32,7 +33,7 @@ export const router = createBrowserRouter([
           { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
           { path: PATHS.INVITE_ACCEPT, loader: inviteAcceptLoader, element: <InviteAcceptPage /> },
-          { path: PATHS.AUTH_CALLBACK, loader: authCallbackLoader },
+          { path: PATHS.AUTH_CALLBACK, loader: authCallbackLoader, element: <SplashPage /> },
           {
             element: <ProtectedRoute />,
             loader: setupFlowLoader,
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
               { path: PATHS.HOME, element: <HomePage /> },
               { path: PATHS.FEED, element: <FeedPage /> },
               { path: PATHS.FEED_CREATE, element: <FeedCreatePage /> },
+              { path: PATHS.DAILY_FEED_CREATE, element: <DailyFeedCreatePage /> },
               { path: PATHS.MY_PAGE, element: <MyPage /> },
               { path: PATHS.TEAM_DETAIL, element: <TeamDetailPage /> },
               { path: PATHS.TEAM_CREATE, element: <TeamCreatePage /> },

@@ -7,21 +7,6 @@ const SHEET_PHYSICS = { spring: { stiffness: 600, damping: 45 } };
 const HERO_PHYSICS = { spring: { stiffness: 350, damping: 32 } };
 
 const fadeTransition = fade({ physics: { spring: { stiffness: 3200, damping: 60 } } });
-const splashToLoginTransition = {
-  in: () => ({
-    prepare: () => {},
-    css: () => ({ opacity: 1 }),
-  }),
-  out: (element: HTMLElement) => ({
-    prepare: () => {
-      element.style.opacity = '0';
-    },
-    css: () => ({ opacity: 0 }),
-    onEnd: () => {
-      element.style.opacity = '';
-    },
-  }),
-};
 const slideForward = slide({ direction: 'left' });
 const slideBack = slide({ direction: 'right' });
 const heroTransition = hero({ physics: HERO_PHYSICS });
@@ -40,11 +25,15 @@ const pushPair = (a: string, b: string) => [
 const ssgoiConfig = {
   defaultTransition: fadeTransition,
   transitions: [
-    { from: PATHS.ROOT, to: PATHS.LOGIN, transition: splashToLoginTransition },
-
     ...sheetPair(PATHS.HOME, PATHS.FEED_CREATE),
     ...sheetPair(PATHS.FEED, PATHS.FEED_CREATE),
     ...sheetPair(PATHS.MY_PAGE, PATHS.FEED_CREATE),
+    ...sheetPair(PATHS.ACTIVITY, PATHS.FEED_CREATE),
+
+    ...sheetPair(PATHS.HOME, PATHS.DAILY_FEED_CREATE),
+    ...sheetPair(PATHS.FEED, PATHS.DAILY_FEED_CREATE),
+    ...sheetPair(PATHS.MY_PAGE, PATHS.DAILY_FEED_CREATE),
+    ...sheetPair(PATHS.ACTIVITY, PATHS.DAILY_FEED_CREATE),
 
     ...pushPair(PATHS.LOGIN, PATHS.TERMS),
     ...pushPair(PATHS.TERMS, PATHS.ONBOARDING),
@@ -59,11 +48,13 @@ const ssgoiConfig = {
     ...sheetPair(PATHS.MY_PAGE, PATHS.TEAM_CREATE),
     ...pushPair(PATHS.TEAM_CREATE, PATHS.TEAM_PROFILE_SETUP),
 
-    ...pushPair(PATHS.HOME, '/teams/*'),
-    ...pushPair('/teams/*', '/teams/*/invite'),
+    ...pushPair(PATHS.HOME, PATHS.TEAM_DETAIL),
+    ...pushPair(PATHS.MY_PAGE, PATHS.TEAM_DETAIL),
+    ...pushPair(PATHS.TEAM_DETAIL, PATHS.TEAM_INVITE),
+    ...pushPair(PATHS.TEAM_DETAIL, PATHS.TEAM_PROFILE_SETUP),
 
-    { from: PATHS.HOME, to: '/place/*', transition: heroTransition },
-    { from: '/place/*', to: PATHS.HOME, transition: heroTransition },
+    { from: PATHS.HOME, to: PATHS.PLACE_DETAIL, transition: heroTransition },
+    { from: PATHS.PLACE_DETAIL, to: PATHS.HOME, transition: heroTransition },
   ],
 };
 
