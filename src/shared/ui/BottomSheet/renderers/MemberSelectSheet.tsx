@@ -46,16 +46,11 @@ export function MemberSelectSheet({
   return (
     <BottomSheet
       title="인원 추가"
-      className={cn('bottom-sheet-base', className)}
-      contentClassName="flex flex-col"
+      className={cn('bottom-sheet-base flex flex-col', className)}
+      contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >
-      {typeof maxSelection === 'number' && (
-        <p className="body-1 mb-3 text-gray-600">
-          최대 {maxSelection}명까지 선택할 수 있습니다 ({selectedIds.length}/{maxSelection})
-        </p>
-      )}
-      <div className="no-scrollbar grid max-h-[120px] w-full grid-cols-4 gap-x-2 gap-y-3 overflow-y-auto">
+      <div className="no-scrollbar grid h-[120px] w-full shrink-0 grid-cols-4 content-start gap-x-2 gap-y-3 overflow-y-auto">
         {members.map((member) => {
           const selected = selectedSet.has(member.id);
           const disabled = atCap && !selected;
@@ -79,7 +74,11 @@ export function MemberSelectSheet({
           );
         })}
       </div>
-      <Button variant="primary" className="mt-[47px]" onClick={() => onConfirm?.(selectedIds)}>
+      <Button
+        variant="primary"
+        className="mt-auto mb-[15.62px] shrink-0"
+        onClick={() => onConfirm?.(selectedIds)}
+      >
         {confirmLabel}
       </Button>
     </BottomSheet>

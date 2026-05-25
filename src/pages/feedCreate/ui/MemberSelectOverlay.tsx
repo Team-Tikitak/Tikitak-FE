@@ -1,4 +1,5 @@
 import type { TeamMember } from '@/shared/api/team/types';
+import { normalizeImageUrl } from '@/shared/lib';
 import {
   BottomSheetOverlay,
   MemberSelectSheet,
@@ -26,7 +27,7 @@ export const MemberSelectOverlay = ({
   const items: MemberSelectSheetItem[] = teamMembers.map((member) => ({
     id: String(member.teamMemberId),
     name: member.nickname,
-    avatarSrc: member.profileImgUrl || undefined,
+    avatarSrc: normalizeImageUrl(member.profileImgUrl),
   }));
   const initialSelectedIds = selectedMembers.map((member) => String(member.teamMemberId));
 
