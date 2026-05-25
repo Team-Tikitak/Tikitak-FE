@@ -12,6 +12,7 @@ import { LoginPage } from '@/pages/login/ui';
 import { MyPage } from '@/pages/myPage/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { OnboardingPage } from '@/pages/onboarding/ui';
+import { PlaceDetailPage } from '@/pages/placeDetail/ui/PlaceDetailPage';
 import { SplashPage } from '@/pages/splash/ui';
 import { TeamCreatePage } from '@/pages/teamCreate/ui';
 import { TeamDetailPage } from '@/pages/teamDetail/ui';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
               { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
               { path: PATHS.GALLERY, element: <GalleryPage /> },
               { path: PATHS.FEED_DETAIL, element: <FeedDetailPage /> },
+              { path: PATHS.PLACE_FEEDS, element: <PlaceDetailPage /> },
               { path: PATHS.ACTIVITY, element: <ActivityPage /> },
             ],
           },
