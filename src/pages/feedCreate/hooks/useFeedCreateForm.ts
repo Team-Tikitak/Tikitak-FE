@@ -4,10 +4,16 @@ import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
 
 const MAX_CONTENT_LENGTH = 1000;
-const MAX_PHOTO_COUNT = 10;
+const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
 
-export const useFeedCreateForm = () => {
+interface UseFeedCreateFormOptions {
+  maxPhotoCount?: number;
+}
+
+export const useFeedCreateForm = ({
+  maxPhotoCount = DEFAULT_MAX_PHOTO_COUNT,
+}: UseFeedCreateFormOptions = {}) => {
   const [content, setContentRaw] = useState('');
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<FeedPlace | null>(null);
@@ -29,7 +35,7 @@ export const useFeedCreateForm = () => {
   };
 
   const addPhoto = (photo: CapturedPhoto) => {
-    setPhotos((prev) => (prev.length >= MAX_PHOTO_COUNT ? prev : [...prev, photo]));
+    setPhotos((prev) => (prev.length >= maxPhotoCount ? prev : [...prev, photo]));
   };
 
   const removePhoto = (photoId: string) => {
@@ -52,7 +58,7 @@ export const useFeedCreateForm = () => {
     setSelectedMembers((prev) => prev.filter((member) => member.teamMemberId !== teamMemberId));
   };
 
-  const canAddMorePhotos = photos.length < MAX_PHOTO_COUNT;
+  const canAddMorePhotos = photos.length < maxPhotoCount;
   const isShareDisabled = photos.length === 0;
 
   return {
@@ -62,7 +68,7 @@ export const useFeedCreateForm = () => {
     addPhoto,
     removePhoto,
     canAddMorePhotos,
-    maxPhotoCount: MAX_PHOTO_COUNT,
+    maxPhotoCount,
     maxContentLength: MAX_CONTENT_LENGTH,
     selectedPlace,
     selectPlace,
