@@ -1,4 +1,3 @@
-import { type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
@@ -7,40 +6,13 @@ import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
-import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { openOverlay } from '@/shared/lib';
-import { DailyQuestion, Button, Chip, Header, UserChip } from '@/shared/ui';
+import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { LocationSearchOverlay } from './LocationSearchOverlay';
 import { MemberSelectOverlay } from './MemberSelectOverlay';
 import { useFeedCreateForm } from '../hooks/useFeedCreateForm';
 import { useFeedShare } from '../hooks/useFeedShare';
-
-interface FormRowButtonProps {
-  icon: ReactNode;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}
-
-const TODAY_QUESTION = '오늘 OOTD에서 가장 마음에 드는 포인트는?';
-
-const FormRowButton = ({ icon, label, onClick, disabled }: FormRowButtonProps) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    className="press-feedback flex h-6 w-full items-center justify-between disabled:opacity-50"
-  >
-    <span className="flex items-center gap-2">
-      {icon}
-      <span className="text-h3 leading-[1.4] font-semibold tracking-[0.004em] text-black">
-        {label}
-      </span>
-    </span>
-    <RightIcon className="size-6 shrink-0" aria-hidden="true" />
-  </button>
-);
 
 export const FeedCreatePage = () => {
   const navigate = useNavigate();
@@ -129,8 +101,6 @@ export const FeedCreatePage = () => {
         </Button>
       }
     >
-      <DailyQuestion question={TODAY_QUESTION} />
-
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
         <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
           <button
