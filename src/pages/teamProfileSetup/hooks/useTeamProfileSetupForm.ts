@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export const useTeamProfileSetupForm = () => {
-  const [nickname, setNickname] = useState('');
+interface UseTeamProfileSetupFormOptions {
+  initialNickname?: string;
+  initialAvatarUrl?: string;
+}
+
+export const useTeamProfileSetupForm = ({
+  initialNickname = '',
+  initialAvatarUrl,
+}: UseTeamProfileSetupFormOptions = {}) => {
+  const [nickname, setNickname] = useState(initialNickname);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [userAvatarPreviewUrl, setUserAvatarPreviewUrl] = useState<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    previewUrlRef.current = avatarPreviewUrl;
-  }, [avatarPreviewUrl]);
+    previewUrlRef.current = userAvatarPreviewUrl;
+  }, [userAvatarPreviewUrl]);
 
   useEffect(() => {
     return () => {
@@ -17,20 +25,21 @@ export const useTeamProfileSetupForm = () => {
   }, []);
 
   const setAvatar = useCallback((file: File | null) => {
-    setAvatarPreviewUrl((prev) => {
+    setUserAvatarPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return file ? URL.createObjectURL(file) : null;
     });
     setAvatarFile(file);
   }, []);
 
+  const displayAvatarUrl = userAvatarPreviewUrl ?? initialAvatarUrl ?? null;
   const isDisabled = !nickname.trim();
 
   return {
     nickname,
     setNickname,
     avatarFile,
-    avatarPreviewUrl,
+    avatarPreviewUrl: displayAvatarUrl,
     setAvatar,
     isDisabled,
   };
