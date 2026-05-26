@@ -34,6 +34,7 @@ export const useTeamProfileSetupFlow = () => {
         uploadedPublicId = publicId;
       } catch (error) {
         console.error('프로필 이미지 업로드 실패', error);
+        // TODO: @capacitor/dialog 도입 시 네이티브 재시도 다이얼로그로 교체
         return;
       } finally {
         setIsUploading(false);
