@@ -26,7 +26,7 @@ const isTabPath = (pathname: string): pathname is TabPath =>
 const getRouteKey = (pathname: string): string => {
   if (/^\/teams\/\d+\/invite$/.test(pathname)) return PATHS.TEAM_INVITE;
   if (/^\/teams\/\d+$/.test(pathname)) return PATHS.TEAM_DETAIL;
-  if (/^\/place\/[^/]+$/.test(pathname)) return PATHS.PLACE_DETAIL;
+  if (/^\/place\/[^/]+$/.test(pathname)) return PATHS.PLACE_FEEDS;
   if (/^\/invite\/[^/]+$/.test(pathname)) return PATHS.INVITE_ACCEPT;
   return pathname;
 };

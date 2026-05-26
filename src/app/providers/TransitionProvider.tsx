@@ -53,8 +53,8 @@ const ssgoiConfig = {
     ...pushPair(PATHS.TEAM_DETAIL, PATHS.TEAM_INVITE),
     ...pushPair(PATHS.TEAM_DETAIL, PATHS.TEAM_PROFILE_SETUP),
 
-    { from: PATHS.HOME, to: PATHS.PLACE_DETAIL, transition: heroTransition },
-    { from: PATHS.PLACE_DETAIL, to: PATHS.HOME, transition: heroTransition },
+    { from: PATHS.HOME, to: PATHS.PLACE_FEEDS, transition: heroTransition },
+    { from: PATHS.PLACE_FEEDS, to: PATHS.HOME, transition: heroTransition },
   ],
 };
 
