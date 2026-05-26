@@ -1,0 +1,35 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getDailyQuestion, patchDailyQuestion, postDailyQuestion } from './api';
+import { dailyQuestionKeys } from './keys';
+import { unwrap } from '../request';
+import type { patchDailyQuestionRequest, postDailyQuestionRequest } from './types';
+
+export const useGetDailyQuestion = (teamId: number) =>
+  useQuery({
+    queryKey: dailyQuestionKeys.today(teamId),
+    queryFn: () => unwrap(() => getDailyQuestion(teamId)),
+    enabled: teamId > 0,
+    staleTime: 30 * 1000,
+  });
+
+export const usePostDailyQuestion = (teamId: number, questionId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: postDailyQuestionRequest) =>
+      unwrap(() => postDailyQuestion(teamId, questionId, body)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
+    },
+  });
+};
+
+export const usePatchDailyQuestion = (teamId: number, questionId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: patchDailyQuestionRequest) =>
+      unwrap(() => patchDailyQuestion(teamId, questionId, body)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
+    },
+  });
+};
