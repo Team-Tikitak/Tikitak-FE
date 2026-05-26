@@ -8,7 +8,7 @@ interface UseDailyQuestionShareParams {
   teamId: number | null;
   questionId: number | null;
   content: string;
-  photo: CapturedPhoto;
+  photo: CapturedPhoto | null;
 }
 
 export const useDailyQuestionShare = ({
@@ -22,7 +22,7 @@ export const useDailyQuestionShare = ({
   const [isSharing, setIsSharing] = useState(false);
 
   const share = async () => {
-    if (!teamId || isSharing) return;
+    if (!teamId || !photo || isSharing) return;
     setIsSharing(true);
     try {
       const [mediaPublicId] = await uploadMediaBlobs({

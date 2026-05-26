@@ -36,7 +36,7 @@ export const DailyFeedCreatePage = () => {
     teamId,
     questionId: dailyQuestion?.questionId ?? null,
     content,
-    photo: photo!,
+    photo,
   });
 
   const handleAddPhoto = () => {
@@ -106,7 +106,7 @@ export const DailyFeedCreatePage = () => {
           ) : (
             <>
               <CameraIcon className="size-6" aria-hidden="true" />
-              <span className="button-6 text-gray-900">{photo ? 1 : 0}/1</span>
+              <span className="button-6 text-gray-900">0/1</span>
             </>
           )}
         </button>
