@@ -1,6 +1,6 @@
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import type { HomeBestAttendanceMember } from '@/shared/api/home/types';
-import { cn } from '@/shared/lib';
+import { cn, normalizeImageUrl } from '@/shared/lib';
 
 interface MonthlyBestAttendanceProps {
   teamId: number | null | undefined;
@@ -46,7 +46,7 @@ const PodiumColumn = ({ member }: { member: HomeBestAttendanceMember }) => {
       <div className="flex flex-col items-center gap-1.5">
         {member.rank === 1 && <CrownIcon className="size-6 text-[#ffd93d]" />}
         <img
-          src={member.profileImgUrl}
+          src={normalizeImageUrl(member.profileImgUrl)}
           alt={member.nickname}
           className="size-11 rounded-full object-cover"
         />
