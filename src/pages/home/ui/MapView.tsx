@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { PATHS, toPlaceDetail } from '@/app/routes';
+import { PATHS, toPlaceFeeds } from '@/app/routes';
 import { DailyQuestion } from '@/shared/ui/DailyQuestion/DailyQuestion';
 import { Map } from './Map';
 import { MOCK_DAILY_QUESTION, MOCK_PINS } from '../model/mock';
@@ -12,9 +12,8 @@ export const MapView = () => {
   const navigate = useNavigate();
 
   const handlePinClick = useCallback(
-    (_pin: Pin) => {
-      // TODO: 백엔드 연결 후 pin.placeId 사용
-      navigate(toPlaceDetail('1'));
+    (pin: Pin) => {
+      navigate(toPlaceFeeds(pin.placeId));
     },
     [navigate],
   );

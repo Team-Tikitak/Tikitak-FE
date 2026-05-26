@@ -3,4 +3,6 @@
  */
 
 export * from './useDebounce';
+export * from './useFeedData';
 export * from './useFirstVisitHint';
+export * from './usePinComments';

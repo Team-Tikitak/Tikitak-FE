@@ -3,6 +3,8 @@
  */
 
 export * from './FeedDetail';
+export * from './FeedDetailContent';
 export * from './FeedImageCarousel';
 export * from './FeedImageDetail';
+export * from './LongPressHint';
 export * from './ParticipantChipList';

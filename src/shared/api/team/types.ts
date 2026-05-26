@@ -15,7 +15,7 @@ export type TeamMemberItem = {
   nickname: string;
   teamMemberRole: TeamRole;
   email: string;
-  profileImageUrl: string;
+  profileImgUrl: string;
   teamMemberId: number;
 };
 

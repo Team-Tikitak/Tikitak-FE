@@ -71,7 +71,7 @@ export const TeamDetailPage = () => {
           {members.map((member) => (
             <MemberCard
               key={member.teamMemberId}
-              avatarSrc={member.profileImageUrl ?? ''}
+              avatarSrc={normalizeImageUrl(member.profileImgUrl) ?? ''}
               name={member.nickname}
               email={member.email}
               onRemove={
