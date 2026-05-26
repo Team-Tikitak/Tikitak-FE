@@ -23,7 +23,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
   const [pendingNewPin, setPendingNewPin] = useState<{ slot: string; id: string } | null>(null);
 
   const { data: teams } = useGetTeams();
-  const myProfileImageUrl = toAbsoluteUrl(teams?.find((t) => t.isActive)?.profileImageUrl) ?? '';
+  const myProfileImageUrl = toAbsoluteUrl(teams?.find((t) => t.isActive)?.profileImgUrl) ?? '';
 
   const { data: commentsData } = useGetFeedComments(teamId, feedId);
   const { mutate: postComment } = usePostFeedComment(teamId, feedId);

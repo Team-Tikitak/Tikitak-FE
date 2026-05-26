@@ -6,6 +6,7 @@ interface BottomNavigationItemProps {
   value: BottomNavigationTab;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
+  filledIcon?: ComponentType<SVGProps<SVGSVGElement>>;
   selected?: boolean;
   fillsWhenSelected?: boolean;
   onSelect?: (tab: BottomNavigationTab) => void;
@@ -15,10 +16,13 @@ export function BottomNavigationItem({
   value,
   label,
   icon: Icon,
+  filledIcon: FilledIcon,
   selected = false,
   fillsWhenSelected = false,
   onSelect,
 }: BottomNavigationItemProps) {
+  const ResolvedIcon = selected && FilledIcon ? FilledIcon : Icon;
+
   return (
     <li className="flex min-w-0 justify-center">
       <button
@@ -30,11 +34,11 @@ export function BottomNavigationItem({
           selected && 'text-main font-semibold',
         )}
       >
-        <Icon
+        <ResolvedIcon
           aria-hidden="true"
           className={cn(
             'size-6 shrink-0',
-            selected && fillsWhenSelected && '[&_path]:fill-current',
+            selected && fillsWhenSelected && !FilledIcon && '[&_path]:fill-current',
             selected && '[&_.icon-filled]:inline [&_.icon-outline]:hidden',
           )}
         />

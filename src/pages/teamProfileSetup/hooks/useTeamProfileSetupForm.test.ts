@@ -70,4 +70,34 @@ describe('useTeamProfileSetupForm', () => {
     unmount();
     expect(revokeSpy).toHaveBeenCalledWith('blob:mock-1');
   });
+
+  it('initialNickname 으로 닉네임이 채워지고 isDisabled 가 false 이다', () => {
+    const { result } = renderHook(() => useTeamProfileSetupForm({ initialNickname: '기존이름' }));
+    expect(result.current.nickname).toBe('기존이름');
+    expect(result.current.isDisabled).toBe(false);
+  });
+
+  it('initialAvatarUrl 이 있으면 avatarPreviewUrl 로 노출된다', () => {
+    const { result } = renderHook(() =>
+      useTeamProfileSetupForm({ initialAvatarUrl: 'https://cdn/x.png' }),
+    );
+    expect(result.current.avatarPreviewUrl).toBe('https://cdn/x.png');
+  });
+
+  it('새 파일을 picking 하면 blob URL 이 initial 보다 우선한다', () => {
+    const { result } = renderHook(() =>
+      useTeamProfileSetupForm({ initialAvatarUrl: 'https://cdn/x.png' }),
+    );
+    act(() => result.current.setAvatar(makeFile()));
+    expect(result.current.avatarPreviewUrl).toBe('blob:mock-1');
+  });
+
+  it('새 파일을 picking 했다가 제거하면 initialAvatarUrl 로 fallback 된다', () => {
+    const { result } = renderHook(() =>
+      useTeamProfileSetupForm({ initialAvatarUrl: 'https://cdn/x.png' }),
+    );
+    act(() => result.current.setAvatar(makeFile()));
+    act(() => result.current.setAvatar(null));
+    expect(result.current.avatarPreviewUrl).toBe('https://cdn/x.png');
+  });
 });

@@ -50,7 +50,7 @@ export type Team = {
   description: string;
   role: TeamRole;
   nickname: string;
-  profileImageUrl: string;
+  profileImgUrl: string;
   memberCount: number;
   joinedAt: string;
   active: boolean;

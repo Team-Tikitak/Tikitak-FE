@@ -5,6 +5,7 @@
 export * from './cn';
 export * from './getPointerRatio';
 export * from './loadImage';
+export * from './normalizeImageUrl';
 export * from './openOverlay';
 export * from './pinUtils';
 export * from './toAbsoluteUrl';

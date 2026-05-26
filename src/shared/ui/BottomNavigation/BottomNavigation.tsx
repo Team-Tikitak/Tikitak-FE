@@ -2,8 +2,10 @@ import { type ComponentPropsWithRef } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes';
 import ActivityIcon from '@/shared/assets/Icon/ActivityIcon.svg?react';
-import FeedIcon from '@/shared/assets/Icon/FeedIcon.svg?react';
+import ActivityIconFilled from '@/shared/assets/Icon/ActivityIcon_Filled.svg?react';
 import HomeIcon from '@/shared/assets/Icon/HomeIcon.svg?react';
+import IconBottom from '@/shared/assets/Icon/IconBottom.svg?react';
+import IconBottomFilled from '@/shared/assets/Icon/IconBottom_Filled.svg?react';
 import MyIcon from '@/shared/assets/Icon/MyIcon.svg?react';
 import { cn } from '@/shared/lib';
 import { FloatingButton } from '../FloatingButton';
@@ -18,11 +20,23 @@ interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onCh
 
 const LEFT_TABS = [
   { value: 'home' as const, label: '홈', icon: HomeIcon, fillsWhenSelected: true },
-  { value: 'feed' as const, label: '피드', icon: FeedIcon, fillsWhenSelected: true },
+  {
+    value: 'feed' as const,
+    label: '피드',
+    icon: IconBottom,
+    filledIcon: IconBottomFilled,
+    fillsWhenSelected: false,
+  },
 ];
 
 const RIGHT_TABS = [
-  { value: 'activity' as const, label: '활동', icon: ActivityIcon, fillsWhenSelected: true },
+  {
+    value: 'activity' as const,
+    label: '활동',
+    icon: ActivityIcon,
+    filledIcon: ActivityIconFilled,
+    fillsWhenSelected: false,
+  },
   { value: 'my' as const, label: '마이', icon: MyIcon, fillsWhenSelected: true },
 ];
 

@@ -47,6 +47,7 @@ export function LocationSearchSheet({
       <CommentInputField
         variant="searchbar"
         inputProps={{
+          placeholder: '장소 검색',
           value: query,
           onChange: (event) => {
             const next = event.target.value;

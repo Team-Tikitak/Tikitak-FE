@@ -48,6 +48,7 @@ export const useLeaveTeam = () => {
         userKeys.teams(),
         (old: Team[] | undefined) => old?.filter((team) => team.teamId !== teamId) ?? [],
       );
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
       navigate(PATHS.HOME, { replace: true });
     },
     onError: () => {
@@ -64,6 +65,7 @@ export const useTeamDelete = () => {
     mutationFn: (teamId: number) => postTeamDeleteRequest(teamId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teamKeys.all });
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
       navigate(PATHS.HOME);
     },
     onError: () => {
@@ -100,10 +102,11 @@ export const useDeleteTeamMember = () => {
   });
 };
 
-export const useGetTeamDetail = (teamId: number) =>
+export const useGetTeamDetail = (teamId: number | null | undefined) =>
   useQuery({
-    queryKey: teamKeys.detail(teamId),
-    queryFn: () => unwrap(() => getTeamDetail(teamId)),
+    queryKey: teamKeys.detail(teamId ?? 0),
+    queryFn: () => unwrap(() => getTeamDetail(teamId as number)),
+    enabled: typeof teamId === 'number',
   });
 
 export const useTeamMembers = (teamId: number | null | undefined) =>

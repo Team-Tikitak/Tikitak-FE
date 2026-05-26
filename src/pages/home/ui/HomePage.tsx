@@ -3,15 +3,11 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
-import { openOverlay } from '@/shared/lib';
-import { BottomSheetOverlay, TeamListSheet } from '@/shared/ui/BottomSheet';
+import { AppHeader } from '@/shared/ui/AppHeader';
 import { Header } from '@/shared/ui/Header';
 import { EmptyTeamView } from './EmptyTeamView';
-import { HomeHeader } from './HomeHeader';
 import { MapView } from './MapView';
-
-const TEAM_SHEET_COLLAPSED_HEIGHT = 294;
-const TEAM_SHEET_TOP_GAP = 80;
+import { useTeamPickerSheet } from '../hooks/useTeamPickerSheet';
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -27,58 +23,22 @@ export const HomePage = () => {
   );
   const selectedTeam = teamItems.find((team) => team.teamId === selectedTeamId) ?? teamItems[0];
 
-  const openTeamSheet = () => {
-    const expandedHeight = Math.max(
-      TEAM_SHEET_COLLAPSED_HEIGHT,
-      window.innerHeight - TEAM_SHEET_TOP_GAP,
-    );
-    const collapsedSnap = `${TEAM_SHEET_COLLAPSED_HEIGHT}px`;
-    const expandedSnap = `${expandedHeight}px`;
-    const snapPoints = [collapsedSnap, expandedSnap];
-
-    openOverlay(({ isOpen, close, unmount }) => (
-      <BottomSheetOverlay
-        open={isOpen}
-        onClose={close}
-        onExitComplete={unmount}
-        ariaTitle="팀 목록"
-        ariaDescription="표시할 팀을 선택하세요"
-        snapPoints={snapPoints}
-        defaultSnapPoint={collapsedSnap}
-        fadeFromIndex={0}
-      >
-        {({ activeSnapPoint }) => (
-          <TeamListSheet
-            open={isOpen}
-            initialOffset={collapsedSnap}
-            teams={teamItems.map((team) => ({
-              id: team.teamId,
-              title: team.teamName,
-              description: team.description,
-            }))}
-            selectedTeamId={selectedTeam ? selectedTeam.teamId : undefined}
-            scrollable={activeSnapPoint === expandedSnap}
-            onSelect={(teamId) => {
-              setSelectedTeamId(Number(teamId));
-              patchActiveTeam(Number(teamId));
-              close();
-            }}
-            onCreateTeam={() => {
-              close();
-              navigate(PATHS.TEAM_CREATE);
-            }}
-          />
-        )}
-      </BottomSheetOverlay>
-    ));
-  };
+  const { openSheet: openTeamSheet } = useTeamPickerSheet({
+    teams: teamItems,
+    selectedTeamId: selectedTeam?.teamId,
+    onSelectTeam: (teamId) => {
+      setSelectedTeamId(teamId);
+      patchActiveTeam(teamId);
+    },
+    onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
+  });
 
   if (isPending) return null;
 
   if (hasTeams) {
     return (
       <PageShell
-        header={<HomeHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
+        header={<AppHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
         <MapView />

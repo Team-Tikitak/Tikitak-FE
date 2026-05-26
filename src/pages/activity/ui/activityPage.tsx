@@ -1,3 +1,32 @@
+import { useNavigate } from 'react-router';
+import { PageShell } from '@/app/layout';
+import { PATHS } from '@/app/routes';
+import { useGetTeams, useMe } from '@/shared/api/user/queries';
+import { AppHeader, DailyQuestion } from '@/shared/ui';
+import { MonthlyBestAttendance } from './MonthlyBestAttendance';
+import { MonthlyMemories } from './MonthlyMemories';
+import { MonthlyRecommendedPlaces } from './MonthlyRecommendedPlaces';
+
 export const ActivityPage = () => {
-  return <div> 활동 페이지</div>;
+  const navigate = useNavigate();
+  const { data: me } = useMe();
+  const { data: teams } = useGetTeams();
+  const activeTeam = teams?.find((team) => team.teamId === me?.activeTeamId) ?? teams?.[0];
+
+  return (
+    <PageShell
+      header={<AppHeader teamName={activeTeam?.teamName ?? ''} />}
+      contentClassName="flex flex-col gap-9 bg-white pb-28"
+    >
+      <DailyQuestion
+        question="오늘 OOTD에서 가장 마음에 드는 포인트는?"
+        onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+      />
+      <div className="flex flex-col gap-9 px-5">
+        <MonthlyBestAttendance teamId={activeTeam?.teamId} />
+        <MonthlyMemories teamId={activeTeam?.teamId} />
+        <MonthlyRecommendedPlaces />
+      </div>
+    </PageShell>
+  );
 };

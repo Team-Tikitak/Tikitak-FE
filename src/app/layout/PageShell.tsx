@@ -20,7 +20,9 @@ export const PageShell = ({
     <>
       {header && <header className="shrink-0">{header}</header>}
 
-      <main className={cn('min-h-0 flex-1 overflow-y-auto', contentClassName)}>{children}</main>
+      <main className={cn('no-scrollbar min-h-0 flex-1 overflow-y-auto', contentClassName)}>
+        {children}
+      </main>
 
       {bottom && (
         <footer
