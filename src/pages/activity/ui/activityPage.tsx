@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes';
+import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
 import { AppHeader, DailyQuestion } from '@/shared/ui';
+import { activityEmptyPage as ActivityEmptyPage } from './activityEmptyPage';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
 import { MonthlyRecommendedPlaces } from './MonthlyRecommendedPlaces';
@@ -12,6 +15,11 @@ export const ActivityPage = () => {
   const { data: me } = useMe();
   const { data: teams } = useGetTeams();
   const activeTeam = teams?.find((team) => team.teamId === me?.activeTeamId) ?? teams?.[0];
+  const { data: question } = useGetDailyQuestion(activeTeam?.teamId ?? 0);
+  const { data: bestAttendance } = useHomeBestAttendance(activeTeam?.teamId);
+  const dailyQuestion = question?.content;
+
+  const isEmpty = bestAttendance !== undefined && (bestAttendance.members ?? []).length === 0;
 
   return (
     <PageShell
@@ -19,14 +27,20 @@ export const ActivityPage = () => {
       contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
       <DailyQuestion
-        question="오늘 OOTD에서 가장 마음에 드는 포인트는?"
+        question={dailyQuestion ?? ''}
         onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
       />
-      <div className="flex flex-col gap-9 px-5">
-        <MonthlyBestAttendance teamId={activeTeam?.teamId} />
-        <MonthlyMemories teamId={activeTeam?.teamId} />
-        <MonthlyRecommendedPlaces />
-      </div>
+      {isEmpty ? (
+        <div className="flex flex-1 items-center justify-center">
+          <ActivityEmptyPage />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-9 px-5">
+          <MonthlyBestAttendance teamId={activeTeam?.teamId} />
+          <MonthlyMemories teamId={activeTeam?.teamId} />
+          <MonthlyRecommendedPlaces />
+        </div>
+      )}
     </PageShell>
   );
 };
