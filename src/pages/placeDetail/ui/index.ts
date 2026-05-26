@@ -3,4 +3,5 @@
  */
 
 export * from './LongPressHint';
+export * from './PlaceDetailFeedItem';
 export * from './PlaceDetailPage';

@@ -4,6 +4,7 @@ import { ActivityPage } from '@/pages/activity/ui/activityPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
+import { FeedDetailPage } from '@/pages/feedDetail/ui/FeedDetailPage';
 import { GalleryPage } from '@/pages/gallery/ui';
 import { HomePage } from '@/pages/home/ui';
 import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
@@ -48,7 +49,8 @@ export const router = createBrowserRouter([
               { path: PATHS.TEAM_PROFILE_SETUP, element: <TeamProfileSetupPage /> },
               { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
               { path: PATHS.GALLERY, element: <GalleryPage /> },
-              { path: PATHS.PLACE_DETAIL, element: <PlaceDetailPage /> },
+              { path: PATHS.FEED_DETAIL, element: <FeedDetailPage /> },
+              { path: PATHS.PLACE_FEEDS, element: <PlaceDetailPage /> },
               { path: PATHS.ACTIVITY, element: <ActivityPage /> },
             ],
           },

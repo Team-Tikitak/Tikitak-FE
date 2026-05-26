@@ -102,3 +102,27 @@ export interface FeedMutationResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FeedImage {
+  feedImageId: number;
+  imageUrl: string;
+  orderIndex: number;
+}
+
+export interface FeedDetailResponse {
+  feedId: number;
+  type: FeedType;
+  content: string;
+  author: FeedAuthor;
+  images: FeedImage[];
+  place: FeedPlace;
+  question: FeedDailyQuestion;
+  taggedMembers: FeedTaggedMember[];
+  commentCount: number;
+  reactionSummary: FeedReactionSummary;
+  myReaction: ReactionType;
+  createdAt: string;
+  updatedAt: string;
+  mine: boolean;
+  isMine: boolean;
+}

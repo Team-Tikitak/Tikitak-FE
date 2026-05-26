@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { toFeedDetail } from '@/app/routes';
 import { useFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { Divider, Header } from '@/shared/ui';
@@ -45,7 +47,9 @@ export const FeedPage = () => {
           <ul className="flex flex-col gap-5">
             {feeds.map((feed) => (
               <li key={feed.id} className="flex flex-col gap-5">
-                <FeedListItem item={feed} />
+                <Link to={toFeedDetail(feed.id)} className="block">
+                  <FeedListItem item={feed} />
+                </Link>
                 <Divider />
               </li>
             ))}

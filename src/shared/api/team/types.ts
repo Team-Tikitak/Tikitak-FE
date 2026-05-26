@@ -8,14 +8,14 @@ export type DeleteTeamMemberVariables = {
 export type MyProfile = {
   nickname: string;
   teamMemberRole: TeamRole;
-  profileImageUrl: string;
+  profileImgUrl: string;
 };
 
 export type TeamMemberItem = {
   nickname: string;
   teamMemberRole: TeamRole;
   email: string;
-  profileImageUrl: string;
+  profileImgUrl: string;
   teamMemberId: number;
 };
 
