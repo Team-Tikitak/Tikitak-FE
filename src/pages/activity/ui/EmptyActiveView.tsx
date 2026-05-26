@@ -1,6 +1,6 @@
 import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 
-export const activityEmptyPage = () => {
+export const EmptyActiveView = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-[7px]">
       <div className="flex max-w-[232px] items-center justify-center p-[30px]">

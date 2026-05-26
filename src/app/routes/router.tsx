@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
-import { ActivityPage } from '@/pages/activity/ui/activityPage';
+import { ActivityPage } from '@/pages/activity/ui/ActivityPage';
 import { DailyFeedCreatePage } from '@/pages/dailyFeedCreate/ui';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';

@@ -5,7 +5,7 @@ import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
 import { AppHeader, DailyQuestion } from '@/shared/ui';
-import { activityEmptyPage as ActivityEmptyPage } from './activityEmptyPage';
+import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
 import { MonthlyRecommendedPlaces } from './MonthlyRecommendedPlaces';
@@ -32,7 +32,7 @@ export const ActivityPage = () => {
       />
       {isEmpty ? (
         <div className="flex flex-1 items-center justify-center">
-          <ActivityEmptyPage />
+          <EmptyActiveView />
         </div>
       ) : (
         <div className="flex flex-col gap-9 px-5">
