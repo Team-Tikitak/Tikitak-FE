@@ -29,6 +29,7 @@ export const DailyFeedCreatePage = () => {
     maxPhotoCount,
     maxContentLength,
     commitMembers,
+    selectedMembers,
     isShareDisabled,
   } = useFeedCreateForm({ maxPhotoCount: 1 });
 
@@ -42,7 +43,7 @@ export const DailyFeedCreatePage = () => {
     content,
     photos,
     selectedPlace: null,
-    selectedMembers: isSelfTagged && myTeamMember ? [myTeamMember] : [],
+    selectedMembers,
   });
 
   const handleAddPhoto = () => {
