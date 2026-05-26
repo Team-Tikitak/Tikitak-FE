@@ -4,7 +4,7 @@ interface MapImageProps {
   onClick?: () => void;
 }
 
-export const MapImage = ({ src = 'https://picsum.photos/87', count, onClick }: MapImageProps) => {
+export const MapImage = ({ src, count, onClick }: MapImageProps) => {
   return (
     <button
       type="button"
