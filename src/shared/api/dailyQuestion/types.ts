@@ -12,8 +12,8 @@ export interface getDailyQuestionResponse {
   content: string;
   date: string;
   answered: boolean;
-  answerFeedId: number;
-  answer: Answer;
+  answerFeedId: number | null;
+  answer: Answer | null;
 }
 
 export interface postDailyQuestionRequest {

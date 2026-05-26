@@ -26,7 +26,7 @@ export const patchDailyQuestion = (
   questionId: number,
   body: patchDailyQuestionRequest,
 ) =>
-  instance.post<ApiResponse<dailyQuestionResponse>>(
+  instance.patch<ApiResponse<dailyQuestionResponse>>(
     DAILY_QUESTION_ENDPOINT.ANSWER(teamId, questionId),
     body,
   );
