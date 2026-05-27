@@ -10,6 +10,7 @@ export const useFeedDetail = () => {
 
   const { data } = useGetFeedDetail(teamId, feedIdNum);
   const placeName = data?.place?.name ?? '';
+  const isMine = data?.isMine ?? false;
 
-  return { teamId, feedIdNum, placeName };
+  return { teamId, feedIdNum, placeName, isMine };
 };

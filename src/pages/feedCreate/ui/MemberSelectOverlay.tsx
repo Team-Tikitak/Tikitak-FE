@@ -1,11 +1,11 @@
 import type { TeamMember } from '@/shared/api/team/types';
+import { MAX_TAGGED_MEMBERS } from '@/shared/hooks/useFeedForm';
 import { normalizeImageUrl } from '@/shared/lib';
 import {
   BottomSheetOverlay,
   MemberSelectSheet,
   type MemberSelectSheetItem,
 } from '@/shared/ui/BottomSheet';
-import { MAX_TAGGED_MEMBERS } from '../hooks/useFeedCreateForm';
 
 interface MemberSelectOverlayProps {
   open: boolean;

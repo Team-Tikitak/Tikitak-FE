@@ -65,6 +65,7 @@ export const FeedDetailContent = ({
             comments={commentsForOpenPin}
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
+              closeSheet();
               setPendingCommentDelete(item);
             }}
           />

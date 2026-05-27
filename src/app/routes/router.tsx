@@ -6,6 +6,7 @@ import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
 import { FeedDetailPage } from '@/pages/feedDetail/ui/FeedDetailPage';
+import { FeedEditPage } from '@/pages/feedEdit/ui/FeedEditPage';
 import { GalleryPage } from '@/pages/gallery/ui';
 import { HomePage } from '@/pages/home/ui';
 import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
               { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
               { path: PATHS.GALLERY, element: <GalleryPage /> },
               { path: PATHS.FEED_DETAIL, element: <FeedDetailPage /> },
+              { path: PATHS.FEED_EDIT, element: <FeedEditPage /> },
               { path: PATHS.PLACE_FEEDS, element: <PlaceDetailPage /> },
               { path: PATHS.ACTIVITY, element: <ActivityPage /> },
             ],

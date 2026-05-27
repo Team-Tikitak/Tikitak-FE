@@ -30,9 +30,9 @@ export interface FeedDailyQuestion {
   answerDate: string;
 }
 
-export interface FeedCreateRequest {
+export interface FeedRequest {
   content: string;
-  mediaPublicIds: string[];
+  mediaPublicIds?: string[];
   place?: FeedPlace | null;
   taggedTeamMemberIds: number[];
 }
@@ -107,6 +107,7 @@ export interface FeedImage {
   feedImageId: number;
   imageUrl: string;
   orderIndex: number;
+  mediaPublicId?: string;
 }
 
 export interface FeedDetailResponse {
