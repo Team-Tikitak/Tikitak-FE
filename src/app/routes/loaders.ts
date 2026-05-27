@@ -61,14 +61,18 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
 
 export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
   if (!getAccessToken()) {
-    await queryClient.fetchQuery({
-      queryKey: authKeys.session(),
-      queryFn: async () => {
-        const { accessToken } = await unwrap(() => postRefreshToken());
-        setAccessToken(accessToken);
-        return accessToken;
-      },
-    });
+    try {
+      await queryClient.fetchQuery({
+        queryKey: authKeys.session(),
+        queryFn: async () => {
+          const { accessToken } = await unwrap(() => postRefreshToken());
+          setAccessToken(accessToken);
+          return accessToken;
+        },
+      });
+    } catch {
+      return redirect(PATHS.LOGIN);
+    }
   }
 
   const [, agreements] = await Promise.all([

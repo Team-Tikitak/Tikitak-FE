@@ -41,7 +41,7 @@ export const HomePage = () => {
         header={<AppHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
-        <MapView />
+        <MapView teamId={selectedTeam?.teamId ?? 0} />
       </PageShell>
     );
   }

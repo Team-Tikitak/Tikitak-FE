@@ -1,53 +1,44 @@
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
-import { useFeedCreateForm } from '@/pages/feedCreate/hooks/useFeedCreateForm';
-import { useFeedShare } from '@/pages/feedCreate/hooks/useFeedShare';
 import { MemberSelectOverlay } from '@/pages/feedCreate/ui/MemberSelectOverlay';
+import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import type { TeamMember } from '@/shared/api/team/types';
 import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, DailyQuestion, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
+import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
 import { useSelfTag } from '../hooks/useSelfTag';
-
-const TODAY_QUESTION = '오늘 OOTD에서 가장 마음에 드는 포인트는?';
 
 export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
   const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? null;
+  const teamId = me?.activeTeamId ?? 0;
+  const { data: dailyQuestion } = useGetDailyQuestion(teamId);
 
-  const {
-    content,
-    setContent,
-    photos,
-    canAddMorePhotos,
-    addPhoto,
-    removePhoto,
-    maxPhotoCount,
-    maxContentLength,
-    commitMembers,
-    selectedMembers,
-    isShareDisabled,
-  } = useFeedCreateForm({ maxPhotoCount: 1 });
+  const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
+    useDailyQuestionCreateForm();
+
+  const commitMembers = useCallback(() => {}, []);
 
   const { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember } = useSelfTag({
     teamId,
     commitMembers,
   });
 
-  const { share, isSharing } = useFeedShare({
+  const { share, isSharing } = useDailyQuestionShare({
     teamId,
+    questionId: dailyQuestion?.questionId ?? null,
     content,
-    photos,
-    selectedPlace: null,
-    selectedMembers,
+    photo,
   });
 
   const handleAddPhoto = () => {
-    if (!canAddMorePhotos) return;
     openOverlay(({ isOpen, close, unmount }) => (
       <CameraOverlay open={isOpen} onCapture={addPhoto} onClose={close} onExitComplete={unmount} />
     ));
@@ -62,7 +53,7 @@ export const DailyFeedCreatePage = () => {
         onExitComplete={unmount}
         teamMembers={[myTeamMember]}
         selectedMembers={isSelfTagged ? [myTeamMember] : []}
-        onConfirm={(picked) => {
+        onConfirm={(picked: TeamMember[]) => {
           setIsSelfTagged(picked.length > 0);
           close();
         }}
@@ -70,7 +61,7 @@ export const DailyFeedCreatePage = () => {
     ));
   };
 
-  const shareDisabled = isShareDisabled || !teamId || isSharing;
+  const shareDisabled = isShareDisabled || !teamId || !dailyQuestion?.questionId || isSharing;
 
   return (
     <PageShell
@@ -88,24 +79,23 @@ export const DailyFeedCreatePage = () => {
         </Button>
       }
     >
-      <DailyQuestion question={TODAY_QUESTION} />
+      <DailyQuestion question={dailyQuestion?.content ?? ''} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
         <button
           type="button"
           onClick={handleAddPhoto}
-          disabled={!canAddMorePhotos && photos.length === 0}
-          className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900 disabled:opacity-50"
+          className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900"
         >
-          {photos[0] ? (
+          {photo ? (
             <div className="relative size-full overflow-hidden rounded-lg">
-              <img src={photos[0].url} alt="" className="no-native-image size-full object-cover" />
+              <img src={photo.url} alt="" className="no-native-image size-full object-cover" />
               <button
                 type="button"
                 aria-label="사진 제거"
                 onClick={(event) => {
                   event.stopPropagation();
-                  removePhoto(photos[0].id);
+                  removePhoto();
                 }}
                 className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
               >
@@ -115,9 +105,7 @@ export const DailyFeedCreatePage = () => {
           ) : (
             <>
               <CameraIcon className="size-6" aria-hidden="true" />
-              <span className="button-6 text-gray-900">
-                {photos.length}/{maxPhotoCount}
-              </span>
+              <span className="button-6 text-gray-900">0/1</span>
             </>
           )}
         </button>

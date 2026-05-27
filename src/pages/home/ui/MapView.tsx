@@ -1,15 +1,21 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS, toPlaceFeeds } from '@/app/routes';
+import type { Pin } from '@/shared/api/map/types';
 import { DailyQuestion } from '@/shared/ui/DailyQuestion/DailyQuestion';
 import { Map } from './Map';
-import { MOCK_DAILY_QUESTION, MOCK_PINS } from '../model/mock';
-import { type Pin } from '../model/types';
+import { useMapView } from '../hooks/useMapView';
+import { useUserLocation } from '../hooks/useUserLocation';
 
-const INITIAL_CENTER = { latitude: 37.5507563, longitude: 126.9254901 };
+interface MapViewProps {
+  teamId: number;
+}
 
-export const MapView = () => {
+export const MapView = ({ teamId }: MapViewProps) => {
   const navigate = useNavigate();
+
+  const { dailyQuestion, pins } = useMapView(teamId);
+  const { center } = useUserLocation();
 
   const handlePinClick = useCallback(
     (pin: Pin) => {
@@ -24,9 +30,9 @@ export const MapView = () => {
 
   return (
     <div className="pointer-events-none relative isolate w-full flex-1">
-      <Map pins={MOCK_PINS} initialCenter={INITIAL_CENTER} onPinClick={handlePinClick} />
+      {center && <Map pins={pins} initialCenter={center} onPinClick={handlePinClick} />}
       <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
-        <DailyQuestion question={MOCK_DAILY_QUESTION.question} onClick={handleQuestionClick} />
+        <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
       </div>
     </div>
   );

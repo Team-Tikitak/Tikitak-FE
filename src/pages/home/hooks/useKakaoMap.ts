@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { type Pin } from '../model/types';
+import type { Pin } from '@/shared/api/map/types';
 
 type KakaoProjection = {
   containerPointFromCoords: (latLng: unknown) => { x: number; y: number };
@@ -62,6 +62,8 @@ export const useKakaoMap = (
     if (!mapReady || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current as KakaoMap;
 
+    let rafId: number | null = null;
+
     const updatePositions = () => {
       const proj = map.getProjection();
       const positions = pins.map((pin) => {
@@ -73,10 +75,21 @@ export const useKakaoMap = (
       setPinPositions(positions);
     };
 
+    const updatePositionsOnDrag = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        updatePositions();
+        rafId = null;
+      });
+    };
+
     updatePositions();
+    window.kakao.maps.event.addListener(map, 'drag', updatePositionsOnDrag);
     window.kakao.maps.event.addListener(map, 'idle', updatePositions);
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.kakao.maps.event.removeListener(map, 'drag', updatePositionsOnDrag);
       window.kakao.maps.event.removeListener(map, 'idle', updatePositions);
     };
   }, [mapReady, pins]);
