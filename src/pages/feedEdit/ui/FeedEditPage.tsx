@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { LocationSearchOverlay } from '@/pages/feedCreate/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/pages/feedCreate/ui/MemberSelectOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
+import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
@@ -16,25 +17,21 @@ import { openOverlay } from '@/shared/lib';
 import { Button, Chip, ConfirmDialog, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { useFeedEditShare } from '../hooks/useFeedEditShare';
 
-export const FeedEditPage = () => {
+interface FeedEditFormProps {
+  teamId: number;
+  feedId: number;
+  feedDetail: FeedDetailResponse;
+}
+
+const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
   const navigate = useNavigate();
-  const { feedId } = useParams<{ feedId: string }>();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? 0;
-  const feedIdNum = Number(feedId);
 
-  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
-
-  const initialMembers = useMemo(
-    () =>
-      (feedDetail?.taggedMembers ?? []).map((m) => ({
-        teamMemberId: m.teamMemberId,
-        nickname: m.nickname,
-        role: 'MEMBER' as const,
-        profileImgUrl: m.profileImageUrl,
-      })),
-    [feedDetail],
-  );
+  const initialMembers = (feedDetail.taggedMembers ?? []).map((m) => ({
+    teamMemberId: m.teamMemberId,
+    nickname: m.nickname,
+    role: 'MEMBER' as const,
+    profileImgUrl: m.profileImageUrl,
+  }));
 
   const {
     content,
@@ -51,8 +48,8 @@ export const FeedEditPage = () => {
     commitMembers,
     removeMember,
   } = useFeedCreateForm({
-    initialContent: feedDetail?.content ?? '',
-    initialPlace: feedDetail?.place ?? null,
+    initialContent: feedDetail.content,
+    initialPlace: feedDetail.place ?? null,
     initialMembers,
   });
 
@@ -60,29 +57,19 @@ export const FeedEditPage = () => {
   const teamMembers = teamMembersData?.members ?? [];
 
   const [removedImageIds, setRemovedImageIds] = useState<Set<number>>(new Set());
-  const keptImages = (feedDetail?.images ?? []).filter(
-    (img) => !removedImageIds.has(img.feedImageId),
-  );
+  const keptImages = feedDetail.images.filter((img) => !removedImageIds.has(img.feedImageId));
   const removeExistingImage = (feedImageId: number) =>
     setRemovedImageIds((prev) => new Set([...prev, feedImageId]));
 
-  const snapshotRef = useRef<{
-    content: string;
-    placeId: string | null;
-    memberIds: Set<number>;
-  } | null>(null);
-  useEffect(() => {
-    if (feedDetail && !snapshotRef.current) {
-      snapshotRef.current = {
-        content: feedDetail.content,
-        placeId: feedDetail.place?.placeId ?? null,
-        memberIds: new Set(feedDetail.taggedMembers.map((m) => m.teamMemberId)),
-      };
-    }
-  }, [feedDetail]);
+  const snapshotRef = useRef({
+    content: feedDetail.content,
+    placeId: feedDetail.place?.placeId ?? null,
+    memberIds: new Set(feedDetail.taggedMembers.map((m) => m.teamMemberId)),
+  });
+
   const { share, isSharing } = useFeedEditShare({
     teamId,
-    feedId: feedIdNum,
+    feedId,
     content,
     existingImages: keptImages,
     newPhotos: photos,
@@ -130,13 +117,12 @@ export const FeedEditPage = () => {
   const handleBack = () => {
     const snapshot = snapshotRef.current;
     const isDirty =
-      snapshot !== null &&
-      (content !== snapshot.content ||
-        photos.length > 0 ||
-        removedImageIds.size > 0 ||
-        (selectedPlace?.placeId ?? null) !== snapshot.placeId ||
-        selectedMembers.length !== snapshot.memberIds.size ||
-        selectedMembers.some((m) => !snapshot.memberIds.has(m.teamMemberId)));
+      content !== snapshot.content ||
+      photos.length > 0 ||
+      removedImageIds.size > 0 ||
+      (selectedPlace?.placeId ?? null) !== snapshot.placeId ||
+      selectedMembers.length !== snapshot.memberIds.size ||
+      selectedMembers.some((m) => !snapshot.memberIds.has(m.teamMemberId));
 
     if (!isDirty) {
       navigate(-1);
@@ -273,4 +259,17 @@ export const FeedEditPage = () => {
       </div>
     </PageShell>
   );
+};
+
+export const FeedEditPage = () => {
+  const { feedId } = useParams<{ feedId: string }>();
+  const { data: me } = useMe();
+  const teamId = me?.activeTeamId ?? 0;
+  const feedIdNum = Number(feedId);
+
+  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
+
+  if (!feedDetail) return null;
+
+  return <FeedEditForm teamId={teamId} feedId={feedIdNum} feedDetail={feedDetail} />;
 };

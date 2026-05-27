@@ -4,6 +4,7 @@ import { PageShell } from '@/app/layout';
 import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
+import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
@@ -13,30 +14,24 @@ import { useDailyFeedEditShare } from '../hooks/useDailyFeedEditShare';
 
 const MAX_CONTENT_LENGTH = 1000;
 
-export const DailyFeedEditPage = () => {
+interface DailyFeedEditFormProps {
+  teamId: number;
+  feedDetail: FeedDetailResponse;
+}
+
+const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
   const navigate = useNavigate();
-  const { feedId } = useParams<{ feedId: string }>();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? 0;
-  const feedIdNum = Number(feedId);
 
-  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
-
-  const [content, setContentRaw] = useState(feedDetail?.content ?? '');
+  const [content, setContentRaw] = useState(feedDetail.content);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    feedDetail?.images[0]?.imageUrl ?? null,
+    feedDetail.images[0]?.imageUrl ?? null,
   );
   const [newPhoto, setNewPhoto] = useState<CapturedPhoto | null>(null);
 
-  const snapshotRef = useRef<{ content: string; imageUrl: string | null } | null>(null);
-  useEffect(() => {
-    if (feedDetail && !snapshotRef.current) {
-      snapshotRef.current = {
-        content: feedDetail.content,
-        imageUrl: feedDetail.images[0]?.imageUrl ?? null,
-      };
-    }
-  }, [feedDetail]);
+  const snapshotRef = useRef({
+    content: feedDetail.content,
+    imageUrl: feedDetail.images[0]?.imageUrl ?? null,
+  });
 
   const newPhotoRef = useRef(newPhoto);
   useEffect(() => {
@@ -70,7 +65,7 @@ export const DailyFeedEditPage = () => {
 
   const { share, isSharing } = useDailyFeedEditShare({
     teamId,
-    questionId: feedDetail?.question.questionId ?? null,
+    questionId: feedDetail.question.questionId,
     content,
     newPhoto,
   });
@@ -78,10 +73,7 @@ export const DailyFeedEditPage = () => {
   const handleBack = () => {
     const snapshot = snapshotRef.current;
     const isDirty =
-      snapshot !== null &&
-      (content !== snapshot.content ||
-        newPhoto !== null ||
-        existingImageUrl !== snapshot.imageUrl);
+      content !== snapshot.content || newPhoto !== null || existingImageUrl !== snapshot.imageUrl;
 
     if (!isDirty) {
       navigate(-1);
@@ -113,8 +105,7 @@ export const DailyFeedEditPage = () => {
     ));
   };
 
-  const shareDisabled =
-    !currentPhotoUrl || !teamId || !feedDetail?.question.questionId || isSharing;
+  const shareDisabled = !teamId || !feedDetail.question.questionId || isSharing;
 
   return (
     <PageShell
@@ -132,7 +123,7 @@ export const DailyFeedEditPage = () => {
         </Button>
       }
     >
-      <DailyQuestion question={feedDetail?.question.content ?? ''} />
+      <DailyQuestion question={feedDetail.question.content} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
         <button
@@ -182,4 +173,17 @@ export const DailyFeedEditPage = () => {
       </div>
     </PageShell>
   );
+};
+
+export const DailyFeedEditPage = () => {
+  const { feedId } = useParams<{ feedId: string }>();
+  const { data: me } = useMe();
+  const teamId = me?.activeTeamId ?? 0;
+  const feedIdNum = Number(feedId);
+
+  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
+
+  if (!feedDetail) return null;
+
+  return <DailyFeedEditForm teamId={teamId} feedDetail={feedDetail} />;
 };
