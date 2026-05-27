@@ -1,6 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { useDeleteFeedComment, useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
+import {
+  useDeleteFeedComment,
+  useGetFeedComments,
+  usePostFeedComment,
+} from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
 import { usePinComments } from './usePinComments';
 
