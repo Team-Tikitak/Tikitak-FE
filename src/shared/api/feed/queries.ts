@@ -43,6 +43,7 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
   return useMutation({
     mutationFn: () => unwrap(() => deleteFeed(teamId, feedId)),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
       navigate(-1);
     },
