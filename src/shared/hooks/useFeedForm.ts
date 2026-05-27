@@ -4,7 +4,7 @@ import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
 
 const MAX_CONTENT_LENGTH = 1000;
-const DEFAULT_MAX_PHOTO_COUNT = 10;
+export const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
 
 interface UseFeedFormOptions {

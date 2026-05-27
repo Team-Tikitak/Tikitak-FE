@@ -12,7 +12,10 @@ import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
-import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
+import {
+  DEFAULT_MAX_PHOTO_COUNT,
+  useFeedForm as useFeedCreateForm,
+} from '@/shared/hooks/useFeedForm';
 import { openOverlay } from '@/shared/lib';
 import { Button, Chip, ConfirmDialog, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { useFeedEditShare } from '../hooks/useFeedEditShare';
@@ -33,6 +36,11 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
     profileImgUrl: m.profileImageUrl,
   }));
 
+  const [removedImageIds, setRemovedImageIds] = useState<Set<number>>(new Set());
+  const keptImages = feedDetail.images.filter((img) => !removedImageIds.has(img.feedImageId));
+  const removeExistingImage = (feedImageId: number) =>
+    setRemovedImageIds((prev) => new Set([...prev, feedImageId]));
+
   const {
     content,
     setContent,
@@ -51,15 +59,11 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
     initialContent: feedDetail.content,
     initialPlace: feedDetail.place ?? null,
     initialMembers,
+    maxPhotoCount: DEFAULT_MAX_PHOTO_COUNT - keptImages.length,
   });
 
   const { data: teamMembersData } = useTeamMembers(teamId);
   const teamMembers = teamMembersData?.members ?? [];
-
-  const [removedImageIds, setRemovedImageIds] = useState<Set<number>>(new Set());
-  const keptImages = feedDetail.images.filter((img) => !removedImageIds.has(img.feedImageId));
-  const removeExistingImage = (feedImageId: number) =>
-    setRemovedImageIds((prev) => new Set([...prev, feedImageId]));
 
   const snapshotRef = useRef({
     content: feedDetail.content,
@@ -156,7 +160,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
       bottom={
         <Button
           variant="primary"
-          disabled={isSharing}
+          disabled={keptImages.length + photos.length === 0 || isSharing}
           onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >

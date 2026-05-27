@@ -9,6 +9,7 @@ interface UseDailyFeedEditShareParams {
   questionId: number | null;
   content: string;
   newPhoto: CapturedPhoto | null;
+  existingImageUrl: string | null;
 }
 
 export const useDailyFeedEditShare = ({
@@ -16,6 +17,7 @@ export const useDailyFeedEditShare = ({
   questionId,
   content,
   newPhoto,
+  existingImageUrl,
 }: UseDailyFeedEditShareParams) => {
   const navigate = useNavigate();
   const patchDailyQuestionMutation = usePatchDailyQuestion(teamId, questionId ?? 0);
@@ -35,6 +37,8 @@ export const useDailyFeedEditShare = ({
           fileNamePrefix: 'daily-question',
         });
         mediaPublicId = { defined: true, value: publicId };
+      } else if (!existingImageUrl) {
+        mediaPublicId = { defined: true, value: '' };
       } else {
         mediaPublicId = { defined: false, value: '' };
       }

@@ -68,6 +68,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     questionId: feedDetail.question.questionId,
     content,
     newPhoto,
+    existingImageUrl,
   });
 
   const handleBack = () => {
