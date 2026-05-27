@@ -7,10 +7,14 @@ import { Map } from './Map';
 import { useMapView } from '../hooks/useMapView';
 import { useUserLocation } from '../hooks/useUserLocation';
 
-export const MapView = () => {
+interface MapViewProps {
+  teamId: number;
+}
+
+export const MapView = ({ teamId }: MapViewProps) => {
   const navigate = useNavigate();
 
-  const { dailyQuestion, pins } = useMapView();
+  const { dailyQuestion, pins } = useMapView(teamId);
   const { center } = useUserLocation();
 
   const handlePinClick = useCallback(
