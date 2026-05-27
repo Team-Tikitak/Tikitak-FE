@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { toFeedEdit } from '@/app/routes/paths';
+import { toDailyFeedEdit, toFeedEdit } from '@/app/routes/paths';
 import { useDeleteFeed } from '@/shared/api/feed/queries';
 import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
@@ -14,7 +14,7 @@ const FEED_DETAIL_HINT_KEY = 'feed-detail-long-press-hint-seen';
 
 export const FeedDetailPage = () => {
   const navigate = useNavigate();
-  const { teamId, feedIdNum, placeName, isMine } = useFeedDetail();
+  const { teamId, feedIdNum, placeName, isMine, feedType } = useFeedDetail();
   const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
 
   const { mutate: deleteFeed } = useDeleteFeed(teamId, feedIdNum);
@@ -53,7 +53,13 @@ export const FeedDetailPage = () => {
               <ActiveMenu
                 icon={<MoreIcon className="w-5" />}
                 onDelete={handleDeleteClick}
-                onEdit={() => navigate(toFeedEdit(feedIdNum))}
+                onEdit={() =>
+                  navigate(
+                    feedType === 'DAILY_QUESTION'
+                      ? toDailyFeedEdit(feedIdNum)
+                      : toFeedEdit(feedIdNum),
+                  )
+                }
               />
             ) : undefined
           }

@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
 import { ActivityPage } from '@/pages/activity/ui/ActivityPage';
 import { DailyFeedCreatePage } from '@/pages/dailyFeedCreate/ui';
+import { DailyFeedEditPage } from '@/pages/dailyFeedEdit/ui/DailyFeedEditPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
               { path: PATHS.FEED, element: <FeedPage /> },
               { path: PATHS.FEED_CREATE, element: <FeedCreatePage /> },
               { path: PATHS.DAILY_FEED_CREATE, element: <DailyFeedCreatePage /> },
+              { path: PATHS.DAILY_FEED_EDIT, element: <DailyFeedEditPage /> },
               { path: PATHS.MY_PAGE, element: <MyPage /> },
               { path: PATHS.TEAM_DETAIL, element: <TeamDetailPage /> },
               { path: PATHS.TEAM_CREATE, element: <TeamCreatePage /> },

@@ -11,6 +11,7 @@ export const useFeedDetail = () => {
   const { data } = useGetFeedDetail(teamId, feedIdNum);
   const placeName = data?.place?.name ?? '';
   const isMine = data?.isMine ?? false;
+  const feedType = data?.type ?? null;
 
-  return { teamId, feedIdNum, placeName, isMine };
+  return { teamId, feedIdNum, placeName, isMine, feedType };
 };

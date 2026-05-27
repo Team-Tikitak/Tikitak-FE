@@ -7,7 +7,6 @@ export const PATHS = {
   ACTIVITY: '/activity',
   FEED_CREATE: '/feed/new',
   DAILY_FEED_CREATE: '/feed/new/daily',
-  DAILY_FEED_EDIT: '/feed/edit/daily',
   ONBOARDING: '/onboarding',
   MY_PAGE: '/mypage',
   TEAM_DETAIL: '/teams/:teamId',
@@ -18,6 +17,7 @@ export const PATHS = {
   GALLERY: '/gallery',
   FEED_DETAIL: '/feed/:feedId',
   FEED_EDIT: '/feed/:feedId/edit',
+  DAILY_FEED_EDIT: '/feed/:feedId/edit/daily',
   PLACE_FEEDS: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',
 } as const;
@@ -25,5 +25,6 @@ export const PATHS = {
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toFeedDetail = (feedId: string) => `/feed/${feedId}`;
 export const toFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit`;
+export const toDailyFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit/daily`;
 export const toPlaceFeeds = (placeId: string) => `/place/${placeId}`;
 export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;
