@@ -80,18 +80,19 @@ export const Header = ({
 
       <h1 className="title-2 min-w-0 truncate text-center text-black">{resolvedTitle}</h1>
 
-      {rightSlot ?? (resolvedRightIcon ? (
-        <button
-          type="button"
-          aria-label={rightAriaLabel}
-          onClick={onRightClick}
-          className="flex size-6 items-center justify-center text-black"
-        >
-          {resolvedRightIcon}
-        </button>
-      ) : (
-        <span aria-hidden="true" className="size-6" />
-      ))}
+      {rightSlot ??
+        (resolvedRightIcon ? (
+          <button
+            type="button"
+            aria-label={rightAriaLabel}
+            onClick={onRightClick}
+            className="flex size-6 items-center justify-center text-black"
+          >
+            {resolvedRightIcon}
+          </button>
+        ) : (
+          <span aria-hidden="true" className="size-6" />
+        ))}
     </div>
   );
 };

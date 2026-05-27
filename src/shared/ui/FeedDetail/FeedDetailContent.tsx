@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useFeedData } from '@/shared/hooks/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
+import { openOverlay } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';
-import { BottomSheetOverlay, CommentSheet, type CommentSheetItem } from '../BottomSheet';
+import { BottomSheetOverlay, CommentSheet } from '../BottomSheet';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { LongPressHint } from './LongPressHint';
 
@@ -35,8 +34,6 @@ export const FeedDetailContent = ({
     decoratePins,
   } = usePinComments({ teamId, feedId, feedImageIds });
 
-  const [pendingCommentDelete, setPendingCommentDelete] = useState<CommentSheetItem | null>(null);
-
   return (
     <>
       {showHint && <LongPressHint onDismiss={onHintDismiss ?? (() => {})} />}
@@ -66,28 +63,29 @@ export const FeedDetailContent = ({
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
               closeSheet();
-              setPendingCommentDelete(item);
+              openOverlay(({ isOpen, close, unmount }) => (
+                <div
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+                  style={{ display: isOpen ? undefined : 'none' }}
+                  onTransitionEnd={unmount}
+                >
+                  <ConfirmDialog
+                    title="댓글을 삭제할까요?"
+                    description="삭제한 댓글은 복구할 수 없어요."
+                    confirmLabel="삭제하기"
+                    destructive
+                    onCancel={close}
+                    onConfirm={() => {
+                      item.onDelete?.();
+                      close();
+                    }}
+                  />
+                </div>
+              ));
             }}
           />
         </BottomSheetOverlay>
       )}
-      {pendingCommentDelete &&
-        createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
-            <ConfirmDialog
-              title="댓글을 삭제할까요?"
-              description="삭제한 댓글은 복구할 수 없어요."
-              confirmLabel="삭제하기"
-              destructive
-              onCancel={() => setPendingCommentDelete(null)}
-              onConfirm={() => {
-                pendingCommentDelete.onDelete?.();
-                setPendingCommentDelete(null);
-              }}
-            />
-          </div>,
-          document.body,
-        )}
     </>
   );
 };
