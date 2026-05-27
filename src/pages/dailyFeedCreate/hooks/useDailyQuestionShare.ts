@@ -22,7 +22,7 @@ export const useDailyQuestionShare = ({
   const [isSharing, setIsSharing] = useState(false);
 
   const share = async () => {
-    if (!teamId || !photo || isSharing) return;
+    if (!teamId || !photo || !questionId || isSharing) return;
     setIsSharing(true);
     try {
       const [mediaPublicId] = await uploadMediaBlobs({

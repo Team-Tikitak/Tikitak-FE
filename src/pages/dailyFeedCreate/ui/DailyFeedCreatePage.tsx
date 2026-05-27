@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
@@ -24,8 +24,7 @@ export const DailyFeedCreatePage = () => {
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
 
-  const [, setSelectedMembers] = useState<TeamMember[]>([]);
-  const commitMembers = useCallback((members: TeamMember[]) => setSelectedMembers(members), []);
+  const commitMembers = useCallback(() => {}, []);
 
   const { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember } = useSelfTag({
     teamId,
