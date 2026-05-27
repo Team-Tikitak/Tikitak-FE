@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFeedComments, postFeedComment } from './api';
+import { deleteFeedComment, getFeedComments, patchFeedComment, postFeedComment } from './api';
 import { feedCommentKeys } from './keys';
 import type {
   FeedComment,
   FeedCommentListParams,
   FeedCommentListResponse,
   FeedCommentRequest,
+  PatchFeedCommentRequest,
 } from './types';
 
 export const useGetFeedComments = (
@@ -34,6 +35,29 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
           return { ...old, items: [...old.items, newComment] };
         },
       );
+    },
+  });
+};
+
+export const useDeleteFeedComment = (teamId: number, feedId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (commentId: number) => deleteFeedComment(teamId, feedId, commentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedCommentKeys.comments(teamId, feedId) });
+    },
+  });
+};
+
+export const usePatchFeedComment = (teamId: number, feedId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ commentId, body }: { commentId: number; body: PatchFeedCommentRequest }) =>
+      patchFeedComment(teamId, feedId, commentId, body).then((res) => res.data.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedCommentKeys.comments(teamId, feedId) });
     },
   });
 };

@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
+import {
+  useDeleteFeedComment,
+  useGetFeedComments,
+  usePostFeedComment,
+} from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
 import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { toAbsoluteUrl } from '@/shared/lib/toAbsoluteUrl';
@@ -27,6 +31,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
 
   const { data: commentsData } = useGetFeedComments(teamId, feedId);
   const { mutate: postComment } = usePostFeedComment(teamId, feedId);
+  const { mutate: deleteComment } = useDeleteFeedComment(teamId, feedId);
 
   const closeSheet = () => setOpenPinKey(null);
   const completeClose = () => {
@@ -126,6 +131,8 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
             authorName: c.author.nickname,
             text: c.content,
             avatarSrc: toAbsoluteUrl(c.author.profileImageUrl) ?? '',
+            isMine: c.isMine,
+            onDelete: c.isMine ? () => deleteComment(c.commentId) : undefined,
           }))
       : [];
 
@@ -133,6 +140,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
     openPinKey,
     displayPinKey,
     commentsForOpenPin,
+    deleteComment,
     closeSheet,
     completeClose,
     submitComment,

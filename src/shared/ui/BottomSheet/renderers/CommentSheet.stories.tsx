@@ -7,6 +7,7 @@ const COMMENTS = [
     authorName: 'name',
     text: 'text',
     avatarSrc: 'https://picsum.photos/seed/comment-avatar-1/80',
+    onDelete: () => alert('삭제하기'),
   },
   {
     id: '2',

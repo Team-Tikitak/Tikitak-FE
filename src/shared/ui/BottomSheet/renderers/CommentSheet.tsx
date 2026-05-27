@@ -1,5 +1,7 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
+import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
 import { cn } from '@/shared/lib';
+import { ActiveMenu } from '../../ActiveMenu/ActiveMenu';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
@@ -10,6 +12,8 @@ export interface CommentSheetItem {
   text: string;
   avatarSrc: string;
   avatarAlt?: string;
+  isMine?: boolean;
+  onDelete?: () => void;
 }
 
 export type CommentSheetInputProps =
@@ -28,6 +32,7 @@ export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
   CommentSheetInputProps & {
     comments: CommentSheetItem[];
     onSubmitComment?: (text: string) => void;
+    onDeleteRequest?: (item: CommentSheetItem) => void;
   };
 
 export function CommentSheet({
@@ -36,6 +41,7 @@ export function CommentSheet({
   inputProps,
   submitButtonProps,
   onSubmitComment,
+  onDeleteRequest,
   className,
   ...props
 }: CommentSheetProps) {
@@ -69,6 +75,12 @@ export function CommentSheet({
               <div className="body-7 truncate text-black">{comment.authorName}</div>
               <p className="body-1 truncate text-gray-600">{comment.text}</p>
             </div>
+            {comment.isMine && (
+              <ActiveMenu
+                icon={<MoreIcon className="w-2 rotate-90" />}
+                onDelete={() => onDeleteRequest?.(comment)}
+              />
+            )}
           </article>
         ))}
       </div>
