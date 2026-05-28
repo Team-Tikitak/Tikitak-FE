@@ -1653,21 +1653,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ssgoi/core@npm:^5.2.0":
-  version: 5.2.1
-  resolution: "@ssgoi/core@npm:5.2.1"
-  checksum: 10c0/937f61d9635c516dd85bdd8f36eb0b88af4438286f99811e838c80e60b9c4a4dc61f4848049220b3e7fb65549162ca542db4d8cd6b679e71a03ecec0dd9de7b1
+"@ssgoi/core@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@ssgoi/core@npm:6.4.0"
+  checksum: 10c0/df15ea1bffe0733f93c6c4f66df65ff44b049090cec0ff6ceeb9eca1398861a131136eda29fdcb77391d1321fc7491c94e1d689b0aa499fa4a6afcabc673cc8c
   languageName: node
   linkType: hard
 
-"@ssgoi/react@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@ssgoi/react@npm:5.2.0"
+"@ssgoi/react@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@ssgoi/react@npm:6.4.0"
   dependencies:
     "@babel/core": "npm:^7.26.10"
-    "@ssgoi/core": "npm:^5.2.0"
+    "@ssgoi/core": "npm:^6.4.0"
     unplugin: "npm:^2.3.2"
-  checksum: 10c0/48525d9ee83dd4e2d4bdb59e95d826edb951ccbada2696c368d0e3d0535207154bfcb724a4712bde25a7a748e4a13425e1a5d51de4a53b8e67838e6921b6a27a
+  checksum: 10c0/3199fb1dda8d983ebec864df1fc2791cc5ca4a498e508ef9d6d186a0c31ad419f7816493f459880a7dde21e4d5b59f9fe0677c347624cee94bd921e1ccbff18e
   languageName: node
   linkType: hard
 
@@ -2816,7 +2816,8 @@ __metadata:
     "@eslint/js": "npm:^9.39.4"
     "@hookform/resolvers": "npm:^5.2.2"
     "@rolldown/plugin-babel": "npm:^0.2.3"
-    "@ssgoi/react": "npm:^5.2.0"
+    "@ssgoi/core": "npm:^6.4.0"
+    "@ssgoi/react": "npm:^6.4.0"
     "@storybook/addon-a11y": "npm:^10.3.6"
     "@storybook/addon-docs": "npm:^10.3.6"
     "@storybook/addon-onboarding": "npm:^10.3.6"

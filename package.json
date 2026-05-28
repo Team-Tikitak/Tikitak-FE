@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@ssgoi/react": "^5.2.0",
+    "@ssgoi/core": "^6.4.0",
+    "@ssgoi/react": "^6.4.0",
     "@tanstack/react-query": "^5.96.2",
     "axios": "^1.15.0",
     "clsx": "^2.1.1",
