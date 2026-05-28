@@ -31,17 +31,24 @@ export const MyPage = () => {
       </PageSection>
 
       <PageSection title="약관 및 정책">
-        <ListCard title="이용 약관" onClick={() => window.open(EXTERNAL_LINKS.TERMS, '_blank')} />
+        <ListCard
+          title="이용 약관"
+          onClick={() => window.open(EXTERNAL_LINKS.TERMS, '_blank', 'noopener,noreferrer')}
+        />
         <ListCard
           title="개인정보 처리방침"
-          onClick={() => window.open(EXTERNAL_LINKS.PRIVACY_POLICY, '_blank')}
+          onClick={() =>
+            window.open(EXTERNAL_LINKS.PRIVACY_POLICY, '_blank', 'noopener,noreferrer')
+          }
         />
       </PageSection>
 
       <PageSection title="고객 지원">
         <ListCard
           title="고객센터"
-          onClick={() => window.open(EXTERNAL_LINKS.CUSTOMER_SUPPORT, '_blank')}
+          onClick={() =>
+            window.open(EXTERNAL_LINKS.CUSTOMER_SUPPORT, '_blank', 'noopener,noreferrer')
+          }
         />
         <ListCard title="로그아웃" onClick={() => logout()} />
         <ListCard title="회원 탈퇴" onClick={() => deleteMe()} />

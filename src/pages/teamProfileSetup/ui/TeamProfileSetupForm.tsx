@@ -12,6 +12,9 @@ const HEADER_TITLE = {
   edit: '프로필 수정',
 } as const;
 
+const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_AVATAR_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+
 interface TeamProfileSetupFormProps {
   mode: 'create' | 'join' | 'edit';
   promptTeamName: string;
@@ -39,8 +42,18 @@ export const TeamProfileSetupForm = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
-    if (file) setAvatar(file);
     event.target.value = '';
+    if (!file) return;
+
+    if (!ALLOWED_AVATAR_MIME_TYPES.includes(file.type)) {
+      window.alert('JPEG, PNG, WEBP 이미지만 업로드할 수 있어요.');
+      return;
+    }
+    if (file.size > MAX_AVATAR_FILE_SIZE_BYTES) {
+      window.alert('이미지 크기는 5MB 이하여야 해요.');
+      return;
+    }
+    setAvatar(file);
   };
 
   return (
@@ -83,7 +96,7 @@ export const TeamProfileSetupForm = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFileChange}
       />
