@@ -1,15 +1,14 @@
-import { useNavigate } from 'react-router';
+﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useMe } from '@/shared/api/user/queries';
-import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { CameraOverlay } from '@/shared/ui/CameraOverlay';
+import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedShare } from '../hooks/useFeedShare';
@@ -102,48 +101,24 @@ export const FeedCreatePage = () => {
       }
     >
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
-        <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
-          <button
-            type="button"
-            onClick={handleAddPhoto}
-            disabled={!canAddMorePhotos}
-            className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900 disabled:opacity-50"
-          >
-            <CameraIcon className="size-6" aria-hidden="true" />
-            <span className="button-6 text-gray-900">
-              {photos.length}/{maxPhotoCount}
-            </span>
-          </button>
-          {photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="relative size-[112px] shrink-0 overflow-hidden rounded-lg"
-            >
-              <img src={photo.url} alt="" className="no-native-image size-full object-cover" />
-              <button
-                type="button"
-                aria-label="사진 제거"
-                onClick={() => removePhoto(photo.id)}
-                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <CloseIcon className="size-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+        <PhotoStrip
+          items={photos.map((photo) => ({
+            key: photo.id,
+            src: photo.url,
+            onRemove: () => removePhoto(photo.id),
+          }))}
+          count={photos.length}
+          maxPhotoCount={maxPhotoCount}
+          canAddMore={canAddMorePhotos}
+          onAddPhoto={handleAddPhoto}
+        />
 
-        <div className="mt-5 flex h-[174px] flex-col gap-2 rounded-lg border border-gray-300 p-4">
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="(선택) 글을 작성해주세요."
-            maxLength={maxContentLength}
-            className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
-          />
-          <p className="body-10 self-end text-gray-500">
-            <span>{content.length}</span> / {maxContentLength.toLocaleString()}
-          </p>
-        </div>
+        <ContentTextarea
+          value={content}
+          onChange={setContent}
+          maxLength={maxContentLength}
+          className="mt-5"
+        />
 
         <ul className="mt-7 flex flex-col gap-7">
           <li className="flex flex-col gap-3">
