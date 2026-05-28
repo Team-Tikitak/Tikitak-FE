@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useGetTeamDetail, useTeamMembers } from '@/shared/api/team/queries';
-import type { TeamMember } from '@/shared/api/team/types';
 
 interface UseSelfTagParams {
   teamId: number | null | undefined;
-  commitMembers: (members: TeamMember[]) => void;
 }
 
-export const useSelfTag = ({ teamId, commitMembers }: UseSelfTagParams) => {
+export const useSelfTag = ({ teamId }: UseSelfTagParams) => {
   const { data: teamDetail } = useGetTeamDetail(teamId);
   const { data: teamMembersData } = useTeamMembers(teamId);
   const myProfile = teamDetail?.myProfile;
@@ -16,14 +14,6 @@ export const useSelfTag = ({ teamId, commitMembers }: UseSelfTagParams) => {
   );
 
   const [isSelfTagged, setIsSelfTagged] = useState(true);
-
-  useEffect(() => {
-    if (isSelfTagged && myTeamMember) {
-      commitMembers([myTeamMember]);
-    } else {
-      commitMembers([]);
-    }
-  }, [isSelfTagged, myTeamMember, commitMembers]);
 
   return { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember };
 };
