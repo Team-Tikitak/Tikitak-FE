@@ -17,6 +17,7 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   const accessToken = url.searchParams.get('accessToken');
   if (accessToken) {
     setAccessToken(accessToken);
+    // 뒤로가기로 토큰 URL 재노출 방지
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', PATHS.HOME);
     }

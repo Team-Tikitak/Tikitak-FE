@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router';
 import { useFeedData } from '@/shared/hooks/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
-import { openOverlay } from '@/shared/lib';
+import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';
 import { BottomSheetOverlay, CommentSheet } from '../BottomSheet';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -33,7 +33,8 @@ export const FeedDetailContent = ({
     feedId,
   );
   const routeStateThumbnail = (useLocation().state as FeedDetailLocationState | null)?.thumbnailUrl;
-  const fallbackThumbnail = placeholderThumbnail ?? routeStateThumbnail;
+  const rawFallbackThumbnail = placeholderThumbnail ?? routeStateThumbnail;
+  const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail, 'feed-image');
   const renderedImages =
     images.length > 0 ? images : fallbackThumbnail ? [{ src: fallbackThumbnail }] : [];
   const {
@@ -55,7 +56,7 @@ export const FeedDetailContent = ({
         participants={participants}
         images={renderedImages.map((image, imageIndex) => ({
           ...image,
-          pins: decoratePins(feedId, imageIndex, image.pins),
+          pins: decoratePins(feedId, imageIndex, image.pins ?? []),
         }))}
         authorName={authorName}
         content={content}
