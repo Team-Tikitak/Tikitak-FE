@@ -15,6 +15,10 @@ declare global {
 
   interface KakaoMap {
     getProjection: () => KakaoProjection;
+    getCenter: () => KakaoLatLng;
+    getLevel: () => number;
+    setCenter: (latLng: KakaoLatLng) => void;
+    setLevel: (level: number) => void;
   }
 
   interface KakaoMapOptions {

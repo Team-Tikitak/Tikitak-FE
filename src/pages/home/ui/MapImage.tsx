@@ -1,17 +1,21 @@
 import TikitakLogoIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
+import { cn } from '@/shared/lib';
+import type { ComponentPropsWithoutRef } from 'react';
 
-interface MapImageProps {
+interface MapImageProps extends ComponentPropsWithoutRef<'button'> {
   src?: string;
   count?: number;
-  onClick?: () => void;
 }
 
-export const MapImage = ({ src, count, onClick }: MapImageProps) => {
+export const MapImage = ({ src, count, className, ...props }: MapImageProps) => {
   return (
     <button
+      {...props}
       type="button"
-      className="absolute size-[87px] overflow-hidden rounded-[6px] border-4 border-white"
-      onClick={onClick}
+      className={cn(
+        'absolute size-[87px] overflow-hidden rounded-[6px] border-4 border-white',
+        className,
+      )}
     >
       {src ? (
         <img src={src} alt="" className="no-native-image size-full object-cover" />

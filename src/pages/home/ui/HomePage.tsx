@@ -5,6 +5,7 @@ import { PATHS } from '@/app/routes';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { Header } from '@/shared/ui/Header';
+import { LoadingState } from '@/shared/ui/LoadingState';
 import { EmptyTeamView } from './EmptyTeamView';
 import { MapView } from './MapView';
 import { useTeamPickerSheet } from '../hooks/useTeamPickerSheet';
@@ -33,7 +34,13 @@ export const HomePage = () => {
     onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
   });
 
-  if (isPending) return null;
+  if (isPending) {
+    return (
+      <PageShell contentClassName="flex flex-1 flex-col">
+        <LoadingState variant="fullscreen" />
+      </PageShell>
+    );
+  }
 
   if (hasTeams) {
     return (
