@@ -1,6 +1,6 @@
 import type { FeedComment } from '@/shared/api/feedComment/types';
-import { toAbsoluteUrl } from '@/shared/lib/toAbsoluteUrl';
 import type { Pin } from '@/shared/ui';
+import { normalizeImageUrl } from './normalizeImageUrl';
 
 export const makeSlot = (feedId: number, imageIndex: number) => `${feedId}-${imageIndex}`;
 export const makePosKey = (x: number, y: number) => `${x},${y}`;
@@ -38,8 +38,8 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
       y,
       count: 'multiple' as const,
       avatars: [
-        { id: String(a.teamMemberId), src: toAbsoluteUrl(a.profileImageUrl) ?? '' },
-        { id: String(b.teamMemberId), src: toAbsoluteUrl(b.profileImageUrl) ?? '' },
+        { id: String(a.teamMemberId), src: normalizeImageUrl(a.profileImageUrl) ?? '' },
+        { id: String(b.teamMemberId), src: normalizeImageUrl(b.profileImageUrl) ?? '' },
       ],
       onClick,
     };
@@ -52,7 +52,7 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
     avatars: [
       {
         id: String(first.author.teamMemberId),
-        src: toAbsoluteUrl(first.author.profileImageUrl) ?? '',
+        src: normalizeImageUrl(first.author.profileImageUrl) ?? '',
       },
     ],
     onClick,
