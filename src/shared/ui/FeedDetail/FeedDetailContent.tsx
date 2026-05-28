@@ -63,25 +63,28 @@ export const FeedDetailContent = ({
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
               closeSheet();
-              openOverlay(({ isOpen, close, unmount }) => (
-                <div
-                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
-                  style={{ display: isOpen ? undefined : 'none' }}
-                  onTransitionEnd={unmount}
-                >
-                  <ConfirmDialog
-                    title="댓글을 삭제할까요?"
-                    description="삭제한 댓글은 복구할 수 없어요."
-                    confirmLabel="삭제하기"
-                    destructive
-                    onCancel={close}
-                    onConfirm={() => {
-                      item.onDelete?.();
-                      close();
-                    }}
-                  />
-                </div>
-              ));
+              openOverlay(({ isOpen, close, unmount }) =>
+                isOpen ? (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+                    <ConfirmDialog
+                      title="댓글을 삭제할까요?"
+                      description="삭제한 댓글은 복구할 수 없어요."
+                      confirmLabel="삭제하기"
+                      destructive
+                      onCancel={() => {
+                        close();
+                        unmount();
+                      }}
+                      onConfirm={() => {
+                        item.onDelete?.();
+                        close();
+                        unmount();
+                        closeSheet();
+                      }}
+                    />
+                  </div>
+                ) : null,
+              );
             }}
           />
         </BottomSheetOverlay>
