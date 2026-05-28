@@ -44,8 +44,17 @@ export const useDeleteFeedComment = (teamId: number, feedId: number) => {
 
   return useMutation({
     mutationFn: (commentId: number) => deleteFeedComment(teamId, feedId, commentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: feedCommentKeys.comments(teamId, feedId) });
+    onSuccess: (_, commentId) => {
+      queryClient.setQueryData<FeedCommentListResponse>(
+        feedCommentKeys.comments(teamId, feedId),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            items: old.items.filter((comment) => comment.commentId !== commentId),
+          };
+        },
+      );
     },
   });
 };
