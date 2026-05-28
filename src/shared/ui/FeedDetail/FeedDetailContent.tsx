@@ -78,7 +78,7 @@ export const FeedDetailContent = ({
               closeSheet();
               openOverlay(({ isOpen, close, unmount }) =>
                 isOpen ? (
-                  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+                  <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40">
                     <ConfirmDialog
                       title="댓글을 삭제할까요?"
                       description="삭제한 댓글은 복구할 수 없어요."
