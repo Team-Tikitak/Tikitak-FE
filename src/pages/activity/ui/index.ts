@@ -3,6 +3,7 @@
  */
 
 export * from './ActivityPage';
+export * from './ActivitySkeleton';
 export * from './ContentImageCard';
 export * from './EmptyActiveView';
 export * from './MonthlyBestAttendance';
