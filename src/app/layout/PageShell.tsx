@@ -17,7 +17,7 @@ export const PageShell = ({
   bottomClassName,
 }: PageShellProps) => {
   return (
-    <>
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white">
       {header && <header className="shrink-0">{header}</header>}
 
       <main className={cn('no-scrollbar min-h-0 flex-1 overflow-y-auto', contentClassName)}>
@@ -34,6 +34,6 @@ export const PageShell = ({
           {bottom}
         </footer>
       )}
-    </>
+    </div>
   );
 };
