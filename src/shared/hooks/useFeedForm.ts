@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
+﻿import { useEffect, useRef, useState } from 'react';
 import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
+import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import type { CapturedPhoto } from '@/shared/types/photo';
 
-const MAX_CONTENT_LENGTH = 1000;
 export const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
 
@@ -37,7 +37,7 @@ export const useFeedForm = ({
   }, []);
 
   const setContent = (next: string) => {
-    setContentRaw(next.slice(0, MAX_CONTENT_LENGTH));
+    setContentRaw(next.slice(0, MAX_FEED_CONTENT_LENGTH));
   };
 
   const addPhoto = (photo: CapturedPhoto) => {
@@ -75,7 +75,7 @@ export const useFeedForm = ({
     removePhoto,
     canAddMorePhotos,
     maxPhotoCount,
-    maxContentLength: MAX_CONTENT_LENGTH,
+    maxContentLength: MAX_FEED_CONTENT_LENGTH,
     selectedPlace,
     selectPlace,
     selectedMembers,
