@@ -1,6 +1,6 @@
-import { getSticker } from '@/shared/assets/Sticker/catalog';
-import { usePinchDrag } from '../hooks/usePinchDrag';
-import { type PlacedSticker } from '../model/types';
+﻿import { getSticker } from '@/shared/assets/Sticker/catalog';
+import { usePinchDrag } from '@/shared/hooks/usePinchDrag';
+import { type PlacedSticker } from '@/shared/types/sticker';
 
 interface PlacedStickerViewProps {
   sticker: PlacedSticker;

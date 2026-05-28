@@ -1,0 +1,72 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+export type CameraError = 'permission' | 'unsupported' | 'unknown';
+
+const STREAM_CONSTRAINTS: MediaStreamConstraints = {
+  video: { facingMode: 'environment' },
+  audio: false,
+};
+
+const isCameraSupported = () =>
+  typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
+
+export const useCameraStream = (paused: boolean) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [error, setError] = useState<CameraError | null>(() =>
+    isCameraSupported() ? null : 'unsupported',
+  );
+  const [isReady, setIsReady] = useState(false);
+
+  const stopStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setIsReady(false);
+  }, []);
+
+  useEffect(() => {
+    if (paused || !isCameraSupported()) return;
+
+    let cancelled = false;
+
+    navigator.mediaDevices
+      .getUserMedia(STREAM_CONSTRAINTS)
+      .then((stream) => {
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        streamRef.current = stream;
+        setError(null);
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.srcObject = stream;
+        void video.play().catch(() => {});
+
+        if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          setIsReady(true);
+          return;
+        }
+        const handleLoaded = () => {
+          if (cancelled) return;
+          setIsReady(true);
+        };
+        video.addEventListener('loadedmetadata', handleLoaded, { once: true });
+      })
+      .catch((cause) => {
+        if (cancelled) return;
+        const isPermissionError =
+          cause instanceof DOMException &&
+          (cause.name === 'NotAllowedError' || cause.name === 'PermissionDeniedError');
+        setError(isPermissionError ? 'permission' : 'unknown');
+      });
+
+    return () => {
+      cancelled = true;
+      stopStream();
+    };
+  }, [paused, stopStream]);
+
+  return { videoRef, streamRef, error, isReady, stopStream };
+};

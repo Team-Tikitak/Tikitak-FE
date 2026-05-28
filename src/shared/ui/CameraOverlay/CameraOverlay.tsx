@@ -1,6 +1,6 @@
+﻿import { type CapturedPhoto, useCamera } from '@/shared/hooks/useCamera';
 import { CameraReview } from './CameraReview';
 import { CameraView } from './CameraView';
-import { type CapturedPhoto, useCamera } from '../hooks/useCamera';
 
 interface CameraOverlayProps {
   open: boolean;

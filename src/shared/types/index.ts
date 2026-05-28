@@ -3,4 +3,5 @@
  */
 
 export * from './photo';
+export * from './sticker';
 export * from './team';
