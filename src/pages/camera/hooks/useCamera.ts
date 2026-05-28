@@ -1,16 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
+import type { CapturedPhoto } from '@/shared/types/photo';
 import { composePhotoWithStickers } from '../lib/composePhoto';
 import { computeCaptureRect } from '../lib/computeCaptureRect';
 import { type PlacedSticker } from '../model/types';
 
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
 
-export interface CapturedPhoto {
-  id: string;
-  url: string;
-  blob: Blob;
-}
+export type { CapturedPhoto };
 
 const STREAM_CONSTRAINTS: MediaStreamConstraints = {
   video: { facingMode: 'environment' },

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
 import { usePostDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
+import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseDailyQuestionShareParams {
   teamId: number | null;
