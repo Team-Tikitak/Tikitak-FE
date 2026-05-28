@@ -3,7 +3,10 @@
  */
 
 export * from './cn';
+export * from './composePhoto';
+export * from './computeCaptureRect';
 export * from './getPointerRatio';
+export * from './kakaoSdk';
 export * from './loadImage';
 export * from './normalizeImageUrl';
 export * from './openOverlay';
