@@ -1,12 +1,9 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
-import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
@@ -15,7 +12,9 @@ import {
   useFeedForm as useFeedCreateForm,
 } from '@/shared/hooks/useFeedForm';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { Button, Chip, ConfirmDialog, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { CameraOverlay } from '@/shared/ui/CameraOverlay';
+import { ContentTextarea, PhotoStrip, openEditExitConfirm } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedEditShare } from '../hooks/useFeedEditShare';
@@ -132,24 +131,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
       navigate(-1);
       return;
     }
-    openOverlay(({ isOpen, close, unmount }) => (
-      <div
-        className="fixed inset-0 z-60 flex items-center justify-center bg-black/40"
-        style={{ display: isOpen ? undefined : 'none' }}
-        onTransitionEnd={unmount}
-      >
-        <ConfirmDialog
-          title="수정한 내용이 남아있어요."
-          description="지금 나가면 수정한 내용이 저장되지 않아요."
-          confirmLabel="계속 수정하기"
-          onConfirm={close}
-          onCancel={() => {
-            close();
-            navigate(-1);
-          }}
-        />
-      </div>
-    ));
+    openEditExitConfirm({ onExit: () => navigate(-1) });
   };
 
   return (
@@ -169,66 +151,31 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
       }
     >
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
-        <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
-          <button
-            type="button"
-            onClick={handleAddPhoto}
-            disabled={!canAddMorePhotos}
-            className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900 disabled:opacity-50"
-          >
-            <CameraIcon className="size-6" aria-hidden="true" />
-            <span className="button-6 text-gray-900">
-              {keptImages.length + photos.length}/{maxPhotoCount}
-            </span>
-          </button>
+        <PhotoStrip
+          items={[
+            ...keptImages.map((image) => ({
+              key: `existing-${image.feedImageId}`,
+              src: image.imageUrl,
+              onRemove: () => removeExistingImage(image.feedImageId),
+            })),
+            ...photos.map((photo) => ({
+              key: `new-${photo.id}`,
+              src: photo.url,
+              onRemove: () => removePhoto(photo.id),
+            })),
+          ]}
+          count={keptImages.length + photos.length}
+          maxPhotoCount={maxPhotoCount}
+          canAddMore={canAddMorePhotos}
+          onAddPhoto={handleAddPhoto}
+        />
 
-          {keptImages.map((image) => (
-            <div
-              key={image.feedImageId}
-              className="relative size-[112px] shrink-0 overflow-hidden rounded-lg"
-            >
-              <img src={image.imageUrl} alt="" className="no-native-image size-full object-cover" />
-              <button
-                type="button"
-                aria-label="사진 제거"
-                onClick={() => removeExistingImage(image.feedImageId)}
-                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <CloseIcon className="size-4" />
-              </button>
-            </div>
-          ))}
-
-          {photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="relative size-[112px] shrink-0 overflow-hidden rounded-lg"
-            >
-              <img src={photo.url} alt="" className="no-native-image size-full object-cover" />
-              <button
-                type="button"
-                aria-label="사진 제거"
-                onClick={() => removePhoto(photo.id)}
-                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <CloseIcon className="size-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 flex h-[174px] flex-col gap-2 rounded-lg border border-gray-300 p-4">
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="(선택) 글을 작성해주세요."
-            maxLength={maxContentLength}
-            className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
-          />
-          <p className="body-10 self-end text-gray-500">
-            <span>{content.length}</span> / {maxContentLength.toLocaleString()}
-          </p>
-        </div>
+        <ContentTextarea
+          value={content}
+          onChange={setContent}
+          maxLength={maxContentLength}
+          className="mt-5"
+        />
 
         <ul className="mt-7 flex flex-col gap-7">
           <li className="flex flex-col gap-3">
