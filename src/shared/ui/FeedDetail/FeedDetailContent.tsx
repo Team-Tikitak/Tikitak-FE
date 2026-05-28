@@ -35,8 +35,12 @@ export const FeedDetailContent = ({
   const routeStateThumbnail = (useLocation().state as FeedDetailLocationState | null)?.thumbnailUrl;
   const rawFallbackThumbnail = placeholderThumbnail ?? routeStateThumbnail;
   const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail, 'feed-image');
-  const renderedImages =
-    images.length > 0 ? images : fallbackThumbnail ? [{ src: fallbackThumbnail }] : [];
+  const isFallback = images.length === 0;
+  const renderedImages = !isFallback
+    ? images
+    : fallbackThumbnail
+      ? [{ src: fallbackThumbnail }]
+      : [];
   const {
     openPinKey,
     displayPinKey,
@@ -56,12 +60,16 @@ export const FeedDetailContent = ({
         participants={participants}
         images={renderedImages.map((image, imageIndex) => ({
           ...image,
-          pins: decoratePins(feedId, imageIndex, image.pins ?? []),
+          pins: isFallback ? [] : decoratePins(feedId, imageIndex, image.pins ?? []),
         }))}
         authorName={authorName}
         content={content}
         date={date}
-        onLongPress={(position, imageIndex) => addPinAt(feedId, imageIndex, position.x, position.y)}
+        onLongPress={
+          isFallback
+            ? undefined
+            : (position, imageIndex) => addPinAt(feedId, imageIndex, position.x, position.y)
+        }
       />
       {displayPinKey && (
         <BottomSheetOverlay
