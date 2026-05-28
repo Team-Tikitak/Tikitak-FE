@@ -48,6 +48,18 @@ export function BottomSheetOverlay({
       <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
       <Drawer.Content
         {...(ariaDescription ? {} : { 'aria-describedby': undefined })}
+        onPointerDownOutside={(event) => {
+          const target = event.target as Element;
+          if (target.closest('[data-active-menu]')) {
+            event.preventDefault();
+          }
+        }}
+        onInteractOutside={(event) => {
+          const target = event.target as Element;
+          if (target.closest('[data-active-menu]')) {
+            event.preventDefault();
+          }
+        }}
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-[393px] flex-col outline-none',
           snapPoints && 'h-full',
