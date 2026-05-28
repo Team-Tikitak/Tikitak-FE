@@ -1,10 +1,10 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
 import { usePatchFeed } from '@/shared/api/feed/queries';
 import type { FeedImage, FeedPlace } from '@/shared/api/feed/types';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
+import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseFeedEditShareParams {
   teamId: number;

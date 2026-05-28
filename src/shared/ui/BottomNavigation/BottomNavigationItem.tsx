@@ -1,8 +1,8 @@
-import { type ComponentType, type SVGProps } from 'react';
+import { type ComponentPropsWithRef, type ComponentType, type SVGProps } from 'react';
 import { cn } from '@/shared/lib';
 import { type BottomNavigationTab } from './BottomNavigation.types';
 
-interface BottomNavigationItemProps {
+interface BottomNavigationItemProps extends Omit<ComponentPropsWithRef<'button'>, 'onSelect'> {
   value: BottomNavigationTab;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -20,6 +20,9 @@ export function BottomNavigationItem({
   selected = false,
   fillsWhenSelected = false,
   onSelect,
+  className,
+  ref,
+  ...props
 }: BottomNavigationItemProps) {
   const ResolvedIcon = selected && FilledIcon ? FilledIcon : Icon;
 
@@ -27,12 +30,15 @@ export function BottomNavigationItem({
     <li className="flex min-w-0 justify-center">
       <button
         type="button"
+        ref={ref}
         aria-current={selected ? 'page' : undefined}
         onClick={() => onSelect?.(value)}
         className={cn(
           'rounded-max press-feedback flex h-[44px] w-full max-w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500',
           selected && 'text-main font-semibold',
+          className,
         )}
+        {...props}
       >
         <ResolvedIcon
           aria-hidden="true"

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { Pin } from '@/shared/api/map/types';
-import { toAbsoluteUrl } from '@/shared/lib';
+import { normalizeImageUrl } from '@/shared/lib';
 import { MapImage } from './MapImage';
 import { useKakaoMap } from '../hooks/useKakaoMap';
 
@@ -46,7 +46,7 @@ export const Map = ({ pins, initialCenter, onPinClick }: MapProps) => {
               }}
             >
               <MapImage
-                src={toAbsoluteUrl(pin.thumbnailUrl)}
+                src={normalizeImageUrl(pin.thumbnailUrl, 'feed-image')}
                 count={pin.feedCount}
                 onClick={() => onPinClick?.(pin)}
               />

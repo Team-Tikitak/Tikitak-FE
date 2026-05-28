@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
-
-const MAX_CONTENT_LENGTH = 1000;
+﻿import { useEffect, useRef, useState } from 'react';
+import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import type { CapturedPhoto } from '@/shared/types/photo';
 
 export const useDailyQuestionCreateForm = () => {
   const [content, setContentRaw] = useState('');
@@ -18,7 +17,7 @@ export const useDailyQuestionCreateForm = () => {
   }, []);
 
   const setContent = (next: string) => {
-    setContentRaw(next.slice(0, MAX_CONTENT_LENGTH));
+    setContentRaw(next.slice(0, MAX_FEED_CONTENT_LENGTH));
   };
 
   const addPhoto = (captured: CapturedPhoto) => {
@@ -43,7 +42,7 @@ export const useDailyQuestionCreateForm = () => {
     photo,
     addPhoto,
     removePhoto,
-    maxContentLength: MAX_CONTENT_LENGTH,
+    maxContentLength: MAX_FEED_CONTENT_LENGTH,
     isShareDisabled,
   };
 };

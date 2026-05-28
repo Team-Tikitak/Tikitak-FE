@@ -1,17 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
 import { STICKERS, type StickerId } from '@/shared/assets/Sticker/catalog';
+import { cn } from '@/shared/lib';
 
 interface StickerPickerProps {
   open: boolean;
   onClose: () => void;
   onSelect: (stickerId: StickerId) => void;
+  className?: string;
 }
 
 const COLLAPSED_SNAP = '400px';
 const TOP_GAP = 80;
 
-export const StickerPicker = ({ open, onClose, onSelect }: StickerPickerProps) => {
+export const StickerPicker = ({ open, onClose, onSelect, className }: StickerPickerProps) => {
   const expandedSnap = useMemo(() => {
     const expanded = Math.max(400, window.innerHeight - TOP_GAP);
     return `${expanded}px`;
@@ -30,7 +32,12 @@ export const StickerPicker = ({ open, onClose, onSelect }: StickerPickerProps) =
       setActiveSnapPoint={setActiveSnapPoint}
     >
       <Drawer.Portal>
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-70 mx-auto flex h-full w-full max-w-[393px] flex-col rounded-t-2xl bg-black/80 outline-none">
+        <Drawer.Content
+          className={cn(
+            'fixed inset-x-0 bottom-0 z-70 mx-auto flex h-full w-full max-w-[393px] flex-col rounded-t-2xl bg-black/80 outline-none',
+            className,
+          )}
+        >
           <Drawer.Title className="sr-only">스티커 선택</Drawer.Title>
           <Drawer.Description className="sr-only">
             사진에 추가할 스티커를 선택하세요

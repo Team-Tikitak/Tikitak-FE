@@ -2,22 +2,22 @@ import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
-import { LocationSearchOverlay } from '@/pages/feedCreate/ui/LocationSearchOverlay';
-import { MemberSelectOverlay } from '@/pages/feedCreate/ui/MemberSelectOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
-import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
+import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import {
   DEFAULT_MAX_PHOTO_COUNT,
   useFeedForm as useFeedCreateForm,
 } from '@/shared/hooks/useFeedForm';
-import { openOverlay } from '@/shared/lib';
+import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, ConfirmDialog, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
+import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedEditShare } from '../hooks/useFeedEditShare';
 
 interface FeedEditFormProps {
@@ -251,7 +251,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
                   <UserChip
                     key={member.teamMemberId}
                     name={member.nickname}
-                    avatarSrc={member.profileImgUrl || undefined}
+                    avatarSrc={normalizeImageUrl(member.profileImgUrl)}
                     size="sm"
                     onRemove={() => removeMember(member.teamMemberId)}
                   />
@@ -267,13 +267,21 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
 
 export const FeedEditPage = () => {
   const { feedId } = useParams<{ feedId: string }>();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? 0;
+  const navigate = useNavigate();
+  const teamId = useActiveTeamId();
   const feedIdNum = Number(feedId);
 
-  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
+  const { data: feedDetail, isLoading, isError } = useGetFeedDetail(teamId, feedIdNum);
 
-  if (!feedDetail) return null;
+  if (isLoading || isError || !feedDetail) {
+    return (
+      <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
+        <p className="body-3 mt-10 text-center text-gray-500">
+          {isError ? '글을 불러오지 못했습니다.' : '불러오는 중...'}
+        </p>
+      </PageShell>
+    );
+  }
 
   return <FeedEditForm teamId={teamId} feedId={feedIdNum} feedDetail={feedDetail} />;
 };

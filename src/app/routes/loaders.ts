@@ -10,15 +10,23 @@ import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { PATHS } from './paths';
 
+const isSafeInternalPath = (path: string): boolean => /^\/(?!\/)/.test(path);
+
 export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const accessToken = url.searchParams.get('accessToken');
-  if (accessToken) setAccessToken(accessToken);
+  if (accessToken) {
+    setAccessToken(accessToken);
+    // 뒤로가기로 토큰 URL 재노출 방지
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', PATHS.HOME);
+    }
+  }
 
   const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+  sessionStorage.removeItem('redirectAfterLogin');
 
-  if (redirectTo) {
-    sessionStorage.removeItem('redirectAfterLogin');
+  if (redirectTo && isSafeInternalPath(redirectTo)) {
     return redirect(redirectTo);
   }
 

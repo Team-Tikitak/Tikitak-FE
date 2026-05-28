@@ -1,0 +1,1 @@
+export const MAX_FEED_CONTENT_LENGTH = 1000;

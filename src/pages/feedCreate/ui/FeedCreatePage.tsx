@@ -8,10 +8,10 @@ import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
-import { openOverlay } from '@/shared/lib';
+import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
-import { LocationSearchOverlay } from './LocationSearchOverlay';
-import { MemberSelectOverlay } from './MemberSelectOverlay';
+import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
+import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedShare } from '../hooks/useFeedShare';
 
 export const FeedCreatePage = () => {
@@ -167,7 +167,7 @@ export const FeedCreatePage = () => {
                   <UserChip
                     key={member.teamMemberId}
                     name={member.nickname}
-                    avatarSrc={member.profileImgUrl || undefined}
+                    avatarSrc={normalizeImageUrl(member.profileImgUrl)}
                     size="sm"
                     onRemove={() => removeMember(member.teamMemberId)}
                   />

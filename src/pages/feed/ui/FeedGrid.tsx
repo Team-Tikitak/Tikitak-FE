@@ -12,6 +12,7 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
       {items.map((item) => (
         <li key={item.id} className="overflow-hidden rounded-sm">
           <img
+            data-hero-key={`pin-${item.id}`}
             src={item.thumbnailUrl}
             alt={item.title}
             className="no-native-image aspect-square size-full object-cover"

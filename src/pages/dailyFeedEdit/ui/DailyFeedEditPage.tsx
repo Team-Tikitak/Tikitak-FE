@@ -1,18 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { type CapturedPhoto } from '@/pages/camera/hooks/useCamera';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
-import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
+import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import { openOverlay } from '@/shared/lib';
+import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, ConfirmDialog, DailyQuestion, Header } from '@/shared/ui';
 import { useDailyFeedEditShare } from '../hooks/useDailyFeedEditShare';
-
-const MAX_CONTENT_LENGTH = 1000;
 
 interface DailyFeedEditFormProps {
   teamId: number;
@@ -43,7 +42,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     };
   }, []);
 
-  const setContent = (next: string) => setContentRaw(next.slice(0, MAX_CONTENT_LENGTH));
+  const setContent = (next: string) => setContentRaw(next.slice(0, MAX_FEED_CONTENT_LENGTH));
 
   const addPhoto = (captured: CapturedPhoto) => {
     setNewPhoto((prev) => {
@@ -164,11 +163,11 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="(선택) 글을 작성해주세요."
-            maxLength={MAX_CONTENT_LENGTH}
+            maxLength={MAX_FEED_CONTENT_LENGTH}
             className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
           />
           <p className="body-10 self-end text-gray-500">
-            <span>{content.length}</span> / {MAX_CONTENT_LENGTH.toLocaleString()}
+            <span>{content.length}</span> / {MAX_FEED_CONTENT_LENGTH.toLocaleString()}
           </p>
         </div>
       </div>
@@ -177,14 +176,22 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
 };
 
 export const DailyFeedEditPage = () => {
+  const navigate = useNavigate();
   const { feedId } = useParams<{ feedId: string }>();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? 0;
+  const teamId = useActiveTeamId();
   const feedIdNum = Number(feedId);
 
-  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
+  const { data: feedDetail, isLoading, isError } = useGetFeedDetail(teamId, feedIdNum);
 
-  if (!feedDetail) return null;
+  if (isLoading || isError || !feedDetail) {
+    return (
+      <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
+        <p className="body-3 mt-10 text-center text-gray-500">
+          {isError ? '글을 불러오지 못했습니다.' : '불러오는 중...'}
+        </p>
+      </PageShell>
+    );
+  }
 
   return <DailyFeedEditForm teamId={teamId} feedDetail={feedDetail} />;
 };

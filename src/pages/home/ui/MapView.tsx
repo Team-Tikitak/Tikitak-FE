@@ -19,7 +19,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
 
   const handlePinClick = useCallback(
     (pin: Pin) => {
-      navigate(toPlaceFeeds(pin.placeId));
+      navigate(toPlaceFeeds(pin.placeId), { state: { thumbnailUrl: pin.thumbnailUrl } });
     },
     [navigate],
   );

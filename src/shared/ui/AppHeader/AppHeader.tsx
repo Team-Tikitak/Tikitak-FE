@@ -1,16 +1,32 @@
+import { type ComponentPropsWithRef } from 'react';
 import BellIcon from '@/shared/assets/Icon/BellIcon.svg?react';
 import ChevronDownIcon from '@/shared/assets/Icon/ChevronDownIcon.svg?react';
 import TikiTakLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
+import { cn } from '@/shared/lib';
 
-interface AppHeaderProps {
+interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
   teamName: string;
   onTeamSelect?: () => void;
   onBellClick?: () => void;
 }
 
-export const AppHeader = ({ teamName, onTeamSelect, onBellClick }: AppHeaderProps) => {
+export const AppHeader = ({
+  teamName,
+  onTeamSelect,
+  onBellClick,
+  className,
+  ref,
+  ...props
+}: AppHeaderProps) => {
   return (
-    <header className="flex w-full items-start justify-between bg-white px-5 pt-2 pb-[15px]">
+    <header
+      ref={ref}
+      className={cn(
+        'flex w-full items-start justify-between bg-white px-5 pt-2 pb-[15px]',
+        className,
+      )}
+      {...props}
+    >
       <div className="flex flex-col gap-2">
         <TikiTakLogo className="h-[29px] w-[76px]" />
         <button

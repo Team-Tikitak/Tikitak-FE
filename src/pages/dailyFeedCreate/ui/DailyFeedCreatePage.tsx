@@ -1,35 +1,28 @@
-import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
-import { MemberSelectOverlay } from '@/pages/feedCreate/ui/MemberSelectOverlay';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import type { TeamMember } from '@/shared/api/team/types';
-import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
+import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, DailyQuestion, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
 import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
 import { useSelfTag } from '../hooks/useSelfTag';
 
 export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? 0;
+  const teamId = useActiveTeamId();
   const { data: dailyQuestion } = useGetDailyQuestion(teamId);
 
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
 
-  const commitMembers = useCallback(() => {}, []);
-
-  const { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember } = useSelfTag({
-    teamId,
-    commitMembers,
-  });
+  const { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember } = useSelfTag({ teamId });
 
   const { share, isSharing } = useDailyQuestionShare({
     teamId,
