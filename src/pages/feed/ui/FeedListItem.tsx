@@ -34,7 +34,7 @@ export const FeedListItem = ({ item, className, ref, ...props }: FeedListItemPro
       </div>
       <div className="relative size-[92px] shrink-0 overflow-hidden rounded-sm">
         <img
-          data-hero-key={`pin-${item.id}`}
+          data-hero-exit-key={`pin-${item.id}`}
           src={item.thumbnailUrl}
           alt=""
           className="no-native-image size-full object-cover"
