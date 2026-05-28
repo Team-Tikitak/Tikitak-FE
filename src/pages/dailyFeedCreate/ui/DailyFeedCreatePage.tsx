@@ -1,14 +1,13 @@
-import { useNavigate } from 'react-router';
+﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import type { TeamMember } from '@/shared/api/team/types';
-import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, DailyQuestion, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { CameraOverlay } from '@/shared/ui/CameraOverlay';
+import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
 import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
@@ -75,46 +74,14 @@ export const DailyFeedCreatePage = () => {
       <DailyQuestion question={dailyQuestion?.content ?? ''} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
-        <button
-          type="button"
-          onClick={handleAddPhoto}
-          className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900"
-        >
-          {photo ? (
-            <div className="relative size-full overflow-hidden rounded-lg">
-              <img src={photo.url} alt="" className="no-native-image size-full object-cover" />
-              <button
-                type="button"
-                aria-label="사진 제거"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removePhoto();
-                }}
-                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <CloseIcon className="size-4" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <CameraIcon className="size-6" aria-hidden="true" />
-              <span className="button-6 text-gray-900">0/1</span>
-            </>
-          )}
-        </button>
+        <PhotoSlot src={photo?.url ?? null} onAdd={handleAddPhoto} onRemove={removePhoto} />
 
-        <div className="mt-5 flex h-[174px] flex-col gap-2 rounded-lg border border-gray-300 p-4">
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="(선택) 글을 작성해주세요."
-            maxLength={maxContentLength}
-            className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
-          />
-          <p className="body-10 self-end text-gray-500">
-            <span>{content.length}</span> / {maxContentLength.toLocaleString()}
-          </p>
-        </div>
+        <ContentTextarea
+          value={content}
+          onChange={setContent}
+          maxLength={maxContentLength}
+          className="mt-5"
+        />
 
         <div className="mt-7 flex flex-col gap-3">
           <FormRowButton
