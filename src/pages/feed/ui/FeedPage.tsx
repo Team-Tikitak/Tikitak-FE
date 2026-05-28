@@ -50,7 +50,11 @@ export const FeedPage = () => {
           <ul className="flex flex-col gap-5">
             {feeds.map((feed) => (
               <li key={feed.id} className="flex flex-col gap-5">
-                <Link to={toFeedDetail(feed.id)} className="block">
+                <Link
+                  to={toFeedDetail(feed.id)}
+                  state={{ thumbnailUrl: feed.thumbnailUrl }}
+                  className="block"
+                >
                   <FeedListItem item={feed} />
                 </Link>
                 <Divider />

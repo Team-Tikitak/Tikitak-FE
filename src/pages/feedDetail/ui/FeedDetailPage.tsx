@@ -65,7 +65,7 @@ export const FeedDetailPage = () => {
           }
         />
       }
-      contentClassName="page-fade-in no-scrollbar flex flex-col gap-[33px] mt-3"
+      contentClassName="no-scrollbar flex flex-col gap-[33px] mt-3"
     >
       <FeedDetailContent
         teamId={teamId}
