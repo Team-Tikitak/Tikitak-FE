@@ -4,20 +4,26 @@ import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
 
 const MAX_CONTENT_LENGTH = 1000;
-const DEFAULT_MAX_PHOTO_COUNT = 10;
+export const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
 
-interface UseFeedCreateFormOptions {
+interface UseFeedFormOptions {
   maxPhotoCount?: number;
+  initialContent?: string;
+  initialPlace?: FeedPlace | null;
+  initialMembers?: TeamMember[];
 }
 
-export const useFeedCreateForm = ({
+export const useFeedForm = ({
   maxPhotoCount = DEFAULT_MAX_PHOTO_COUNT,
-}: UseFeedCreateFormOptions = {}) => {
-  const [content, setContentRaw] = useState('');
+  initialContent = '',
+  initialPlace = null,
+  initialMembers = [],
+}: UseFeedFormOptions = {}) => {
+  const [content, setContentRaw] = useState(initialContent);
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
-  const [selectedPlace, setSelectedPlace] = useState<FeedPlace | null>(null);
-  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<FeedPlace | null>(initialPlace);
+  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>(initialMembers);
 
   // 언마운트 시점의 photos를 ref로 참조해 Object URL 해제
   const photosRef = useRef(photos);

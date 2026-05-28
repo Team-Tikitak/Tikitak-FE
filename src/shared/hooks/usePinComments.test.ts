@@ -1,14 +1,20 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { useGetFeedComments, usePostFeedComment } from '@/shared/api/feedComment/queries';
+import {
+  useDeleteFeedComment,
+  useGetFeedComments,
+  usePostFeedComment,
+} from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
 import { usePinComments } from './usePinComments';
 
 const mockPostComment = vi.fn();
+const mockDeleteComment = vi.fn();
 
 vi.mock('@/shared/api/feedComment/queries', () => ({
   useGetFeedComments: vi.fn(),
   usePostFeedComment: vi.fn(),
+  useDeleteFeedComment: vi.fn(),
 }));
 
 vi.mock('@/shared/api/user/queries', () => ({
@@ -54,6 +60,9 @@ describe('usePinComments', () => {
     vi.mocked(usePostFeedComment).mockReturnValue({
       mutate: mockPostComment,
     } as unknown as ReturnType<typeof usePostFeedComment>);
+    vi.mocked(useDeleteFeedComment).mockReturnValue({
+      mutate: mockDeleteComment,
+    } as unknown as ReturnType<typeof useDeleteFeedComment>);
     vi.mocked(useGetTeams).mockReturnValue({ data: [] } as unknown as ReturnType<
       typeof useGetTeams
     >);

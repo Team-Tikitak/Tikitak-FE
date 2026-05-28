@@ -4,5 +4,6 @@
 
 export * from './useDebounce';
 export * from './useFeedData';
+export * from './useFeedForm';
 export * from './useFirstVisitHint';
 export * from './usePinComments';

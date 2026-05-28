@@ -1,23 +1,46 @@
-import { useNavigate } from 'react-router';
+import { useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
+import { LocationSearchOverlay } from '@/pages/feedCreate/ui/LocationSearchOverlay';
+import { MemberSelectOverlay } from '@/pages/feedCreate/ui/MemberSelectOverlay';
+import { useGetFeedDetail } from '@/shared/api/feed/queries';
+import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useMe } from '@/shared/api/user/queries';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
-import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
+import {
+  DEFAULT_MAX_PHOTO_COUNT,
+  useFeedForm as useFeedCreateForm,
+} from '@/shared/hooks/useFeedForm';
 import { openOverlay } from '@/shared/lib';
-import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
-import { LocationSearchOverlay } from './LocationSearchOverlay';
-import { MemberSelectOverlay } from './MemberSelectOverlay';
-import { useFeedShare } from '../hooks/useFeedShare';
+import { Button, Chip, ConfirmDialog, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { useFeedEditShare } from '../hooks/useFeedEditShare';
 
-export const FeedCreatePage = () => {
+interface FeedEditFormProps {
+  teamId: number;
+  feedId: number;
+  feedDetail: FeedDetailResponse;
+}
+
+const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
   const navigate = useNavigate();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? null;
+
+  const initialMembers = (feedDetail.taggedMembers ?? []).map((m) => ({
+    teamMemberId: m.teamMemberId,
+    nickname: m.nickname,
+    role: 'MEMBER' as const,
+    profileImgUrl: m.profileImageUrl,
+  }));
+
+  const [removedImageIds, setRemovedImageIds] = useState<Set<number>>(new Set());
+  const keptImages = feedDetail.images.filter((img) => !removedImageIds.has(img.feedImageId));
+  const removeExistingImage = (feedImageId: number) =>
+    setRemovedImageIds((prev) => new Set([...prev, feedImageId]));
+
   const {
     content,
     setContent,
@@ -32,16 +55,28 @@ export const FeedCreatePage = () => {
     selectedMembers,
     commitMembers,
     removeMember,
-    isShareDisabled,
-  } = useFeedCreateForm();
+  } = useFeedCreateForm({
+    initialContent: feedDetail.content,
+    initialPlace: feedDetail.place ?? null,
+    initialMembers,
+    maxPhotoCount: DEFAULT_MAX_PHOTO_COUNT - keptImages.length,
+  });
 
   const { data: teamMembersData } = useTeamMembers(teamId);
   const teamMembers = teamMembersData?.members ?? [];
 
-  const { share, isSharing } = useFeedShare({
+  const snapshotRef = useRef({
+    content: feedDetail.content,
+    placeId: feedDetail.place?.placeId ?? null,
+    memberIds: new Set(feedDetail.taggedMembers.map((m) => m.teamMemberId)),
+  });
+
+  const { share, isSharing } = useFeedEditShare({
     teamId,
+    feedId,
     content,
-    photos,
+    existingImages: keptImages,
+    newPhotos: photos,
     selectedPlace,
     selectedMembers,
   });
@@ -83,21 +118,53 @@ export const FeedCreatePage = () => {
     ));
   };
 
-  const shareDisabled = isShareDisabled || !teamId || isSharing;
+  const handleBack = () => {
+    const snapshot = snapshotRef.current;
+    const isDirty =
+      content !== snapshot.content ||
+      photos.length > 0 ||
+      removedImageIds.size > 0 ||
+      (selectedPlace?.placeId ?? null) !== snapshot.placeId ||
+      selectedMembers.length !== snapshot.memberIds.size ||
+      selectedMembers.some((m) => !snapshot.memberIds.has(m.teamMemberId));
+
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
+    openOverlay(({ isOpen, close, unmount }) => (
+      <div
+        className="fixed inset-0 z-60 flex items-center justify-center bg-black/40"
+        style={{ display: isOpen ? undefined : 'none' }}
+        onTransitionEnd={unmount}
+      >
+        <ConfirmDialog
+          title="수정한 내용이 남아있어요."
+          description="지금 나가면 수정한 내용이 저장되지 않아요."
+          confirmLabel="계속 수정하기"
+          onConfirm={close}
+          onCancel={() => {
+            close();
+            navigate(-1);
+          }}
+        />
+      </div>
+    ));
+  };
 
   return (
     <PageShell
-      header={<Header title="글쓰기" onBack={() => navigate(-1)} />}
+      header={<Header title="글 수정" onBack={handleBack} />}
       contentClassName="flex flex-col overflow-hidden"
       bottomClassName="px-5 pt-3 pb-[calc(24px+env(safe-area-inset-bottom))]"
       bottom={
         <Button
           variant="primary"
-          disabled={shareDisabled}
+          disabled={keptImages.length + photos.length === 0 || isSharing}
           onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          {isSharing ? '공유 중...' : '공유하기'}
+          {isSharing ? '수정 중...' : '수정하기'}
         </Button>
       }
     >
@@ -111,9 +178,27 @@ export const FeedCreatePage = () => {
           >
             <CameraIcon className="size-6" aria-hidden="true" />
             <span className="button-6 text-gray-900">
-              {photos.length}/{maxPhotoCount}
+              {keptImages.length + photos.length}/{maxPhotoCount}
             </span>
           </button>
+
+          {keptImages.map((image) => (
+            <div
+              key={image.feedImageId}
+              className="relative size-[112px] shrink-0 overflow-hidden rounded-lg"
+            >
+              <img src={image.imageUrl} alt="" className="no-native-image size-full object-cover" />
+              <button
+                type="button"
+                aria-label="사진 제거"
+                onClick={() => removeExistingImage(image.feedImageId)}
+                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
+              >
+                <CloseIcon className="size-4" />
+              </button>
+            </div>
+          ))}
+
           {photos.map((photo) => (
             <div
               key={photo.id}
@@ -159,7 +244,6 @@ export const FeedCreatePage = () => {
               icon={<UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />}
               label="인원 추가"
               onClick={handleAddMembers}
-              disabled={!teamId}
             />
             {selectedMembers.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -179,4 +263,17 @@ export const FeedCreatePage = () => {
       </div>
     </PageShell>
   );
+};
+
+export const FeedEditPage = () => {
+  const { feedId } = useParams<{ feedId: string }>();
+  const { data: me } = useMe();
+  const teamId = me?.activeTeamId ?? 0;
+  const feedIdNum = Number(feedId);
+
+  const { data: feedDetail } = useGetFeedDetail(teamId, feedIdNum);
+
+  if (!feedDetail) return null;
+
+  return <FeedEditForm teamId={teamId} feedId={feedIdNum} feedDetail={feedDetail} />;
 };

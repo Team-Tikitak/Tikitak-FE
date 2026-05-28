@@ -16,11 +16,15 @@ export const PATHS = {
   INVITE_ACCEPT: '/invite/:token',
   GALLERY: '/gallery',
   FEED_DETAIL: '/feed/:feedId',
+  FEED_EDIT: '/feed/:feedId/edit',
+  DAILY_FEED_EDIT: '/feed/:feedId/edit/daily',
   PLACE_FEEDS: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',
 } as const;
 
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toFeedDetail = (feedId: string) => `/feed/${feedId}`;
+export const toFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit`;
+export const toDailyFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit/daily`;
 export const toPlaceFeeds = (placeId: string) => `/place/${placeId}`;
 export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;

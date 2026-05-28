@@ -2,10 +2,12 @@ import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
 import { ActivityPage } from '@/pages/activity/ui/ActivityPage';
 import { DailyFeedCreatePage } from '@/pages/dailyFeedCreate/ui';
+import { DailyFeedEditPage } from '@/pages/dailyFeedEdit/ui/DailyFeedEditPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
 import { FeedPage } from '@/pages/feed/ui';
 import { FeedCreatePage } from '@/pages/feedCreate/ui';
 import { FeedDetailPage } from '@/pages/feedDetail/ui/FeedDetailPage';
+import { FeedEditPage } from '@/pages/feedEdit/ui/FeedEditPage';
 import { GalleryPage } from '@/pages/gallery/ui';
 import { HomePage } from '@/pages/home/ui';
 import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
@@ -45,6 +47,7 @@ export const router = createBrowserRouter([
               { path: PATHS.FEED, element: <FeedPage /> },
               { path: PATHS.FEED_CREATE, element: <FeedCreatePage /> },
               { path: PATHS.DAILY_FEED_CREATE, element: <DailyFeedCreatePage /> },
+              { path: PATHS.DAILY_FEED_EDIT, element: <DailyFeedEditPage /> },
               { path: PATHS.MY_PAGE, element: <MyPage /> },
               { path: PATHS.TEAM_DETAIL, element: <TeamDetailPage /> },
               { path: PATHS.TEAM_CREATE, element: <TeamCreatePage /> },
@@ -52,6 +55,7 @@ export const router = createBrowserRouter([
               { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
               { path: PATHS.GALLERY, element: <GalleryPage /> },
               { path: PATHS.FEED_DETAIL, element: <FeedDetailPage /> },
+              { path: PATHS.FEED_EDIT, element: <FeedEditPage /> },
               { path: PATHS.PLACE_FEEDS, element: <PlaceDetailPage /> },
               { path: PATHS.ACTIVITY, element: <ActivityPage /> },
             ],

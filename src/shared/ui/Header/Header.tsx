@@ -14,6 +14,7 @@ interface HeaderProps extends ComponentPropsWithRef<'div'> {
   rightIcon?: ReactNode;
   rightAriaLabel?: string;
   onRightClick?: () => void;
+  rightSlot?: ReactNode;
 }
 
 export const Header = ({
@@ -25,6 +26,7 @@ export const Header = ({
   rightIcon,
   rightAriaLabel = variant === 'left' ? '검색' : '설정',
   onRightClick,
+  rightSlot,
   className,
   ref,
   ...props
@@ -78,18 +80,19 @@ export const Header = ({
 
       <h1 className="title-2 min-w-0 truncate text-center text-black">{resolvedTitle}</h1>
 
-      {resolvedRightIcon ? (
-        <button
-          type="button"
-          aria-label={rightAriaLabel}
-          onClick={onRightClick}
-          className="flex size-6 items-center justify-center text-black"
-        >
-          {resolvedRightIcon}
-        </button>
-      ) : (
-        <span aria-hidden="true" className="size-6" />
-      )}
+      {rightSlot ??
+        (resolvedRightIcon ? (
+          <button
+            type="button"
+            aria-label={rightAriaLabel}
+            onClick={onRightClick}
+            className="flex size-6 items-center justify-center text-black"
+          >
+            {resolvedRightIcon}
+          </button>
+        ) : (
+          <span aria-hidden="true" className="size-6" />
+        ))}
     </div>
   );
 };
