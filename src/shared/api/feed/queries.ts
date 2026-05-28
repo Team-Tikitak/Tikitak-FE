@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
+import { markFeedDeleting } from '@/shared/lib/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
 import { unwrap } from '../request';
-import type { FeedRequest, FeedListParams } from './types';
+import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 
 export const useCreateFeed = (teamId: number) => {
   const queryClient = useQueryClient();
@@ -20,7 +21,7 @@ export const useFeeds = (teamId: number | null | undefined, params: FeedListPara
   useQuery({
     queryKey: feedKeys.listFiltered(teamId ?? 0, params),
     queryFn: () => unwrap(() => getFeeds(teamId as number, params)),
-    enabled: typeof teamId === 'number',
+    enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: 30 * 1000,
   });
 
@@ -42,9 +43,28 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
 
   return useMutation({
     mutationFn: () => unwrap(() => deleteFeed(teamId, feedId)),
-    onSuccess: () => {
+    onMutate: async () => {
+      markFeedDeleting();
+      await queryClient.cancelQueries({ queryKey: feedKeys.list(teamId) });
+      const snapshots = queryClient.getQueriesData<FeedListResponse>({
+        queryKey: feedKeys.list(teamId),
+      });
+      queryClient.setQueriesData<FeedListResponse>(
+        { queryKey: feedKeys.list(teamId) },
+        (old) => old && { ...old, items: old.items.filter((item) => item.feedId !== feedId) },
+      );
+      return { snapshots };
+    },
+    onError: (_err, _vars, context) => {
+      context?.snapshots.forEach(([key, data]) => {
+        if (data) queryClient.setQueryData(key, data);
+      });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+    },
+    onSuccess: () => {
       navigate(-1);
     },
   });
