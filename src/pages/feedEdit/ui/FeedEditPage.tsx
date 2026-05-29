@@ -86,7 +86,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
     multiple: true,
     maxFileSizeBytes: MAX_PHOTO_FILE_SIZE_BYTES,
     onSelect: (files) => {
-      const remaining = maxPhotoCount - photos.length;
+      const remaining = Math.max(0, maxPhotoCount - photos.length);
       files.slice(0, remaining).forEach((file) => addPhoto(createPhotoFromFile(file)));
     },
   });
