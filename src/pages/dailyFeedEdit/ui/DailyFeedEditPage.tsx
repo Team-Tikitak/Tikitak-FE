@@ -5,7 +5,7 @@ import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
-import { openOverlay } from '@/shared/lib';
+import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, DailyQuestion, Header } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
@@ -60,7 +60,9 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     setExistingImageUrl(null);
   };
 
-  const currentPhotoUrl = newPhoto?.url ?? existingImageUrl ?? null;
+  const currentPhotoUrl =
+    newPhoto?.url ??
+    (existingImageUrl ? (normalizeImageUrl(existingImageUrl, 'feed-image') ?? null) : null);
 
   const { share, isSharing } = useDailyFeedEditShare({
     teamId,
