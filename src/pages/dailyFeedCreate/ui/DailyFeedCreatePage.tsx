@@ -1,9 +1,8 @@
 ﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
-import { useGetTeams } from '@/shared/api/user/queries';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
-import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
+import { useActiveTeamMemberProfile } from '@/shared/hooks/useActiveTeamMemberProfile';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, DailyQuestion, Header, UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
@@ -13,10 +12,9 @@ import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
 
 export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
-  const teamId = useActiveTeamId();
+  const activeTeamMemberProfile = useActiveTeamMemberProfile();
+  const { teamId } = activeTeamMemberProfile;
   const { data: dailyQuestion } = useGetDailyQuestion(teamId);
-  const { data: teams = [] } = useGetTeams();
-  const activeTeamProfile = teams.find((team) => team.teamId === teamId);
 
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
@@ -64,15 +62,19 @@ export const DailyFeedCreatePage = () => {
           className="mt-5"
         />
 
-        {activeTeamProfile && (
-          <section className="mt-7 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />
-              <span className="body-3 text-black">인원</span>
+        {activeTeamMemberProfile.nickname && (
+          <section className="mt-7 flex flex-col items-start gap-3">
+            <div className="flex h-6 w-full items-center">
+              <span className="flex items-center gap-2">
+                <UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />
+                <span className="text-h3 leading-[1.4] font-semibold tracking-[0.004em] text-black">
+                  인원
+                </span>
+              </span>
             </div>
             <UserChip
-              name={activeTeamProfile.nickname}
-              avatarSrc={normalizeImageUrl(activeTeamProfile.profileImgUrl)}
+              name={activeTeamMemberProfile.nickname}
+              avatarSrc={normalizeImageUrl(activeTeamMemberProfile.profileImgUrl)}
               size="sm"
             />
           </section>
