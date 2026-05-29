@@ -8,32 +8,31 @@ export interface PhotoSlotProps {
   emptyLabel?: string;
 }
 
-export const PhotoSlot = ({ src, onAdd, onRemove, emptyLabel = '0/1' }: PhotoSlotProps) => (
-  <button
-    type="button"
-    onClick={onAdd}
-    className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900"
-  >
-    {src ? (
-      <div className="relative size-full overflow-hidden rounded-lg">
+export const PhotoSlot = ({ src, onAdd, onRemove, emptyLabel = '0/1' }: PhotoSlotProps) => {
+  if (src) {
+    return (
+      <div className="relative size-[112px] shrink-0 overflow-hidden rounded-lg border border-gray-300">
         <img src={src} alt="" className="no-native-image size-full object-cover" />
         <button
           type="button"
           aria-label="사진 제거"
-          onClick={(event) => {
-            event.stopPropagation();
-            onRemove();
-          }}
+          onClick={onRemove}
           className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
         >
           <CloseIcon className="size-4" />
         </button>
       </div>
-    ) : (
-      <>
-        <CameraIcon className="size-6" aria-hidden="true" />
-        <span className="button-6 text-gray-900">{emptyLabel}</span>
-      </>
-    )}
-  </button>
-);
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onAdd}
+      className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900"
+    >
+      <CameraIcon className="size-6" aria-hidden="true" />
+      <span className="button-6 text-gray-900">{emptyLabel}</span>
+    </button>
+  );
+};

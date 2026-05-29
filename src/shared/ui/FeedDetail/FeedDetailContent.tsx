@@ -65,7 +65,7 @@ export const FeedDetailContent = ({
   const [participantsSheetState, setParticipantsSheetState] = useState<
     'closed' | 'open' | 'exiting'
   >('closed');
-  const participantItems: ParticipantsSheetItem[] = participants.map((participant) => ({
+  const participantItems: ParticipantsSheetItem[] = (participants ?? []).map((participant) => ({
     id: String(participant.id),
     name: participant.name,
     avatarSrc: participant.avatarSrc,

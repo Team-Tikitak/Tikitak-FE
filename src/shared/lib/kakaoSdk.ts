@@ -20,11 +20,15 @@ export const ensureKakaoSdk = (): Promise<void> => {
 
     if (tryLoad()) return;
 
+    let timeoutId = 0;
     const intervalId = window.setInterval(() => {
-      if (tryLoad()) window.clearInterval(intervalId);
+      if (tryLoad()) {
+        window.clearInterval(intervalId);
+        window.clearTimeout(timeoutId);
+      }
     }, 50);
 
-    window.setTimeout(() => {
+    timeoutId = window.setTimeout(() => {
       window.clearInterval(intervalId);
       if (!window.kakao?.maps) reject(new Error('Kakao SDK load timeout'));
     }, 10_000);
