@@ -4,7 +4,7 @@ import ChevronDownIcon from '@/shared/assets/Icon/ChevronDownIcon.svg?react';
 import TikiTakLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 import { cn } from '@/shared/lib';
 
-interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
+export interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
   teamName: string;
   onTeamSelect?: () => void;
   onBellClick?: () => void;

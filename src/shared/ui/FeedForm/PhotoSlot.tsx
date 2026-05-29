@@ -1,7 +1,7 @@
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 
-interface PhotoSlotProps {
+export interface PhotoSlotProps {
   src: string | null;
   onAdd: () => void;
   onRemove: () => void;

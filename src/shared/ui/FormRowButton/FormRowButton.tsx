@@ -2,7 +2,7 @@ import { type ComponentPropsWithRef, type ReactNode } from 'react';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import { cn } from '@/shared/lib';
 
-interface FormRowButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'type'> {
+export interface FormRowButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'type'> {
   icon: ReactNode;
   label: string;
 }

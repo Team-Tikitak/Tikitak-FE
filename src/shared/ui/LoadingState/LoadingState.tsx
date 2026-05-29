@@ -4,7 +4,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 type LoadingStateVariant = 'page' | 'fullscreen' | 'inline';
 
-interface LoadingStateProps extends ComponentPropsWithoutRef<'div'> {
+export interface LoadingStateProps extends ComponentPropsWithoutRef<'div'> {
   variant?: LoadingStateVariant;
   label?: string;
 }

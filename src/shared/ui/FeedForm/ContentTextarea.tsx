@@ -1,4 +1,4 @@
-interface ContentTextareaProps {
+export interface ContentTextareaProps {
   value: string;
   onChange: (next: string) => void;
   maxLength: number;

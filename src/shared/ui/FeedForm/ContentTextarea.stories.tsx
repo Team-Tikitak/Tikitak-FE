@@ -17,6 +17,7 @@ const meta = {
   ],
   args: {
     maxLength: 1000,
+    onChange: () => {},
   },
   render: (args) => {
     const [value, setValue] = useState(args.value);

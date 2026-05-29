@@ -7,7 +7,7 @@ export interface PhotoStripItem {
   onRemove: () => void;
 }
 
-interface PhotoStripProps {
+export interface PhotoStripProps {
   items: PhotoStripItem[];
   count: number;
   maxPhotoCount: number;
