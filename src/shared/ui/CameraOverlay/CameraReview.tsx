@@ -70,7 +70,7 @@ export const CameraReview = ({
           type="button"
           aria-label="재촬영"
           onClick={onRetake}
-          className="press-feedback absolute top-5 left-5 z-10"
+          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] left-5 z-10"
         >
           <CancelIcon className="size-9" />
         </button>
@@ -79,7 +79,7 @@ export const CameraReview = ({
           aria-label="스티커 추가"
           aria-pressed={isPickerOpen}
           onClick={() => setIsPickerOpen((prev) => !prev)}
-          className="press-feedback absolute top-5 right-5 z-10"
+          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] right-5 z-10"
         >
           <StickerIcon className="size-9" />
         </button>
