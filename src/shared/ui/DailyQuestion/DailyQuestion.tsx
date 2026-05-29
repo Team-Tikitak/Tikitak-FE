@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef } from 'react';
+import { useEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import { cn } from '@/shared/lib';
 
@@ -12,21 +12,48 @@ export const DailyQuestion = ({
   className,
   ref,
   ...props
-}: DailyQuestionProps) => (
-  <button
-    type="button"
-    ref={ref}
-    onClick={onClick}
-    className={cn(
-      'flex h-9 w-full shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white',
-      className,
-    )}
-    {...props}
-  >
-    <span className="logo shrink-0 text-white">Today's Tiki-tak!</span>
-    <span className="min-w-0 truncate text-[12px] leading-normal font-bold text-white">
-      {question}
-    </span>
-    {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
-  </button>
-);
+}: DailyQuestionProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [scrollPx, setScrollPx] = useState(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+    const overflow = text.scrollWidth - container.clientWidth;
+    setScrollPx(Math.max(0, overflow));
+  }, [question]);
+
+  return (
+    <button
+      type="button"
+      ref={ref}
+      onClick={onClick}
+      className={cn(
+        'flex h-9 w-full shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white',
+        className,
+      )}
+      {...props}
+    >
+      <span className="logo shrink-0 text-white">Today's Tiki-tak!</span>
+      <div ref={containerRef} className="flex min-w-0 flex-1 items-center overflow-hidden">
+        <span
+          ref={textRef}
+          className={cn(
+            'inline-block text-[12px] leading-normal font-bold whitespace-nowrap text-white',
+            scrollPx > 0 && 'animate-marquee-scroll',
+          )}
+          style={
+            scrollPx > 0
+              ? ({ '--marquee-distance': `-${scrollPx}px` } as React.CSSProperties)
+              : undefined
+          }
+        >
+          {question}
+        </span>
+      </div>
+      {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
+    </button>
+  );
+};
