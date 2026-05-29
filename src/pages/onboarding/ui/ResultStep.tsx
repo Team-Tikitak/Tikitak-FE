@@ -28,7 +28,7 @@ export const ResultStep = ({
       contentClassName="flex flex-col gap-[143px] px-5 pt-2"
       bottom={
         <Button variant="primary" disabled={isLoading} onClick={onComplete}>
-          {isLoading ? '저장 중...' : '시작하기'}
+          시작하기
         </Button>
       }
     >

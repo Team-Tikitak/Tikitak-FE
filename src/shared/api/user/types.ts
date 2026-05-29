@@ -22,6 +22,7 @@ export interface OnboardingPatchResponse {
 
 export interface MeResponse {
   memberId: number;
+  name: string;
   email: string;
   socialProvider: SocialProvider;
   status: MemberStatus;

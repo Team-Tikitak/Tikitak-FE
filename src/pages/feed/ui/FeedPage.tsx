@@ -22,10 +22,11 @@ export const FeedPage = () => {
   };
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
-  const { data, isLoading, isError } = useFeeds(teamId);
+  const { data, isLoading, isFetching, isError } = useFeeds(teamId);
 
   const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
   const totalCount = feeds.length;
+  const showFeedLoading = isMePending || isLoading || isFetching;
 
   if (!isMePending && !teamId) {
     return (
@@ -45,11 +46,12 @@ export const FeedPage = () => {
       <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24">
         <FeedCountToolbar
           count={totalCount}
+          loading={showFeedLoading}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           className="mb-6"
         />
-        {isMePending || isLoading ? (
+        {showFeedLoading ? (
           <FeedSkeleton viewMode={viewMode} />
         ) : isError ? (
           <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>

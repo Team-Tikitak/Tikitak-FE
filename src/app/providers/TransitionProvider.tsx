@@ -18,6 +18,8 @@ const ssgoiConfig: SsgoiConfig = {
     ...sheet({ enter: PATHS.DAILY_FEED_CREATE, exit: PATHS.ACTIVITY }),
 
     ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.HOME }),
+    ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.FEED }),
+    ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.ACTIVITY }),
     ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.MY_PAGE }),
 
     // Auth flow

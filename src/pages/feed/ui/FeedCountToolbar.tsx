@@ -8,12 +8,14 @@ export type FeedViewMode = (typeof FEED_VIEW_MODES)[number];
 
 interface FeedCountToolbarProps extends Omit<ComponentPropsWithRef<'div'>, 'onChange'> {
   count: number;
+  loading?: boolean;
   viewMode?: FeedViewMode;
   onViewModeChange?: (mode: FeedViewMode) => void;
 }
 
 export const FeedCountToolbar = ({
   count,
+  loading = false,
   viewMode = 'list',
   onViewModeChange,
   className,
@@ -26,9 +28,13 @@ export const FeedCountToolbar = ({
       className={cn('flex w-full items-center justify-between gap-6', className)}
       {...props}
     >
-      <p className="body-8 text-gray-700">
-        총 <span className="body-9 text-main">{count.toLocaleString()}</span> 개의 기록
-      </p>
+      {loading ? (
+        <div className="h-5 w-24 animate-pulse rounded-md bg-gray-200" aria-hidden="true" />
+      ) : (
+        <p className="body-8 text-gray-700">
+          총 <span className="body-9 text-main">{count.toLocaleString()}</span> 개의 기록
+        </p>
+      )}
       <div className="flex items-center gap-3">
         {FEED_VIEW_MODES.map((mode) => (
           <MenuButton

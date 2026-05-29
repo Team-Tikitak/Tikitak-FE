@@ -2,11 +2,11 @@
 import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import { revokeObjectUrlsAfterTransition } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 export const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
-const OBJECT_URL_REVOKE_DELAY_MS = 1000;
 
 interface UseFeedFormOptions {
   maxPhotoCount?: number;
@@ -34,9 +34,7 @@ export const useFeedForm = ({
   useEffect(() => {
     return () => {
       const urls = photosRef.current.map((photo) => photo.url);
-      window.setTimeout(() => {
-        urls.forEach((url) => URL.revokeObjectURL(url));
-      }, OBJECT_URL_REVOKE_DELAY_MS);
+      revokeObjectUrlsAfterTransition(urls);
     };
   }, []);
 
