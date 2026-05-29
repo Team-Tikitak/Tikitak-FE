@@ -30,10 +30,12 @@ describe('useFeedCreateForm', () => {
   let revokeSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
   });
   afterEach(() => {
     revokeSpy.mockRestore();
+    vi.useRealTimers();
   });
 
   it('initial state', () => {
@@ -80,6 +82,8 @@ describe('useFeedCreateForm', () => {
       result.current.addPhoto(makePhoto('p-2'));
     });
     unmount();
+    expect(revokeSpy).not.toHaveBeenCalledWith('blob:p-1');
+    act(() => vi.advanceTimersByTime(1000));
     expect(revokeSpy).toHaveBeenCalledWith('blob:p-1');
     expect(revokeSpy).toHaveBeenCalledWith('blob:p-2');
   });
