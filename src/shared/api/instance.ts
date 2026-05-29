@@ -24,15 +24,29 @@ export const setAccessToken = (token: string) => {
 export const clearAccessToken = () => {
   useAuthStore.getState().clearAccessToken();
 };
+export const startLogout = () => {
+  useAuthStore.getState().startLogout();
+};
+export const endLogout = () => {
+  useAuthStore.getState().endLogout();
+};
 
-const AUTH_EXCLUDED_PATHS = [AUTH_ENDPOINTS.OAUTH_PREFIX, AUTH_ENDPOINTS.TOKEN_REFRESH] as const;
-const isAuthExcluded = (url?: string) => {
+const AUTH_HEADER_EXCLUDED_PATHS = [
+  AUTH_ENDPOINTS.OAUTH_PREFIX,
+  AUTH_ENDPOINTS.TOKEN_REFRESH,
+] as const;
+const REFRESH_RETRY_EXCLUDED_PATHS = [
+  AUTH_ENDPOINTS.OAUTH_PREFIX,
+  AUTH_ENDPOINTS.TOKEN_REFRESH,
+  AUTH_ENDPOINTS.LOGOUT,
+] as const;
+const isPathExcluded = (url: string | undefined, paths: readonly string[]) => {
   if (!url) return false;
-  return AUTH_EXCLUDED_PATHS.some((path) => url.startsWith(path));
+  return paths.some((path) => url.startsWith(path));
 };
 
 instance.interceptors.request.use((config) => {
-  if (isAuthExcluded(config.url)) {
+  if (isPathExcluded(config.url, AUTH_HEADER_EXCLUDED_PATHS)) {
     return config;
   }
   const token = getAccessToken();
@@ -64,7 +78,10 @@ instance.interceptors.response.use(
 
     if (!status) return Promise.reject(error);
 
-    if (isAuthExcluded(originalRequest?.url)) {
+    if (
+      useAuthStore.getState().isLoggingOut ||
+      isPathExcluded(originalRequest?.url, REFRESH_RETRY_EXCLUDED_PATHS)
+    ) {
       return Promise.reject(error);
     }
 
@@ -105,7 +122,9 @@ instance.interceptors.response.use(
       } catch (refreshError) {
         clearAccessToken();
         processQueue(refreshError);
-        window.location.replace(PATHS.LOGIN);
+        if (window.location.pathname !== PATHS.LOGIN) {
+          window.location.replace(PATHS.LOGIN);
+        }
 
         return Promise.reject(refreshError);
       } finally {

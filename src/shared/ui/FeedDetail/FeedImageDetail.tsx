@@ -55,6 +55,9 @@ export function FeedImageDetail({
       timerRef.current = null;
       startPosRef.current = null;
 
+      if (typeof window !== 'undefined') {
+        window.getSelection()?.removeAllRanges();
+      }
       onLongPress?.({ x, y });
     }, LONG_PRESS_DELAY);
   };
@@ -80,7 +83,10 @@ export function FeedImageDetail({
 
   return (
     <figure
-      className={cn('relative h-[524px] w-full shrink-0 overflow-hidden bg-white', className)}
+      className={cn(
+        'relative h-[524px] w-full shrink-0 overflow-hidden bg-white select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
+        className,
+      )}
       ref={ref}
       onContextMenu={(e) => e.preventDefault()}
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}

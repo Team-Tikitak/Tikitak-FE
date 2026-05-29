@@ -5,6 +5,7 @@ import { useDeleteTeamMember, useLeaveTeam, useTeamDelete } from '@/shared/api/t
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { normalizeImageUrl } from '@/shared/lib';
 import { Button, Header, MemberCard, PageSection } from '@/shared/ui';
+import { openConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { useTeamDetail } from '../hooks/useTeamDetail';
 
 export const TeamDetailPage = () => {
@@ -34,7 +35,15 @@ export const TeamDetailPage = () => {
       bottom={
         <button
           className="body-2 w-full cursor-pointer text-center text-gray-500 underline"
-          onClick={() => mutateLeaveTeam(teamId)}
+          onClick={() =>
+            openConfirmDialog({
+              title: '그룹에서 나가시겠어요?',
+              description: '나가면 이 그룹의 기록을 더 이상 볼 수 없어요.',
+              confirmLabel: '나가기',
+              destructive: true,
+              onConfirm: () => mutateLeaveTeam(teamId),
+            })
+          }
         >
           그룹 나가기
         </button>
@@ -77,9 +86,16 @@ export const TeamDetailPage = () => {
               onRemove={
                 isOwner
                   ? () =>
-                      removeMember({
-                        teamId: teamId,
-                        targetTeamMemberId: member.teamMemberId,
+                      openConfirmDialog({
+                        title: `${member.nickname} 님을 내보내시겠어요?`,
+                        description: '내보낸 멤버는 다시 초대해야 합류할 수 있어요.',
+                        confirmLabel: '내보내기',
+                        destructive: true,
+                        onConfirm: () =>
+                          removeMember({
+                            teamId: teamId,
+                            targetTeamMemberId: member.teamMemberId,
+                          }),
                       })
                   : undefined
               }
@@ -95,7 +111,18 @@ export const TeamDetailPage = () => {
           초대하기
         </Button>
         {isOwner && (
-          <Button onClick={() => postTeamDelete(teamId)} variant="destructive">
+          <Button
+            onClick={() =>
+              openConfirmDialog({
+                title: '정말 그룹을 삭제하시겠어요?',
+                description: '그룹의 모든 기록이 삭제되며 복구할 수 없어요.',
+                confirmLabel: '삭제하기',
+                destructive: true,
+                onConfirm: () => postTeamDelete(teamId),
+              })
+            }
+            variant="destructive"
+          >
             그룹 삭제
           </Button>
         )}

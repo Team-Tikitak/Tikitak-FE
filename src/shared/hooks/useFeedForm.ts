@@ -6,6 +6,7 @@ import type { CapturedPhoto } from '@/shared/types/photo';
 
 export const DEFAULT_MAX_PHOTO_COUNT = 10;
 export const MAX_TAGGED_MEMBERS = 11;
+const OBJECT_URL_REVOKE_DELAY_MS = 1000;
 
 interface UseFeedFormOptions {
   maxPhotoCount?: number;
@@ -32,7 +33,10 @@ export const useFeedForm = ({
   }, [photos]);
   useEffect(() => {
     return () => {
-      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url));
+      const urls = photosRef.current.map((photo) => photo.url);
+      window.setTimeout(() => {
+        urls.forEach((url) => URL.revokeObjectURL(url));
+      }, OBJECT_URL_REVOKE_DELAY_MS);
     };
   }, []);
 

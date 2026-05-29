@@ -1,7 +1,9 @@
 import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
+import { useMe } from '@/shared/api/user/queries';
 import { cn } from '@/shared/lib';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { BottomNavigation, type BottomNavigationTab } from '@/shared/ui';
 import { TransitionProvider } from '../providers/TransitionProvider';
 
@@ -32,6 +34,9 @@ const getRouteKey = (pathname: string): string => {
 export const RootLayout = ({ className }: RootLayoutProps) => {
   const location = useLocation();
   const showTabBar = isTabPath(location.pathname);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { data: me } = useMe({ enabled: showTabBar && Boolean(accessToken) });
+  const hasActiveTeam = Boolean(me?.activeTeamId);
   const activeTab = isTabPath(location.pathname)
     ? ACTIVE_TAB_BY_PATH[location.pathname]
     : undefined;
@@ -66,7 +71,7 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
               showTabBar ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
-            <BottomNavigation activeTab={activeTab} />
+            <BottomNavigation activeTab={activeTab} createDisabled={!hasActiveTeam} />
           </div>
         </div>
       </TransitionProvider>

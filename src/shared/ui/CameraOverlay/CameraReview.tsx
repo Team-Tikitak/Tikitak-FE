@@ -44,8 +44,11 @@ export const CameraReview = ({
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col justify-center bg-black">
-      <div ref={photoRef} className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden bg-white">
+      <div
+        ref={photoRef}
+        className="absolute top-0 right-0 bottom-[124px] left-0 overflow-hidden rounded-[20px] bg-black"
+      >
         <img
           src={imageUrl}
           alt="촬영된 사진"
@@ -62,28 +65,28 @@ export const CameraReview = ({
             onScale={onScaleSticker}
           />
         ))}
+
+        <button
+          type="button"
+          aria-label="재촬영"
+          onClick={onRetake}
+          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] left-5 z-10"
+        >
+          <CancelIcon className="size-9" />
+        </button>
+        <button
+          type="button"
+          aria-label="스티커 추가"
+          aria-pressed={isPickerOpen}
+          onClick={() => setIsPickerOpen((prev) => !prev)}
+          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] right-5 z-10"
+        >
+          <StickerIcon className="size-9" />
+        </button>
       </div>
 
-      <button
-        type="button"
-        aria-label="재촬영"
-        onClick={onRetake}
-        className="press-feedback absolute top-[calc(env(safe-area-inset-top)+24px)] left-6 z-10"
-      >
-        <CancelIcon className="size-9" />
-      </button>
-      <button
-        type="button"
-        aria-label="스티커 추가"
-        aria-pressed={isPickerOpen}
-        onClick={() => setIsPickerOpen((prev) => !prev)}
-        className="press-feedback absolute top-[calc(env(safe-area-inset-top)+24px)] right-6 z-10"
-      >
-        <StickerIcon className="size-9" />
-      </button>
-
       {!isPickerOpen && !draggingId && (
-        <div className="absolute right-0 bottom-[calc(env(safe-area-inset-bottom)+16px)] left-0 z-10 px-5">
+        <div className="absolute right-5 bottom-14 left-5 z-10">
           <Button variant="primary" disabled={isConfirming} onClick={onConfirm}>
             업로드
           </Button>
@@ -94,7 +97,7 @@ export const CameraReview = ({
         ref={trashRef}
         aria-hidden={!draggingId}
         className={cn(
-          'pointer-events-none absolute bottom-[calc(env(safe-area-inset-bottom)+24px)] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
+          'pointer-events-none absolute bottom-[80px] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
           draggingId ? 'opacity-100' : 'opacity-0',
           isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
         )}

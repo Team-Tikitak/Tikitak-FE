@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';
-import { Header } from '@/shared/ui/Header';
 import { LoadingState } from '@/shared/ui/LoadingState';
 import { MapView } from './MapView';
 import { useTeamPickerSheet } from '../hooks/useTeamPickerSheet';
@@ -54,10 +53,7 @@ export const HomePage = () => {
   }
 
   return (
-    <PageShell
-      header={<Header showBackButton onBack={() => navigate(-1)} />}
-      contentClassName="flex flex-1 flex-col"
-    >
+    <PageShell contentClassName="flex flex-1 flex-col">
       <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
     </PageShell>
   );

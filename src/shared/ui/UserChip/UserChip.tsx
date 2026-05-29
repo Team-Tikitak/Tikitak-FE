@@ -1,5 +1,7 @@
 import { type ComponentPropsWithRef } from 'react';
+import TakSpark from '@/shared/assets/Character/TakSpark.svg';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
+import { ImageWithFallback } from '../ImageWithFallback';
 import {
   userChipVariants,
   avatarSizeClass,
@@ -34,13 +36,12 @@ export const UserChip = ({
   return (
     <div ref={ref} className={userChipVariants({ size, selected, className })} {...props}>
       <div className={innerGapClass[size]}>
-        {avatarSrc && (
-          <img
-            src={avatarSrc}
-            alt={avatarAlt}
-            className={`${avatarSizeClass[size]} no-native-image shrink-0 rounded-full object-cover`}
-          />
-        )}
+        <ImageWithFallback
+          src={avatarSrc}
+          fallbackSrc={TakSpark}
+          alt={avatarAlt}
+          className={`${avatarSizeClass[size]} shrink-0 border-0`}
+        />
         <span className={`${textCls} whitespace-nowrap`}>{name}</span>
       </div>
       {onRemove && (

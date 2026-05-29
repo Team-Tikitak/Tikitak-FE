@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { usePatchDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import type { patchDailyQuestionRequest } from '@/shared/api/dailyQuestion/types';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
@@ -9,7 +10,7 @@ interface UseDailyFeedEditShareParams {
   questionId: number | null;
   content: string;
   newPhoto: CapturedPhoto | null;
-  existingImageUrl: string | null;
+  existingMediaPublicId?: string | null;
 }
 
 export const useDailyFeedEditShare = ({
@@ -17,7 +18,7 @@ export const useDailyFeedEditShare = ({
   questionId,
   content,
   newPhoto,
-  existingImageUrl,
+  existingMediaPublicId,
 }: UseDailyFeedEditShareParams) => {
   const navigate = useNavigate();
   const patchDailyQuestionMutation = usePatchDailyQuestion(teamId, questionId ?? 0);
@@ -27,7 +28,9 @@ export const useDailyFeedEditShare = ({
     if (!teamId || !questionId || isSharing) return;
     setIsSharing(true);
     try {
-      let mediaPublicId: { defined: boolean; value: string };
+      const body: patchDailyQuestionRequest = {
+        content: { defined: true, value: content },
+      };
 
       if (newPhoto) {
         const [publicId] = await uploadMediaBlobs({
@@ -36,17 +39,12 @@ export const useDailyFeedEditShare = ({
           blobs: [newPhoto.blob],
           fileNamePrefix: 'daily-question',
         });
-        mediaPublicId = { defined: true, value: publicId };
-      } else if (!existingImageUrl) {
-        mediaPublicId = { defined: true, value: '' };
-      } else {
-        mediaPublicId = { defined: false, value: '' };
+        body.mediaPublicId = { defined: true, value: publicId };
+      } else if (existingMediaPublicId) {
+        body.mediaPublicId = { defined: true, value: existingMediaPublicId };
       }
 
-      await patchDailyQuestionMutation.mutateAsync({
-        content: { defined: true, value: content },
-        mediaPublicId,
-      });
+      await patchDailyQuestionMutation.mutateAsync(body);
       navigate(-1);
     } catch (error) {
       console.error('오늘의 게시물 수정 실패', error);

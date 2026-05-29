@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { PATHS, toPlaceFeeds } from '@/app/routes';
+import { PATHS, toPlaceFeeds } from '@/app/routes/paths';
 import { getFeeds } from '@/shared/api/feed/api';
 import { feedKeys } from '@/shared/api/feed/keys';
 import type { Pin } from '@/shared/api/map/types';
@@ -19,7 +19,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { dailyQuestion, pins } = useMapView(teamId);
+  const { dailyQuestion, showDailyQuestion, pins } = useMapView(teamId);
   const { center } = useUserLocation();
 
   const handlePinClick = useCallback(
@@ -45,9 +45,11 @@ export const MapView = ({ teamId }: MapViewProps) => {
   return (
     <div className="pointer-events-none relative isolate w-full flex-1">
       <Map pins={pins} initialCenter={center} onPinClick={handlePinClick} />
-      <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
-        <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
-      </div>
+      {showDailyQuestion && (
+        <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
+          <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
+        </div>
+      )}
     </div>
   );
 };

@@ -33,8 +33,14 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   return redirect(PATHS.HOME);
 };
 
+export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
+
 export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
   const token = new URL(request.url).pathname.split('/invite/')[1];
+
+  if (token && typeof window !== 'undefined') {
+    sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
+  }
 
   try {
     if (!getAccessToken()) {
@@ -60,7 +66,10 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
     ]);
 
     const isAlreadyMember = teams.some((team) => team.teamId === preview.teamId);
-    if (isAlreadyMember) return redirect(PATHS.HOME);
+    if (isAlreadyMember) {
+      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
+      return redirect(PATHS.HOME);
+    }
   } catch {
     // 비로그인 사용자는 정상 흐름
   }

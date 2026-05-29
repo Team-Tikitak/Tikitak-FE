@@ -5,7 +5,7 @@ import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
-import { normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { isTodayKstDate, normalizeImageUrl, openOverlay } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, DailyQuestion, Header } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
@@ -22,8 +22,9 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
   const navigate = useNavigate();
 
   const [content, setContentRaw] = useState(feedDetail.content);
+  const initialImage = feedDetail.images[0] ?? null;
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    feedDetail.images[0]?.imageUrl ?? null,
+    initialImage?.imageUrl ?? null,
   );
   const [newPhoto, setNewPhoto] = useState<CapturedPhoto | null>(null);
 
@@ -69,7 +70,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     questionId: feedDetail.question.questionId,
     content,
     newPhoto,
-    existingImageUrl,
+    existingMediaPublicId: existingImageUrl ? (initialImage?.mediaPublicId ?? null) : null,
   });
 
   const handleBack = () => {
@@ -90,7 +91,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     ));
   };
 
-  const shareDisabled = !teamId || !feedDetail.question.questionId || isSharing;
+  const shareDisabled = !teamId || !feedDetail.question.questionId || !currentPhotoUrl || isSharing;
 
   return (
     <PageShell
@@ -137,6 +138,16 @@ export const DailyFeedEditPage = () => {
       <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
         <p className="body-3 mt-10 text-center text-gray-500">
           {isError ? '글을 불러오지 못했습니다.' : '불러오는 중...'}
+        </p>
+      </PageShell>
+    );
+  }
+
+  if (!isTodayKstDate(feedDetail.question.answerDate)) {
+    return (
+      <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
+        <p className="body-3 mt-10 text-center text-gray-500">
+          오늘 작성한 답변만 수정할 수 있습니다.
         </p>
       </PageShell>
     );

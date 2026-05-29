@@ -45,10 +45,12 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
     mutationFn: () => unwrap(() => deleteFeed(teamId, feedId)),
     onMutate: async () => {
       markFeedDeleting();
+      await queryClient.cancelQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       await queryClient.cancelQueries({ queryKey: feedKeys.list(teamId) });
       const snapshots = queryClient.getQueriesData<FeedListResponse>({
         queryKey: feedKeys.list(teamId),
       });
+      queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.setQueriesData<FeedListResponse>(
         { queryKey: feedKeys.list(teamId) },
         (old) => old && { ...old, items: old.items.filter((item) => item.feedId !== feedId) },
@@ -61,7 +63,7 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: feedKeys.detail(teamId, feedId) });
+      queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
     },
     onSuccess: () => {

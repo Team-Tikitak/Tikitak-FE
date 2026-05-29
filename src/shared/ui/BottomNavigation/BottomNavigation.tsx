@@ -1,6 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
 import { useNavigate } from 'react-router';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import ActivityIcon from '@/shared/assets/Icon/ActivityIcon.svg?react';
 import ActivityIconFilled from '@/shared/assets/Icon/ActivityIcon_Filled.svg?react';
 import HomeIcon from '@/shared/assets/Icon/HomeIcon.svg?react';
@@ -16,6 +16,7 @@ interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onCh
   activeTab?: BottomNavigationTab;
   onCreateClick?: () => void;
   createAriaLabel?: string;
+  createDisabled?: boolean;
 }
 
 const LEFT_TABS = [
@@ -44,6 +45,7 @@ export const BottomNavigation = ({
   activeTab = 'home',
   onCreateClick,
   createAriaLabel = '추가',
+  createDisabled = false,
   className,
   ref,
   ...props
@@ -82,6 +84,7 @@ export const BottomNavigation = ({
       <FloatingButton
         aria-label={createAriaLabel}
         onClick={handleCreateClick}
+        disabled={createDisabled}
         className="shrink-0 -translate-y-5"
       />
       <ul className="flex flex-1 justify-around">

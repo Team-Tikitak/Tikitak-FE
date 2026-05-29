@@ -14,7 +14,7 @@ export interface InvitationPreviewResponse {
 
 export interface AcceptInvitationRequest {
   nickname: string;
-  profileImgUrl: string;
+  profileImgUrl?: string;
 }
 
 export interface AcceptInvitationResponse {

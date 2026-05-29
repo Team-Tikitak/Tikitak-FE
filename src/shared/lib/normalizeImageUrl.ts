@@ -1,4 +1,5 @@
-const CDN_HOST = 'dev-media.kusitms.xyz';
+import { MEDIA_CDN_BASE_URL } from '@/shared/api/media/constants';
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type MediaFolder = 'profile-image' | 'feed-image' | 'team-image' | 'daily-question-image';
@@ -12,7 +13,7 @@ export const normalizeImageUrl = (
   if (url.startsWith('//')) return `https:${url}`;
   if (url.startsWith('/')) return url;
   if (UUID_REGEX.test(url)) {
-    return `https://${CDN_HOST}/media/${folder}/${url}.png`;
+    return `${MEDIA_CDN_BASE_URL}/media/${folder}/${url}.png`;
   }
   return `https://${url}`;
 };

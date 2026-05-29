@@ -36,11 +36,11 @@ export interface dailyQuestionResponse {
 }
 
 export interface patchDailyQuestionRequest {
-  content: {
+  content?: {
     defined: boolean;
     value: string;
   };
-  mediaPublicId: {
+  mediaPublicId?: {
     defined: boolean;
     value: string;
   };

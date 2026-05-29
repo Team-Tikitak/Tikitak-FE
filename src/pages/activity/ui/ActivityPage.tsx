@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
-import { AppHeader, DailyQuestion, EmptyTeamView, Header } from '@/shared/ui';
+import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
@@ -23,6 +23,7 @@ export const ActivityPage = () => {
     activeTeam?.teamId,
   );
   const dailyQuestion = question?.content;
+  const showDailyQuestion = Boolean(dailyQuestion) && !question?.answered;
   const hasActiveTeam = Boolean(activeTeam?.teamId);
 
   const isLoading =
@@ -31,18 +32,20 @@ export const ActivityPage = () => {
     (hasActiveTeam && (isQuestionPending || isBestAttendancePending));
   const isEmpty = bestAttendance !== undefined && (bestAttendance.members ?? []).length === 0;
 
+  if (!isLoading && !hasActiveTeam) {
+    return (
+      <PageShell contentClassName="flex flex-1 flex-col">
+        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
-      header={
-        hasActiveTeam ? (
-          <AppHeader teamName={activeTeam?.teamName ?? ''} />
-        ) : (
-          <Header showBackButton onBack={() => navigate(-1)} />
-        )
-      }
-      contentClassName={`flex flex-col gap-9 bg-white${hasActiveTeam ? ' pb-28' : ''}`}
+      header={<AppHeader teamName={activeTeam?.teamName ?? ''} />}
+      contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
-      {hasActiveTeam && (
+      {showDailyQuestion && (
         <DailyQuestion
           question={dailyQuestion ?? ''}
           onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
@@ -50,8 +53,6 @@ export const ActivityPage = () => {
       )}
       {isLoading ? (
         <ActivitySkeleton />
-      ) : !hasActiveTeam ? (
-        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
       ) : isEmpty ? (
         <div className="flex flex-1 items-center justify-center">
           <EmptyActiveView />

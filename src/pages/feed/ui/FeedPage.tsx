@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS, toFeedDetail } from '@/app/routes';
+import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { useFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';
@@ -27,6 +27,14 @@ export const FeedPage = () => {
   const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
   const totalCount = feeds.length;
 
+  if (!isMePending && !teamId) {
+    return (
+      <PageShell contentClassName="flex flex-1 flex-col">
+        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
       header={
@@ -45,8 +53,6 @@ export const FeedPage = () => {
           <FeedSkeleton viewMode={viewMode} />
         ) : isError ? (
           <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
-        ) : !teamId ? (
-          <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
         ) : feeds.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
             <EmptyFeedView />
