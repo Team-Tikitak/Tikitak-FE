@@ -14,7 +14,7 @@ export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
-      <h2 className="body-2 text-black">6월 추억</h2>
+      <h2 className="body-2 text-black">5월 추억</h2>
       <div className="flex w-full items-center gap-4">
         <ContentImageCard
           title="모두의 PICK"

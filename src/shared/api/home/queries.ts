@@ -5,6 +5,7 @@ import {
   getHomeCombinations,
   getHomeEveryonePick,
   getHomeRegions,
+  getRecomendedPlaces,
 } from './api';
 import { homeKeys } from './keys';
 import { unwrap } from '../request';
@@ -13,6 +14,13 @@ export const useHomeRegions = (teamId: number | null | undefined) =>
   useQuery({
     queryKey: homeKeys.regions(teamId ?? 0),
     queryFn: () => unwrap(() => getHomeRegions(teamId as number)),
+    enabled: typeof teamId === 'number',
+  });
+
+export const useRecommendedPlaces = (teamId: number | null | undefined) =>
+  useQuery({
+    queryKey: homeKeys.recommendedPlace(teamId ?? 0),
+    queryFn: () => unwrap(() => getRecomendedPlaces(teamId as number)),
     enabled: typeof teamId === 'number',
   });
 
