@@ -1,8 +1,7 @@
 import type { FeedListItem as ApiFeedListItem } from '@/shared/api/feed/types';
+import { formatYmd } from '@/shared/lib/date';
 import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
 import type { FeedItem } from '../model/types';
-
-const formatYmd = (iso: string) => iso.slice(0, 10).replaceAll('-', '.');
 
 export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
   const authorAvatar = normalizeImageUrl(item.author.profileImageUrl);
