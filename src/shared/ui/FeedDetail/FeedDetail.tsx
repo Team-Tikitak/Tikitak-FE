@@ -34,7 +34,7 @@ export function FeedDetail({
 }: FeedDetailProps) {
   return (
     <div className={cn('flex w-full flex-col gap-5', className)} ref={ref} {...props}>
-      {participants.length > 0 && (
+      {participants && participants.length > 0 && (
         <ParticipantChipList
           participants={participants}
           className="mx-auto min-h-9"

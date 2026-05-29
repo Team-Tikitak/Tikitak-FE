@@ -21,8 +21,17 @@ export const DailyQuestion = ({
     const container = containerRef.current;
     const text = textRef.current;
     if (!container || !text) return;
-    const overflow = text.scrollWidth - container.clientWidth;
-    setScrollPx(Math.max(0, overflow));
+
+    const calc = () => {
+      const overflow = text.scrollWidth - container.clientWidth;
+      setScrollPx(Math.max(0, overflow));
+    };
+
+    calc();
+
+    const observer = new ResizeObserver(calc);
+    observer.observe(container);
+    return () => observer.disconnect();
   }, [question]);
 
   return (
