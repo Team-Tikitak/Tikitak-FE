@@ -40,8 +40,8 @@ export function LocationSearchSheet({
   return (
     <BottomSheet
       aria-label="장소 검색"
-      className={cn('bottom-sheet-base', className)}
-      contentClassName="flex flex-col"
+      className={cn('bottom-sheet-base flex flex-col', className)}
+      contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >
       <CommentInputField
@@ -59,7 +59,7 @@ export function LocationSearchSheet({
       {trimmed && results.length === 0 && emptyMessage && (
         <p className="body-3 mt-5 w-full text-center text-gray-500">{emptyMessage}</p>
       )}
-      <ul className="mt-5 flex w-full flex-col gap-4">
+      <ul className="no-scrollbar mt-5 flex max-h-[117px] w-full flex-col gap-4 overflow-y-auto">
         {results.map((location, index) => (
           <li key={location.id} className="flex flex-col gap-4">
             <button
