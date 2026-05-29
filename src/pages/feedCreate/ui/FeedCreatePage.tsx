@@ -1,22 +1,26 @@
 ﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { PATHS } from '@/app/routes';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useMe } from '@/shared/api/user/queries';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
+import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
 import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
-import { normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
-import { CameraOverlay } from '@/shared/ui/CameraOverlay';
+import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
+import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { Button, Chip, EmptyTeamView, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedShare } from '../hooks/useFeedShare';
 
-export const FeedCreatePage = () => {
+interface FeedCreateFormProps {
+  teamId: number;
+}
+
+const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
   const navigate = useNavigate();
-  const { data: me } = useMe();
-  const teamId = me?.activeTeamId ?? null;
   const {
     content,
     setContent,
@@ -45,11 +49,18 @@ export const FeedCreatePage = () => {
     selectedMembers,
   });
 
+  const { openPicker, inputProps } = useImageFileInput({
+    multiple: true,
+    maxFileSizeBytes: MAX_PHOTO_FILE_SIZE_BYTES,
+    onSelect: (files) => {
+      const remaining = maxPhotoCount - photos.length;
+      files.slice(0, remaining).forEach((file) => addPhoto(createPhotoFromFile(file)));
+    },
+  });
+
   const handleAddPhoto = () => {
     if (!canAddMorePhotos) return;
-    openOverlay(({ isOpen, close, unmount }) => (
-      <CameraOverlay open={isOpen} onCapture={addPhoto} onClose={close} onExitComplete={unmount} />
-    ));
+    openPicker();
   };
 
   const handleAddLocation = () => {
@@ -82,7 +93,7 @@ export const FeedCreatePage = () => {
     ));
   };
 
-  const shareDisabled = isShareDisabled || !teamId || isSharing;
+  const shareDisabled = isShareDisabled || isSharing;
 
   return (
     <PageShell
@@ -112,6 +123,7 @@ export const FeedCreatePage = () => {
           canAddMore={canAddMorePhotos}
           onAddPhoto={handleAddPhoto}
         />
+        <input {...inputProps} />
 
         <ContentTextarea
           value={content}
@@ -134,7 +146,6 @@ export const FeedCreatePage = () => {
               icon={<UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />}
               label="인원 추가"
               onClick={handleAddMembers}
-              disabled={!teamId}
             />
             {selectedMembers.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -154,4 +165,24 @@ export const FeedCreatePage = () => {
       </div>
     </PageShell>
   );
+};
+
+export const FeedCreatePage = () => {
+  const navigate = useNavigate();
+  const { data: me, isPending } = useMe();
+  const teamId = me?.activeTeamId ?? null;
+
+  if (isPending) {
+    return <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />} />;
+  }
+
+  if (!teamId) {
+    return (
+      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
+        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
+      </PageShell>
+    );
+  }
+
+  return <FeedCreateForm teamId={teamId} />;
 };
