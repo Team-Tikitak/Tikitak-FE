@@ -91,7 +91,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
     ));
   };
 
-  const shareDisabled = !teamId || !feedDetail.question.questionId || isSharing;
+  const shareDisabled = !teamId || !feedDetail.question.questionId || !currentPhotoUrl || isSharing;
 
   return (
     <PageShell
