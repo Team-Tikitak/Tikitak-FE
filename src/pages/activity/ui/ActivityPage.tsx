@@ -4,7 +4,7 @@ import { PATHS } from '@/app/routes';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
-import { AppHeader, DailyQuestion } from '@/shared/ui';
+import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
@@ -42,6 +42,8 @@ export const ActivityPage = () => {
       />
       {isLoading ? (
         <ActivitySkeleton />
+      ) : !hasActiveTeam ? (
+        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
       ) : isEmpty ? (
         <div className="flex flex-1 items-center justify-center">
           <EmptyActiveView />

@@ -7,3 +7,9 @@ yarn.lock
 lint-results.json
 coverage
 .vitest
+
+# Capacitor 네이티브 디렉터리 (cap sync로 동기화되는 build 산출물 포함)
+ios
+android
+resources
+icons

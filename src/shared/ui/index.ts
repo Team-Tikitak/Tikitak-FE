@@ -17,6 +17,7 @@ export * from './CommentInputField';
 export * from './ConfirmDialog';
 export * from './DailyQuestion';
 export * from './Divider';
+export * from './EmptyTeamView';
 export * from './FeedDetail';
 export * from './FeedForm';
 export * from './FeedList';

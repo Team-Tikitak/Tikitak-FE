@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tikitak</string>
+    <string name="title_activity_main">Tikitak</string>
+    <string name="package_name">space.tikitak.app</string>
+    <string name="custom_url_scheme">space.tikitak.app</string>
+</resources>

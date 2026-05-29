@@ -4,9 +4,9 @@ import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { AppHeader } from '@/shared/ui/AppHeader';
+import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';
 import { Header } from '@/shared/ui/Header';
 import { LoadingState } from '@/shared/ui/LoadingState';
-import { EmptyTeamView } from './EmptyTeamView';
 import { MapView } from './MapView';
 import { useTeamPickerSheet } from '../hooks/useTeamPickerSheet';
 

@@ -39,7 +39,7 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
   return (
     <div
       className={cn(
-        'mx-auto flex h-dvh w-full max-w-[393px] flex-col overflow-hidden bg-white',
+        'mx-auto flex h-dvh w-full flex-col overflow-hidden bg-white sm:max-w-[393px]',
         className,
       )}
     >
@@ -62,7 +62,7 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
           </OverlayProvider>
           <div
             className={cn(
-              'absolute bottom-0 left-1/2 z-30 w-full max-w-[393px] -translate-x-1/2 transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+              'absolute bottom-0 left-1/2 z-30 w-full -translate-x-1/2 transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] sm:max-w-[393px]',
               showTabBar ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
             )}
           >

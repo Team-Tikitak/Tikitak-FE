@@ -22,6 +22,8 @@ export function ImageWithFallback({
     <img
       src={imageSrc || fallbackSrc}
       alt={alt}
+      loading="lazy"
+      decoding="async"
       className={cn(
         'no-native-image rounded-max size-6 border border-white object-cover',
         className,
