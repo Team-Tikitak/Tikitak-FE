@@ -44,6 +44,12 @@ storybook-static
 # Vercel
 .vercel
 
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
+blob-report/
+
 # capacitor-assets PWA output (unused - PWA manifest references public/ icons)
 icons/
 
