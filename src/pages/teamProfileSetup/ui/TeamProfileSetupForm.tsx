@@ -1,27 +1,10 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { useMe } from '@/shared/api/user/queries';
-import type { ProfileCharacterType } from '@/shared/api/user/types';
-import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
-import TakBurner from '@/shared/assets/Character/TakBurner.svg?react';
-import TakCare from '@/shared/assets/Character/TakCare.svg?react';
-import TakFree from '@/shared/assets/Character/TakFree.svg?react';
-import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
-import TakSpark from '@/shared/assets/Character/TakSpark.svg?react';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
 import { useTeamProfileSetupForm } from '../hooks/useTeamProfileSetupForm';
-
-const CHARACTER_ICON: Record<ProfileCharacterType, typeof TakLeader> = {
-  TAK_LEADER: TakLeader,
-  TAK_SPARK: TakSpark,
-  TAK_BURNER: TakBurner,
-  TAK_BUILDER: TakBuilder,
-  TAK_FREE: TakFree,
-  TAK_CARE: TakCare,
-};
 
 const HEADER_TITLE = {
   create: '팀 개설',
@@ -49,8 +32,6 @@ export const TeamProfileSetupForm = ({
   const { submit, isPending } = useTeamProfileSetupFlow();
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
     useTeamProfileSetupForm({ initialNickname, initialAvatarUrl });
-  const { data: me } = useMe();
-  const CharacterIcon = me?.profileCharacterType ? CHARACTER_ICON[me.profileCharacterType] : null;
   const { openPicker, inputProps } = useImageFileInput({
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
     maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
@@ -91,8 +72,6 @@ export const TeamProfileSetupForm = ({
       >
         {avatarPreviewUrl ? (
           <img src={avatarPreviewUrl} alt="" className="no-native-image size-full object-cover" />
-        ) : CharacterIcon ? (
-          <CharacterIcon className="size-full" aria-hidden="true" />
         ) : (
           <CameraIcon className="h-4.5 w-5 text-black" />
         )}
