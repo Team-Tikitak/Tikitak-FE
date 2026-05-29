@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS, toFeedDetail } from '@/app/routes';
+import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { useFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';

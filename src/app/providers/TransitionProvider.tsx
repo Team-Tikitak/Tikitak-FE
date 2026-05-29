@@ -1,6 +1,6 @@
 import { Ssgoi, type SsgoiConfig } from '@ssgoi/react';
 import { fade, hero, sheet, slide } from '@ssgoi/react/view-transitions';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { consumeFeedDeleting } from '@/shared/lib/deleteContextStorage';
 import type { PropsWithChildren } from 'react';
 

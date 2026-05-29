@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';

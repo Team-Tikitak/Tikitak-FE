@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { PATHS, toPlaceFeeds } from '@/app/routes';
+import { PATHS, toPlaceFeeds } from '@/app/routes/paths';
 import { getFeeds } from '@/shared/api/feed/api';
 import { feedKeys } from '@/shared/api/feed/keys';
 import type { Pin } from '@/shared/api/map/types';
