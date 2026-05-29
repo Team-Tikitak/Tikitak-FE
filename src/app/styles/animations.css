@@ -2,7 +2,6 @@
   0%,
   15% {
     transform: translateX(0);
-    animation-timing-function: ease-in-out;
   }
   85%,
   100% {
@@ -11,7 +10,7 @@
 }
 
 .animate-marquee-scroll {
-  animation: marquee-scroll 3s linear infinite alternate;
+  animation: marquee-scroll 3s ease-in-out infinite alternate;
   will-change: transform;
 }
 
