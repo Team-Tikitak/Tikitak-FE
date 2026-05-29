@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { toFeedDetail } from '@/app/routes';
+import { PATHS, toFeedDetail } from '@/app/routes';
 import { useFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
-import { Divider, Header } from '@/shared/ui';
+import { Divider, EmptyTeamView, Header } from '@/shared/ui';
 import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
@@ -14,6 +14,7 @@ import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { readFeedViewMode, storeFeedViewMode } from '../lib/viewModeStorage';
 
 export const FeedPage = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewModeState] = useState<FeedViewMode>(readFeedViewMode);
   const setViewMode = (mode: FeedViewMode) => {
     setViewModeState(mode);
@@ -45,7 +46,7 @@ export const FeedPage = () => {
         ) : isError ? (
           <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
         ) : !teamId ? (
-          <p className="body-3 mt-10 text-center text-gray-500">활성 팀을 먼저 선택해주세요.</p>
+          <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
         ) : feeds.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
             <EmptyFeedView />
