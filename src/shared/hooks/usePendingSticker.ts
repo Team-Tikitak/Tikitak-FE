@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
+import { createId } from '@/shared/lib/createId';
 import { type PlacedSticker } from '@/shared/types/sticker';
 
 type StickerUpdater = (updater: (prev: PlacedSticker[]) => PlacedSticker[]) => void;
@@ -9,7 +10,7 @@ export const usePendingSticker = (setStickers: StickerUpdater) => {
     (stickerId: StickerId) => {
       setStickers((stickers) => [
         ...stickers,
-        { id: crypto.randomUUID(), stickerId, xRatio: 0.5, yRatio: 0.5, scale: 1 },
+        { id: createId(), stickerId, xRatio: 0.5, yRatio: 0.5, scale: 1 },
       ]);
     },
     [setStickers],

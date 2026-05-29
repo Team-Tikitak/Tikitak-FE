@@ -5,6 +5,7 @@ import {
   usePostFeedComment,
 } from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
+import { createId } from '@/shared/lib/createId';
 import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
 import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { type Pin, type CommentSheetItem } from '@/shared/ui';
@@ -77,7 +78,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
     const posX = parseFloat((x / 100).toFixed(2));
     const posY = parseFloat((y / 100).toFixed(2));
     const newPin: Pin = {
-      id: crypto.randomUUID(),
+      id: createId(),
       x: posX * 100,
       y: posY * 100,
       variant: 'new',

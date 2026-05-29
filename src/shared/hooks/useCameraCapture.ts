@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { composePhotoWithStickers } from '@/shared/lib/composePhoto';
 import { computeCaptureRect } from '@/shared/lib/computeCaptureRect';
+import { createId } from '@/shared/lib/createId';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 
@@ -113,7 +114,7 @@ export const useCameraCapture = ({
         return;
       }
       const photo: CapturedPhoto = {
-        id: crypto.randomUUID(),
+        id: createId(),
         url: URL.createObjectURL(composedBlob),
         blob: composedBlob,
       };
