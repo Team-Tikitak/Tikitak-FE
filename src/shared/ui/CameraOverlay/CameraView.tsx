@@ -25,7 +25,7 @@ export const CameraView = ({ videoRef, error, isReady, onCapture, onClose }: Cam
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full scale-[1.01] object-cover"
       />
 
       <button

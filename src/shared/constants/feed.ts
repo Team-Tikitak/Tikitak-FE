@@ -1,2 +1,6 @@
 export const MAX_FEED_CONTENT_LENGTH = 1000;
 export const MAX_PHOTO_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+export const FEED_IMAGE_WIDTH = 393;
+export const FEED_IMAGE_HEIGHT = 524;
+export const CAMERA_REVIEW_IMAGE_WIDTH = 393;
+export const CAMERA_REVIEW_IMAGE_HEIGHT = 682;
