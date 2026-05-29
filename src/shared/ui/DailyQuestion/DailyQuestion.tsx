@@ -55,11 +55,14 @@ export const DailyQuestion = ({
           )}
           style={
             scrollPx > 0
-              ? ({ '--marquee-distance': `-${scrollPx}px` } as React.CSSProperties)
+              ? ({
+                  '--marquee-distance': `-${scrollPx}px`,
+                  animationDuration: `${Math.max(2, scrollPx / 35)}s`,
+                } as React.CSSProperties)
               : undefined
           }
         >
-          {question}
+          {question}ㅁㄹㅇ
         </span>
       </div>
       {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
