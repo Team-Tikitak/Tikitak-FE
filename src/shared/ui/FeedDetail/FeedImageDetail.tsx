@@ -43,6 +43,9 @@ export function FeedImageDetail({
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+
     const { x: xRatio, y: yRatio } = getPointerRatio(e, e.currentTarget);
     const x = xRatio * 100;
     const y = yRatio * 100;

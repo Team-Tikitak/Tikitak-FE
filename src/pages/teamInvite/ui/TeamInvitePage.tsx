@@ -19,7 +19,7 @@ export const TeamInvitePage = () => {
       }
       contentClassName="flex flex-col gap-4 pt-18 items-center"
     >
-      <div className="bg-main-000 flex size-60 items-center justify-center rounded-md p-4.5">
+      <div className="bg-main-000 flex size-60 items-center justify-center rounded-[16px] p-4.5">
         {inviteUrl && (
           <QRCodeSVG
             value={inviteUrl}
