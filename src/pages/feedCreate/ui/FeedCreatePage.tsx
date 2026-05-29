@@ -1,6 +1,6 @@
 ﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useMe } from '@/shared/api/user/queries';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
