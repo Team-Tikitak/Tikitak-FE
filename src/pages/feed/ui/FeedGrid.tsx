@@ -22,6 +22,8 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
               data-hero-exit-key={`pin-${item.id}`}
               src={item.thumbnailUrl}
               alt={item.title}
+              loading="lazy"
+              decoding="async"
               className="no-native-image size-full object-cover"
             />
           </Link>
