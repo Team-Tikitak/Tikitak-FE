@@ -1,14 +1,20 @@
+import { useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useFeedData } from '@/shared/hooks/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
 import { normalizeImageUrl } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';
-import { BottomSheetOverlay, CommentSheet } from '../BottomSheet';
+import {
+  BottomSheetOverlay,
+  CommentSheet,
+  ParticipantsSheet,
+  type ParticipantsSheetItem,
+} from '../BottomSheet';
 import { LongPressHint } from './LongPressHint';
-import type { ReactNode } from 'react';
 
 const COMMENT_SHEET_TITLE = '\uB313\uAE00';
 const COMMENT_SHEET_DESCRIPTION = '\uD540 \uC704\uCE58\uC5D0 \uB0A8\uAE34 \uB313\uAE00';
+const PARTICIPANTS_SHEET_TITLE = '\uCC38\uC5EC\uD55C \uC778\uC6D0';
 
 interface FeedDetailLocationState {
   thumbnailUrl?: string;
@@ -56,6 +62,15 @@ export const FeedDetailContent = ({
     addPinAt,
     decoratePins,
   } = usePinComments({ teamId, feedId, feedImageIds });
+  const [participantsSheetState, setParticipantsSheetState] = useState<
+    'closed' | 'open' | 'exiting'
+  >('closed');
+  const participantItems: ParticipantsSheetItem[] = participants.map((participant) => ({
+    id: String(participant.id),
+    name: participant.name,
+    avatarSrc: participant.avatarSrc,
+    avatarAlt: participant.avatarAlt,
+  }));
 
   return (
     <>
@@ -71,12 +86,24 @@ export const FeedDetailContent = ({
         content={content}
         date={date}
         actionSlot={actionSlot}
+        onMoreParticipantsClick={() => setParticipantsSheetState('open')}
         onLongPress={
           isFallback
             ? undefined
             : (position, imageIndex) => addPinAt(feedId, imageIndex, position.x, position.y)
         }
       />
+      {participantsSheetState !== 'closed' && (
+        <BottomSheetOverlay
+          open={participantsSheetState === 'open'}
+          onClose={() => setParticipantsSheetState('exiting')}
+          onExitComplete={() => setParticipantsSheetState('closed')}
+          ariaTitle={PARTICIPANTS_SHEET_TITLE}
+          ariaDescription={PARTICIPANTS_SHEET_TITLE}
+        >
+          <ParticipantsSheet participants={participantItems} />
+        </BottomSheetOverlay>
+      )}
       {displayPinKey && (
         <BottomSheetOverlay
           open={openPinKey === displayPinKey}
