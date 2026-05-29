@@ -23,10 +23,12 @@ export interface OnboardingPatchResponse {
 export interface MeResponse {
   memberId: number;
   email: string;
+  name: string;
   socialProvider: SocialProvider;
   status: MemberStatus;
   hasAgreedRequiredTerms: boolean;
   onboardingCompleted: boolean;
+  profileCharacterType: ProfileCharacterType | null;
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
