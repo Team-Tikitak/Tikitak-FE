@@ -62,7 +62,7 @@ export const DailyQuestion = ({
               : undefined
           }
         >
-          {question}ㅁㄹㅇ
+          {question}
         </span>
       </div>
       {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
