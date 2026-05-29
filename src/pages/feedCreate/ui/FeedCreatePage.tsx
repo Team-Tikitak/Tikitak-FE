@@ -9,7 +9,15 @@ import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
 import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { Button, Chip, EmptyTeamView, FormRowButton, Header, UserChip } from '@/shared/ui';
+import {
+  Button,
+  Chip,
+  EmptyTeamView,
+  FormRowButton,
+  Header,
+  LoadingState,
+  UserChip,
+} from '@/shared/ui';
 import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
@@ -107,7 +115,7 @@ const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
           onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          {isSharing ? '공유 중...' : '공유하기'}
+          공유하기
         </Button>
       }
     >
@@ -174,7 +182,9 @@ export const FeedCreatePage = () => {
 
   if (isPending) {
     return (
-      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>{null}</PageShell>
+      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
+        <LoadingState />
+      </PageShell>
     );
   }
 

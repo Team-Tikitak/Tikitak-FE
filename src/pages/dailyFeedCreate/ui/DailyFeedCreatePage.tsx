@@ -4,7 +4,7 @@ import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useActiveTeamMemberProfile } from '@/shared/hooks/useActiveTeamMemberProfile';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { Button, DailyQuestion, Header, UserChip } from '@/shared/ui';
+import { Button, DailyQuestion, Header, LoadingState, UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
@@ -14,7 +14,7 @@ export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
   const activeTeamMemberProfile = useActiveTeamMemberProfile();
   const { teamId } = activeTeamMemberProfile;
-  const { data: dailyQuestion } = useGetDailyQuestion(teamId);
+  const { data: dailyQuestion, isLoading: isQuestionLoading } = useGetDailyQuestion(teamId);
 
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
@@ -46,38 +46,44 @@ export const DailyFeedCreatePage = () => {
           onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          {isSharing ? '공유 중...' : '공유하기'}
+          공유하기
         </Button>
       }
     >
       <DailyQuestion question={dailyQuestion?.content ?? ''} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
-        <PhotoSlot src={photo?.url ?? null} onAdd={handleAddPhoto} onRemove={removePhoto} />
+        {isQuestionLoading ? (
+          <LoadingState />
+        ) : (
+          <>
+            <PhotoSlot src={photo?.url ?? null} onAdd={handleAddPhoto} onRemove={removePhoto} />
 
-        <ContentTextarea
-          value={content}
-          onChange={setContent}
-          maxLength={maxContentLength}
-          className="mt-5"
-        />
-
-        {activeTeamMemberProfile.nickname && (
-          <section className="mt-7 flex flex-col items-start gap-3">
-            <div className="flex h-6 w-full items-center">
-              <span className="flex items-center gap-2">
-                <UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />
-                <span className="text-h3 leading-[1.4] font-semibold tracking-[0.004em] text-black">
-                  인원
-                </span>
-              </span>
-            </div>
-            <UserChip
-              name={activeTeamMemberProfile.nickname}
-              avatarSrc={normalizeImageUrl(activeTeamMemberProfile.profileImgUrl)}
-              size="sm"
+            <ContentTextarea
+              value={content}
+              onChange={setContent}
+              maxLength={maxContentLength}
+              className="mt-5"
             />
-          </section>
+
+            {activeTeamMemberProfile.nickname && (
+              <section className="mt-7 flex flex-col items-start gap-3">
+                <div className="flex h-6 w-full items-center">
+                  <span className="flex items-center gap-2">
+                    <UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />
+                    <span className="text-h3 leading-[1.4] font-semibold tracking-[0.004em] text-black">
+                      인원
+                    </span>
+                  </span>
+                </div>
+                <UserChip
+                  name={activeTeamMemberProfile.nickname}
+                  avatarSrc={normalizeImageUrl(activeTeamMemberProfile.profileImgUrl)}
+                  size="sm"
+                />
+              </section>
+            )}
+          </>
         )}
       </div>
     </PageShell>
