@@ -4,7 +4,6 @@ interface ContentImageCardProps {
   title: string;
   description: string;
   imageUrl?: string;
-  onClick?: () => void;
   className?: string;
 }
 
@@ -12,17 +11,12 @@ export const ContentImageCard = ({
   title,
   description,
   imageUrl,
-  onClick,
   className,
 }: ContentImageCardProps) => {
   return (
     <div
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onClick={onClick}
       className={cn(
         'relative flex h-[204px] flex-1 flex-col items-start gap-1.5 overflow-hidden rounded-lg bg-gray-300 px-3 py-4',
-        onClick && 'cursor-pointer',
         className,
       )}
       style={
