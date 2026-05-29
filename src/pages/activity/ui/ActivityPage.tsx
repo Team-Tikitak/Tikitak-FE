@@ -23,6 +23,7 @@ export const ActivityPage = () => {
     activeTeam?.teamId,
   );
   const dailyQuestion = question?.content;
+  const showDailyQuestion = Boolean(dailyQuestion) && !question?.answered;
   const hasActiveTeam = Boolean(activeTeam?.teamId);
 
   const isLoading =
@@ -31,19 +32,27 @@ export const ActivityPage = () => {
     (hasActiveTeam && (isQuestionPending || isBestAttendancePending));
   const isEmpty = bestAttendance !== undefined && (bestAttendance.members ?? []).length === 0;
 
+  if (!isLoading && !hasActiveTeam) {
+    return (
+      <PageShell contentClassName="flex flex-1 flex-col">
+        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
       header={<AppHeader teamName={activeTeam?.teamName ?? ''} />}
       contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
-      <DailyQuestion
-        question={dailyQuestion ?? ''}
-        onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
-      />
+      {showDailyQuestion && (
+        <DailyQuestion
+          question={dailyQuestion ?? ''}
+          onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+        />
+      )}
       {isLoading ? (
         <ActivitySkeleton />
-      ) : !hasActiveTeam ? (
-        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
       ) : isEmpty ? (
         <div className="flex flex-1 items-center justify-center">
           <EmptyActiveView />
