@@ -35,7 +35,7 @@ export const NonClickable: Story = {
 
 export const LongQuestion: Story = {
   args: {
-    question: '오늘 하루 팀원들과 함께했던 가장 특별하고 기억에 남는 순간은 무엇이었나요? 그 이유도 함께 적어주세요!',
+    question: '아주 길어서 잘릴 수도 있는 오늘의 질문 텍스트가 들어가는 케이스',
     onClick: () => {},
   },
 };
