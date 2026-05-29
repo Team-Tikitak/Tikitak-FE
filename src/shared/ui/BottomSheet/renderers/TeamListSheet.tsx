@@ -65,7 +65,7 @@ export function TeamListSheet({
       {onCreateTeam &&
         createPortal(
           <div
-            className="pointer-events-none fixed inset-x-0 bottom-0 z-60 mx-auto w-full max-w-[393px]"
+            className="pointer-events-none fixed inset-x-0 bottom-0 z-60 mx-auto w-full sm:max-w-[393px]"
             style={
               {
                 '--initial-transform': initialOffset,

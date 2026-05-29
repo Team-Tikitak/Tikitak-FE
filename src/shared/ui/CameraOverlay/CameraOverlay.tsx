@@ -39,7 +39,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
 
   return (
     <div className="fixed inset-0 z-60 flex items-stretch justify-center">
-      <div className="relative h-full w-full max-w-[393px]">
+      <div className="relative h-full w-full sm:max-w-[393px]">
         {pendingPreview ? (
           <CameraReview
             imageUrl={pendingPreview.previewUrl}

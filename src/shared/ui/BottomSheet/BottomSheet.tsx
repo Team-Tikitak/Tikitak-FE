@@ -26,7 +26,7 @@ export function BottomSheet({
       ref={ref}
       aria-labelledby={title ? (ariaLabelledBy ?? titleId) : ariaLabelledBy}
       className={cn(
-        'shadow-default w-full max-w-[393px] overflow-hidden rounded-t-xl bg-white px-5 pt-4',
+        'shadow-default w-full overflow-hidden rounded-t-xl bg-white px-5 pt-4 sm:max-w-[393px]',
         className,
       )}
       {...props}

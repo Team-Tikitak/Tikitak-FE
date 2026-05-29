@@ -34,7 +34,7 @@ export const StickerPicker = ({ open, onClose, onSelect, className }: StickerPic
       <Drawer.Portal>
         <Drawer.Content
           className={cn(
-            'fixed inset-x-0 bottom-0 z-70 mx-auto flex h-full w-full max-w-[393px] flex-col rounded-t-2xl bg-black/80 outline-none',
+            'fixed inset-x-0 bottom-0 z-70 mx-auto flex h-full w-full flex-col rounded-t-2xl bg-black/80 outline-none sm:max-w-[393px]',
             className,
           )}
         >
