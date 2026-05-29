@@ -140,6 +140,7 @@
 .splash-bang {
   transform-box: fill-box;
   opacity: 0;
+  will-change: transform, opacity;
   animation: var(--animate-splash-letter-in);
 }
 
