@@ -50,7 +50,7 @@ export function MemberSelectSheet({
       contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >
-      <div className="no-scrollbar grid h-[120px] w-full shrink-0 grid-cols-4 content-start gap-x-2 gap-y-3 overflow-y-auto">
+      <div className="no-scrollbar flex h-[120px] w-full shrink-0 flex-wrap content-start gap-x-2 gap-y-3 overflow-y-auto">
         {members.map((member) => {
           const selected = selectedSet.has(member.id);
           const disabled = atCap && !selected;
@@ -58,7 +58,7 @@ export function MemberSelectSheet({
             <button
               key={member.id}
               type="button"
-              className="h-fit justify-self-start disabled:opacity-40"
+              className="h-fit shrink-0 disabled:opacity-40"
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => toggle(member.id)}
