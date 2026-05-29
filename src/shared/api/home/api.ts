@@ -7,7 +7,11 @@ import type {
   HomeCombinationsResponse,
   HomeEveryonePickResponse,
   HomeRegionsResponse,
+  RecommendedPlacesResponse,
 } from './types';
+
+export const getRecomendedPlaces = (teamId: number) =>
+  instance.get<ApiResponse<RecommendedPlacesResponse>>(HOME_ENDPOINTS.RECOMMENDED_PLACE(teamId));
 
 export const getHomeRegions = (teamId: number) =>
   instance.get<ApiResponse<HomeRegionsResponse>>(HOME_ENDPOINTS.REGIONS(teamId));
