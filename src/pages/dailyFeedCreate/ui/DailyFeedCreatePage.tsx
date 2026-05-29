@@ -1,27 +1,25 @@
 ﻿import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
-import type { TeamMember } from '@/shared/api/team/types';
+import { useGetTeams } from '@/shared/api/user/queries';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { Button, DailyQuestion, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { Button, DailyQuestion, Header, UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
-import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
 import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
-import { useSelfTag } from '../hooks/useSelfTag';
 
 export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
   const teamId = useActiveTeamId();
   const { data: dailyQuestion } = useGetDailyQuestion(teamId);
+  const { data: teams = [] } = useGetTeams();
+  const activeTeamProfile = teams.find((team) => team.teamId === teamId);
 
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
-
-  const { isSelfTagged, setIsSelfTagged, myProfile, myTeamMember } = useSelfTag({ teamId });
 
   const { share, isSharing } = useDailyQuestionShare({
     teamId,
@@ -33,23 +31,6 @@ export const DailyFeedCreatePage = () => {
   const handleAddPhoto = () => {
     openOverlay(({ isOpen, close, unmount }) => (
       <CameraOverlay open={isOpen} onCapture={addPhoto} onClose={close} onExitComplete={unmount} />
-    ));
-  };
-
-  const handleOpenMemberSheet = () => {
-    if (!myTeamMember) return;
-    openOverlay(({ isOpen, close, unmount }) => (
-      <MemberSelectOverlay
-        open={isOpen}
-        onClose={close}
-        onExitComplete={unmount}
-        teamMembers={[myTeamMember]}
-        selectedMembers={isSelfTagged ? [myTeamMember] : []}
-        onConfirm={(picked: TeamMember[]) => {
-          setIsSelfTagged(picked.length > 0);
-          close();
-        }}
-      />
     ));
   };
 
@@ -83,23 +64,19 @@ export const DailyFeedCreatePage = () => {
           className="mt-5"
         />
 
-        <div className="mt-7 flex flex-col gap-3">
-          <FormRowButton
-            icon={<UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />}
-            label="인원 추가"
-            onClick={handleOpenMemberSheet}
-          />
-          {isSelfTagged && (
-            <div className="flex flex-wrap gap-2">
-              <UserChip
-                name={myProfile?.nickname ?? '본인'}
-                avatarSrc={normalizeImageUrl(myProfile?.profileImgUrl)}
-                size="sm"
-                onRemove={() => setIsSelfTagged(false)}
-              />
+        {activeTeamProfile && (
+          <section className="mt-7 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <UserIcon className="size-5 shrink-0 text-black" aria-hidden="true" />
+              <span className="body-3 text-black">인원</span>
             </div>
-          )}
-        </div>
+            <UserChip
+              name={activeTeamProfile.nickname}
+              avatarSrc={normalizeImageUrl(activeTeamProfile.profileImgUrl)}
+              size="sm"
+            />
+          </section>
+        )}
       </div>
     </PageShell>
   );
