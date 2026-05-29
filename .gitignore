@@ -47,6 +47,11 @@ storybook-static
 # capacitor-assets PWA output (unused - PWA manifest references public/ icons)
 icons/
 
+# Playwright
+playwright-report/
+test-results/
+/playwright/.cache/
+
 # AI
 tmp/
 CLAUDE.md
