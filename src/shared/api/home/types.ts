@@ -7,6 +7,7 @@ export interface HomeRegion {
 }
 
 export interface HomeRegionsResponse {
+  month: number;
   regions: HomeRegion[];
 }
 
@@ -23,6 +24,7 @@ export interface RecommendedPlacesResponse {
 }
 
 export interface HomeEveryonePickResponse {
+  month: number;
   picks: FeedListItem[];
 }
 
@@ -33,6 +35,7 @@ export interface HomeCombinationMember {
 }
 
 export interface HomeCombinationsResponse {
+  month: number;
   combination: HomeCombinationMember[];
   feeds: FeedListItem[];
 }
@@ -46,9 +49,11 @@ export interface HomeBestAttendanceMember {
 }
 
 export interface HomeBestAttendanceResponse {
+  month: number;
   members: HomeBestAttendanceMember[];
 }
 
 export interface HomeAllTaggedResponse {
+  month: number;
   feeds: FeedListItem[];
 }
