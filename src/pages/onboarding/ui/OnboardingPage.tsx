@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { PENDING_INVITE_TOKEN_KEY } from '@/app/routes/loaders';
 import { PATHS } from '@/app/routes/paths';
 import { usePatchOnboarding } from '@/shared/api/user/queries';
 import { CharacterPreviewStep } from './CharacterPreviewStep';
@@ -53,6 +54,12 @@ export const OnboardingPage = () => {
       await patchOnboarding.mutateAsync({
         profileCharacterType: CHARACTER_TO_PROFILE_TYPE[characterId],
       });
+      const pendingInviteToken = sessionStorage.getItem(PENDING_INVITE_TOKEN_KEY);
+      if (pendingInviteToken) {
+        sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
+        navigate(`/invite/${pendingInviteToken}`, { replace: true });
+        return;
+      }
       navigate(PATHS.HOME);
     } catch (error) {
       console.error('온보딩 저장 실패', error);
