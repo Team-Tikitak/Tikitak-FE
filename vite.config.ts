@@ -88,10 +88,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  esbuild: {
-    drop: ['debugger'],
-    pure: ['console.log', 'console.debug', 'console.info'],
-  },
   build: {
     target: 'es2022',
     cssCodeSplit: true,
