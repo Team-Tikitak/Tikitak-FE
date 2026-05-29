@@ -4,7 +4,7 @@ import { PATHS } from '@/app/routes';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
-import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
+import { AppHeader, DailyQuestion, EmptyTeamView, Header } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
@@ -33,13 +33,21 @@ export const ActivityPage = () => {
 
   return (
     <PageShell
-      header={<AppHeader teamName={activeTeam?.teamName ?? ''} />}
+      header={
+        hasActiveTeam ? (
+          <AppHeader teamName={activeTeam?.teamName ?? ''} />
+        ) : (
+          <Header showBackButton onBack={() => navigate(-1)} />
+        )
+      }
       contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
-      <DailyQuestion
-        question={dailyQuestion ?? ''}
-        onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
-      />
+      {hasActiveTeam && (
+        <DailyQuestion
+          question={dailyQuestion ?? ''}
+          onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+        />
+      )}
       {isLoading ? (
         <ActivitySkeleton />
       ) : !hasActiveTeam ? (
@@ -52,7 +60,7 @@ export const ActivityPage = () => {
         <div className="flex flex-col gap-9 px-5">
           <MonthlyBestAttendance teamId={activeTeam?.teamId} />
           <MonthlyMemories teamId={activeTeam?.teamId} />
-          <MonthlyRecommendedPlaces />
+          <MonthlyRecommendedPlaces teamId={activeTeam?.teamId} />
         </div>
       )}
     </PageShell>
