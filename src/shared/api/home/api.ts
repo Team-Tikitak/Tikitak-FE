@@ -10,7 +10,7 @@ import type {
   RecommendedPlacesResponse,
 } from './types';
 
-export const getRecomendedPlaces = (teamId: number) =>
+export const getRecommendedPlaces = (teamId: number) =>
   instance.get<ApiResponse<RecommendedPlacesResponse>>(HOME_ENDPOINTS.RECOMMENDED_PLACE(teamId));
 
 export const getHomeRegions = (teamId: number) =>
