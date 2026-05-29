@@ -24,11 +24,16 @@ export const QuestionStep = ({
 }: QuestionStepProps) => {
   return (
     <PageShell
-      header={<Header showBackButton onBack={onBack} />}
-      contentClassName="flex flex-col gap-5 px-5 pt-2"
+      header={
+        <>
+          <Header showBackButton onBack={onBack} />
+          <div className="px-5 pb-5">
+            <ProgressBar currentStep={QUESTION_PROGRESS[question.id]} />
+          </div>
+        </>
+      }
+      contentClassName="flex flex-col gap-5 px-5"
     >
-      <ProgressBar currentStep={QUESTION_PROGRESS[question.id]} />
-
       <div className="flex flex-col gap-2">
         <h2 className="title-1 whitespace-pre-line text-black">{question.title}</h2>
         <p className="body-1 text-gray-700">{question.subtitle}</p>
