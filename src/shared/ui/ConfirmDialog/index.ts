@@ -3,3 +3,5 @@
  */
 
 export * from './ConfirmDialog';
+export * from './ConfirmDiscardChanges';
+export * from './openConfirmDialog';

@@ -1,11 +1,20 @@
+import { useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useFeedData } from '@/shared/hooks/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
-import { normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { normalizeImageUrl } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';
-import { BottomSheetOverlay, CommentSheet } from '../BottomSheet';
-import { ConfirmDialog } from '../ConfirmDialog';
+import {
+  BottomSheetOverlay,
+  CommentSheet,
+  ParticipantsSheet,
+  type ParticipantsSheetItem,
+} from '../BottomSheet';
 import { LongPressHint } from './LongPressHint';
+
+const COMMENT_SHEET_TITLE = '\uB313\uAE00';
+const COMMENT_SHEET_DESCRIPTION = '\uD540 \uC704\uCE58\uC5D0 \uB0A8\uAE34 \uB313\uAE00';
+const PARTICIPANTS_SHEET_TITLE = '\uCC38\uC5EC\uD55C \uC778\uC6D0';
 
 interface FeedDetailLocationState {
   thumbnailUrl?: string;
@@ -18,6 +27,7 @@ interface FeedDetailContentProps {
   placeholderThumbnail?: string;
   showHint?: boolean;
   onHintDismiss?: () => void;
+  actionSlot?: ReactNode;
 }
 
 export const FeedDetailContent = ({
@@ -27,6 +37,7 @@ export const FeedDetailContent = ({
   placeholderThumbnail,
   showHint = false,
   onHintDismiss,
+  actionSlot,
 }: FeedDetailContentProps) => {
   const { authorName, participants, images, feedImageIds, content, date } = useFeedData(
     teamId,
@@ -51,6 +62,15 @@ export const FeedDetailContent = ({
     addPinAt,
     decoratePins,
   } = usePinComments({ teamId, feedId, feedImageIds });
+  const [participantsSheetState, setParticipantsSheetState] = useState<
+    'closed' | 'open' | 'exiting'
+  >('closed');
+  const participantItems: ParticipantsSheetItem[] = (participants ?? []).map((participant) => ({
+    id: String(participant.id),
+    name: participant.name,
+    avatarSrc: participant.avatarSrc,
+    avatarAlt: participant.avatarAlt,
+  }));
 
   return (
     <>
@@ -65,48 +85,40 @@ export const FeedDetailContent = ({
         authorName={authorName}
         content={content}
         date={date}
+        actionSlot={actionSlot}
+        onMoreParticipantsClick={() => setParticipantsSheetState('open')}
         onLongPress={
           isFallback
             ? undefined
             : (position, imageIndex) => addPinAt(feedId, imageIndex, position.x, position.y)
         }
       />
+      {participantsSheetState !== 'closed' && (
+        <BottomSheetOverlay
+          open={participantsSheetState === 'open'}
+          onClose={() => setParticipantsSheetState('exiting')}
+          onExitComplete={() => setParticipantsSheetState('closed')}
+          ariaTitle={PARTICIPANTS_SHEET_TITLE}
+          ariaDescription={PARTICIPANTS_SHEET_TITLE}
+        >
+          <ParticipantsSheet participants={participantItems} />
+        </BottomSheetOverlay>
+      )}
       {displayPinKey && (
         <BottomSheetOverlay
           open={openPinKey === displayPinKey}
           onClose={closeSheet}
           onExitComplete={completeClose}
-          ariaTitle="댓글"
-          ariaDescription="이 위치에 남긴 댓글"
+          ariaTitle={COMMENT_SHEET_TITLE}
+          ariaDescription={COMMENT_SHEET_DESCRIPTION}
         >
           <CommentSheet
             inputVariant="commentup"
             comments={commentsForOpenPin}
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
+              item.onDelete?.();
               closeSheet();
-              openOverlay(({ isOpen, close, unmount }) =>
-                isOpen ? (
-                  <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40">
-                    <ConfirmDialog
-                      title="댓글을 삭제할까요?"
-                      description="삭제한 댓글은 복구할 수 없어요."
-                      confirmLabel="삭제하기"
-                      destructive
-                      onCancel={() => {
-                        close();
-                        unmount();
-                      }}
-                      onConfirm={() => {
-                        item.onDelete?.();
-                        close();
-                        unmount();
-                        closeSheet();
-                      }}
-                    />
-                  </div>
-                ) : null,
-              );
             }}
           />
         </BottomSheetOverlay>

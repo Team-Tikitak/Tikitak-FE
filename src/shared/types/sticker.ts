@@ -9,3 +9,9 @@ export interface PlacedSticker {
   /** 기본 크기 대비 배율 (1 = 원본). pinch로 조절. */
   scale: number;
 }
+
+export interface PendingState {
+  rawBlob: Blob;
+  previewUrl: string;
+  stickers: PlacedSticker[];
+}

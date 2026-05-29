@@ -2,7 +2,7 @@ import { type ComponentPropsWithRef } from 'react';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
 import { cn } from '@/shared/lib';
 
-interface DailyQuestionProps extends ComponentPropsWithRef<'button'> {
+export interface DailyQuestionProps extends ComponentPropsWithRef<'button'> {
   question: string;
 }
 

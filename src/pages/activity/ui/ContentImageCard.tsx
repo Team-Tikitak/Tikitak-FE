@@ -23,7 +23,7 @@ export const ContentImageCard = ({
         imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover' } : undefined
       }
     >
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-black/45 from-[30%] to-transparent" />
+      <div className="absolute inset-0 rounded-lg bg-linear-to-b from-black/45 from-30% to-transparent" />
       <p className="relative text-sm font-bold tracking-[0.056px] text-white">{title}</p>
       <p className="relative text-xs font-medium tracking-[0.048px] text-white">{description}</p>
     </div>

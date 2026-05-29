@@ -6,9 +6,7 @@ const DEFAULT_CENTER: LatLng = { latitude: 37.5507563, longitude: 126.9254901 };
 const GEOLOCATION_TIMEOUT = 5000;
 
 export const useUserLocation = () => {
-  const [center, setCenter] = useState<LatLng | null>(() =>
-    !navigator.geolocation ? DEFAULT_CENTER : null,
-  );
+  const [center, setCenter] = useState<LatLng>(DEFAULT_CENTER);
 
   useEffect(() => {
     if (!navigator.geolocation) return;

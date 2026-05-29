@@ -1,7 +1,7 @@
-import { type RefObject } from 'react';
+﻿import { type RefObject } from 'react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
+import { type CameraError } from '@/shared/hooks/useCamera';
 import { CameraButton } from '@/shared/ui';
-import { type CameraError } from '../hooks/useCamera';
 
 const ERROR_MESSAGES = {
   permission: '카메라 권한이 필요합니다. 설정에서 권한을 허용해주세요.',

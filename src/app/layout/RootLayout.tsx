@@ -1,4 +1,3 @@
-import { SsgoiTransition } from '@ssgoi/react';
 import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
 import { PATHS } from '@/app/routes';
@@ -52,13 +51,13 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
                 <Outlet />
               </div>
             ) : (
-              <SsgoiTransition
+              <div
                 key={location.pathname}
-                id={getRouteKey(location.pathname)}
-                className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+                data-ssgoi-transition={getRouteKey(location.pathname)}
+                className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white"
               >
                 <Outlet />
-              </SsgoiTransition>
+              </div>
             )}
           </OverlayProvider>
           <div

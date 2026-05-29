@@ -2,7 +2,7 @@ import { cn } from '@/shared/lib';
 import { FeedImageCarousel, type CarouselImage } from './FeedImageCarousel';
 import { type PressPosition } from './FeedImageDetail';
 import { ParticipantChipList, type Participant } from './ParticipantChipList';
-import type { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 export type { Participant, PressPosition };
 
@@ -15,6 +15,7 @@ type FeedDetailProps = ComponentPropsWithRef<'div'> & {
   onMoreParticipantsClick?: () => void;
   onLongPress?: (position: PressPosition, imageIndex: number) => void;
   heroKey?: string;
+  actionSlot?: ReactNode;
 };
 
 export function FeedDetail({
@@ -26,6 +27,7 @@ export function FeedDetail({
   onMoreParticipantsClick,
   onLongPress,
   heroKey,
+  actionSlot,
   className,
   ref,
   ...props
@@ -34,15 +36,18 @@ export function FeedDetail({
     <div className={cn('flex w-full flex-col gap-5', className)} ref={ref} {...props}>
       <ParticipantChipList
         participants={participants}
-        className="mx-auto"
+        className="mx-auto min-h-9"
         onMoreClick={onMoreParticipantsClick}
       />
       <FeedImageCarousel images={images} onLongPress={onLongPress} heroKey={heroKey} />
       <div className="flex flex-col gap-1 px-5">
-        <p className="body-5 text-black">
-          <span className="body-4 mr-2">{authorName}</span>
-          {content}
-        </p>
+        <div className="flex w-full items-start justify-between gap-2">
+          <p className="body-5 min-w-0 flex-1 text-black">
+            <span className="body-4 mr-2">{authorName}</span>
+            {content}
+          </p>
+          {actionSlot && <div className="shrink-0 pt-0.5">{actionSlot}</div>}
+        </div>
         <span className="button-6 text-gray-600">{date}</span>
       </div>
     </div>

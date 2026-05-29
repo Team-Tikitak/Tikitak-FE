@@ -1,7 +1,7 @@
 import { type ComponentPropsWithRef, type ReactElement, type ReactNode } from 'react';
 import { cn } from '@/shared/lib';
 
-interface PageSectionProps extends ComponentPropsWithRef<'section'> {
+export interface PageSectionProps extends ComponentPropsWithRef<'section'> {
   title: string;
   icon?: ReactElement;
   iconClick?: () => void;

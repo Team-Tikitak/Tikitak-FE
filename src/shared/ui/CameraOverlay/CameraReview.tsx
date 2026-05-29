@@ -1,14 +1,14 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import CancelIcon from '@/shared/assets/Icon/CancelIcon.svg?react';
 import StickerIcon from '@/shared/assets/Icon/StickerIcon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/TrashIcon.svg?react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
+import { useTrashDragZone } from '@/shared/hooks/useTrashDragZone';
 import { cn } from '@/shared/lib';
+import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
 import { StickerPicker } from '@/shared/ui/StickerPicker/StickerPicker';
 import { PlacedStickerView } from './PlacedStickerView';
-import { useTrashDragZone } from '../hooks/useTrashDragZone';
-import { type PlacedSticker } from '../model/types';
 
 interface CameraReviewProps {
   imageUrl: string;

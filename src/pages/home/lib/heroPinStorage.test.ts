@@ -1,0 +1,61 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { Pin } from '@/shared/api/map/types';
+import { readStoredHeroPin, storeHeroPin } from './heroPinStorage';
+
+const STORAGE_KEY = 'tikitak:last-hero-pin';
+
+const samplePin: Pin = {
+  placeId: 'place-1',
+  name: '카페마루',
+  latitude: 37.5,
+  longitude: 127.0,
+  address: '서울특별시 강남구',
+  thumbnailUrl: 'https://example.com/a.jpg',
+  feedCount: 3,
+};
+
+describe('heroPinStorage', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('returns null when nothing stored', () => {
+    expect(readStoredHeroPin()).toBeNull();
+  });
+
+  it('returns null when stored value is not JSON', () => {
+    sessionStorage.setItem(STORAGE_KEY, 'not-json');
+    expect(readStoredHeroPin()).toBeNull();
+  });
+
+  it('returns null when required fields are missing', () => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ placeId: 'p1', x: 1 }));
+    expect(readStoredHeroPin()).toBeNull();
+  });
+
+  it('storeHeroPin persists pin with viewport level', () => {
+    storeHeroPin(samplePin, { x: 100, y: 200 }, { level: 5 });
+    const stored = readStoredHeroPin();
+    expect(stored).toMatchObject({
+      placeId: 'place-1',
+      thumbnailUrl: 'https://example.com/a.jpg',
+      feedCount: 3,
+      latitude: 37.5,
+      longitude: 127.0,
+      level: 5,
+      x: 100,
+      y: 200,
+    });
+  });
+
+  it('storeHeroPin works without viewport', () => {
+    storeHeroPin(samplePin, { x: 10, y: 20 });
+    const stored = readStoredHeroPin();
+    expect(stored?.level).toBeUndefined();
+    expect(stored?.x).toBe(10);
+    expect(stored?.y).toBe(20);
+  });
+});

@@ -89,7 +89,7 @@ export function FeedImageCarousel({
               alt={image.alt}
               pins={image.pins}
               onLongPress={onLongPress && ((position) => onLongPress(position, index))}
-              {...(index === 0 && heroKey ? { 'data-hero-key': heroKey } : {})}
+              heroKey={index === 0 ? heroKey : undefined}
             />
           ))}
         </div>

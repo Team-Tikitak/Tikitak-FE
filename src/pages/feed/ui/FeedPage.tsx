@@ -9,11 +9,17 @@ import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
 import { FeedListItem } from './FeedListItem';
+import { FeedSkeleton } from './FeedSkeleton';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
+import { readFeedViewMode, storeFeedViewMode } from '../lib/viewModeStorage';
 
 export const FeedPage = () => {
-  const [viewMode, setViewMode] = useState<FeedViewMode>('list');
-  const { data: me } = useMe();
+  const [viewMode, setViewModeState] = useState<FeedViewMode>(readFeedViewMode);
+  const setViewMode = (mode: FeedViewMode) => {
+    setViewModeState(mode);
+    storeFeedViewMode(mode);
+  };
+  const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
   const { data, isLoading, isError } = useFeeds(teamId);
 
@@ -34,8 +40,8 @@ export const FeedPage = () => {
           onViewModeChange={setViewMode}
           className="mb-6"
         />
-        {isLoading ? (
-          <p className="body-3 mt-10 text-center text-gray-500">불러오는 중...</p>
+        {isMePending || isLoading ? (
+          <FeedSkeleton viewMode={viewMode} />
         ) : isError ? (
           <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
         ) : !teamId ? (

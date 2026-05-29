@@ -7,3 +7,4 @@ export * from './FeedCountToolbar';
 export * from './FeedGrid';
 export * from './FeedListItem';
 export * from './FeedPage';
+export * from './FeedSkeleton';

@@ -1,10 +1,12 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
-import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
+import MoreIcon from '@/shared/assets/Icon/More_Icon.svg?react';
 import { cn } from '@/shared/lib';
 import { ActiveMenu } from '../../ActiveMenu/ActiveMenu';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
+
+const COMMENT_TITLE = '\uB313\uAE00';
 
 export interface CommentSheetItem {
   id: string;
@@ -57,7 +59,7 @@ export function CommentSheet({
 
   return (
     <BottomSheet
-      title="댓글"
+      title={COMMENT_TITLE}
       className={cn('bottom-sheet-base flex flex-col', className)}
       contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
@@ -77,7 +79,12 @@ export function CommentSheet({
             </div>
             {comment.isMine && (
               <ActiveMenu
-                icon={<MoreIcon className="w-2 rotate-90" />}
+                icon={<MoreIcon className="size-5" />}
+                buttonClassName="size-5 text-[#666]"
+                menuClassName="!w-[100px] !min-w-0 !items-center !justify-center !gap-2 !rounded-[8px] !py-3 !pr-3 !pl-2"
+                deleteItemClassName="!w-auto shrink-0 !gap-1.5"
+                deleteIconClassName="!size-5 !w-5 shrink-0"
+                renderMenuInPortal
                 onDelete={() => onDeleteRequest?.(comment)}
               />
             )}

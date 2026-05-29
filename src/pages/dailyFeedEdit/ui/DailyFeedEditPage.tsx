@@ -1,16 +1,16 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { CameraOverlay } from '@/pages/camera/ui/CameraOverlay';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
-import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
-import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import { openOverlay } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
-import { Button, ConfirmDialog, DailyQuestion, Header } from '@/shared/ui';
+import { Button, DailyQuestion, Header } from '@/shared/ui';
+import { CameraOverlay } from '@/shared/ui/CameraOverlay';
+import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
+import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import { useDailyFeedEditShare } from '../hooks/useDailyFeedEditShare';
 
 interface DailyFeedEditFormProps {
@@ -79,24 +79,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
       navigate(-1);
       return;
     }
-    openOverlay(({ isOpen, close, unmount }) => (
-      <div
-        className="fixed inset-0 z-60 flex items-center justify-center bg-black/40"
-        style={{ display: isOpen ? undefined : 'none' }}
-        onTransitionEnd={unmount}
-      >
-        <ConfirmDialog
-          title="수정한 내용이 남아있어요."
-          description="지금 나가면 수정한 내용이 저장되지 않아요."
-          confirmLabel="계속 수정하기"
-          onConfirm={close}
-          onCancel={() => {
-            close();
-            navigate(-1);
-          }}
-        />
-      </div>
-    ));
+    confirmDiscardChanges({ onDiscard: () => navigate(-1) });
   };
 
   const handleAddPhoto = () => {
@@ -126,50 +109,14 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
       <DailyQuestion question={feedDetail.question.content} />
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
-        <button
-          type="button"
-          onClick={handleAddPhoto}
-          className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900"
-        >
-          {currentPhotoUrl ? (
-            <div className="relative size-full overflow-hidden rounded-lg">
-              <img
-                src={currentPhotoUrl}
-                alt=""
-                className="no-native-image size-full object-cover"
-              />
-              <button
-                type="button"
-                aria-label="사진 제거"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removePhoto();
-                }}
-                className="press-feedback absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <CloseIcon className="size-4" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <CameraIcon className="size-6" aria-hidden="true" />
-              <span className="button-6 text-gray-900">0/1</span>
-            </>
-          )}
-        </button>
+        <PhotoSlot src={currentPhotoUrl} onAdd={handleAddPhoto} onRemove={removePhoto} />
 
-        <div className="mt-5 flex h-[174px] flex-col gap-2 rounded-lg border border-gray-300 p-4">
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="(선택) 글을 작성해주세요."
-            maxLength={MAX_FEED_CONTENT_LENGTH}
-            className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
-          />
-          <p className="body-10 self-end text-gray-500">
-            <span>{content.length}</span> / {MAX_FEED_CONTENT_LENGTH.toLocaleString()}
-          </p>
-        </div>
+        <ContentTextarea
+          value={content}
+          onChange={setContent}
+          maxLength={MAX_FEED_CONTENT_LENGTH}
+          className="mt-5"
+        />
       </div>
     </PageShell>
   );

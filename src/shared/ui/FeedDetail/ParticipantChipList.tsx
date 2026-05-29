@@ -1,4 +1,4 @@
-import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
+import ArrowDownIcon from '@/shared/assets/Icon/ArrowDown.svg?react';
 import { cn } from '@/shared/lib';
 import { UserChip } from '../UserChip';
 import type { ComponentPropsWithRef } from 'react';
@@ -45,7 +45,7 @@ export function ParticipantChipList({
           className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white"
           aria-label="참가자 더 보기"
         >
-          <MoreIcon className="w-4 text-gray-500" />
+          <ArrowDownIcon className="w-4 text-gray-500" />
         </button>
       )}
     </div>

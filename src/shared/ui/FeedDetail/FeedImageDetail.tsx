@@ -23,6 +23,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   alt?: string;
   pins?: Pin[];
   onLongPress?: (position: PressPosition) => void;
+  heroKey?: string;
 };
 
 const LONG_PRESS_DELAY = 800;
@@ -33,6 +34,7 @@ export function FeedImageDetail({
   alt = '',
   pins = [],
   onLongPress,
+  heroKey,
   className,
   ref,
   ...props
@@ -75,15 +77,16 @@ export function FeedImageDetail({
 
   return (
     <figure
-      className={cn('relative h-[524px] w-full shrink-0 overflow-hidden bg-black', className)}
+      className={cn('relative h-[524px] w-full shrink-0 overflow-hidden bg-white', className)}
       ref={ref}
       onContextMenu={(e) => e.preventDefault()}
+      {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
       {...props}
     >
       <img
         src={src}
         alt={alt}
-        className="no-native-image h-full w-full object-contain"
+        className="no-native-image h-full w-full object-cover"
         draggable={false}
       />
       <div

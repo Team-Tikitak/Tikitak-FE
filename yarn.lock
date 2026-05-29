@@ -2816,7 +2816,6 @@ __metadata:
     "@eslint/js": "npm:^9.39.4"
     "@hookform/resolvers": "npm:^5.2.2"
     "@rolldown/plugin-babel": "npm:^0.2.3"
-    "@ssgoi/core": "npm:^6.4.0"
     "@ssgoi/react": "npm:^6.4.0"
     "@storybook/addon-a11y": "npm:^10.3.6"
     "@storybook/addon-docs": "npm:^10.3.6"
