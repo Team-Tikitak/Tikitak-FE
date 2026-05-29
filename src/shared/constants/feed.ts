@@ -1,1 +1,2 @@
 export const MAX_FEED_CONTENT_LENGTH = 1000;
+export const MAX_PHOTO_FILE_SIZE_BYTES = 10 * 1024 * 1024;

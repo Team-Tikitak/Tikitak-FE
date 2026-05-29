@@ -10,6 +10,7 @@ export * from './useDebounce';
 export * from './useFeedData';
 export * from './useFeedForm';
 export * from './useFirstVisitHint';
+export * from './useImageFileInput';
 export * from './usePendingSticker';
 export * from './usePinComments';
 export * from './usePinchDrag';

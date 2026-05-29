@@ -6,6 +6,7 @@ export * from './cn';
 export * from './composePhoto';
 export * from './computeCaptureRect';
 export * from './createId';
+export * from './createPhotoFromFile';
 export * from './deleteContextStorage';
 export * from './getPointerRatio';
 export * from './kakaoSdk';

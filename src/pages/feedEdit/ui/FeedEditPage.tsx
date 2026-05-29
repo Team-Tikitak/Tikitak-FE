@@ -6,14 +6,15 @@ import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
+import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
 import {
   DEFAULT_MAX_PHOTO_COUNT,
   useFeedForm as useFeedCreateForm,
 } from '@/shared/hooks/useFeedForm';
-import { normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
+import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
-import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
 import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
@@ -81,11 +82,18 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
     selectedMembers,
   });
 
+  const { openPicker, inputProps } = useImageFileInput({
+    multiple: true,
+    maxFileSizeBytes: MAX_PHOTO_FILE_SIZE_BYTES,
+    onSelect: (files) => {
+      const remaining = maxPhotoCount - photos.length;
+      files.slice(0, remaining).forEach((file) => addPhoto(createPhotoFromFile(file)));
+    },
+  });
+
   const handleAddPhoto = () => {
     if (!canAddMorePhotos) return;
-    openOverlay(({ isOpen, close, unmount }) => (
-      <CameraOverlay open={isOpen} onCapture={addPhoto} onClose={close} onExitComplete={unmount} />
-    ));
+    openPicker();
   };
 
   const handleAddLocation = () => {
@@ -170,6 +178,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
           canAddMore={canAddMorePhotos}
           onAddPhoto={handleAddPhoto}
         />
+        <input {...inputProps} />
 
         <ContentTextarea
           value={content}
