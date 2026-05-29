@@ -27,6 +27,7 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
   const first = group[0];
   const x = first.positionX * 100;
   const y = first.positionY * 100;
+  const variant = group.some((c) => c.isMine) ? 'new' : 'default';
 
   const uniqueAuthors = [...new Map(group.map((c) => [c.author.teamMemberId, c.author])).values()];
 
@@ -36,6 +37,7 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
       id: String(first.commentId),
       x,
       y,
+      variant,
       count: 'multiple' as const,
       avatars: [
         { id: String(a.teamMemberId), src: normalizeImageUrl(a.profileImageUrl) ?? '' },
@@ -49,6 +51,7 @@ export const buildApiPin = (group: FeedComment[], onClick: () => void): Pin => {
     id: String(first.commentId),
     x,
     y,
+    variant,
     avatars: [
       {
         id: String(first.author.teamMemberId),
