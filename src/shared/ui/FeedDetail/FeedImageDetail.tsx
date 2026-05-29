@@ -24,6 +24,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   pins?: Pin[];
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
+  fetchPriority?: 'high' | 'low' | 'auto';
 };
 
 const LONG_PRESS_DELAY = 800;
@@ -35,6 +36,7 @@ export function FeedImageDetail({
   pins = [],
   onLongPress,
   heroKey,
+  fetchPriority = 'auto',
   className,
   ref,
   ...props
@@ -43,9 +45,6 @@ export function FeedImageDetail({
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-
     const { x: xRatio, y: yRatio } = getPointerRatio(e, e.currentTarget);
     const x = xRatio * 100;
     const y = yRatio * 100;
@@ -54,6 +53,7 @@ export function FeedImageDetail({
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       startPosRef.current = null;
+      e.currentTarget.setPointerCapture(e.pointerId);
 
       if (typeof window !== 'undefined') {
         window.getSelection()?.removeAllRanges();
@@ -95,11 +95,14 @@ export function FeedImageDetail({
       <img
         src={src}
         alt={alt}
+        loading="eager"
+        decoding="sync"
+        fetchPriority={fetchPriority}
         className="no-native-image h-full w-full object-cover"
         draggable={false}
       />
       <div
-        className="absolute inset-0 touch-none"
+        className="absolute inset-0 touch-pan-y"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={cancelLongPress}
