@@ -42,7 +42,7 @@ export function OnboardingCard({
       {...props}
     >
       <p className="body-9 text-main-002">{title}</p>
-      <p className="body-5 font-pretendard text-gray-600">{description}</p>
+      <p className="body-5 font-pretendard whitespace-nowrap text-gray-600">{description}</p>
     </button>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useRecommendedPlaces } from '@/shared/api/home/queries';
 import { cn } from '@/shared/lib';
 import { ContentImageCard } from './ContentImageCard';
-import { MONTHLY_RECOMMENDED_PLACES, RECOMMENDED_PLACES_TOOLTIP } from '../model/mock';
+import { RECOMMENDED_PLACES_TOOLTIP } from '../model/mock';
 
 const InfoIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
@@ -17,13 +18,18 @@ const CloseIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const MonthlyRecommendedPlaces = () => {
+interface MonthlyRecommendedPlacesProps {
+  teamId: number | null | undefined;
+}
+
+export const MonthlyRecommendedPlaces = ({ teamId }: MonthlyRecommendedPlacesProps) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const { data: placesData } = useRecommendedPlaces(teamId);
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
       <div className="relative flex items-center gap-2">
-        <h2 className="body-2 text-black">6월 추천 장소</h2>
+        <h2 className="body-2 text-black">{placesData?.month}월 추천 장소</h2>
         <button
           type="button"
           aria-label="추천 장소 안내"
@@ -37,12 +43,13 @@ export const MonthlyRecommendedPlaces = () => {
         )}
       </div>
       <div className="flex w-full items-center gap-4">
-        {MONTHLY_RECOMMENDED_PLACES.map((card) => (
+        {placesData?.places.map((place) => (
           <ContentImageCard
-            key={card.id}
-            title={card.title}
-            description={card.description}
-            imageUrl={card.imageUrl}
+            key={place.name}
+            title={place.name}
+            description={place.curation}
+            imageUrl={place.imageUrl}
+            onClick={place.kakaoMapUrl ? () => window.open(place.kakaoMapUrl, '_blank') : undefined}
           />
         ))}
       </div>
