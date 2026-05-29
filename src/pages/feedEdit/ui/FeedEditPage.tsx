@@ -14,7 +14,8 @@ import {
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
-import { ContentTextarea, PhotoStrip, openEditExitConfirm } from '@/shared/ui/FeedForm';
+import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
+import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
 import { useFeedEditShare } from '../hooks/useFeedEditShare';
@@ -131,7 +132,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
       navigate(-1);
       return;
     }
-    openEditExitConfirm({ onExit: () => navigate(-1) });
+    confirmDiscardChanges({ onDiscard: () => navigate(-1) });
   };
 
   return (

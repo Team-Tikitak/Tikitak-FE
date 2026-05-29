@@ -4,8 +4,7 @@ import { toDailyFeedEdit, toFeedEdit } from '@/app/routes/paths';
 import { useDeleteFeed } from '@/shared/api/feed/queries';
 import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
-import { openOverlay } from '@/shared/lib';
-import { ConfirmDialog, Header } from '@/shared/ui';
+import { Header, openConfirmDialog } from '@/shared/ui';
 import { ActiveMenu } from '@/shared/ui/ActiveMenu/ActiveMenu';
 import { FeedDetailContent } from '@/shared/ui/FeedDetail/FeedDetailContent';
 import { useFeedDetail } from '../hooks/useFeedDetail';
@@ -20,27 +19,14 @@ export const FeedDetailPage = () => {
   const { mutate: deleteFeed } = useDeleteFeed(teamId, feedIdNum);
 
   const handleDeleteClick = () => {
-    openOverlay(({ isOpen, close, unmount }) => (
-      <div
-        className="dialog-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-        data-state={isOpen ? 'open' : 'closed'}
-        onTransitionEnd={(event) => {
-          if (event.propertyName === 'opacity' && !isOpen) unmount();
-        }}
-      >
-        <ConfirmDialog
-          title="정말 삭제하시겠어요?"
-          description="삭제 후 복구가 불가능해요."
-          confirmLabel="삭제하기"
-          destructive
-          onCancel={close}
-          onConfirm={() => {
-            close();
-            deleteFeed();
-          }}
-        />
-      </div>
-    ));
+    openConfirmDialog({
+      title: '정말 삭제하시겠어요?',
+      description: '삭제 후 복구가 불가능해요.',
+      confirmLabel: '삭제하기',
+      destructive: true,
+      onConfirm: deleteFeed,
+      overlayClassName: 'z-50',
+    });
   };
 
   const handleEditClick = () => {

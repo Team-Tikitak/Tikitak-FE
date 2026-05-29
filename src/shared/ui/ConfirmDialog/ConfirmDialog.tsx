@@ -62,7 +62,7 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="press-feedback py-1 text-center text-[16px] leading-[1.5] font-semibold tracking-[0.0912px] whitespace-nowrap text-[rgba(55,56,60,0.61)]"
+            className="press-feedback py-1 text-center text-[16px] leading-normal font-semibold tracking-[0.0912px] whitespace-nowrap text-[rgba(55,56,60,0.61)]"
           >
             {cancelLabel}
           </button>
@@ -70,7 +70,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             className={cn(
-              'press-feedback py-1 text-center text-[16px] leading-[1.5] font-semibold tracking-[0.0912px] whitespace-nowrap',
+              'press-feedback py-1 text-center text-[16px] leading-normal font-semibold tracking-[0.0912px] whitespace-nowrap',
               destructive ? 'text-[#ff383c]' : 'text-main-002',
             )}
           >

@@ -9,7 +9,8 @@ import { openOverlay } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, DailyQuestion, Header } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
-import { ContentTextarea, PhotoSlot, openEditExitConfirm } from '@/shared/ui/FeedForm';
+import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
+import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import { useDailyFeedEditShare } from '../hooks/useDailyFeedEditShare';
 
 interface DailyFeedEditFormProps {
@@ -78,7 +79,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
       navigate(-1);
       return;
     }
-    openEditExitConfirm({ onExit: () => navigate(-1) });
+    confirmDiscardChanges({ onDiscard: () => navigate(-1) });
   };
 
   const handleAddPhoto = () => {

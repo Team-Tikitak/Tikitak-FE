@@ -5,4 +5,3 @@
 export * from './ContentTextarea';
 export * from './PhotoSlot';
 export * from './PhotoStrip';
-export * from './openEditExitConfirm';
