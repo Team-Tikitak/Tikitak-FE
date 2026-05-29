@@ -27,7 +27,7 @@ export interface TeamDetailResponse {
 
 export interface PatchTeamProfileRequest {
   nickname: string;
-  profileImgUrl: string;
+  profileImgUrl?: string;
 }
 
 export type PatchTeamProfileVariables = {
@@ -49,7 +49,7 @@ export interface TeamMembersResponse {
 export interface CreateTeamRequest {
   teamName: string;
   introduction: string;
-  profileImageUrl: string;
+  profileImageUrl?: string;
   nickName: string;
 }
 

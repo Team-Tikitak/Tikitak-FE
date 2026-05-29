@@ -37,7 +37,6 @@ interface TeamProfileSetupFormProps {
   promptTeamName: string;
   initialNickname?: string;
   initialAvatarUrl?: string;
-  initialProfileImgUrl?: string;
 }
 
 export const TeamProfileSetupForm = ({
@@ -45,7 +44,6 @@ export const TeamProfileSetupForm = ({
   promptTeamName,
   initialNickname,
   initialAvatarUrl,
-  initialProfileImgUrl,
 }: TeamProfileSetupFormProps) => {
   const navigate = useNavigate();
   const { submit, isPending } = useTeamProfileSetupFlow();
@@ -73,7 +71,6 @@ export const TeamProfileSetupForm = ({
             submit({
               nickname,
               avatarFile,
-              initialProfileImgUrl,
             })
           }
         >

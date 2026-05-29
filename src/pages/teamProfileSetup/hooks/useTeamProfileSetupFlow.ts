@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router';
 import { useAcceptInvitation } from '@/shared/api/invitation/queries';
 import { deleteMedia } from '@/shared/api/media/api';
-import { buildMediaPublicUrl, uploadMediaBlobs } from '@/shared/api/media/helpers';
+import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useCreateTeam, usePatchTeamProfile } from '@/shared/api/team/queries';
 import type { SubmitProfile, TeamDraftRouteState } from '../model';
 
@@ -17,10 +17,9 @@ export const useTeamProfileSetupFlow = () => {
   const teamName = state ? (state.mode === 'edit' ? state.teamName : state.name) : '';
   const isPending = isAccepting || isPatching || isCreating || isUploading;
 
-  const submit = async ({ nickname, avatarFile, initialProfileImgUrl }: SubmitProfile) => {
+  const submit = async ({ nickname, avatarFile }: SubmitProfile) => {
     if (!state) return;
 
-    let profileImageUrl = initialProfileImgUrl ?? '';
     let uploadedPublicId: string | null = null;
     if (avatarFile) {
       try {
@@ -30,11 +29,6 @@ export const useTeamProfileSetupFlow = () => {
           blobs: [avatarFile],
           fileNamePrefix: 'profile',
         });
-        profileImageUrl = buildMediaPublicUrl(
-          'PROFILE_IMAGE',
-          publicId,
-          avatarFile.type || 'image/jpeg',
-        );
         uploadedPublicId = publicId;
       } catch (error) {
         console.error('프로필 이미지 업로드 실패', error);
@@ -50,18 +44,24 @@ export const useTeamProfileSetupFlow = () => {
         await createTeam({
           teamName: state.name,
           introduction: state.description,
-          profileImageUrl,
+          ...(uploadedPublicId ? { profileImageUrl: uploadedPublicId } : {}),
           nickName: nickname,
         });
       } else if (state.mode === 'join') {
         await acceptInvitation({
           token: state.token,
-          body: { nickname, profileImgUrl: profileImageUrl },
+          body: {
+            nickname,
+            ...(uploadedPublicId ? { profileImgUrl: uploadedPublicId } : {}),
+          },
         });
       } else if (state.mode === 'edit') {
         await patchTeamProfile({
           teamId: state.teamId,
-          body: { nickname, profileImgUrl: profileImageUrl },
+          body: {
+            nickname,
+            ...(uploadedPublicId ? { profileImgUrl: uploadedPublicId } : {}),
+          },
         });
       }
     } catch (error) {
