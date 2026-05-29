@@ -173,7 +173,9 @@ export const FeedCreatePage = () => {
   const teamId = me?.activeTeamId ?? null;
 
   if (isPending) {
-    return <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />} />;
+    return (
+      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>{null}</PageShell>
+    );
   }
 
   if (!teamId) {

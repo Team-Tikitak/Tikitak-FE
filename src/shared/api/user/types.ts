@@ -30,6 +30,7 @@ export interface MeResponse {
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
+  profileCharacterType?: ProfileCharacterType;
 }
 
 export interface AgreementsResponse {

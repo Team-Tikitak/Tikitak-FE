@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { MEDIA_CDN_BASE_URL } from '@/shared/api/media/constants';
 import { normalizeImageUrl } from './normalizeImageUrl';
 
 const UUID = '8df3ce57-8035-44f0-9aec-0695c162339d';
-const CDN = 'https://dev-media.kusitms.xyz/media';
+const CDN = `${MEDIA_CDN_BASE_URL}/media`;
 
 describe('normalizeImageUrl', () => {
   it('빈 입력은 undefined 를 반환한다', () => {
