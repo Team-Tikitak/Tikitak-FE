@@ -16,10 +16,15 @@ import { clearAccessToken } from '../instance';
 import { unwrap } from '../request';
 import type { OnboardingPatchRequest } from './types';
 
-export const useMe = () =>
+type UseMeOptions = {
+  enabled?: boolean;
+};
+
+export const useMe = ({ enabled = true }: UseMeOptions = {}) =>
   useQuery({
     queryKey: userKeys.me(),
     queryFn: () => unwrap(() => getMe()),
+    enabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

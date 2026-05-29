@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
-import { clearAccessToken, setAccessToken } from '@/shared/api/instance';
+import { clearAccessToken, endLogout, setAccessToken, startLogout } from '@/shared/api/instance';
 import { postLogout, postRefreshToken } from './api';
 import { authKeys } from './keys';
 import { unwrap } from '../request';
@@ -26,10 +26,14 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: postLogout,
-    onSuccess: () => {
+    onMutate: () => {
+      startLogout();
+    },
+    onSettled: () => {
       clearAccessToken();
       queryClient.removeQueries({ queryKey: authKeys.all });
       queryClient.removeQueries({ queryKey: userKeys.all });
+      endLogout();
       navigate(PATHS.LOGIN, { replace: true });
     },
   });
