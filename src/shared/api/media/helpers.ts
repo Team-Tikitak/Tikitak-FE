@@ -47,3 +47,22 @@ export const uploadMediaBlobs = async ({
 
   return items.map((item) => item.mediaPublicId);
 };
+
+const MEDIA_CDN_HOST = 'dev-media.kusitms.xyz';
+
+const PURPOSE_FOLDER: Record<MediaUploadPurpose, string> = {
+  PROFILE_IMAGE: 'profile-image',
+  FEED_IMAGE: 'feed-image',
+  TEAM_IMAGE: 'team-image',
+  DAILY_QUESTION_IMAGE: 'daily-question-image',
+};
+
+export const buildMediaPublicUrl = (
+  purpose: MediaUploadPurpose,
+  publicId: string,
+  contentType: string,
+): string => {
+  const folder = PURPOSE_FOLDER[purpose];
+  const extension = contentType.split('/')[1] ?? 'jpg';
+  return `https://${MEDIA_CDN_HOST}/media/${folder}/${publicId}.${extension}`;
+};

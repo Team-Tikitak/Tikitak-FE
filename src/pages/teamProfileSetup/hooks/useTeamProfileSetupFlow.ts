@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router';
 import { useAcceptInvitation } from '@/shared/api/invitation/queries';
 import { deleteMedia } from '@/shared/api/media/api';
-import { uploadMediaBlobs } from '@/shared/api/media/helpers';
+import { buildMediaPublicUrl, uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useCreateTeam, usePatchTeamProfile } from '@/shared/api/team/queries';
 import type { SubmitProfile, TeamDraftRouteState } from '../model';
 
@@ -20,7 +20,7 @@ export const useTeamProfileSetupFlow = () => {
   const submit = async ({ nickname, avatarFile, initialProfileImgUrl }: SubmitProfile) => {
     if (!state) return;
 
-    let mediaPublicId = initialProfileImgUrl ?? '';
+    let profileImageUrl = initialProfileImgUrl ?? '';
     let uploadedPublicId: string | null = null;
     if (avatarFile) {
       try {
@@ -30,7 +30,11 @@ export const useTeamProfileSetupFlow = () => {
           blobs: [avatarFile],
           fileNamePrefix: 'profile',
         });
-        mediaPublicId = publicId;
+        profileImageUrl = buildMediaPublicUrl(
+          'PROFILE_IMAGE',
+          publicId,
+          avatarFile.type || 'image/jpeg',
+        );
         uploadedPublicId = publicId;
       } catch (error) {
         console.error('프로필 이미지 업로드 실패', error);
@@ -46,18 +50,18 @@ export const useTeamProfileSetupFlow = () => {
         await createTeam({
           teamName: state.name,
           introduction: state.description,
-          profileImageUrl: mediaPublicId,
+          profileImageUrl,
           nickName: nickname,
         });
       } else if (state.mode === 'join') {
         await acceptInvitation({
           token: state.token,
-          body: { nickname, profileImgUrl: mediaPublicId },
+          body: { nickname, profileImgUrl: profileImageUrl },
         });
       } else if (state.mode === 'edit') {
         await patchTeamProfile({
           teamId: state.teamId,
-          body: { nickname, profileImgUrl: mediaPublicId },
+          body: { nickname, profileImgUrl: profileImageUrl },
         });
       }
     } catch (error) {
