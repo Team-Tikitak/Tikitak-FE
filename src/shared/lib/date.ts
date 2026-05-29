@@ -14,5 +14,7 @@ export const getTodayKstDate = () => KST_DATE_FORMATTER.format(new Date());
 /** 주어진 날짜가 KST 기준 오늘인지 여부 */
 export const isTodayKstDate = (date: string | null | undefined) => {
   if (!date) return false;
-  return date.slice(0, 10) === getTodayKstDate();
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return false;
+  return KST_DATE_FORMATTER.format(parsed) === getTodayKstDate();
 };
