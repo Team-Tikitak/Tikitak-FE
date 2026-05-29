@@ -19,7 +19,7 @@ export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
-      <h2 className="body-2 text-black">{pickData?.month}월 추억</h2>
+      <h2 className="body-2 text-black">{pickData?.month ?? regionsData?.month}월 추억</h2>
       <div className="grid w-full grid-cols-2 gap-4">
         {firstPick && (
           <ContentImageCard
