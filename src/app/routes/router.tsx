@@ -1,27 +1,9 @@
 import { createBrowserRouter } from 'react-router';
 import { RootLayout } from '@/app/layout';
-import { ActivityPage } from '@/pages/activity/ui/ActivityPage';
-import { DailyFeedCreatePage } from '@/pages/dailyFeedCreate/ui';
-import { DailyFeedEditPage } from '@/pages/dailyFeedEdit/ui/DailyFeedEditPage';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
-import { FeedPage } from '@/pages/feed/ui';
-import { FeedCreatePage } from '@/pages/feedCreate/ui';
-import { FeedDetailPage } from '@/pages/feedDetail/ui/FeedDetailPage';
-import { FeedEditPage } from '@/pages/feedEdit/ui/FeedEditPage';
-import { GalleryPage } from '@/pages/gallery/ui';
-import { HomePage } from '@/pages/home/ui';
-import { InviteAcceptPage } from '@/pages/inviteAccept/ui';
 import { LoginPage } from '@/pages/login/ui';
-import { MyPage } from '@/pages/myPage/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
-import { OnboardingPage } from '@/pages/onboarding/ui';
-import { PlaceDetailPage } from '@/pages/placeDetail/ui/PlaceDetailPage';
 import { SplashPage } from '@/pages/splash/ui';
-import { TeamCreatePage } from '@/pages/teamCreate/ui';
-import { TeamDetailPage } from '@/pages/teamDetail/ui';
-import { TeamInvitePage } from '@/pages/teamInvite/ui';
-import { TeamProfileSetupPage } from '@/pages/teamProfileSetup/ui';
-import { TermsPage } from '@/pages/terms/ui';
 import { authCallbackLoader, inviteAcceptLoader, setupFlowLoader } from './loaders';
 import { PATHS } from './paths';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -35,29 +17,112 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
-          { path: PATHS.INVITE_ACCEPT, loader: inviteAcceptLoader, element: <InviteAcceptPage /> },
+          {
+            path: PATHS.INVITE_ACCEPT,
+            loader: inviteAcceptLoader,
+            lazy: () =>
+              import('@/pages/inviteAccept/ui').then((m) => ({ Component: m.InviteAcceptPage })),
+          },
           { path: PATHS.AUTH_CALLBACK, loader: authCallbackLoader, element: <SplashPage /> },
           {
             element: <ProtectedRoute />,
             loader: setupFlowLoader,
             children: [
-              { path: PATHS.TERMS, element: <TermsPage /> },
-              { path: PATHS.ONBOARDING, element: <OnboardingPage /> },
-              { path: PATHS.HOME, element: <HomePage /> },
-              { path: PATHS.FEED, element: <FeedPage /> },
-              { path: PATHS.FEED_CREATE, element: <FeedCreatePage /> },
-              { path: PATHS.DAILY_FEED_CREATE, element: <DailyFeedCreatePage /> },
-              { path: PATHS.DAILY_FEED_EDIT, element: <DailyFeedEditPage /> },
-              { path: PATHS.MY_PAGE, element: <MyPage /> },
-              { path: PATHS.TEAM_DETAIL, element: <TeamDetailPage /> },
-              { path: PATHS.TEAM_CREATE, element: <TeamCreatePage /> },
-              { path: PATHS.TEAM_PROFILE_SETUP, element: <TeamProfileSetupPage /> },
-              { path: PATHS.TEAM_INVITE, element: <TeamInvitePage /> },
-              { path: PATHS.GALLERY, element: <GalleryPage /> },
-              { path: PATHS.FEED_DETAIL, element: <FeedDetailPage /> },
-              { path: PATHS.FEED_EDIT, element: <FeedEditPage /> },
-              { path: PATHS.PLACE_FEEDS, element: <PlaceDetailPage /> },
-              { path: PATHS.ACTIVITY, element: <ActivityPage /> },
+              {
+                path: PATHS.TERMS,
+                lazy: () => import('@/pages/terms/ui').then((m) => ({ Component: m.TermsPage })),
+              },
+              {
+                path: PATHS.ONBOARDING,
+                lazy: () =>
+                  import('@/pages/onboarding/ui').then((m) => ({ Component: m.OnboardingPage })),
+              },
+              {
+                path: PATHS.HOME,
+                lazy: () => import('@/pages/home/ui').then((m) => ({ Component: m.HomePage })),
+              },
+              {
+                path: PATHS.FEED,
+                lazy: () => import('@/pages/feed/ui').then((m) => ({ Component: m.FeedPage })),
+              },
+              {
+                path: PATHS.FEED_CREATE,
+                lazy: () =>
+                  import('@/pages/feedCreate/ui').then((m) => ({ Component: m.FeedCreatePage })),
+              },
+              {
+                path: PATHS.DAILY_FEED_CREATE,
+                lazy: () =>
+                  import('@/pages/dailyFeedCreate/ui').then((m) => ({
+                    Component: m.DailyFeedCreatePage,
+                  })),
+              },
+              {
+                path: PATHS.DAILY_FEED_EDIT,
+                lazy: () =>
+                  import('@/pages/dailyFeedEdit/ui/DailyFeedEditPage').then((m) => ({
+                    Component: m.DailyFeedEditPage,
+                  })),
+              },
+              {
+                path: PATHS.MY_PAGE,
+                lazy: () => import('@/pages/myPage/ui').then((m) => ({ Component: m.MyPage })),
+              },
+              {
+                path: PATHS.TEAM_DETAIL,
+                lazy: () =>
+                  import('@/pages/teamDetail/ui').then((m) => ({ Component: m.TeamDetailPage })),
+              },
+              {
+                path: PATHS.TEAM_CREATE,
+                lazy: () =>
+                  import('@/pages/teamCreate/ui').then((m) => ({ Component: m.TeamCreatePage })),
+              },
+              {
+                path: PATHS.TEAM_PROFILE_SETUP,
+                lazy: () =>
+                  import('@/pages/teamProfileSetup/ui').then((m) => ({
+                    Component: m.TeamProfileSetupPage,
+                  })),
+              },
+              {
+                path: PATHS.TEAM_INVITE,
+                lazy: () =>
+                  import('@/pages/teamInvite/ui').then((m) => ({ Component: m.TeamInvitePage })),
+              },
+              {
+                path: PATHS.GALLERY,
+                lazy: () =>
+                  import('@/pages/gallery/ui').then((m) => ({ Component: m.GalleryPage })),
+              },
+              {
+                path: PATHS.FEED_DETAIL,
+                lazy: () =>
+                  import('@/pages/feedDetail/ui/FeedDetailPage').then((m) => ({
+                    Component: m.FeedDetailPage,
+                  })),
+              },
+              {
+                path: PATHS.FEED_EDIT,
+                lazy: () =>
+                  import('@/pages/feedEdit/ui/FeedEditPage').then((m) => ({
+                    Component: m.FeedEditPage,
+                  })),
+              },
+              {
+                path: PATHS.PLACE_FEEDS,
+                lazy: () =>
+                  import('@/pages/placeDetail/ui/PlaceDetailPage').then((m) => ({
+                    Component: m.PlaceDetailPage,
+                  })),
+              },
+              {
+                path: PATHS.ACTIVITY,
+                lazy: () =>
+                  import('@/pages/activity/ui/ActivityPage').then((m) => ({
+                    Component: m.ActivityPage,
+                  })),
+              },
             ],
           },
           { path: '*', element: <NotFoundPage /> },
