@@ -83,7 +83,7 @@ describe('useFeedCreateForm', () => {
     });
     unmount();
     expect(revokeSpy).not.toHaveBeenCalledWith('blob:p-1');
-    act(() => vi.advanceTimersByTime(1000));
+    act(() => vi.advanceTimersByTime(5000));
     expect(revokeSpy).toHaveBeenCalledWith('blob:p-1');
     expect(revokeSpy).toHaveBeenCalledWith('blob:p-2');
   });

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import { revokeObjectUrlAfterTransition } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 export const useDailyQuestionCreateForm = () => {
@@ -12,7 +13,7 @@ export const useDailyQuestionCreateForm = () => {
   }, [photo]);
   useEffect(() => {
     return () => {
-      if (photoRef.current) URL.revokeObjectURL(photoRef.current.url);
+      if (photoRef.current) revokeObjectUrlAfterTransition(photoRef.current.url);
     };
   }, []);
 
