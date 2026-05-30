@@ -8,7 +8,7 @@ export const EmptyActiveView = () => {
       </div>
       <p className="text-center text-[16px] leading-normal font-semibold tracking-[0.064px] text-gray-700">
         아직 우리 팀의 활동이 없어요.
-        <br />+ 버튼을 눌러 첫 피드를 남겨주세요
+        <br />+ 버튼을 눌러 첫 피드를 남겨주세요.
       </p>
     </div>
   );

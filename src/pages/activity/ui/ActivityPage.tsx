@@ -66,7 +66,7 @@ export const ActivityPage = () => {
       {isLoading ? (
         <ActivitySkeleton />
       ) : isEmpty ? (
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center pb-3.5">
           <EmptyActiveView />
         </div>
       ) : (

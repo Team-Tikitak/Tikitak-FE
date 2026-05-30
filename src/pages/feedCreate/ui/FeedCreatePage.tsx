@@ -1,8 +1,9 @@
-﻿import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useTeamMembers } from '@/shared/api/team/queries';
-import { useMe } from '@/shared/api/user/queries';
+import type { TeamMember } from '@/shared/api/team/types';
+import { useGetTeams, useMe } from '@/shared/api/user/queries';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
@@ -25,9 +26,11 @@ import { useFeedShare } from '../hooks/useFeedShare';
 
 interface FeedCreateFormProps {
   teamId: number;
+  teamMembers: TeamMember[];
+  myMember: TeamMember | null;
 }
 
-const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
+const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) => {
   const navigate = useNavigate();
   const {
     content,
@@ -44,10 +47,7 @@ const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
     commitMembers,
     removeMember,
     isShareDisabled,
-  } = useFeedCreateForm();
-
-  const { data: teamMembersData } = useTeamMembers(teamId);
-  const teamMembers = teamMembersData?.members ?? [];
+  } = useFeedCreateForm({ initialMembers: myMember ? [myMember] : [] });
 
   const { share, isSharing } = useFeedShare({
     teamId,
@@ -94,7 +94,11 @@ const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
         teamMembers={teamMembers}
         selectedMembers={selectedMembers}
         onConfirm={(picked) => {
-          commitMembers(picked);
+          const withMe =
+            myMember && !picked.some((m) => m.teamMemberId === myMember.teamMemberId)
+              ? [myMember, ...picked]
+              : picked;
+          commitMembers(withMe);
           close();
         }}
       />
@@ -163,7 +167,11 @@ const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
                     name={member.nickname}
                     avatarSrc={normalizeImageUrl(member.profileImgUrl)}
                     size="sm"
-                    onRemove={() => removeMember(member.teamMemberId)}
+                    onRemove={
+                      member.teamMemberId === myMember?.teamMemberId
+                        ? undefined
+                        : () => removeMember(member.teamMemberId)
+                    }
                   />
                 ))}
               </div>
@@ -177,10 +185,19 @@ const FeedCreateForm = ({ teamId }: FeedCreateFormProps) => {
 
 export const FeedCreatePage = () => {
   const navigate = useNavigate();
-  const { data: me, isPending } = useMe();
+  const { data: me, isPending: isMePending } = useMe();
+  const { data: teams } = useGetTeams();
   const teamId = me?.activeTeamId ?? null;
+  const { data: teamMembersData, isPending: isMembersPending } = useTeamMembers(teamId ?? 0);
 
-  if (isPending) {
+  const myTeamMemberId = teams?.find((team) => team.teamId === teamId)?.teamMemberId ?? null;
+  const rawMembers = teamMembersData?.members ?? [];
+  const myMember = rawMembers.find((m) => m.teamMemberId === myTeamMemberId) ?? null;
+  const teamMembers = myMember
+    ? [myMember, ...rawMembers.filter((m) => m.teamMemberId !== myTeamMemberId)]
+    : rawMembers;
+
+  if (isMePending || isMembersPending) {
     return (
       <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
         <LoadingState />
@@ -196,5 +213,5 @@ export const FeedCreatePage = () => {
     );
   }
 
-  return <FeedCreateForm teamId={teamId} />;
+  return <FeedCreateForm teamId={teamId} teamMembers={teamMembers} myMember={myMember} />;
 };
