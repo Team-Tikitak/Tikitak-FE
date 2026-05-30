@@ -31,7 +31,10 @@ export const TeamProfileSetupForm = ({
   const navigate = useNavigate();
   const { submit, isPending } = useTeamProfileSetupFlow();
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
-    useTeamProfileSetupForm({ initialNickname, initialAvatarUrl });
+    useTeamProfileSetupForm({
+      initialNickname,
+      initialAvatarUrl: mode === 'edit' ? undefined : initialAvatarUrl,
+    });
   const { openPicker, inputProps } = useImageFileInput({
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
     maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
