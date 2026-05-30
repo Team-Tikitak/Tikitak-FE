@@ -33,7 +33,7 @@ export const TeamProfileSetupForm = ({
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
     useTeamProfileSetupForm({
       initialNickname,
-      initialAvatarUrl,
+      initialAvatarUrl: mode === 'edit' ? undefined : initialAvatarUrl,
     });
   const { openPicker, inputProps } = useImageFileInput({
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
@@ -73,9 +73,9 @@ export const TeamProfileSetupForm = ({
         onClick={openPicker}
         className="press-feedback mb-7 flex size-28 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
-        {(mode === 'edit' ? avatarFile : avatarPreviewUrl) ? (
+        {avatarPreviewUrl ? (
           <img
-            src={avatarPreviewUrl ?? undefined}
+            src={avatarPreviewUrl}
             alt=""
             className="no-native-image size-full object-cover"
           />
