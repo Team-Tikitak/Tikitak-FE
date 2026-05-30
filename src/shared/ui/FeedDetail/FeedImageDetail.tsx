@@ -53,11 +53,7 @@ export function FeedImageDetail({
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       startPosRef.current = null;
-      e.currentTarget.setPointerCapture(e.pointerId);
-
-      if (typeof window !== 'undefined') {
-        window.getSelection()?.removeAllRanges();
-      }
+      window.getSelection()?.removeAllRanges();
       onLongPress?.({ x, y });
     }, LONG_PRESS_DELAY);
   };

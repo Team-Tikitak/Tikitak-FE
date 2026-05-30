@@ -186,9 +186,9 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
 export const FeedCreatePage = () => {
   const navigate = useNavigate();
   const { data: me, isPending: isMePending } = useMe();
-  const { data: teams } = useGetTeams();
+  const { data: teams, isPending: isTeamsPending } = useGetTeams();
   const teamId = me?.activeTeamId ?? null;
-  const { data: teamMembersData, isPending: isMembersPending } = useTeamMembers(teamId ?? 0);
+  const { data: teamMembersData, isPending: isMembersPending } = useTeamMembers(teamId);
 
   const myTeamMemberId = teams?.find((team) => team.teamId === teamId)?.teamMemberId ?? null;
   const rawMembers = teamMembersData?.members ?? [];
@@ -197,7 +197,7 @@ export const FeedCreatePage = () => {
     ? [myMember, ...rawMembers.filter((m) => m.teamMemberId !== myTeamMemberId)]
     : rawMembers;
 
-  if (isMePending || isMembersPending) {
+  if (isMePending || isTeamsPending || isMembersPending) {
     return (
       <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
         <LoadingState />
