@@ -74,11 +74,7 @@ export const TeamProfileSetupForm = ({
         className="press-feedback mb-7 flex size-28 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
         {avatarPreviewUrl ? (
-          <img
-            src={avatarPreviewUrl}
-            alt=""
-            className="no-native-image size-full object-cover"
-          />
+          <img src={avatarPreviewUrl} alt="" className="no-native-image size-full object-cover" />
         ) : (
           <CameraIcon className="h-4.5 w-5 text-black" />
         )}
