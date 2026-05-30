@@ -16,12 +16,16 @@ export const ActivityPage = () => {
   const { data: me, isPending: isMePending } = useMe();
   const { data: teams, isPending: isTeamsPending } = useGetTeams();
   const activeTeam = teams?.find((team) => team.teamId === me?.activeTeamId) ?? teams?.[0];
-  const { data: question, isPending: isQuestionPending } = useGetDailyQuestion(
-    activeTeam?.teamId ?? 0,
-  );
-  const { data: bestAttendance, isPending: isBestAttendancePending } = useHomeBestAttendance(
-    activeTeam?.teamId,
-  );
+  const {
+    data: question,
+    isPending: isQuestionPending,
+    isFetching: isQuestionFetching,
+  } = useGetDailyQuestion(activeTeam?.teamId ?? 0);
+  const {
+    data: bestAttendance,
+    isPending: isBestAttendancePending,
+    isFetching: isBestAttendanceFetching,
+  } = useHomeBestAttendance(activeTeam?.teamId);
   const dailyQuestion = question?.content;
   const showDailyQuestion = Boolean(dailyQuestion) && !question?.answered;
   const hasActiveTeam = Boolean(activeTeam?.teamId);
@@ -29,8 +33,16 @@ export const ActivityPage = () => {
   const isLoading =
     isMePending ||
     isTeamsPending ||
-    (hasActiveTeam && (isQuestionPending || isBestAttendancePending));
-  const isEmpty = bestAttendance !== undefined && (bestAttendance.members ?? []).length === 0;
+    (hasActiveTeam &&
+      (isQuestionPending ||
+        isQuestionFetching ||
+        isBestAttendancePending ||
+        isBestAttendanceFetching));
+  const isHeaderLoading = isMePending || isTeamsPending;
+  const isEmpty =
+    !isBestAttendanceFetching &&
+    bestAttendance !== undefined &&
+    (bestAttendance.members ?? []).length === 0;
 
   if (!isLoading && !hasActiveTeam) {
     return (
@@ -42,15 +54,15 @@ export const ActivityPage = () => {
 
   return (
     <PageShell
-      header={<AppHeader teamName={activeTeam?.teamName ?? ''} />}
+      header={<AppHeader teamName={activeTeam?.teamName ?? ''} teamNameLoading={isHeaderLoading} />}
       contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
-      {showDailyQuestion && (
+      {showDailyQuestion ? (
         <DailyQuestion
           question={dailyQuestion ?? ''}
           onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
         />
-      )}
+      ) : null}
       {isLoading ? (
         <ActivitySkeleton />
       ) : isEmpty ? (

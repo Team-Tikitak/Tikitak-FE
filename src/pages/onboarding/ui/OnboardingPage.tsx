@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PENDING_INVITE_TOKEN_KEY } from '@/app/routes/loaders';
 import { PATHS } from '@/app/routes/paths';
-import { usePatchOnboarding } from '@/shared/api/user/queries';
+import { useMe, usePatchOnboarding } from '@/shared/api/user/queries';
 import { CharacterPreviewStep } from './CharacterPreviewStep';
 import { QuestionStep } from './QuestionStep';
 import { ResultStep } from './ResultStep';
@@ -23,6 +23,7 @@ export const OnboardingPage = () => {
   const navigate = useNavigate();
   const { step, answers, canGoBack, goBack, goTo, recordAnswerAndAdvance } = useOnboardingFlow();
   const patchOnboarding = usePatchOnboarding();
+  const { data: me } = useMe();
 
   const handleBack = () => {
     if (canGoBack) {
@@ -71,8 +72,7 @@ export const OnboardingPage = () => {
   return (
     <ResultStep
       characterId={characterId}
-      // TODO: 사용자 데이터 연동
-      userName="이현진"
+      userName={me?.name ?? ''}
       isLoading={patchOnboarding.isPending}
       onBack={handleBack}
       onComplete={handleComplete}

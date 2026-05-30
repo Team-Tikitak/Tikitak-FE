@@ -62,7 +62,7 @@ export const MyPage = () => {
               onClick={() =>
                 openConfirmDialog({
                   title: '정말 탈퇴하시겠어요?',
-                  description: '계정과 작성한 기록이 모두 삭제되며 복구할 수 없어요.',
+                  description: '계정과 작성한 기록은 복구할 수 없어요.',
                   confirmLabel: '탈퇴하기',
                   destructive: true,
                   onConfirm: () => deleteMe(),

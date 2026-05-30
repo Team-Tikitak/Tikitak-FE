@@ -26,10 +26,16 @@ export const ContentImageCard = ({
         onClick && 'cursor-pointer',
         className,
       )}
-      style={
-        imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover' } : undefined
-      }
     >
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
       <div className="absolute inset-0 rounded-lg bg-linear-to-b from-black/45 from-30% to-transparent" />
       <p className="relative text-sm font-bold tracking-[0.056px] text-white">{title}</p>
       <p className="relative text-xs font-medium tracking-[0.048px] text-white">{description}</p>

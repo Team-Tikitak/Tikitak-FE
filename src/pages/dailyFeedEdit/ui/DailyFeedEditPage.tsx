@@ -5,9 +5,14 @@ import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
 import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
-import { isTodayKstDate, normalizeImageUrl, openOverlay } from '@/shared/lib';
+import {
+  isTodayKstDate,
+  normalizeImageUrl,
+  openOverlay,
+  revokeObjectUrlAfterTransition,
+} from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
-import { Button, DailyQuestion, Header } from '@/shared/ui';
+import { Button, DailyQuestion, Header, LoadingState } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
 import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
@@ -39,7 +44,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
   }, [newPhoto]);
   useEffect(() => {
     return () => {
-      if (newPhotoRef.current) URL.revokeObjectURL(newPhotoRef.current.url);
+      if (newPhotoRef.current) revokeObjectUrlAfterTransition(newPhotoRef.current.url);
     };
   }, []);
 
@@ -105,7 +110,7 @@ const DailyFeedEditForm = ({ teamId, feedDetail }: DailyFeedEditFormProps) => {
           onClick={share}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          {isSharing ? '수정 중...' : '수정하기'}
+          수정하기
         </Button>
       }
     >
@@ -133,12 +138,18 @@ export const DailyFeedEditPage = () => {
 
   const { data: feedDetail, isLoading, isError } = useGetFeedDetail(teamId, feedIdNum);
 
-  if (isLoading || isError || !feedDetail) {
+  if (isLoading) {
     return (
       <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
-        <p className="body-3 mt-10 text-center text-gray-500">
-          {isError ? '글을 불러오지 못했습니다.' : '불러오는 중...'}
-        </p>
+        <LoadingState />
+      </PageShell>
+    );
+  }
+
+  if (isError || !feedDetail) {
+    return (
+      <PageShell header={<Header title="글 수정" onBack={() => navigate(-1)} />}>
+        <p className="body-3 mt-10 text-center text-gray-500">글을 불러오지 못했습니다.</p>
       </PageShell>
     );
   }

@@ -16,4 +16,5 @@ export * from './loadImage';
 export * from './normalizeImageUrl';
 export * from './openOverlay';
 export * from './pinUtils';
+export * from './revokeObjectUrl';
 export * from './toQueryString';
