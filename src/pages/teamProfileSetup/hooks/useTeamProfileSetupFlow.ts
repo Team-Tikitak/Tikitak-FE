@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router';
 import { useAcceptInvitation } from '@/shared/api/invitation/queries';
 import { deleteMedia } from '@/shared/api/media/api';
-import { buildMediaPublicUrl, uploadMediaBlobs } from '@/shared/api/media/helpers';
+import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useCreateTeam, usePatchTeamProfile } from '@/shared/api/team/queries';
 import type { SubmitProfile, TeamDraftRouteState } from '../model';
 
@@ -21,7 +21,6 @@ export const useTeamProfileSetupFlow = () => {
     if (!state) return;
 
     let uploadedPublicId: string | null = null;
-    let uploadedImageUrl: string | null = null;
     if (avatarFile) {
       try {
         setIsUploading(true);
@@ -31,7 +30,6 @@ export const useTeamProfileSetupFlow = () => {
           fileNamePrefix: 'profile',
         });
         uploadedPublicId = publicId;
-        uploadedImageUrl = buildMediaPublicUrl('PROFILE_IMAGE', publicId, avatarFile.type);
       } catch (error) {
         console.error('프로필 이미지 업로드 실패', error);
         // TODO: @capacitor/dialog 도입 시 네이티브 재시도 다이얼로그로 교체
@@ -46,7 +44,7 @@ export const useTeamProfileSetupFlow = () => {
         await createTeam({
           teamName: state.name,
           introduction: state.description,
-          ...(uploadedImageUrl ? { profileImageUrl: uploadedImageUrl } : {}),
+          ...(uploadedPublicId ? { mediaPublicId: uploadedPublicId } : {}),
           nickName: nickname,
         });
       } else if (state.mode === 'join') {
@@ -54,7 +52,7 @@ export const useTeamProfileSetupFlow = () => {
           token: state.token,
           body: {
             nickname,
-            ...(uploadedImageUrl ? { profileImgUrl: uploadedImageUrl } : {}),
+            ...(uploadedPublicId ? { mediaPublicId: uploadedPublicId } : {}),
           },
         });
       } else if (state.mode === 'edit') {
@@ -62,7 +60,7 @@ export const useTeamProfileSetupFlow = () => {
           teamId: state.teamId,
           body: {
             nickname,
-            ...(uploadedImageUrl ? { profileImgUrl: uploadedImageUrl } : {}),
+            ...(uploadedPublicId ? { mediaPublicId: uploadedPublicId } : {}),
           },
         });
       }

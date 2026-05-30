@@ -30,8 +30,10 @@ export const TeamProfileSetupForm = ({
 }: TeamProfileSetupFormProps) => {
   const navigate = useNavigate();
   const { submit, isPending } = useTeamProfileSetupFlow();
-  const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
-    useTeamProfileSetupForm({ initialNickname, initialAvatarUrl });
+  const { nickname, setNickname, avatarFile, setAvatar, isDisabled } = useTeamProfileSetupForm({
+    initialNickname,
+    initialAvatarUrl,
+  });
   const { openPicker, inputProps } = useImageFileInput({
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
     maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
@@ -70,11 +72,7 @@ export const TeamProfileSetupForm = ({
         onClick={openPicker}
         className="press-feedback mb-7 flex size-28 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
-        {avatarPreviewUrl ? (
-          <img src={avatarPreviewUrl} alt="" className="no-native-image size-full object-cover" />
-        ) : (
-          <CameraIcon className="h-4.5 w-5 text-black" />
-        )}
+        <CameraIcon className="h-4.5 w-5 text-black" />
       </button>
       <input {...inputProps} />
       <PageSection title="이름">
