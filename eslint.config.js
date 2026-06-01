@@ -18,12 +18,15 @@ export default defineConfig([
   globalIgnores([
     'dist',
     'build',
+    'storybook-static',
     'node_modules',
     '.yarn',
     '.pnp.*',
     '*.config.js',
     '**/*.d.ts',
     'tmp/**',
+    'android/**',
+    'ios/**',
   ]),
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
