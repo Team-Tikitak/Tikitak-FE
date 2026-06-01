@@ -51,6 +51,16 @@ export const readStoredHeroPin = (): StoredHeroPin | null => {
   }
 };
 
+export const clearStoredHeroPin = (): void => {
+  pendingHeroPinCoords = null;
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.removeItem(HERO_PIN_STORAGE_KEY);
+  } catch {
+    // 무시
+  }
+};
+
 export const getStoredHeroPinStyle = (storedHeroPin: StoredHeroPin, pinSize: number) => {
   const shouldCenter =
     typeof storedHeroPin.latitude === 'number' && typeof storedHeroPin.longitude === 'number';

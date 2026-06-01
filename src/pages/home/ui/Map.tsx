@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Pin } from '@/shared/api/map/types';
 import { normalizeImageUrl } from '@/shared/lib';
 import { MapImage } from './MapImage';
 import { StoredHeroPin } from './StoredHeroPin';
 import { useKakaoMap } from '../hooks/useKakaoMap';
-import { readStoredHeroPin, storeHeroPin } from '../lib/heroPinStorage';
+import { clearStoredHeroPin, readStoredHeroPin, storeHeroPin } from '../lib/heroPinStorage';
 
 interface MapProps {
   pins: Pin[];
@@ -18,13 +18,23 @@ const PIN_SIZE = 87;
 
 export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [storedHeroPin] = useState(readStoredHeroPin);
+  const [storedHeroPin, setStoredHeroPin] = useState(readStoredHeroPin);
   const { renderItems, sdkError, getCurrentViewport, expandCluster } = useKakaoMap(
     mapRef,
     pins,
     initialCenter,
     locationResolved,
   );
+
+  // hero 전환에 쓰인 뒤(지도 실렌더 후) 저장된 hero 핀 정리 — 클러스터/뷰 밖에서 잔상으로 남지 않게
+  useEffect(() => {
+    if (!storedHeroPin || renderItems.length === 0) return;
+    const id = window.setTimeout(() => {
+      clearStoredHeroPin();
+      setStoredHeroPin(null);
+    }, 500);
+    return () => window.clearTimeout(id);
+  }, [storedHeroPin, renderItems.length]);
 
   const pinByPlaceId = useMemo(
     () => new globalThis.Map(pins.map((pin) => [pin.placeId, pin] as const)),
