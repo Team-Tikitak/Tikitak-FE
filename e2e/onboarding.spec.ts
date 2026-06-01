@@ -15,15 +15,17 @@ test.describe('약관 동의 → 온보딩 → 결과', () => {
       agreements: { termsAgreed: false, privacyAgreed: false },
     });
 
+    let agreed = false;
     await page.route('**/api/v1/me/agreements', async (route) => {
       if (route.request().method() === 'PUT') {
+        agreed = true;
         await route.fulfill(json(wrap({ termsAgreed: true, privacyAgreed: true })));
       } else {
         await route.fulfill(
           json(
             wrap({
-              termsAgreed: false,
-              privacyAgreed: false,
+              termsAgreed: agreed,
+              privacyAgreed: agreed,
               termsAgreedAt: '2026-05-01T00:00:00.000Z',
             }),
           ),
