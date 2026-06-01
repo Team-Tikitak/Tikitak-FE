@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
-import { useFeeds } from '@/shared/api/feed/queries';
+import { useInfiniteFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
+import { useInfiniteScroll } from '@/shared/hooks';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';
 import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
@@ -22,11 +23,20 @@ export const FeedPage = () => {
   };
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
-  const { data, isLoading, isError } = useFeeds(teamId);
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteFeeds(teamId);
 
-  const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
+  const feeds = useMemo(
+    () => data?.pages.flatMap((page) => page.items).map(adaptFeedListItem) ?? [],
+    [data],
+  );
   const totalCount = feeds.length;
   const showFeedLoading = isMePending || isLoading;
+  const { observerRef } = useInfiniteScroll({
+    hasNextPage: Boolean(hasNextPage) && !showFeedLoading && !isError,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
 
   if (!isMePending && !teamId) {
     return (
@@ -76,6 +86,12 @@ export const FeedPage = () => {
               </li>
             ))}
           </ul>
+        )}
+        {!showFeedLoading && !isError && feeds.length > 0 && (
+          <>
+            <div ref={observerRef} className="h-8 shrink-0" aria-hidden="true" />
+            {isFetchingNextPage && <FeedSkeleton viewMode={viewMode} />}
+          </>
         )}
       </div>
     </PageShell>

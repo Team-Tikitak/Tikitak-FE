@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { markFeedDeleting } from '@/shared/lib/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
@@ -6,6 +12,31 @@ import { feedKeys } from './keys';
 import { mapKeys } from '../map/keys';
 import { unwrap } from '../request';
 import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
+
+type FeedListCacheData = FeedListResponse | InfiniteData<FeedListResponse>;
+
+const removeFeedFromPage = (page: FeedListResponse, feedId: number): FeedListResponse => ({
+  ...page,
+  items: page.items.filter((item) => item.feedId !== feedId),
+});
+
+const removeFeedFromListCache = (
+  old: FeedListCacheData | undefined,
+  feedId: number,
+): FeedListCacheData | undefined => {
+  if (!old) {
+    return old;
+  }
+
+  if ('pages' in old) {
+    return {
+      ...old,
+      pages: old.pages.map((page) => removeFeedFromPage(page, feedId)),
+    };
+  }
+
+  return removeFeedFromPage(old, feedId);
+};
 
 export const useCreateFeed = (teamId: number) => {
   const queryClient = useQueryClient();
@@ -23,6 +54,24 @@ export const useFeeds = (teamId: number | null | undefined, params: FeedListPara
   useQuery({
     queryKey: feedKeys.listFiltered(teamId ?? 0, params),
     queryFn: () => unwrap(() => getFeeds(teamId as number, params)),
+    enabled: typeof teamId === 'number' && teamId > 0,
+    staleTime: 30 * 1000,
+  });
+
+export const useInfiniteFeeds = (teamId: number | null | undefined, params: FeedListParams = {}) =>
+  useInfiniteQuery<
+    FeedListResponse,
+    Error,
+    InfiniteData<FeedListResponse>,
+    ReturnType<typeof feedKeys.infiniteListFiltered>,
+    string | undefined
+  >({
+    queryKey: feedKeys.infiniteListFiltered(teamId ?? 0, params),
+    queryFn: ({ pageParam }) =>
+      unwrap(() => getFeeds(teamId as number, { ...params, cursor: pageParam })),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.pageInfo.hasNext ? (lastPage.pageInfo.nextCursor ?? undefined) : undefined,
     enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: 30 * 1000,
   });
@@ -50,13 +99,12 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
       markFeedDeleting();
       await queryClient.cancelQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       await queryClient.cancelQueries({ queryKey: feedKeys.list(teamId) });
-      const snapshots = queryClient.getQueriesData<FeedListResponse>({
+      const snapshots = queryClient.getQueriesData<FeedListCacheData>({
         queryKey: feedKeys.list(teamId),
       });
       queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedId) });
-      queryClient.setQueriesData<FeedListResponse>(
-        { queryKey: feedKeys.list(teamId) },
-        (old) => old && { ...old, items: old.items.filter((item) => item.feedId !== feedId) },
+      queryClient.setQueriesData<FeedListCacheData>({ queryKey: feedKeys.list(teamId) }, (old) =>
+        removeFeedFromListCache(old, feedId),
       );
       return { snapshots };
     },

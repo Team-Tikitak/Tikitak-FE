@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
+import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import { Header, PageState } from '@/shared/ui';
 import { PlaceDetailFeedItem } from './PlaceDetailFeedItem';
 import { usePlaceFeeds } from '../hooks/usePlaceFeeds';
@@ -13,9 +14,24 @@ interface PlaceFeedsLocationState {
 
 export const PlaceDetailPage = () => {
   const navigate = useNavigate();
-  const { teamId, placeId, feedIds, placeName, isLoading, isError } = usePlaceFeeds();
+  const {
+    teamId,
+    placeId,
+    feedIds,
+    placeName,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePlaceFeeds();
   const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
   const pinThumbnail = (useLocation().state as PlaceFeedsLocationState | null)?.thumbnailUrl;
+  const { observerRef } = useInfiniteScroll({
+    hasNextPage: Boolean(hasNextPage) && !isLoading && !isError,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
 
   const header = <Header title={placeName} showBackButton onBack={() => navigate(-1)} />;
 
@@ -38,6 +54,9 @@ export const PlaceDetailPage = () => {
             onHintDismiss={markSeen}
           />
         ))}
+        {feedIds.length > 0 && (
+          <div ref={observerRef} className="h-8 shrink-0" aria-hidden="true" />
+        )}
       </PageShell>
     </PageState>
   );
