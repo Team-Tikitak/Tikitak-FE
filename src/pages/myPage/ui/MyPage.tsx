@@ -5,6 +5,7 @@ import { useLogout } from '@/shared/api/auth/queries';
 import { useDeleteMe, useGetTeams } from '@/shared/api/user/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { Header, ListCard, PageSection } from '@/shared/ui';
+import { openConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { MyPageSkeleton } from './MyPageSkeleton';
 import { MyPageTeamCard } from './MyPageTeamCard';
 import { EXTERNAL_LINKS } from '../constants/externalLinks';
@@ -56,7 +57,18 @@ export const MyPage = () => {
               }
             />
             <ListCard title="로그아웃" onClick={() => logout()} />
-            <ListCard title="회원 탈퇴" onClick={() => deleteMe()} />
+            <ListCard
+              title="회원 탈퇴"
+              onClick={() =>
+                openConfirmDialog({
+                  title: '정말 탈퇴하시겠어요?',
+                  description: '계정과 작성한 기록은 복구할 수 없어요.',
+                  confirmLabel: '탈퇴하기',
+                  destructive: true,
+                  onConfirm: () => deleteMe(),
+                })
+              }
+            />
           </PageSection>
         </>
       )}

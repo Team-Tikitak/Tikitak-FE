@@ -1,21 +1,21 @@
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS, toTeamInvite } from '@/app/routes/paths';
-import { useDeleteTeamMember, useLeaveTeam, useTeamDelete } from '@/shared/api/team/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
 import { normalizeImageUrl } from '@/shared/lib';
 import { Button, Header, MemberCard, PageSection } from '@/shared/ui';
+import { MyProfileCard } from './MyProfileCard';
+import { TeamDetailSkeleton } from './TeamDetailSkeleton';
 import { useTeamDetail } from '../hooks/useTeamDetail';
+import { useTeamDetailActions } from '../hooks/useTeamDetailActions';
 
 export const TeamDetailPage = () => {
   const navigate = useNavigate();
   const { teamId: teamParams } = useParams();
   const teamId = Number(teamParams);
 
-  const { teamName, myProfile, members, isOwner, isError } = useTeamDetail(teamId);
-  const { mutate: mutateLeaveTeam } = useLeaveTeam();
-  const { mutate: postTeamDelete } = useTeamDelete();
-  const { mutate: removeMember } = useDeleteTeamMember();
+  const { teamName, myProfile, members, isOwner, isLoading, isError } = useTeamDetail(teamId);
+  const { confirmLeave, confirmRemoveMember, confirmDelete, goInvite, goEditProfile } =
+    useTeamDetailActions({ teamId, teamName });
 
   if (isError) {
     return (
@@ -27,6 +27,18 @@ export const TeamDetailPage = () => {
       </PageShell>
     );
   }
+
+  if (isLoading) {
+    return (
+      <PageShell
+        header={<Header title={teamName} showBackButton onBack={() => navigate(-1)} />}
+        contentClassName="flex flex-col gap-8 px-5 py-7"
+      >
+        <TeamDetailSkeleton />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
       header={<Header title={teamName} showBackButton onBack={() => navigate(-1)} />}
@@ -34,36 +46,18 @@ export const TeamDetailPage = () => {
       bottom={
         <button
           className="body-2 w-full cursor-pointer text-center text-gray-500 underline"
-          onClick={() => mutateLeaveTeam(teamId)}
+          onClick={confirmLeave}
         >
           그룹 나가기
         </button>
       }
     >
       <PageSection title="내 프로필">
-        <div className="bg-main-000 flex items-center gap-3 rounded-lg p-4">
-          <img
-            src={normalizeImageUrl(myProfile?.profileImgUrl)}
-            alt={myProfile?.nickname}
-            className="no-native-image size-10 rounded-full"
-          />
-          <h3 className="body-9 text-gray-900">{myProfile?.nickname}</h3>
-          <button
-            aria-label="프로필 변경"
-            className="body-4 text-main-001 ml-auto cursor-pointer"
-            onClick={() =>
-              navigate(PATHS.TEAM_PROFILE_SETUP, {
-                state: {
-                  mode: 'edit',
-                  teamId: teamId,
-                  teamName: teamName,
-                },
-              })
-            }
-          >
-            변경
-          </button>
-        </div>
+        <MyProfileCard
+          nickname={myProfile?.nickname}
+          profileImgUrl={myProfile?.profileImgUrl}
+          onEdit={goEditProfile}
+        />
       </PageSection>
 
       <PageSection title="팀 멤버">
@@ -74,28 +68,17 @@ export const TeamDetailPage = () => {
               avatarSrc={normalizeImageUrl(member.profileImgUrl) ?? ''}
               name={member.nickname}
               email={member.email}
-              onRemove={
-                isOwner
-                  ? () =>
-                      removeMember({
-                        teamId: teamId,
-                        targetTeamMemberId: member.teamMemberId,
-                      })
-                  : undefined
-              }
+              onRemove={isOwner ? () => confirmRemoveMember(member) : undefined}
             />
           ))}
         </div>
       </PageSection>
       <div className="flex flex-col gap-3">
-        <Button
-          buttonIcon={<PlusIcon className="size-5" />}
-          onClick={() => navigate(toTeamInvite(teamId))}
-        >
+        <Button buttonIcon={<PlusIcon className="size-5" />} onClick={goInvite}>
           초대하기
         </Button>
         {isOwner && (
-          <Button onClick={() => postTeamDelete(teamId)} variant="destructive">
+          <Button onClick={confirmDelete} variant="destructive">
             그룹 삭제
           </Button>
         )}

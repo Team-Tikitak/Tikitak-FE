@@ -14,12 +14,17 @@ import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
 import { unwrap } from '../request';
-import type { OnboardingPatchRequest } from './types';
+import type { MeResponse, OnboardingPatchRequest } from './types';
 
-export const useMe = () =>
+type UseMeOptions = {
+  enabled?: boolean;
+};
+
+export const useMe = ({ enabled = true }: UseMeOptions = {}) =>
   useQuery({
     queryKey: userKeys.me(),
     queryFn: () => unwrap(() => getMe()),
+    enabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
@@ -52,7 +57,16 @@ export const usePatchOnboarding = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: OnboardingPatchRequest) => unwrap(() => patchOnboarding(body)),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData<MeResponse>(userKeys.me(), (prev) =>
+        prev
+          ? {
+              ...prev,
+              onboardingCompleted: data.onboardingCompleted,
+              profileCharacterType: data.profileCharacterType,
+            }
+          : prev,
+      );
       queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
   });

@@ -1,7 +1,7 @@
-import { useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
+import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
 import { useTeamProfileSetupForm } from '../hooks/useTeamProfileSetupForm';
@@ -20,7 +20,6 @@ interface TeamProfileSetupFormProps {
   promptTeamName: string;
   initialNickname?: string;
   initialAvatarUrl?: string;
-  initialProfileImgUrl?: string;
 }
 
 export const TeamProfileSetupForm = ({
@@ -28,33 +27,21 @@ export const TeamProfileSetupForm = ({
   promptTeamName,
   initialNickname,
   initialAvatarUrl,
-  initialProfileImgUrl,
 }: TeamProfileSetupFormProps) => {
   const navigate = useNavigate();
   const { submit, isPending } = useTeamProfileSetupFlow();
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
-    useTeamProfileSetupForm({ initialNickname, initialAvatarUrl });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handlePickAvatar = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-    event.target.value = '';
-    if (!file) return;
-
-    if (!ALLOWED_AVATAR_MIME_TYPES.includes(file.type)) {
-      window.alert('JPEG, PNG, WEBP 이미지만 업로드할 수 있어요.');
-      return;
-    }
-    if (file.size > MAX_AVATAR_FILE_SIZE_BYTES) {
-      window.alert('이미지 크기는 5MB 이하여야 해요.');
-      return;
-    }
-    setAvatar(file);
-  };
+    useTeamProfileSetupForm({
+      initialNickname,
+      initialAvatarUrl: mode === 'edit' ? undefined : initialAvatarUrl,
+    });
+  const { openPicker, inputProps } = useImageFileInput({
+    acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
+    maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
+    onSelect: (files) => {
+      if (files[0]) setAvatar(files[0]);
+    },
+  });
 
   return (
     <PageShell
@@ -68,7 +55,6 @@ export const TeamProfileSetupForm = ({
             submit({
               nickname,
               avatarFile,
-              initialProfileImgUrl,
             })
           }
         >
@@ -84,7 +70,7 @@ export const TeamProfileSetupForm = ({
       <button
         type="button"
         aria-label="프로필 사진 선택"
-        onClick={handlePickAvatar}
+        onClick={openPicker}
         className="press-feedback mb-7 flex size-28 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
         {avatarPreviewUrl ? (
@@ -93,13 +79,7 @@ export const TeamProfileSetupForm = ({
           <CameraIcon className="h-4.5 w-5 text-black" />
         )}
       </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={handleFileChange}
-      />
+      <input {...inputProps} />
       <PageSection title="이름">
         <CommentInputField
           variant="comment"

@@ -7,9 +7,16 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  CAMERA_REVIEW_IMAGE_HEIGHT,
+  CAMERA_REVIEW_IMAGE_WIDTH,
+  FEED_IMAGE_HEIGHT,
+  FEED_IMAGE_WIDTH,
+} from '@/shared/constants';
 import { composePhotoWithStickers } from '@/shared/lib/composePhoto';
 import { computeCaptureRect } from '@/shared/lib/computeCaptureRect';
 import { createId } from '@/shared/lib/createId';
+import { cropImageBlobToAspectRatio } from '@/shared/lib/cropImageBlob';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 
@@ -52,12 +59,11 @@ export const useCameraCapture = ({
     const video = videoRef.current;
     if (!video || !streamRef.current) return;
 
-    const displayRect = video.getBoundingClientRect();
     const rect = computeCaptureRect(
       video.videoWidth,
       video.videoHeight,
-      displayRect.width,
-      displayRect.height,
+      CAMERA_REVIEW_IMAGE_WIDTH,
+      CAMERA_REVIEW_IMAGE_HEIGHT,
     );
     if (!rect) return;
 
@@ -109,14 +115,19 @@ export const useCameraCapture = ({
         pending.stickers.length > 0
           ? await composePhotoWithStickers(pending.rawBlob, pending.stickers)
           : pending.rawBlob;
+      const uploadBlob = await cropImageBlobToAspectRatio(
+        composedBlob,
+        FEED_IMAGE_WIDTH,
+        FEED_IMAGE_HEIGHT,
+      );
       if (!isMountedRef.current) {
         URL.revokeObjectURL(pending.previewUrl);
         return;
       }
       const photo: CapturedPhoto = {
         id: createId(),
-        url: URL.createObjectURL(composedBlob),
-        blob: composedBlob,
+        url: URL.createObjectURL(uploadBlob),
+        blob: uploadBlob,
       };
       URL.revokeObjectURL(pending.previewUrl);
       setPending(null);

@@ -1,6 +1,6 @@
 import { Ssgoi, type SsgoiConfig } from '@ssgoi/react';
 import { fade, hero, sheet, slide } from '@ssgoi/react/view-transitions';
-import { PATHS } from '@/app/routes';
+import { PATHS } from '@/app/routes/paths';
 import { consumeFeedDeleting } from '@/shared/lib/deleteContextStorage';
 import type { PropsWithChildren } from 'react';
 
@@ -18,6 +18,8 @@ const ssgoiConfig: SsgoiConfig = {
     ...sheet({ enter: PATHS.DAILY_FEED_CREATE, exit: PATHS.ACTIVITY }),
 
     ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.HOME }),
+    ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.FEED }),
+    ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.ACTIVITY }),
     ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.MY_PAGE }),
 
     // Auth flow

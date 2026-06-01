@@ -2,6 +2,8 @@ import { cn } from '@/shared/lib';
 import { AvatarGroup } from '../AvatarGroup/AvatarGroup';
 import type { ComponentPropsWithoutRef } from 'react';
 
+const MAX_VISIBLE_AVATARS = 6;
+
 type TeamCardProps = ComponentPropsWithoutRef<'div'> & {
   teamName: string;
   memberCount: number;
@@ -30,15 +32,21 @@ export const TeamCard = ({
       )}
       {...props}
     >
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-1">
-          <span className="body-9 text-gray-900">{teamName}</span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-center gap-1">
+          <span className="body-9 truncate text-gray-900">{teamName}</span>
         </div>
 
-        <span className="body-1 text-gray-700">{memberCount}명 참여 중</span>
+        <span className="body-1 truncate text-gray-700">{memberCount}명 참여 중</span>
       </div>
 
-      <AvatarGroup users={users} size="sm" />
+      <AvatarGroup
+        users={users}
+        size="sm"
+        max={MAX_VISIBLE_AVATARS}
+        total={memberCount}
+        className="shrink-0"
+      />
     </div>
   );
 };

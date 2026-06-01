@@ -10,14 +10,23 @@ import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { PATHS } from './paths';
 
-const isSafeInternalPath = (path: string): boolean => /^\/(?!\/)/.test(path);
+const isSafeInternalPath = (path: string): boolean => {
+  if (typeof path !== 'string' || !path.startsWith('/')) return false;
+  if (path.startsWith('//') || path.startsWith('/\\')) return false;
+  if ([...path].some((ch) => ch.charCodeAt(0) <= 0x1f || ch.charCodeAt(0) === 0x7f)) return false;
+  try {
+    const url = new URL(path, 'https://placeholder.invalid');
+    return url.origin === 'https://placeholder.invalid';
+  } catch {
+    return false;
+  }
+};
 
 export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const accessToken = url.searchParams.get('accessToken');
   if (accessToken) {
     setAccessToken(accessToken);
-    // 뒤로가기로 토큰 URL 재노출 방지
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', PATHS.HOME);
     }
@@ -33,8 +42,14 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   return redirect(PATHS.HOME);
 };
 
+export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
+
 export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
   const token = new URL(request.url).pathname.split('/invite/')[1];
+
+  if (token && typeof window !== 'undefined') {
+    sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
+  }
 
   try {
     if (!getAccessToken()) {
@@ -48,7 +63,7 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
       });
     }
 
-    const [preview, teams] = await Promise.all([
+    const [preview, teams, me, agreements] = await Promise.all([
       queryClient.fetchQuery({
         queryKey: invitationKeys.preview(token),
         queryFn: () => unwrap(() => getInvitationPreview(token)),
@@ -57,10 +72,32 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
         queryKey: userKeys.teams(),
         queryFn: async () => (await unwrap(() => getTeams())).teams ?? [],
       }),
+      queryClient.fetchQuery({
+        queryKey: userKeys.me(),
+        queryFn: () => unwrap(() => getMe()),
+      }),
+      queryClient.fetchQuery({
+        queryKey: userKeys.agreements(),
+        queryFn: () => unwrap(() => getAgreements()),
+        staleTime: 5 * 60 * 1000,
+      }),
     ]);
 
     const isAlreadyMember = teams.some((team) => team.teamId === preview.teamId);
-    if (isAlreadyMember) return redirect(PATHS.HOME);
+    if (isAlreadyMember) {
+      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
+      if (!agreements.termsAgreed || !agreements.privacyAgreed) {
+        return redirect(PATHS.TERMS);
+      }
+      return redirect(me.onboardingCompleted ? PATHS.HOME : PATHS.ONBOARDING);
+    }
+
+    if (!agreements.termsAgreed || !agreements.privacyAgreed) {
+      return redirect(PATHS.TERMS);
+    }
+    if (!me.onboardingCompleted) {
+      return redirect(PATHS.ONBOARDING);
+    }
   } catch {
     // 비로그인 사용자는 정상 흐름
   }
@@ -83,7 +120,7 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  const [, agreements] = await Promise.all([
+  const [me, agreements] = await Promise.all([
     queryClient.fetchQuery({
       queryKey: userKeys.me(),
       queryFn: () => unwrap(() => getMe()),
@@ -98,12 +135,19 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
   const hasAgreedAll = agreements.termsAgreed && agreements.privacyAgreed;
   const url = new URL(request.url);
   const isTermsPath = url.pathname === PATHS.TERMS;
+  const isOnboardingPath = url.pathname === PATHS.ONBOARDING;
 
   if (!hasAgreedAll && !isTermsPath) {
     return redirect(PATHS.TERMS);
   }
   if (hasAgreedAll && isTermsPath) {
+    return redirect(me.onboardingCompleted ? PATHS.HOME : PATHS.ONBOARDING);
+  }
+  if (hasAgreedAll && !me.onboardingCompleted && !isOnboardingPath) {
     return redirect(PATHS.ONBOARDING);
+  }
+  if (me.onboardingCompleted && isOnboardingPath) {
+    return redirect(PATHS.HOME);
   }
 
   return null;

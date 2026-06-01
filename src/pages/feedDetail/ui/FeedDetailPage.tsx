@@ -33,6 +33,8 @@ export const FeedDetailPage = () => {
     navigate(feedType === 'DAILY_QUESTION' ? toDailyFeedEdit(feedIdNum) : toFeedEdit(feedIdNum));
   };
 
+  const canEdit = feedType !== 'DAILY_QUESTION';
+
   return (
     <PageShell
       header={<Header title={placeName} showBackButton onBack={() => navigate(-1)} />}
@@ -48,7 +50,7 @@ export const FeedDetailPage = () => {
             <ActiveMenu
               icon={<MoreIcon className="size-6 rotate-90 text-[#666]" />}
               onDelete={handleDeleteClick}
-              onEdit={handleEditClick}
+              onEdit={canEdit ? handleEditClick : undefined}
             />
           ) : undefined
         }

@@ -219,7 +219,7 @@ const MenuContent = ({
           setIsOpen(false);
         }}
         className={cn(
-          'body-6 flex w-full items-center gap-1.5 whitespace-nowrap text-black',
+          'body-6 flex w-full items-center gap-[7px] whitespace-nowrap text-black',
           editItemClassName,
         )}
       >

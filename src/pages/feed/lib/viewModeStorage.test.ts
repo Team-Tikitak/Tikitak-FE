@@ -5,35 +5,29 @@ const STORAGE_KEY = 'tikitak:feed-view-mode';
 
 describe('viewModeStorage', () => {
   beforeEach(() => {
-    sessionStorage.clear();
+    window.sessionStorage.clear();
   });
+
   afterEach(() => {
-    sessionStorage.clear();
+    window.sessionStorage.clear();
   });
 
-  it('defaults to list when nothing stored', () => {
-    expect(readFeedViewMode()).toBe('list');
-  });
-
-  it('returns grid when grid is stored', () => {
-    sessionStorage.setItem(STORAGE_KEY, 'grid');
+  it('defaults to grid when nothing stored', () => {
     expect(readFeedViewMode()).toBe('grid');
   });
 
-  it('returns list when list is stored', () => {
-    sessionStorage.setItem(STORAGE_KEY, 'list');
-    expect(readFeedViewMode()).toBe('list');
+  it('falls back to grid when stored value is invalid', () => {
+    window.sessionStorage.setItem(STORAGE_KEY, 'unexpected');
+    expect(readFeedViewMode()).toBe('grid');
   });
 
-  it('falls back to list when stored value is invalid', () => {
-    sessionStorage.setItem(STORAGE_KEY, 'invalid');
-    expect(readFeedViewMode()).toBe('list');
-  });
-
-  it('storeFeedViewMode persists to sessionStorage', () => {
+  it('persists and reads grid mode', () => {
     storeFeedViewMode('grid');
-    expect(sessionStorage.getItem(STORAGE_KEY)).toBe('grid');
+    expect(readFeedViewMode()).toBe('grid');
+  });
+
+  it('persists and reads list mode', () => {
     storeFeedViewMode('list');
-    expect(sessionStorage.getItem(STORAGE_KEY)).toBe('list');
+    expect(readFeedViewMode()).toBe('list');
   });
 });

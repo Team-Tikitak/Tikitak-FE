@@ -1,6 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
 import { Link } from 'react-router';
-import { toFeedDetail } from '@/app/routes';
+import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import type { FeedItem } from '../model/types';
 
@@ -22,8 +22,8 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
               data-hero-exit-key={`pin-${item.id}`}
               src={item.thumbnailUrl}
               alt={item.title}
-              loading="lazy"
-              decoding="async"
+              loading="eager"
+              decoding="sync"
               className="no-native-image size-full object-cover"
             />
           </Link>

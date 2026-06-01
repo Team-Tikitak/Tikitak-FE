@@ -1,5 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
+import { PENDING_INVITE_TOKEN_KEY } from '@/app/routes/loaders';
 import { PATHS } from '@/app/routes/paths';
+import { invitationKeys } from '@/shared/api/invitation/keys';
+import type { InvitationPreviewResponse } from '@/shared/api/invitation/types';
 import { useMe, usePatchOnboarding } from '@/shared/api/user/queries';
 import { CharacterPreviewStep } from './CharacterPreviewStep';
 import { QuestionStep } from './QuestionStep';
@@ -20,6 +24,7 @@ const FALLBACK_CHARACTER: CharacterId = 'leader';
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { step, answers, canGoBack, goBack, goTo, recordAnswerAndAdvance } = useOnboardingFlow();
   const patchOnboarding = usePatchOnboarding();
   const { data: me } = useMe();
@@ -54,6 +59,18 @@ export const OnboardingPage = () => {
       await patchOnboarding.mutateAsync({
         profileCharacterType: CHARACTER_TO_PROFILE_TYPE[characterId],
       });
+      const pendingInviteToken = sessionStorage.getItem(PENDING_INVITE_TOKEN_KEY);
+      if (pendingInviteToken) {
+        sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
+        const preview = queryClient.getQueryData<InvitationPreviewResponse>(
+          invitationKeys.preview(pendingInviteToken),
+        );
+        navigate(PATHS.TEAM_PROFILE_SETUP, {
+          replace: true,
+          state: { mode: 'join', token: pendingInviteToken, name: preview?.teamName ?? '' },
+        });
+        return;
+      }
       navigate(PATHS.HOME);
     } catch (error) {
       console.error('온보딩 저장 실패', error);

@@ -1,8 +1,7 @@
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
+import { formatYmd } from '@/shared/lib/date';
 import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
 import type { CarouselImage, Participant } from '@/shared/ui';
-
-const formatYmd = (iso: string) => iso.slice(0, 10).replaceAll('-', '.');
 
 export const useFeedData = (teamId: number, feedId: number) => {
   const { data, isLoading, isError } = useGetFeedDetail(teamId, feedId);

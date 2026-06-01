@@ -1,4 +1,5 @@
 import { postMediaUploadComplete, postMediaUploads, putMediaToR2 } from './api';
+import { MEDIA_CDN_BASE_URL } from './constants';
 import { unwrap } from '../request';
 import type { MediaUploadPurpose } from './types';
 
@@ -48,8 +49,6 @@ export const uploadMediaBlobs = async ({
   return items.map((item) => item.mediaPublicId);
 };
 
-const MEDIA_CDN_HOST = 'dev-media.kusitms.xyz';
-
 const PURPOSE_FOLDER: Record<MediaUploadPurpose, string> = {
   PROFILE_IMAGE: 'profile-image',
   FEED_IMAGE: 'feed-image',
@@ -64,5 +63,5 @@ export const buildMediaPublicUrl = (
 ): string => {
   const folder = PURPOSE_FOLDER[purpose];
   const extension = contentType.split('/')[1] ?? 'jpg';
-  return `https://${MEDIA_CDN_HOST}/media/${folder}/${publicId}.${extension}`;
+  return `${MEDIA_CDN_BASE_URL}/media/${folder}/${publicId}.${extension}`;
 };

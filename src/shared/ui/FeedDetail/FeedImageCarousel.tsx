@@ -15,6 +15,7 @@ type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
 };
 
 const SWIPE_THRESHOLD = 50;
+const AXIS_LOCK_THRESHOLD = 10;
 
 export function FeedImageCarousel({
   images,
@@ -27,23 +28,35 @@ export function FeedImageCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef<number | null>(null);
+  const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const hasCapturedRef = useRef(false);
+  const axisRef = useRef<'horizontal' | 'vertical' | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    startXRef.current = e.clientX;
+    startPosRef.current = { x: e.clientX, y: e.clientY };
     hasCapturedRef.current = false;
-    setIsDragging(true);
+    axisRef.current = null;
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (startXRef.current === null) return;
+    if (!startPosRef.current) return;
 
-    const diff = e.clientX - startXRef.current;
+    const diff = e.clientX - startPosRef.current.x;
+    const verticalDiff = e.clientY - startPosRef.current.y;
+
+    if (!axisRef.current) {
+      const absX = Math.abs(diff);
+      const absY = Math.abs(verticalDiff);
+      if (absX < AXIS_LOCK_THRESHOLD && absY < AXIS_LOCK_THRESHOLD) return;
+      axisRef.current = absX > absY ? 'horizontal' : 'vertical';
+    }
+
+    if (axisRef.current === 'vertical') return;
 
     if (!hasCapturedRef.current && Math.abs(diff) > 10) {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       hasCapturedRef.current = true;
+      setIsDragging(true);
     }
 
     const isAtStart = currentIndex === 0 && diff > 0;
@@ -55,9 +68,17 @@ export function FeedImageCarousel({
   };
 
   const resetDrag = (e: React.PointerEvent) => {
-    if (startXRef.current === null) return;
+    if (!startPosRef.current) return;
 
-    const diff = startXRef.current - e.clientX;
+    if (axisRef.current !== 'horizontal') {
+      setIsDragging(false);
+      setDragOffset(0);
+      startPosRef.current = null;
+      axisRef.current = null;
+      return;
+    }
+
+    const diff = startPosRef.current.x - e.clientX;
     setIsDragging(false);
     setDragOffset(0);
 
@@ -66,7 +87,8 @@ export function FeedImageCarousel({
     } else if (diff < -SWIPE_THRESHOLD && currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
     }
-    startXRef.current = null;
+    startPosRef.current = null;
+    axisRef.current = null;
   };
 
   if (images.length === 0) return null;
@@ -90,6 +112,7 @@ export function FeedImageCarousel({
               pins={image.pins}
               onLongPress={onLongPress && ((position) => onLongPress(position, index))}
               heroKey={index === 0 ? heroKey : undefined}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
             />
           ))}
         </div>

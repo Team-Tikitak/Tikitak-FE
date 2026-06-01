@@ -7,10 +7,24 @@ export interface HomeRegion {
 }
 
 export interface HomeRegionsResponse {
+  month: number;
   regions: HomeRegion[];
 }
 
+export interface Place {
+  name: string;
+  curation: string;
+  imageUrl: string;
+  kakaoMapUrl: string;
+}
+
+export interface RecommendedPlacesResponse {
+  month: number;
+  places: Place[];
+}
+
 export interface HomeEveryonePickResponse {
+  month: number;
   picks: FeedListItem[];
 }
 
@@ -21,6 +35,7 @@ export interface HomeCombinationMember {
 }
 
 export interface HomeCombinationsResponse {
+  month: number;
   combination: HomeCombinationMember[];
   feeds: FeedListItem[];
 }
@@ -34,9 +49,11 @@ export interface HomeBestAttendanceMember {
 }
 
 export interface HomeBestAttendanceResponse {
+  month: number;
   members: HomeBestAttendanceMember[];
 }
 
 export interface HomeAllTaggedResponse {
+  month: number;
   feeds: FeedListItem[];
 }

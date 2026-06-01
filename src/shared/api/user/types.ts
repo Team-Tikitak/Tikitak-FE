@@ -22,6 +22,7 @@ export interface OnboardingPatchResponse {
 
 export interface MeResponse {
   memberId: number;
+  name: string;
   email: string;
   name: string;
   socialProvider: SocialProvider;
@@ -32,6 +33,7 @@ export interface MeResponse {
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
+  profileCharacterType?: ProfileCharacterType;
 }
 
 export interface AgreementsResponse {

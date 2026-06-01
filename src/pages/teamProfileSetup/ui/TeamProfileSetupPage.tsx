@@ -27,7 +27,6 @@ export const TeamProfileSetupPage = () => {
       promptTeamName={promptTeamName}
       initialNickname={editProfile?.nickname}
       initialAvatarUrl={normalizeImageUrl(editProfile?.profileImgUrl)}
-      initialProfileImgUrl={editProfile?.profileImgUrl}
     />
   );
 };

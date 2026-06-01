@@ -18,5 +18,4 @@ export type TeamDraftRouteState =
 export type SubmitProfile = {
   nickname: string;
   avatarFile: File | null;
-  initialProfileImgUrl?: string;
 };

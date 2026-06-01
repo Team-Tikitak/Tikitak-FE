@@ -6,12 +6,14 @@ import { cn } from '@/shared/lib';
 
 export interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
   teamName: string;
+  teamNameLoading?: boolean;
   onTeamSelect?: () => void;
   onBellClick?: () => void;
 }
 
 export const AppHeader = ({
   teamName,
+  teamNameLoading = false,
   onTeamSelect,
   onBellClick,
   className,
@@ -33,9 +35,16 @@ export const AppHeader = ({
           type="button"
           className="body-9 flex items-center gap-1 text-black"
           onClick={onTeamSelect}
+          disabled={teamNameLoading}
         >
-          {teamName}
-          <ChevronDownIcon />
+          {teamNameLoading ? (
+            <span className="h-[25px] w-24 animate-pulse rounded-md bg-gray-200" />
+          ) : (
+            <>
+              {teamName}
+              <ChevronDownIcon />
+            </>
+          )}
         </button>
       </div>
       <button

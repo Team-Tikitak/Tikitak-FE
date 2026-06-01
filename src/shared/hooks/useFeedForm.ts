@@ -2,6 +2,7 @@
 import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
 import { MAX_FEED_CONTENT_LENGTH } from '@/shared/constants/feed';
+import { revokeObjectUrlsAfterTransition } from '@/shared/lib';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 export const DEFAULT_MAX_PHOTO_COUNT = 10;
@@ -32,7 +33,8 @@ export const useFeedForm = ({
   }, [photos]);
   useEffect(() => {
     return () => {
-      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url));
+      const urls = photosRef.current.map((photo) => photo.url);
+      revokeObjectUrlsAfterTransition(urls);
     };
   }, []);
 

@@ -24,6 +24,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleRemoveSticker,
     handleConfirm,
     handleClose,
+    handleToggleFacingMode,
   } = useCamera({
     onCapture: (photo) => {
       onCapture(photo);
@@ -59,6 +60,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
             isReady={isReady}
             onCapture={handleCapture}
             onClose={handleClose}
+            onToggleFacingMode={handleToggleFacingMode}
           />
         )}
       </div>

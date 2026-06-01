@@ -24,6 +24,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   pins?: Pin[];
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
+  fetchPriority?: 'high' | 'low' | 'auto';
 };
 
 const LONG_PRESS_DELAY = 800;
@@ -35,6 +36,7 @@ export function FeedImageDetail({
   pins = [],
   onLongPress,
   heroKey,
+  fetchPriority = 'auto',
   className,
   ref,
   ...props
@@ -51,7 +53,7 @@ export function FeedImageDetail({
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       startPosRef.current = null;
-
+      window.getSelection()?.removeAllRanges();
       onLongPress?.({ x, y });
     }, LONG_PRESS_DELAY);
   };
@@ -77,7 +79,10 @@ export function FeedImageDetail({
 
   return (
     <figure
-      className={cn('relative h-[524px] w-full shrink-0 overflow-hidden bg-white', className)}
+      className={cn(
+        'relative h-[min(524px,calc(100svh-240px))] min-h-[360px] w-full shrink-0 overflow-hidden bg-white select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
+        className,
+      )}
       ref={ref}
       onContextMenu={(e) => e.preventDefault()}
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
@@ -86,11 +91,14 @@ export function FeedImageDetail({
       <img
         src={src}
         alt={alt}
+        loading="eager"
+        decoding="sync"
+        fetchPriority={fetchPriority}
         className="no-native-image h-full w-full object-cover"
         draggable={false}
       />
       <div
-        className="absolute inset-0 touch-none"
+        className="absolute inset-0 touch-pan-y"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={cancelLongPress}
