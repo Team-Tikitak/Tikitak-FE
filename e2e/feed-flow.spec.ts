@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { mockApi, skipSplash } from './fixtures/api';
+import { json, mockApi, skipSplash, wrap } from './fixtures/api';
 
 const MOCK_TEAM = {
   teamId: 100,
@@ -14,15 +14,6 @@ const MOCK_TEAM = {
   active: true,
   isActive: true,
 };
-
-const wrap = <T>(data: T) =>
-  JSON.stringify({ success: true, data, timestamp: new Date().toISOString(), status: 200 });
-
-const json = (body: string) => ({
-  status: 200,
-  contentType: 'application/json',
-  body,
-});
 
 test.describe('피드 흐름', () => {
   test.beforeEach(async ({ page }) => {

@@ -57,10 +57,10 @@ export const DEFAULT_ME: MockMe = {
   createdAt: '2026-05-01T00:00:00.000Z',
 };
 
-const wrap = <T>(data: T) =>
+export const wrap = <T>(data: T) =>
   JSON.stringify({ success: true, data, timestamp: new Date().toISOString(), status: 200 });
 
-const json = (body: string) => ({ status: 200, contentType: 'application/json', body });
+export const json = (body: string) => ({ status: 200, contentType: 'application/json', body });
 
 interface MockApiOptions {
   me?: Partial<MockMe>;

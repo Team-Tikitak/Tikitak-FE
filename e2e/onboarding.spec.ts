@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { mockApi, skipSplash } from './fixtures/api';
+import { json, mockApi, skipSplash, wrap } from './fixtures/api';
 
 test.describe('약관 동의 → 온보딩 → 결과', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,31 +17,17 @@ test.describe('약관 동의 → 온보딩 → 결과', () => {
 
     await page.route('**/api/v1/me/agreements', async (route) => {
       if (route.request().method() === 'PUT') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            success: true,
-            data: { termsAgreed: true, privacyAgreed: true },
-            timestamp: new Date().toISOString(),
-            status: 200,
-          }),
-        });
+        await route.fulfill(json(wrap({ termsAgreed: true, privacyAgreed: true })));
       } else {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            success: true,
-            data: {
+        await route.fulfill(
+          json(
+            wrap({
               termsAgreed: false,
               privacyAgreed: false,
               termsAgreedAt: '2026-05-01T00:00:00.000Z',
-            },
-            timestamp: new Date().toISOString(),
-            status: 200,
-          }),
-        });
+            }),
+          ),
+        );
       }
     });
   });
