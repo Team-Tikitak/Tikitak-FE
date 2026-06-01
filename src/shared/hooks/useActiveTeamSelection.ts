@@ -11,10 +11,10 @@ export const useActiveTeamSelection = () => {
   const { mutate: patchActiveTeam } = usePatchActiveTeam();
 
   const teamItems = teams ?? [];
-  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
-    () => me?.activeTeamId ?? null,
-  );
-  const activeTeam = teamItems.find((team) => team.teamId === selectedTeamId) ?? teamItems[0];
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+
+  const activeTeamId = selectedTeamId ?? me?.activeTeamId ?? null;
+  const activeTeam = teamItems.find((team) => team.teamId === activeTeamId) ?? teamItems[0];
 
   const { openSheet: openTeamSheet } = useTeamPickerSheet({
     teams: teamItems,
