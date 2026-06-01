@@ -29,8 +29,8 @@ describe('useSplashGate', () => {
     expect(navigateMock).toHaveBeenCalledWith(PATHS.LOGIN, { replace: true });
   });
 
-  it('처음 진입이면 타이머 종료 후 fromSplash state 와 view transition 옵션으로 navigate 한다', () => {
-    const { result } = renderHook(() => useSplashGate());
+  it('animationStarted 가 true 이면 타이머 종료 후 fromSplash state 와 view transition 옵션으로 navigate 한다', () => {
+    const { result } = renderHook(() => useSplashGate({ animationStarted: true }));
 
     expect(result.current.alreadySeen).toBe(false);
     expect(navigateMock).not.toHaveBeenCalled();
@@ -47,8 +47,19 @@ describe('useSplashGate', () => {
     });
   });
 
+  it('animationStarted 가 false 이면 타이머가 지나도 LOGIN 으로 이동하지 않는다', () => {
+    renderHook(() => useSplashGate({ animationStarted: false }));
+
+    act(() => {
+      vi.advanceTimersByTime(2300);
+    });
+
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem('splash-seen')).toBeNull();
+  });
+
   it('타이머 종료 전에 unmount 되면 navigate 가 호출되지 않는다', () => {
-    const { unmount } = renderHook(() => useSplashGate());
+    const { unmount } = renderHook(() => useSplashGate({ animationStarted: true }));
 
     unmount();
 
