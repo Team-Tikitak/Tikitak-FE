@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { cn } from '@/shared/lib';
+import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/statusBarDim';
 
 type BottomSheetSnapPoint = number | string;
 type BottomSheetOverlayChildren =
@@ -35,12 +36,40 @@ export function BottomSheetOverlay({
   const [activeSnapPoint, setActiveSnapPoint] = useState<BottomSheetSnapPoint | null>(
     defaultSnapPoint ?? snapPoints?.[0] ?? null,
   );
+  const dimmedRef = useRef(false);
+
+  // 열림과 동시에 status bar dim, 닫힘 애니메이션 종료/언마운트 시 복원 → 오버레이와 동기화
+  useEffect(() => {
+    if (open && !dimmedRef.current) {
+      dimmedRef.current = true;
+      pushStatusBarDim();
+    }
+  }, [open]);
+  useEffect(
+    () => () => {
+      if (dimmedRef.current) {
+        dimmedRef.current = false;
+        popStatusBarDim();
+      }
+    },
+    [],
+  );
+
+  const releaseDim = () => {
+    if (dimmedRef.current) {
+      dimmedRef.current = false;
+      popStatusBarDim();
+    }
+  };
 
   const handleOpenChange = (next: boolean) => {
     if (!next) onClose();
   };
   const handleAnimationEnd = (isOpen: boolean) => {
-    if (!isOpen) onExitComplete?.();
+    if (!isOpen) {
+      releaseDim();
+      onExitComplete?.();
+    }
   };
 
   const inner = (
