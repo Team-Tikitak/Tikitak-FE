@@ -1,4 +1,4 @@
-import { json, mockApi, wrap } from './fixtures/api';
+import { json, mockApi, seedHintSeen, wrap } from './fixtures/api';
 import { expect, test } from './fixtures/auth';
 
 const MOCK_TEAM = {
@@ -25,6 +25,7 @@ const author = {
 
 test.describe('피드 삭제', () => {
   test.beforeEach(async ({ page }) => {
+    await seedHintSeen(page);
     await mockApi(page, {
       me: { hasTeam: true, activeTeamId: 100 },
       teams: [MOCK_TEAM],
@@ -51,7 +52,7 @@ test.describe('피드 삭제', () => {
                   createdAt: '2026-05-01T00:00:00.000Z',
                 },
               ],
-              nextCursor: null,
+              pageInfo: { hasNext: false, nextCursor: null },
             }),
           ),
         );

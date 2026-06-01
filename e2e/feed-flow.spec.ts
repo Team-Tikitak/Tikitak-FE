@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { json, mockApi, seedFeedListView, skipSplash, wrap } from './fixtures/api';
+import { blockThirdParty, json, mockApi, seedFeedListView, skipSplash, wrap } from './fixtures/api';
 
 const MOCK_TEAM = {
   teamId: 100,
@@ -18,6 +18,7 @@ const MOCK_TEAM = {
 test.describe('피드 흐름', () => {
   test.beforeEach(async ({ page }) => {
     await skipSplash(page);
+    await blockThirdParty(page);
     await seedFeedListView(page);
     await mockApi(page, {
       me: { hasTeam: true, activeTeamId: 100 },
@@ -51,7 +52,7 @@ test.describe('피드 흐름', () => {
                   createdAt: '2026-05-01T00:00:00.000Z',
                 },
               ],
-              nextCursor: null,
+              pageInfo: { hasNext: false, nextCursor: null },
             }),
           ),
         );

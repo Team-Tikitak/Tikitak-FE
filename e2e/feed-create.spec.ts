@@ -29,7 +29,9 @@ test.describe('피드 작성', () => {
       if (route.request().method() === 'POST') {
         await route.fulfill(json(wrap({ feedId: 1 })));
       } else {
-        await route.fulfill(json(wrap({ items: [], nextCursor: null })));
+        await route.fulfill(
+          json(wrap({ items: [], pageInfo: { hasNext: false, nextCursor: null } })),
+        );
       }
     });
   });
