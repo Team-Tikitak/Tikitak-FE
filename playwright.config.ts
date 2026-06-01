@@ -20,6 +20,7 @@ export default defineConfig({
     video: 'retain-on-failure',
     locale: 'ko-KR',
     timezoneId: 'Asia/Seoul',
+    serviceWorkers: 'block',
   },
 
   projects: [
