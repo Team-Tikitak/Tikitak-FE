@@ -14,7 +14,7 @@ import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
 import { unwrap } from '../request';
-import type { MeResponse, OnboardingPatchRequest } from './types';
+import type { AgreementsResponse, MeResponse, OnboardingPatchRequest } from './types';
 
 type UseMeOptions = {
   enabled?: boolean;
@@ -40,8 +40,13 @@ export const usePutAgreements = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: putAgreements,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    onSuccess: (_data, variables) => {
+      queryClient.setQueryData<AgreementsResponse>(userKeys.agreements(), (prev) =>
+        prev
+          ? { ...prev, termsAgreed: variables.termsAgreed, privacyAgreed: variables.privacyAgreed }
+          : prev,
+      );
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
   });
 };
