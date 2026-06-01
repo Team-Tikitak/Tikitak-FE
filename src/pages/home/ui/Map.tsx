@@ -10,18 +10,20 @@ interface MapProps {
   pins: Pin[];
   teamId: number;
   initialCenter: { latitude: number; longitude: number };
+  locationResolved: boolean;
   onPinClick?: (pin: Pin) => void;
 }
 
 const PIN_SIZE = 87;
 
-export const Map = ({ pins, teamId, initialCenter, onPinClick }: MapProps) => {
+export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [storedHeroPin] = useState(readStoredHeroPin);
   const { renderItems, sdkError, getCurrentViewport, expandCluster } = useKakaoMap(
     mapRef,
     pins,
     initialCenter,
+    locationResolved,
   );
 
   const pinByPlaceId = useMemo(
