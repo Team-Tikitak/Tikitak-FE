@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { markFeedDeleting } from '@/shared/lib/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
+import { mapKeys } from '../map/keys';
 import { unwrap } from '../request';
 import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 
@@ -13,6 +14,7 @@ export const useCreateFeed = (teamId: number) => {
     mutationFn: (body: FeedRequest) => unwrap(() => postFeed(teamId, body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+      queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
     },
   });
 };
@@ -33,6 +35,7 @@ export const usePatchFeed = (teamId: number, feedId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+      queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
     },
   });
 };
@@ -65,6 +68,7 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
     onSettled: () => {
       queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+      queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
     },
     onSuccess: () => {
       navigate(-1);
