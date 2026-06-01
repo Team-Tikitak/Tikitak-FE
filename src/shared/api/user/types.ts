@@ -24,7 +24,6 @@ export interface MeResponse {
   memberId: number;
   name: string;
   email: string;
-  name: string;
   socialProvider: SocialProvider;
   status: MemberStatus;
   hasAgreedRequiredTerms: boolean;
@@ -33,7 +32,6 @@ export interface MeResponse {
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
-  profileCharacterType?: ProfileCharacterType;
 }
 
 export interface AgreementsResponse {
