@@ -46,7 +46,7 @@ export const CharacterPreviewStep = ({ onBack, onStart }: CharacterPreviewStepPr
         <p className="body-1 text-gray-700">질문을 통해 6가지 캐릭터 중 내 성향을 파악해요.</p>
       </section>
 
-      <div className="mt-[100px]">
+      <div className="flex flex-1 flex-col justify-center pb-4">
         <SpeechBubble
           text="내 캐릭터는 뭐가 나올까?"
           className="animate-bubble-pop ml-16 origin-bottom [animation-delay:400ms] motion-reduce:animate-none"
