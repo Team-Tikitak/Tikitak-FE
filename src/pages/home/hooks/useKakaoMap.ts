@@ -123,6 +123,7 @@ export const useKakaoMap = (
     const updatePositions = () => {
       const proj = map.getProjection();
       const bounds = map.getBounds();
+      if (!proj || !bounds) return;
       const sw = bounds.getSouthWest();
       const ne = bounds.getNorthEast();
       const bbox: [number, number, number, number] = [
