@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { json, mockApi, skipSplash, wrap } from './fixtures/api';
+import { json, mockApi, seedFeedListView, skipSplash, wrap } from './fixtures/api';
 
 const MOCK_TEAM = {
   teamId: 100,
@@ -18,6 +18,7 @@ const MOCK_TEAM = {
 test.describe('피드 흐름', () => {
   test.beforeEach(async ({ page }) => {
     await skipSplash(page);
+    await seedFeedListView(page);
     await mockApi(page, {
       me: { hasTeam: true, activeTeamId: 100 },
       teams: [MOCK_TEAM],

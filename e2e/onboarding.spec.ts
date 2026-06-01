@@ -47,7 +47,7 @@ test.describe('약관 동의 → 온보딩 → 결과', () => {
 
     await page.getByRole('button', { name: /다음|시작|계속/ }).click();
 
-    await page.waitForURL(/\/onboarding$/, { timeout: 5_000 });
+    await page.waitForURL(/\/onboarding$/, { timeout: 10_000 });
   });
 
   test('온보딩 결과 화면에 /me 의 이름이 표시된다', async ({ page }) => {

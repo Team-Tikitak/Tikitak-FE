@@ -111,3 +111,9 @@ export const seedAccessToken = async (page: Page): Promise<void> => {
     window.sessionStorage.setItem('tikitak:authed', '1');
   });
 };
+
+export const seedFeedListView = async (page: Page): Promise<void> => {
+  await page.context().addInitScript(() => {
+    window.sessionStorage.setItem('tikitak:feed-view-mode', 'list');
+  });
+};
