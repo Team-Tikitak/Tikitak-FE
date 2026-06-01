@@ -10,8 +10,7 @@ import {
 } from './api';
 import { invitationKeys } from './keys';
 import { unwrap } from '../request';
-import { teamKeys } from '../team/keys';
-import { userKeys } from '../user/keys';
+import { invalidateTeamMembershipQueries } from '../team/invalidateTeamMembership';
 
 export const useInvitationLink = (teamId: number) =>
   useQuery({
@@ -43,18 +42,8 @@ export const useAcceptInvitation = () => {
   return useMutation({
     mutationFn: postAcceptInvitation,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: teamKeys.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: userKeys.all,
-      });
-
+      invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: false });
-    },
-    onError: () => {
-      // TODO: 요청 실패 처리
     },
   });
 };
