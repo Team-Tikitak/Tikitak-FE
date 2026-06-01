@@ -46,17 +46,18 @@
 
     <link rel="preconnect" href="https://api.tikitak.space" crossorigin />
     <link rel="preconnect" href="https://dev-api.tikitak.space" crossorigin />
-    <link rel="preconnect" href="https://dev-media.kusitms.xyz" crossorigin />
     <link rel="preconnect" href="https://dapi.kakao.com" crossorigin />
-    <link rel="dns-prefetch" href="https://dapi.kakao.com" />
     <link rel="preconnect" href="https://use.typekit.net" crossorigin />
-    <link rel="stylesheet" href="https://use.typekit.net/hom7mlq.css" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://use.typekit.net/hom7mlq.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript><link rel="stylesheet" href="https://use.typekit.net/hom7mlq.css" /></noscript>
 
-    <script
-      type="text/javascript"
-      src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=%VITE_KAKAO_MAP_APP_KEY%&autoload=false&libraries=clusterer"
-      async
-    ></script>
+    <link rel="preload" href="/fonts/SUIT-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/SUIT-Bold.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>

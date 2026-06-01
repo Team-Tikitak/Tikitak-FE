@@ -20,5 +20,7 @@ export const prefetchTabRoutes = (): void => {
     void import('@/pages/feed/ui');
     void import('@/pages/activity/ui/ActivityPage');
     void import('@/pages/myPage/ui');
+    // 카카오 SDK idle 워밍 (홈 지도 진입 지연 방지)
+    void import('@/shared/lib/kakaoSdk').then((m) => m.ensureKakaoSdk().catch(() => undefined));
   });
 };
