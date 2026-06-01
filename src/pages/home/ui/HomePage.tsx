@@ -1,37 +1,22 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
-import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
+import { useActiveTeamSelection } from '@/shared/hooks/useActiveTeamSelection';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';
 import { LoadingState } from '@/shared/ui/LoadingState';
 import { MapView } from './MapView';
-import { useTeamPickerSheet } from '../hooks/useTeamPickerSheet';
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const { data: me } = useMe();
-  const { data: teams, isPending } = useGetTeams();
-  const { mutate: patchActiveTeam } = usePatchActiveTeam();
+  const {
+    me,
+    activeTeam: selectedTeam,
+    openTeamSheet,
+    isTeamsPending: isPending,
+  } = useActiveTeamSelection();
 
   const hasTeams = me?.hasTeam ?? false;
-  const teamItems = teams ?? [];
-
-  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(
-    () => me?.activeTeamId ?? null,
-  );
-  const selectedTeam = teamItems.find((team) => team.teamId === selectedTeamId) ?? teamItems[0];
-
-  const { openSheet: openTeamSheet } = useTeamPickerSheet({
-    teams: teamItems,
-    selectedTeamId: selectedTeam?.teamId,
-    onSelectTeam: (teamId) => {
-      setSelectedTeamId(teamId);
-      patchActiveTeam(teamId);
-    },
-    onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
-  });
 
   if (isPending) {
     return (

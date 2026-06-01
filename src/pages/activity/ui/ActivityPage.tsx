@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import { shouldShowDailyQuestion } from '@/shared/api/dailyQuestion/selectors';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
-import { useGetTeams, useMe } from '@/shared/api/user/queries';
+import { useActiveTeamSelection } from '@/shared/hooks/useActiveTeamSelection';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
@@ -13,31 +14,23 @@ import { MonthlyRecommendedPlaces } from './MonthlyRecommendedPlaces';
 
 export const ActivityPage = () => {
   const navigate = useNavigate();
-  const { data: me, isPending: isMePending } = useMe();
-  const { data: teams, isPending: isTeamsPending } = useGetTeams();
-  const activeTeam = teams?.find((team) => team.teamId === me?.activeTeamId) ?? teams?.[0];
-  const {
-    data: question,
-    isPending: isQuestionPending,
-    isFetching: isQuestionFetching,
-  } = useGetDailyQuestion(activeTeam?.teamId ?? 0);
+  const { activeTeam, openTeamSheet, isMePending, isTeamsPending } = useActiveTeamSelection();
+  const { data: question, isPending: isQuestionPending } = useGetDailyQuestion(
+    activeTeam?.teamId ?? 0,
+  );
   const {
     data: bestAttendance,
     isPending: isBestAttendancePending,
     isFetching: isBestAttendanceFetching,
   } = useHomeBestAttendance(activeTeam?.teamId);
   const dailyQuestion = question?.content;
-  const showDailyQuestion = Boolean(dailyQuestion) && !question?.answered;
+  const showDailyQuestion = shouldShowDailyQuestion(question);
   const hasActiveTeam = Boolean(activeTeam?.teamId);
 
   const isLoading =
     isMePending ||
     isTeamsPending ||
-    (hasActiveTeam &&
-      (isQuestionPending ||
-        isQuestionFetching ||
-        isBestAttendancePending ||
-        isBestAttendanceFetching));
+    (hasActiveTeam && (isQuestionPending || isBestAttendancePending));
   const isHeaderLoading = isMePending || isTeamsPending;
   const isEmpty =
     !isBestAttendanceFetching &&
@@ -54,7 +47,13 @@ export const ActivityPage = () => {
 
   return (
     <PageShell
-      header={<AppHeader teamName={activeTeam?.teamName ?? ''} teamNameLoading={isHeaderLoading} />}
+      header={
+        <AppHeader
+          teamName={activeTeam?.teamName ?? ''}
+          teamNameLoading={isHeaderLoading}
+          onTeamSelect={openTeamSheet}
+        />
+      }
       contentClassName="flex flex-col gap-9 bg-white pb-28"
     >
       {showDailyQuestion ? (
