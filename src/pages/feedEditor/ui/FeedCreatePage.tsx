@@ -63,11 +63,13 @@ export const FeedCreatePage = () => {
     ? [myMember, ...rawMembers.filter((m) => m.teamMemberId !== myTeamMemberId)]
     : rawMembers;
 
+  const isLoading = isMePending || isTeamsPending || isMembersPending;
+
   return (
     <PageState
       header={<Header title="글쓰기" onBack={() => navigate(-1)} />}
-      isLoading={isMePending || isTeamsPending || isMembersPending}
-      isError={!teamId}
+      isLoading={isLoading}
+      isError={!isLoading && !teamId}
       errorSlot={<EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />}
     >
       {teamId && <FeedCreateForm teamId={teamId} teamMembers={teamMembers} myMember={myMember} />}

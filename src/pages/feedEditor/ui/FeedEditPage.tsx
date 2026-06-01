@@ -117,7 +117,7 @@ export const FeedEditPage = () => {
     <PageState
       header={<Header title="글 수정" onBack={() => navigate(-1)} />}
       isLoading={isLoading}
-      isError={isError || !feedDetail}
+      isError={!isLoading && (isError || !feedDetail)}
       errorMessage="글을 불러오지 못했습니다."
     >
       {feedDetail && <FeedEditForm teamId={teamId} feedId={feedIdNum} feedDetail={feedDetail} />}

@@ -69,8 +69,9 @@ export const DailyFeedEditPage = () => {
 
   const { data: feedDetail, isLoading, isError } = useGetFeedDetail(teamId, feedIdNum);
 
-  const errorMessage =
-    isError || !feedDetail
+  const errorMessage = isLoading
+    ? null
+    : isError || !feedDetail
       ? '글을 불러오지 못했습니다.'
       : !isTodayKstDate(feedDetail.question.answerDate)
         ? '오늘 작성한 답변만 수정할 수 있습니다.'
