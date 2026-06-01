@@ -4,3 +4,6 @@
 
 export * from './FeedCreatePage';
 export * from './FeedEditPage';
+export * from './FeedFormView';
+export * from './LocationSearchOverlay';
+export * from './MemberSelectOverlay';

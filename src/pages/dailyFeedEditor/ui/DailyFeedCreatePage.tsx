@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
-import { useActiveTeamMemberProfile } from '@/shared/hooks/useActiveTeamMemberProfile';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { LoadingState, UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { DailyFeedFormView } from './DailyFeedFormView';
+import { useActiveTeamMemberProfile } from '../hooks/useActiveTeamMemberProfile';
 import { useDailyQuestionCreateForm } from '../hooks/useDailyQuestionCreateForm';
 import { useDailyQuestionShare } from '../hooks/useDailyQuestionShare';
 

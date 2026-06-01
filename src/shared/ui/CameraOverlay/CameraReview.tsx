@@ -7,8 +7,8 @@ import { useTrashDragZone } from '@/shared/hooks/useTrashDragZone';
 import { cn } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
-import { StickerPicker } from '@/shared/ui/StickerPicker/StickerPicker';
 import { PlacedStickerView } from './PlacedStickerView';
+import { StickerPicker } from './StickerPicker';
 
 interface CameraReviewProps {
   imageUrl: string;

@@ -3,7 +3,6 @@
  */
 
 export * from './useActiveTeamId';
-export * from './useActiveTeamMemberProfile';
 export * from './useActiveTeamSelection';
 export * from './useCamera';
 export * from './useCameraCapture';

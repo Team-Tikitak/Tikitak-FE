@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib';
-import { AvatarGroup } from '../AvatarGroup/AvatarGroup';
+import { AvatarGroup } from '@/shared/ui/AvatarGroup/AvatarGroup';
 import type { ComponentPropsWithoutRef } from 'react';
 
 const MAX_VISIBLE_AVATARS = 6;

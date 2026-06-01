@@ -3,7 +3,7 @@ import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { type CameraError } from '@/shared/hooks/useCamera';
 import { cn } from '@/shared/lib';
-import { CameraButton } from '@/shared/ui';
+import { CameraButton } from './CameraButton';
 
 const ERROR_MESSAGES = {
   permission: '카메라 권한이 필요합니다. 설정에서 권한을 허용해주세요.',
