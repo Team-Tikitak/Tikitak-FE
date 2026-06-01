@@ -36,15 +36,13 @@ describe('heroPinStorage', () => {
     expect(readStoredHeroPin()).toBeNull();
   });
 
-  it('storeHeroPin persists pin with viewport level', () => {
-    storeHeroPin(samplePin, { x: 100, y: 200 }, { level: 5 });
+  it('storeHeroPin persists pin with teamId and viewport level', () => {
+    storeHeroPin(samplePin, { x: 100, y: 200 }, 100, { level: 5 });
     const stored = readStoredHeroPin();
     expect(stored).toMatchObject({
       placeId: 'place-1',
-      thumbnailUrl: 'https://example.com/a.jpg',
+      teamId: 100,
       feedCount: 3,
-      latitude: 37.5,
-      longitude: 127.0,
       level: 5,
       x: 100,
       y: 200,
@@ -52,7 +50,7 @@ describe('heroPinStorage', () => {
   });
 
   it('storeHeroPin works without viewport', () => {
-    storeHeroPin(samplePin, { x: 10, y: 20 });
+    storeHeroPin(samplePin, { x: 10, y: 20 }, 100);
     const stored = readStoredHeroPin();
     expect(stored?.level).toBeUndefined();
     expect(stored?.x).toBe(10);

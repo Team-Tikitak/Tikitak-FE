@@ -13,12 +13,19 @@ declare global {
     containerPointFromCoords: (latLng: KakaoLatLng) => KakaoPoint;
   }
 
+  interface KakaoLatLngBounds {
+    getSouthWest: () => KakaoLatLng;
+    getNorthEast: () => KakaoLatLng;
+  }
+
   interface KakaoMap {
     getProjection: () => KakaoProjection;
     getCenter: () => KakaoLatLng;
     getLevel: () => number;
+    getBounds: () => KakaoLatLngBounds;
     setCenter: (latLng: KakaoLatLng) => void;
-    setLevel: (level: number) => void;
+    setLevel: (level: number, options?: { anchor?: KakaoLatLng }) => void;
+    panTo: (latLng: KakaoLatLng) => void;
   }
 
   interface KakaoMapOptions {

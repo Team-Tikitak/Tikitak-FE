@@ -1,4 +1,4 @@
-import { type ReactNode, useLayoutEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Drawer } from 'vaul';
 import { cn } from '@/shared/lib';
 
@@ -42,18 +42,6 @@ export function BottomSheetOverlay({
   const handleAnimationEnd = (isOpen: boolean) => {
     if (!isOpen) onExitComplete?.();
   };
-
-  useLayoutEffect(() => {
-    const themeColorMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!themeColorMeta || !open) return;
-
-    const previousThemeColor = themeColorMeta.content;
-    themeColorMeta.content = '#808080';
-
-    return () => {
-      themeColorMeta.content = previousThemeColor;
-    };
-  }, [open]);
 
   const inner = (
     <Drawer.Portal>

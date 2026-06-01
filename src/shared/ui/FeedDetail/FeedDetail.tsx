@@ -34,13 +34,15 @@ export function FeedDetail({
 }: FeedDetailProps) {
   return (
     <div className={cn('flex w-full flex-col gap-5', className)} ref={ref} {...props}>
-      {participants && participants.length > 0 && (
-        <ParticipantChipList
-          participants={participants}
-          className="mx-auto min-h-9"
-          onMoreClick={onMoreParticipantsClick}
-        />
-      )}
+      <div className="flex min-h-9 w-full justify-center px-[18px]">
+        {participants && participants.length > 0 && (
+          <ParticipantChipList
+            participants={participants}
+            className="min-h-9"
+            onMoreClick={onMoreParticipantsClick}
+          />
+        )}
+      </div>
       <FeedImageCarousel images={images} onLongPress={onLongPress} heroKey={heroKey} />
       <div className="flex flex-col gap-1 px-5">
         <div className="flex w-full items-start justify-between gap-2">

@@ -22,11 +22,11 @@ export const FeedPage = () => {
   };
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
-  const { data, isLoading, isFetching, isError } = useFeeds(teamId);
+  const { data, isLoading, isError } = useFeeds(teamId);
 
   const feeds = useMemo(() => data?.items.map(adaptFeedListItem) ?? [], [data]);
   const totalCount = feeds.length;
-  const showFeedLoading = isMePending || isLoading || isFetching;
+  const showFeedLoading = isMePending || isLoading;
 
   if (!isMePending && !teamId) {
     return (

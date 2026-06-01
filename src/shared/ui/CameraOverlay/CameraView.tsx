@@ -1,4 +1,5 @@
 ﻿import { type RefObject } from 'react';
+import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { type CameraError } from '@/shared/hooks/useCamera';
 import { CameraButton } from '@/shared/ui';
@@ -15,9 +16,17 @@ interface CameraViewProps {
   isReady: boolean;
   onCapture: () => void;
   onClose: () => void;
+  onToggleFacingMode: () => void;
 }
 
-export const CameraView = ({ videoRef, error, isReady, onCapture, onClose }: CameraViewProps) => {
+export const CameraView = ({
+  videoRef,
+  error,
+  isReady,
+  onCapture,
+  onClose,
+  onToggleFacingMode,
+}: CameraViewProps) => {
   return (
     <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
       <video
@@ -44,10 +53,20 @@ export const CameraView = ({ videoRef, error, isReady, onCapture, onClose }: Cam
       )}
 
       {isReady && !error && (
-        <CameraButton
-          className="absolute bottom-[calc(env(safe-area-inset-bottom)+40px)] z-10"
-          onClick={onCapture}
-        />
+        <>
+          <CameraButton
+            className="absolute bottom-[calc(env(safe-area-inset-bottom)+40px)] z-10"
+            onClick={onCapture}
+          />
+          <button
+            type="button"
+            aria-label="카메라 전환"
+            onClick={onToggleFacingMode}
+            className="press-feedback absolute right-[43px] bottom-[calc(env(safe-area-inset-bottom)+58px)] z-10 flex size-9 items-center justify-center rounded-full bg-gray-500"
+          >
+            <ChangeIcon className="size-6" />
+          </button>
+        </>
       )}
     </div>
   );

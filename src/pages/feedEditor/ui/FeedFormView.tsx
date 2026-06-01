@@ -1,44 +1,47 @@
-import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes/paths';
-import { useTeamMembers } from '@/shared/api/team/queries';
 import type { TeamMember } from '@/shared/api/team/types';
-import { useGetTeams, useMe } from '@/shared/api/user/queries';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
-import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
+import type { useFeedForm } from '@/shared/hooks/useFeedForm';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
-import {
-  Button,
-  Chip,
-  EmptyTeamView,
-  FormRowButton,
-  Header,
-  LoadingState,
-  UserChip,
-} from '@/shared/ui';
-import { ContentTextarea, PhotoStrip } from '@/shared/ui/FeedForm';
+import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
+import { ContentTextarea, PhotoStrip, type PhotoStripItem } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
 import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
-import { useFeedShare } from '../hooks/useFeedShare';
 
-interface FeedCreateFormProps {
-  teamId: number;
+interface FeedFormViewProps {
+  title: string;
+  submitLabel: string;
+  submitDisabled: boolean;
+  onBack: () => void;
+  onSubmit: () => void;
+  form: ReturnType<typeof useFeedForm>;
   teamMembers: TeamMember[];
-  myMember: TeamMember | null;
+  myMemberId?: number | null;
+  photoItems: PhotoStripItem[];
+  photoCount: number;
 }
 
-const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) => {
-  const navigate = useNavigate();
+export const FeedFormView = ({
+  title,
+  submitLabel,
+  submitDisabled,
+  onBack,
+  onSubmit,
+  form,
+  teamMembers,
+  myMemberId,
+  photoItems,
+  photoCount,
+}: FeedFormViewProps) => {
   const {
     content,
     setContent,
     photos,
     canAddMorePhotos,
     addPhoto,
-    removePhoto,
     maxPhotoCount,
     maxContentLength,
     selectedPlace,
@@ -46,16 +49,7 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
     selectedMembers,
     commitMembers,
     removeMember,
-    isShareDisabled,
-  } = useFeedCreateForm({ initialMembers: myMember ? [myMember] : [] });
-
-  const { share, isSharing } = useFeedShare({
-    teamId,
-    content,
-    photos,
-    selectedPlace,
-    selectedMembers,
-  });
+  } = form;
 
   const { openPicker, inputProps } = useImageFileInput({
     multiple: true,
@@ -94,9 +88,11 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
         teamMembers={teamMembers}
         selectedMembers={selectedMembers}
         onConfirm={(picked) => {
+          const me =
+            myMemberId != null ? teamMembers.find((m) => m.teamMemberId === myMemberId) : undefined;
           const withMe =
-            myMember && !picked.some((m) => m.teamMemberId === myMember.teamMemberId)
-              ? [myMember, ...picked]
+            me && !picked.some((m) => m.teamMemberId === me.teamMemberId)
+              ? [me, ...picked]
               : picked;
           commitMembers(withMe);
           close();
@@ -105,32 +101,26 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
     ));
   };
 
-  const shareDisabled = isShareDisabled || isSharing;
-
   return (
     <PageShell
-      header={<Header title="글쓰기" onBack={() => navigate(-1)} />}
+      header={<Header title={title} onBack={onBack} />}
       contentClassName="flex flex-col overflow-hidden"
       bottomClassName="px-5 pt-3 pb-[calc(24px+env(safe-area-inset-bottom))]"
       bottom={
         <Button
           variant="primary"
-          disabled={shareDisabled}
-          onClick={share}
+          disabled={submitDisabled}
+          onClick={onSubmit}
           className="disabled:bg-gray-300 disabled:text-gray-400"
         >
-          공유하기
+          {submitLabel}
         </Button>
       }
     >
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
         <PhotoStrip
-          items={photos.map((photo) => ({
-            key: photo.id,
-            src: photo.url,
-            onRemove: () => removePhoto(photo.id),
-          }))}
-          count={photos.length}
+          items={photoItems}
+          count={photoCount}
           maxPhotoCount={maxPhotoCount}
           canAddMore={canAddMorePhotos}
           onAddPhoto={handleAddPhoto}
@@ -168,7 +158,7 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
                     avatarSrc={normalizeImageUrl(member.profileImgUrl)}
                     size="sm"
                     onRemove={
-                      member.teamMemberId === myMember?.teamMemberId
+                      member.teamMemberId === myMemberId
                         ? undefined
                         : () => removeMember(member.teamMemberId)
                     }
@@ -181,37 +171,4 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
       </div>
     </PageShell>
   );
-};
-
-export const FeedCreatePage = () => {
-  const navigate = useNavigate();
-  const { data: me, isPending: isMePending } = useMe();
-  const { data: teams, isPending: isTeamsPending } = useGetTeams();
-  const teamId = me?.activeTeamId ?? null;
-  const { data: teamMembersData, isPending: isMembersPending } = useTeamMembers(teamId);
-
-  const myTeamMemberId = teams?.find((team) => team.teamId === teamId)?.teamMemberId ?? null;
-  const rawMembers = teamMembersData?.members ?? [];
-  const myMember = rawMembers.find((m) => m.teamMemberId === myTeamMemberId) ?? null;
-  const teamMembers = myMember
-    ? [myMember, ...rawMembers.filter((m) => m.teamMemberId !== myTeamMemberId)]
-    : rawMembers;
-
-  if (isMePending || isTeamsPending || isMembersPending) {
-    return (
-      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
-        <LoadingState />
-      </PageShell>
-    );
-  }
-
-  if (!teamId) {
-    return (
-      <PageShell header={<Header title="글쓰기" onBack={() => navigate(-1)} />}>
-        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
-      </PageShell>
-    );
-  }
-
-  return <FeedCreateForm teamId={teamId} teamMembers={teamMembers} myMember={myMember} />;
 };

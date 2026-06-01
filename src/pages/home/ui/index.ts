@@ -6,3 +6,4 @@ export * from './HomePage';
 export * from './Map';
 export * from './MapImage';
 export * from './MapView';
+export * from './StoredHeroPin';

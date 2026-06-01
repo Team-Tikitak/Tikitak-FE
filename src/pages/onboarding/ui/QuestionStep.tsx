@@ -30,15 +30,14 @@ export const QuestionStep = ({
           <div className="px-5 pb-5">
             <ProgressBar currentStep={QUESTION_PROGRESS[question.id]} />
           </div>
+          <div className="flex flex-col gap-2 px-5 pb-5">
+            <h2 className="title-1 whitespace-pre-line text-black">{question.title}</h2>
+            <p className="body-1 text-gray-700">{question.subtitle}</p>
+          </div>
         </>
       }
-      contentClassName="flex flex-col gap-5 px-5"
+      contentClassName="flex flex-col px-5"
     >
-      <div className="flex flex-col gap-2">
-        <h2 className="title-1 whitespace-pre-line text-black">{question.title}</h2>
-        <p className="body-1 text-gray-700">{question.subtitle}</p>
-      </div>
-
       {/* key={question.id} 로 step 전환 시 카드 enter 애니메이션 재생 */}
       <ul key={question.id} className="flex flex-col gap-2 pb-6">
         {question.options.map((option, index) => (

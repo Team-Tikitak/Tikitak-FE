@@ -10,6 +10,7 @@ import {
   postTeam,
   postTeamDeleteRequest,
 } from './api';
+import { invalidateTeamMembershipQueries } from './invalidateTeamMembership';
 import { teamKeys } from './keys';
 import { unwrap } from '../request';
 import { userKeys } from '../user/keys';
@@ -27,12 +28,8 @@ export const useCreateTeam = () => {
   return useMutation({
     mutationFn: (body: CreateTeamRequest) => unwrap(() => postTeam(body)),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
-      queryClient.invalidateQueries({ queryKey: teamKeys.all });
+      invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: true });
-    },
-    onError: () => {
-      // TODO: 요청 실패 처리
     },
   });
 };
@@ -48,11 +45,8 @@ export const useLeaveTeam = () => {
         userKeys.teams(),
         (old: Team[] | undefined) => old?.filter((team) => team.teamId !== teamId) ?? [],
       );
-      queryClient.invalidateQueries({ queryKey: userKeys.me() });
+      invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: true });
-    },
-    onError: () => {
-      // TODO: 요청 실패 처리
     },
   });
 };
@@ -64,12 +58,8 @@ export const useTeamDelete = () => {
   return useMutation({
     mutationFn: (teamId: number) => postTeamDeleteRequest(teamId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: teamKeys.all });
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME);
-    },
-    onError: () => {
-      // TODO: 요청 실패 처리
     },
   });
 };
@@ -83,9 +73,6 @@ export const usePatchTeamProfile = () => {
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
       navigate(`/teams/${teamId}`, { replace: true });
     },
-    onError: () => {
-      // TODO: 요청 실패 처리
-    },
   });
 };
 
@@ -95,9 +82,6 @@ export const useDeleteTeamMember = () => {
     mutationFn: (variables: DeleteTeamMemberVariables) => deleteTeamMember(variables),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
-    },
-    onError: () => {
-      // TODO: 요청 실패 처리
     },
   });
 };

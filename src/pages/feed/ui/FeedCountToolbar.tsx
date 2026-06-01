@@ -1,6 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
-import { MenuButton } from '@/shared/ui';
+import { MenuButton, Skeleton } from '@/shared/ui';
 
 const FEED_VIEW_MODES = ['grid', 'list'] as const;
 
@@ -29,7 +29,7 @@ export const FeedCountToolbar = ({
       {...props}
     >
       {loading ? (
-        <div className="h-5 w-24 animate-pulse rounded-md bg-gray-200" aria-hidden="true" />
+        <Skeleton className="h-5 w-24" aria-hidden="true" />
       ) : (
         <p className="body-8 text-gray-700">
           총 <span className="body-9 text-main">{count.toLocaleString()}</span> 개의 기록

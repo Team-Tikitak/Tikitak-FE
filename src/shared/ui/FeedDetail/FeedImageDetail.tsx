@@ -80,7 +80,7 @@ export function FeedImageDetail({
   return (
     <figure
       className={cn(
-        'relative h-[524px] w-full shrink-0 overflow-hidden bg-white select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
+        'relative h-[min(524px,calc(100svh-240px))] min-h-[360px] w-full shrink-0 overflow-hidden bg-white select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
         className,
       )}
       ref={ref}

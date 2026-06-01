@@ -1,19 +1,37 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Pin } from '@/shared/api/map/types';
 import { ensureKakaoSdk } from '@/shared/lib/kakaoSdk';
+import {
+  createPinClusterIndex,
+  kakaoLevelToZoom,
+  zoomToKakaoLevel,
+  type PinClusterIndex,
+} from '../lib/clusterIndex';
 import { readStoredHeroPin } from '../lib/heroPinStorage';
 
-export type PinScreenPosition = { placeId: string; x: number; y: number };
 export type MapViewport = { latitude: number; longitude: number; level: number };
+
+export type MapRenderItem =
+  | { type: 'pin'; placeId: string; x: number; y: number }
+  | {
+      type: 'cluster';
+      clusterId: number;
+      count: number;
+      thumbnailUrl: string;
+      latitude: number;
+      longitude: number;
+      x: number;
+      y: number;
+    };
 
 const positionCache = new globalThis.Map<string, { x: number; y: number }>();
 let lastViewport: MapViewport | null = null;
 
-const restoreCachedPositions = (pins: Pin[]): PinScreenPosition[] => {
+const restoreCachedItems = (pins: Pin[]): MapRenderItem[] => {
   const storedHeroPin = readStoredHeroPin();
 
   return pins
-    .map((pin) => {
+    .map((pin): MapRenderItem | null => {
       const shouldUseCenteredHeroFallback =
         pin.placeId === storedHeroPin?.placeId &&
         typeof storedHeroPin.latitude === 'number' &&
@@ -22,9 +40,9 @@ const restoreCachedPositions = (pins: Pin[]): PinScreenPosition[] => {
       if (shouldUseCenteredHeroFallback) return null;
 
       const cached = positionCache.get(pin.placeId);
-      return cached ? { placeId: pin.placeId, x: cached.x, y: cached.y } : null;
+      return cached ? { type: 'pin', placeId: pin.placeId, x: cached.x, y: cached.y } : null;
     })
-    .filter((entry): entry is PinScreenPosition => entry !== null);
+    .filter((entry): entry is MapRenderItem => entry !== null);
 };
 
 export const useKakaoMap = (
@@ -36,11 +54,11 @@ export const useKakaoMap = (
   const initialCenterRef = useRef(initialCenter);
   const hasUserDraggedMapRef = useRef(false);
   const shouldSyncInitialCenterRef = useRef(true);
-  const [pinPositions, setPinPositions] = useState<PinScreenPosition[]>(() =>
-    restoreCachedPositions(pins),
-  );
+  const [renderItems, setRenderItems] = useState<MapRenderItem[]>(() => restoreCachedItems(pins));
   const [mapReady, setMapReady] = useState(false);
   const [sdkError, setSdkError] = useState(false);
+
+  const index = useMemo<PinClusterIndex>(() => createPinClusterIndex(pins), [pins]);
 
   useEffect(() => {
     if (mapInstanceRef.current || !mapRef.current) return;
@@ -104,13 +122,41 @@ export const useKakaoMap = (
 
     const updatePositions = () => {
       const proj = map.getProjection();
-      const positions = pins.map((pin) => {
-        const latLng = new kakaoMaps.LatLng(pin.latitude, pin.longitude);
-        const point = proj.containerPointFromCoords(latLng);
-        positionCache.set(pin.placeId, { x: point.x, y: point.y });
-        return { placeId: pin.placeId, x: point.x, y: point.y };
+      const bounds = map.getBounds();
+      if (!proj || !bounds) return;
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      const bbox: [number, number, number, number] = [
+        sw.getLng(),
+        sw.getLat(),
+        ne.getLng(),
+        ne.getLat(),
+      ];
+      const zoom = kakaoLevelToZoom(map.getLevel());
+
+      const items = index.getClusters(bbox, zoom).map((feature): MapRenderItem => {
+        const [longitude, latitude] = feature.geometry.coordinates;
+        const point = proj.containerPointFromCoords(new kakaoMaps.LatLng(latitude, longitude));
+        const properties = feature.properties;
+
+        if ('cluster' in properties) {
+          return {
+            type: 'cluster',
+            clusterId: properties.cluster_id,
+            count: properties.point_count,
+            thumbnailUrl: properties.representativeThumbnailUrl,
+            latitude,
+            longitude,
+            x: point.x,
+            y: point.y,
+          };
+        }
+
+        positionCache.set(properties.placeId, { x: point.x, y: point.y });
+        return { type: 'pin', placeId: properties.placeId, x: point.x, y: point.y };
       });
-      setPinPositions(positions);
+
+      setRenderItems(items);
       lastViewport = getCurrentViewport();
     };
 
@@ -134,7 +180,7 @@ export const useKakaoMap = (
       kakaoMaps.event.removeListener(map, 'zoom_changed', updatePositionsOnInteraction);
       kakaoMaps.event.removeListener(map, 'idle', updatePositions);
     };
-  }, [mapReady, pins]);
+  }, [mapReady, pins, index]);
 
   useEffect(() => {
     const kakaoMaps = window.kakao?.maps;
@@ -164,5 +210,17 @@ export const useKakaoMap = (
     };
   };
 
-  return { pinPositions, sdkError, getCurrentViewport };
+  const expandCluster = (clusterId: number, longitude: number, latitude: number) => {
+    const map = mapInstanceRef.current;
+    const kakaoMaps = window.kakao?.maps;
+    if (!map || !kakaoMaps) return;
+
+    hasUserDraggedMapRef.current = true;
+    const expansionZoom = index.getClusterExpansionZoom(clusterId);
+    const target = new kakaoMaps.LatLng(latitude, longitude);
+    map.setLevel(zoomToKakaoLevel(expansionZoom), { anchor: target });
+    map.panTo(target);
+  };
+
+  return { renderItems, sdkError, getCurrentViewport, expandCluster };
 };
