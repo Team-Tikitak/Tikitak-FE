@@ -3,3 +3,4 @@
  */
 
 export * from './DailyFeedCreatePage';
+export * from './DailyFeedEditPage';
