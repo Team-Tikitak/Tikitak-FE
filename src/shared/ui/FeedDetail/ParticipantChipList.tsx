@@ -28,7 +28,7 @@ export function ParticipantChipList({
   const hasMore = participants.length > MAX_VISIBLE;
 
   return (
-    <div className={cn('flex gap-2', className)} ref={ref} {...props}>
+    <div className={cn('flex w-fit max-w-full gap-2', className)} ref={ref} {...props}>
       {visibleParticipants.map((participant) => (
         <UserChip
           key={participant.id}
