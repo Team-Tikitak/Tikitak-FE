@@ -28,10 +28,10 @@ export interface MeResponse {
   status: MemberStatus;
   hasAgreedRequiredTerms: boolean;
   onboardingCompleted: boolean;
+  profileCharacterType: ProfileCharacterType | null;
   activeTeamId: number | null;
   hasTeam: boolean;
   createdAt: string;
-  profileCharacterType?: ProfileCharacterType;
 }
 
 export interface AgreementsResponse {

@@ -25,7 +25,11 @@
     "cap:open:android": "cap open android",
     "cap:run:ios": "yarn build && cap run ios",
     "cap:run:android": "yarn build && cap run android",
-    "cap:assets": "capacitor-assets generate --iconBackgroundColor \"#ffffff\" --splashBackgroundColor \"#ffffff\""
+    "cap:assets": "capacitor-assets generate --iconBackgroundColor \"#ffffff\" --splashBackgroundColor \"#ffffff\"",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:install": "playwright install --with-deps",
+    "e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
@@ -59,6 +63,7 @@
     "@capacitor/cli": "^8.3.4",
     "@chromatic-com/storybook": "^5.1.2",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.60.0",
     "@rolldown/plugin-babel": "^0.2.3",
     "@storybook/addon-a11y": "^10.3.6",
     "@storybook/addon-docs": "^10.3.6",
@@ -91,7 +96,6 @@
     "husky": "^9.1.7",
     "jsdom": "^29.0.2",
     "lint-staged": "^16.4.0",
-    "playwright": "^1.59.1",
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "storybook": "^10.3.6",

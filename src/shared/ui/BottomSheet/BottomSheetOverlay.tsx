@@ -47,10 +47,9 @@ export function BottomSheetOverlay({
     <Drawer.Portal>
       <Drawer.Overlay
         style={{
-          top: 'calc(env(safe-area-inset-top) * -1)',
           bottom: 'calc(env(safe-area-inset-bottom) * -1)',
         }}
-        className="fixed inset-x-0 z-40 bg-black/50"
+        className="fixed inset-x-0 top-0 z-40 bg-black/50"
       />
       <Drawer.Content
         {...(ariaDescription ? {} : { 'aria-describedby': undefined })}

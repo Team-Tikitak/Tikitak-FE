@@ -11,11 +11,11 @@ export default defineConfig({
     },
   },
   test: {
-    passWithNoTests: true,
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
     css: true,
+    passWithNoTests: true,
     exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
   },
 });
