@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
-
-const STREAM_CONSTRAINTS: MediaStreamConstraints = {
-  video: { facingMode: 'environment' },
-  audio: false,
-};
+export type CameraFacingMode = 'user' | 'environment';
 
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
 
-export const useCameraStream = (paused: boolean) => {
+export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 'environment') => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<CameraError | null>(() =>
@@ -30,7 +26,7 @@ export const useCameraStream = (paused: boolean) => {
     let cancelled = false;
 
     navigator.mediaDevices
-      .getUserMedia(STREAM_CONSTRAINTS)
+      .getUserMedia({ video: { facingMode }, audio: false })
       .then((stream) => {
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop());
@@ -66,7 +62,7 @@ export const useCameraStream = (paused: boolean) => {
       cancelled = true;
       stopStream();
     };
-  }, [paused, stopStream]);
+  }, [paused, facingMode, stopStream]);
 
   return { videoRef, streamRef, error, isReady, stopStream };
 };

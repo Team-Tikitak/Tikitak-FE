@@ -1,6 +1,10 @@
 ﻿import { useCallback, useState } from 'react';
 import { useCameraCapture } from '@/shared/hooks/useCameraCapture';
-import { useCameraStream, type CameraError } from '@/shared/hooks/useCameraStream';
+import {
+  useCameraStream,
+  type CameraError,
+  type CameraFacingMode,
+} from '@/shared/hooks/useCameraStream';
 import { usePendingSticker } from '@/shared/hooks/usePendingSticker';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import type { PendingState, PlacedSticker } from '@/shared/types/sticker';
@@ -15,7 +19,13 @@ interface UseCameraOptions {
 
 export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
   const [pending, setPending] = useState<PendingState | null>(null);
-  const stream = useCameraStream(pending !== null);
+  const [facingMode, setFacingMode] = useState<CameraFacingMode>('environment');
+  const stream = useCameraStream(pending !== null, facingMode);
+
+  const handleToggleFacingMode = useCallback(
+    () => setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user')),
+    [],
+  );
 
   const capture = useCameraCapture({
     videoRef: stream.videoRef,
@@ -56,5 +66,6 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     handleRemoveSticker: stickers.handleRemoveSticker,
     handleConfirm: capture.handleConfirm,
     handleClose,
+    handleToggleFacingMode,
   };
 };
