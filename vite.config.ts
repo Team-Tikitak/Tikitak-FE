@@ -20,6 +20,7 @@ export default defineConfig({
     tailwindcss(),
     svgr(),
     VitePWA({
+      disable: process.env.VITE_PWA_DISABLE === 'true',
       registerType: 'autoUpdate',
       includeAssets: [
         'favicon.ico',
@@ -88,6 +89,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  preview: {
+    port: 5173,
+  },
   build: {
     target: 'es2022',
     cssCodeSplit: true,
@@ -102,8 +106,8 @@ export default defineConfig({
           if (id.includes('node_modules/@tanstack')) return 'tanstack';
           if (id.includes('node_modules/@ssgoi')) return 'transitions';
           if (id.includes('node_modules/@capacitor')) return 'capacitor';
-          if (id.includes('node_modules/overlay-kit') || id.includes('node_modules/vaul'))
-            return 'overlay';
+          if (id.includes('node_modules/vaul')) return 'vaul';
+          if (id.includes('node_modules/overlay-kit')) return 'overlay';
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zod'))
             return 'forms';
           if (id.includes('node_modules/zustand') || id.includes('node_modules/axios'))
