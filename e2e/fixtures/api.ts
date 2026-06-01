@@ -106,7 +106,7 @@ export const skipSplash = async (page: Page): Promise<void> => {
 };
 
 export const seedAccessToken = async (page: Page): Promise<void> => {
-  // zustand 메모리 저장이라 페이지 초기화 시점에 미리 채울 수 없음 — refresh mock으로 대신함
+  // zustand 메모리 저장이라 미리 못 채움 — refresh mock으로 대신
   await page.context().addInitScript(() => {
     window.sessionStorage.setItem('tikitak:authed', '1');
   });
@@ -115,5 +115,101 @@ export const seedAccessToken = async (page: Page): Promise<void> => {
 export const seedFeedListView = async (page: Page): Promise<void> => {
   await page.context().addInitScript(() => {
     window.sessionStorage.setItem('tikitak:feed-view-mode', 'list');
+  });
+};
+
+// 첫 방문 롱프레스 힌트 오버레이를 본 것으로 시드 (클릭 가로채기 방지)
+export const seedHintSeen = async (page: Page): Promise<void> => {
+  await page.context().addInitScript(() => {
+    window.localStorage.setItem('feed-detail-long-press-hint-seen', '1');
+  });
+};
+
+// 외부 리소스(카카오·typekit) 차단 — load 지연 flaky 방지
+export const blockThirdParty = async (page: Page): Promise<void> => {
+  await page.route(/(dapi\.kakao\.com|use\.typekit\.net)/, (route) => route.abort());
+};
+
+export const stubKakaoMap = async (page: Page): Promise<void> => {
+  await page.context().addInitScript(() => {
+    const latLng = (lat: number, lng: number) => ({ getLat: () => lat, getLng: () => lng });
+    const makeMap = () => ({
+      getProjection: () => ({ containerPointFromCoords: () => ({ x: 180, y: 360 }) }),
+      getBounds: () => ({
+        getSouthWest: () => latLng(37.0, 126.0),
+        getNorthEast: () => latLng(38.0, 128.0),
+      }),
+      getCenter: () => latLng(37.5, 127.0),
+      getLevel: () => 5,
+      setLevel: () => {},
+      setCenter: () => {},
+      panTo: () => {},
+    });
+    const w = window as unknown as { kakao: unknown };
+    w.kakao = {
+      maps: {
+        load: (cb: () => void) => cb(),
+        Map: function () {
+          return makeMap();
+        },
+        LatLng: function (lat: number, lng: number) {
+          return latLng(lat, lng);
+        },
+        event: { addListener: () => {}, removeListener: () => {} },
+      },
+    };
+  });
+};
+
+// 미디어 업로드 mock (uploads → presigned PUT → complete)
+export const mockMediaUpload = async (page: Page): Promise<void> => {
+  await page.route('**/api/v1/media/uploads', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    await route.fulfill(
+      json(
+        wrap({
+          uploadId: 'upload-1',
+          items: [
+            {
+              mediaPublicId: 'media-1',
+              uploadUrl: 'https://r2.mock/upload/media-1',
+              contentType: 'image/jpeg',
+              expiresAt: '2026-12-31T00:00:00.000Z',
+            },
+          ],
+        }),
+      ),
+    );
+  });
+  await page.route('https://r2.mock/**', async (route) => route.fulfill({ status: 200, body: '' }));
+  await page.route('**/api/v1/media/uploads/*/complete', async (route) =>
+    route.fulfill(json(wrap({ uploadId: 'upload-1', items: [{ mediaPublicId: 'media-1' }] }))),
+  );
+};
+
+// getUserMedia를 canvas 스트림으로 대체
+export const stubCamera = async (page: Page): Promise<void> => {
+  await page.context().addInitScript(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 720;
+    canvas.height = 1280;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#777777';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    const withCapture = canvas as HTMLCanvasElement & {
+      captureStream?: (fps?: number) => MediaStream;
+    };
+    const stream = withCapture.captureStream ? withCapture.captureStream(30) : new MediaStream();
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: async () => stream,
+        enumerateDevices: async () => [],
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      },
+    });
   });
 };

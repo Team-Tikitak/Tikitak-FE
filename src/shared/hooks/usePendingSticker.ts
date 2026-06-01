@@ -10,7 +10,7 @@ export const usePendingSticker = (setStickers: StickerUpdater) => {
     (stickerId: StickerId) => {
       setStickers((stickers) => [
         ...stickers,
-        { id: createId(), stickerId, xRatio: 0.5, yRatio: 0.5, scale: 1 },
+        { id: createId(), stickerId, xRatio: 0.5, yRatio: 0.5, scale: 1, rotation: 0 },
       ]);
     },
     [setStickers],
@@ -34,6 +34,15 @@ export const usePendingSticker = (setStickers: StickerUpdater) => {
     [setStickers],
   );
 
+  const handleRotateSticker = useCallback(
+    (id: string, rotation: number) => {
+      setStickers((stickers) =>
+        stickers.map((sticker) => (sticker.id === id ? { ...sticker, rotation } : sticker)),
+      );
+    },
+    [setStickers],
+  );
+
   const handleRemoveSticker = useCallback(
     (id: string) => {
       setStickers((stickers) => stickers.filter((sticker) => sticker.id !== id));
@@ -41,5 +50,11 @@ export const usePendingSticker = (setStickers: StickerUpdater) => {
     [setStickers],
   );
 
-  return { handleAddSticker, handleMoveSticker, handleScaleSticker, handleRemoveSticker };
+  return {
+    handleAddSticker,
+    handleMoveSticker,
+    handleScaleSticker,
+    handleRotateSticker,
+    handleRemoveSticker,
+  };
 };

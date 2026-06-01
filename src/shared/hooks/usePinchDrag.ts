@@ -1,9 +1,12 @@
 import { type PointerEvent, type RefObject, useEffect, useRef } from 'react';
 import { getPointerRatio } from '@/shared/lib';
 
+const normalizeAngleDelta = (delta: number) => Math.atan2(Math.sin(delta), Math.cos(delta));
+
 interface UsePinchDragOptions {
   id: string;
   scale: number;
+  rotation: number;
   containerRef: RefObject<HTMLElement | null>;
   onDragStart: (id: string) => void;
   onDragMove: (
@@ -15,6 +18,7 @@ interface UsePinchDragOptions {
   ) => void;
   onDragEnd: (id: string) => void;
   onScale: (id: string, scale: number) => void;
+  onRotate: (id: string, rotation: number) => void;
   minScale?: number;
   maxScale?: number;
 }
@@ -22,27 +26,40 @@ interface UsePinchDragOptions {
 export const usePinchDrag = ({
   id,
   scale,
+  rotation,
   containerRef,
   onDragStart,
   onDragMove,
   onDragEnd,
   onScale,
+  onRotate,
   minScale = 0.4,
   maxScale = 3,
 }: UsePinchDragOptions) => {
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
-  const pinchStartRef = useRef<{ distance: number; scale: number } | null>(null);
+  const pinchStartRef = useRef<{
+    distance: number;
+    angle: number;
+    scale: number;
+    rotation: number;
+  } | null>(null);
   const isDraggingRef = useRef(false);
   const scaleRef = useRef(scale);
+  const rotationRef = useRef(rotation);
   useEffect(() => {
     scaleRef.current = scale;
   }, [scale]);
+  useEffect(() => {
+    rotationRef.current = rotation;
+  }, [rotation]);
 
   const recomputePinchStart = () => {
     const [p1, p2] = Array.from(pointersRef.current.values());
     pinchStartRef.current = {
       distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+      angle: Math.atan2(p2.y - p1.y, p2.x - p1.x),
       scale: scaleRef.current,
+      rotation: rotationRef.current,
     };
   };
 
@@ -66,9 +83,14 @@ export const usePinchDrag = ({
     if (pointersRef.current.size === 2 && pinchStartRef.current) {
       const [p1, p2] = Array.from(pointersRef.current.values());
       const currentDistance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
       const nextScale =
         pinchStartRef.current.scale * (currentDistance / pinchStartRef.current.distance);
+      const nextRotation =
+        pinchStartRef.current.rotation +
+        (normalizeAngleDelta(currentAngle - pinchStartRef.current.angle) * 180) / Math.PI;
       onScale(id, Math.min(maxScale, Math.max(minScale, nextScale)));
+      onRotate(id, nextRotation);
       return;
     }
 

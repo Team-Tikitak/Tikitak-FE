@@ -1,6 +1,6 @@
 import CloseIcon from '@/shared/assets/Icon/CloseIcon.svg?react';
 import { cn } from '@/shared/lib';
-import { Avatar } from '../Avatar/Avatar';
+import { Avatar } from '@/shared/ui/Avatar/Avatar';
 import type { ComponentPropsWithoutRef } from 'react';
 
 type MemberCardProps = ComponentPropsWithoutRef<'div'> & {

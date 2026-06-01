@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('비인증 스모크', () => {
   test('루트 진입 시 스플래시 노출 후 로그인으로 전환된다', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByLabel('tiki-tak!')).toBeVisible({ timeout: 3_000 });
 
@@ -14,7 +14,7 @@ test.describe('비인증 스모크', () => {
       window.sessionStorage.setItem('splash-seen', '1');
     });
 
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await page.waitForURL(/\/login$/, { timeout: 2_000 });
   });
@@ -24,7 +24,7 @@ test.describe('비인증 스모크', () => {
       window.sessionStorage.setItem('splash-seen', '1');
     });
 
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByRole('button', { name: '카카오 로그인' })).toBeVisible();
     await expect(page.getByRole('button', { name: '구글 로그인' })).toBeVisible();
@@ -41,7 +41,7 @@ test.describe('PWA / SEO 메타', () => {
   });
 
   test('og:title 및 description meta가 설정되어 있다', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     const ogTitle = await page.locator('meta[property="og:title"]').getAttribute('content');
     expect(ogTitle).toMatch(/Tikitak/);
@@ -53,7 +53,7 @@ test.describe('PWA / SEO 메타', () => {
   test('manifest 링크가 존재한다', async ({ page }) => {
     test.skip(!process.env.CI, 'vite-plugin-pwa는 production build에서만 manifest 링크 주입');
 
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('link[rel="manifest"]')).toHaveCount(1);
   });
@@ -74,7 +74,7 @@ test.describe('반응형 캔버스', () => {
     await context.addInitScript(() => {
       window.sessionStorage.setItem('splash-seen', '1');
     });
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
     const root = page.locator('#root > div').first();
     const box = await root.boundingBox();

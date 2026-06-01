@@ -3,7 +3,6 @@
  */
 
 export * from './useActiveTeamId';
-export * from './useActiveTeamMemberProfile';
 export * from './useActiveTeamSelection';
 export * from './useCamera';
 export * from './useCameraCapture';
@@ -13,6 +12,7 @@ export * from './useFeedData';
 export * from './useFeedForm';
 export * from './useFirstVisitHint';
 export * from './useImageFileInput';
+export * from './useInfiniteScroll';
 export * from './usePendingSticker';
 export * from './usePinComments';
 export * from './usePinchDrag';

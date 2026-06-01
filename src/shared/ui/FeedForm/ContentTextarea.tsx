@@ -19,6 +19,7 @@ export const ContentTextarea = ({
     <textarea
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      aria-label={placeholder}
       placeholder={placeholder}
       maxLength={maxLength}
       className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"

@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/lib';
-import { TeamMenuItem } from '../../TeamMenuItem';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
+import { TeamMenuItem } from './TeamMenuItem';
 
 export interface TeamListSheetItem {
   id: number;

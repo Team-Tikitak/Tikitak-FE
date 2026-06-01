@@ -37,14 +37,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps
+
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: yarn playwright install-deps
 
       - name: Build production bundle
         run: yarn build
 
       - name: Run Playwright tests
-        run: yarn e2e
+        run: yarn e2e ${{ github.event_name == 'pull_request' && '--project=mobile-chrome' || '' }}
         env:
           CI: 'true'
 

@@ -29,6 +29,7 @@ describe('usePendingSticker', () => {
       xRatio: 0.5,
       yRatio: 0.5,
       scale: 1,
+      rotation: 0,
     });
     expect(result.current.stickers[0].id).toEqual(expect.any(String));
   });
@@ -47,6 +48,14 @@ describe('usePendingSticker', () => {
     act(() => result.current.handleScaleSticker('a', 2.5));
     expect(result.current.stickers[0].scale).toBe(2.5);
     expect(result.current.stickers[1].scale).toBe(1);
+  });
+
+  it('handleRotateSticker updates rotation of matching id only', () => {
+    const initial = [sticker({ id: 'a' }), sticker({ id: 'b' })];
+    const { result } = renderHook(() => useTestHarness(initial));
+    act(() => result.current.handleRotateSticker('a', 45));
+    expect(result.current.stickers[0].rotation).toBe(45);
+    expect(result.current.stickers[1].rotation).toBeUndefined();
   });
 
   it('handleRemoveSticker filters out the sticker with matching id', () => {

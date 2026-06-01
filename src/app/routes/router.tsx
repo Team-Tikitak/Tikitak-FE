@@ -12,6 +12,7 @@ export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     errorElement: <RootErrorBoundary />,
+    hydrateFallbackElement: <div className="h-dvh w-full bg-white" />,
     children: [
       {
         errorElement: <RootErrorBoundary />,

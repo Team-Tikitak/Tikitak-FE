@@ -1,6 +1,7 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
-import { MenuButton, Skeleton } from '@/shared/ui';
+import { Skeleton } from '@/shared/ui';
+import { MenuButton } from './MenuButton';
 
 const FEED_VIEW_MODES = ['grid', 'list'] as const;
 

@@ -5,6 +5,10 @@ import { PATHS } from '@/app/routes/paths';
 const SPLASH_SEEN_KEY = 'splash-seen';
 const SPLASH_DURATION_MS = 2300;
 
+interface UseSplashGateParams {
+  animationStarted?: boolean;
+}
+
 const readSplashSeen = () => {
   try {
     return sessionStorage.getItem(SPLASH_SEEN_KEY) === '1';
@@ -21,13 +25,17 @@ const markSplashSeen = () => {
   }
 };
 
-export const useSplashGate = () => {
+export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams = {}) => {
   const navigate = useNavigate();
   const alreadySeen = readSplashSeen();
 
   useEffect(() => {
     if (alreadySeen) {
       navigate(PATHS.LOGIN, { replace: true });
+      return;
+    }
+
+    if (!animationStarted) {
       return;
     }
 
@@ -41,7 +49,7 @@ export const useSplashGate = () => {
     }, SPLASH_DURATION_MS);
 
     return () => window.clearTimeout(timer);
-  }, [alreadySeen, navigate]);
+  }, [alreadySeen, animationStarted, navigate]);
 
   return { alreadySeen };
 };

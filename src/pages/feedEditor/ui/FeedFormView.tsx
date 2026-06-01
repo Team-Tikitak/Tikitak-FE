@@ -8,8 +8,8 @@ import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { ContentTextarea, PhotoStrip, type PhotoStripItem } from '@/shared/ui/FeedForm';
-import { LocationSearchOverlay } from '@/shared/ui/LocationSearchOverlay';
-import { MemberSelectOverlay } from '@/shared/ui/MemberSelectOverlay';
+import { LocationSearchOverlay } from './LocationSearchOverlay';
+import { MemberSelectOverlay } from './MemberSelectOverlay';
 
 interface FeedFormViewProps {
   title: string;

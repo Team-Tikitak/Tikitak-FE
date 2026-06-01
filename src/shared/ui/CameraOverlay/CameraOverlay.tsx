@@ -21,10 +21,12 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleAddSticker,
     handleMoveSticker,
     handleScaleSticker,
+    handleRotateSticker,
     handleRemoveSticker,
     handleConfirm,
     handleClose,
     handleToggleFacingMode,
+    facingMode,
   } = useCamera({
     onCapture: (photo) => {
       onCapture(photo);
@@ -49,6 +51,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
             onAddSticker={handleAddSticker}
             onMoveSticker={handleMoveSticker}
             onScaleSticker={handleScaleSticker}
+            onRotateSticker={handleRotateSticker}
             onRemoveSticker={handleRemoveSticker}
             onRetake={handleRetake}
             onConfirm={handleConfirm}
@@ -61,6 +64,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
             onCapture={handleCapture}
             onClose={handleClose}
             onToggleFacingMode={handleToggleFacingMode}
+            mirrored={facingMode === 'user'}
           />
         )}
       </div>

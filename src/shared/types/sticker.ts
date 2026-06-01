@@ -8,6 +8,7 @@ export interface PlacedSticker {
   yRatio: number;
   /** 기본 크기 대비 배율 (1 = 원본). pinch로 조절. */
   scale: number;
+  rotation?: number;
 }
 
 export interface PendingState {

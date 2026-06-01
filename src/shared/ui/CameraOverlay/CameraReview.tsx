@@ -7,8 +7,8 @@ import { useTrashDragZone } from '@/shared/hooks/useTrashDragZone';
 import { cn } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
-import { StickerPicker } from '@/shared/ui/StickerPicker/StickerPicker';
 import { PlacedStickerView } from './PlacedStickerView';
+import { StickerPicker } from './StickerPicker';
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -17,6 +17,7 @@ interface CameraReviewProps {
   onAddSticker: (stickerId: StickerId) => void;
   onMoveSticker: (id: string, xRatio: number, yRatio: number) => void;
   onScaleSticker: (id: string, scale: number) => void;
+  onRotateSticker: (id: string, rotation: number) => void;
   onRemoveSticker: (id: string) => void;
   onRetake: () => void;
   onConfirm: () => void;
@@ -29,6 +30,7 @@ export const CameraReview = ({
   onAddSticker,
   onMoveSticker,
   onScaleSticker,
+  onRotateSticker,
   onRemoveSticker,
   onRetake,
   onConfirm,
@@ -63,6 +65,7 @@ export const CameraReview = ({
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
             onScale={onScaleSticker}
+            onRotate={onRotateSticker}
           />
         ))}
 

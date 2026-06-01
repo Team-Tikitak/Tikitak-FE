@@ -3,7 +3,7 @@ import { toTeamDetail } from '@/app/routes/paths';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import type { Team } from '@/shared/api/user/types';
 import { normalizeImageUrl } from '@/shared/lib';
-import { TeamCard } from '@/shared/ui';
+import { TeamCard } from './TeamCard';
 
 interface MyPageTeamCardProps {
   team: Team;

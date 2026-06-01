@@ -8,7 +8,7 @@ test.describe('보호 라우트 가드', () => {
       window.sessionStorage.setItem('splash-seen', '1');
     });
 
-    // refresh 실패시켜 비인증 상태로 만든다
+    // refresh 실패 → 비인증 상태
     await page.route('**/api/v1/auth/token/refresh', async (route) =>
       route.fulfill({
         status: 401,

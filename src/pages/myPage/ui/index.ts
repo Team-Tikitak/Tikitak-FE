@@ -5,3 +5,4 @@
 export * from './MyPage';
 export * from './MyPageSkeleton';
 export * from './MyPageTeamCard';
+export * from './TeamCard';

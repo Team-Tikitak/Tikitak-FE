@@ -20,7 +20,10 @@ export const HomePage = () => {
 
   if (isPending) {
     return (
-      <PageShell contentClassName="flex flex-1 flex-col">
+      <PageShell
+        header={<AppHeader teamName="" teamNameLoading onTeamSelect={openTeamSheet} />}
+        contentClassName="flex flex-1 flex-col"
+      >
         <LoadingState variant="fullscreen" />
       </PageShell>
     );

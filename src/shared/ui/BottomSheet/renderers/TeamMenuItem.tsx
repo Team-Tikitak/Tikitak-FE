@@ -1,6 +1,6 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
-import { Check } from '../Check';
+import { Check } from '@/shared/ui/Check';
 
 interface TeamMenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'type'> {
   title: string;

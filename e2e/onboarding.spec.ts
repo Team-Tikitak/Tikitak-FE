@@ -66,7 +66,7 @@ test.describe('약관 동의 → 온보딩 → 결과', () => {
 
     await page.getByRole('button', { name: '시작하기' }).click({ timeout: 10_000 });
 
-    // Q1, Q2: 각 질문의 첫 옵션 카드 클릭 (aria-pressed 속성이 옵션 카드 식별자)
+    // Q1, Q2: 각 질문 첫 옵션 카드 클릭
     for (let i = 0; i < 2; i += 1) {
       await page.locator('button[aria-pressed]').first().click({ timeout: 10_000 });
     }
