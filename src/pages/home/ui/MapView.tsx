@@ -44,7 +44,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
 
   return (
     <div className="pointer-events-none relative isolate w-full flex-1">
-      <Map pins={pins} initialCenter={center} onPinClick={handlePinClick} />
+      <Map pins={pins} teamId={teamId} initialCenter={center} onPinClick={handlePinClick} />
       {showDailyQuestion && (
         <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
           <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
