@@ -31,6 +31,7 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     videoRef: stream.videoRef,
     streamRef: stream.streamRef,
     stopStream: stream.stopStream,
+    mirror: facingMode === 'user',
     pending,
     setPending,
     onCapture,
@@ -63,9 +64,11 @@ export const useCamera = ({ onCapture, onClose }: UseCameraOptions) => {
     handleAddSticker: stickers.handleAddSticker,
     handleMoveSticker: stickers.handleMoveSticker,
     handleScaleSticker: stickers.handleScaleSticker,
+    handleRotateSticker: stickers.handleRotateSticker,
     handleRemoveSticker: stickers.handleRemoveSticker,
     handleConfirm: capture.handleConfirm,
     handleClose,
     handleToggleFacingMode,
+    facingMode,
   };
 };

@@ -26,6 +26,7 @@ interface UseCameraCaptureOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
   streamRef: RefObject<MediaStream | null>;
   stopStream: () => void;
+  mirror?: boolean;
   pending: PendingState | null;
   setPending: Dispatch<SetStateAction<PendingState | null>>;
   onCapture: (photo: CapturedPhoto) => void;
@@ -35,6 +36,7 @@ export const useCameraCapture = ({
   videoRef,
   streamRef,
   stopStream,
+  mirror = false,
   pending,
   setPending,
   onCapture,
@@ -73,6 +75,11 @@ export const useCameraCapture = ({
     const context = canvas.getContext('2d');
     if (!context) return;
 
+    if (mirror) {
+      context.translate(rect.sourceWidth, 0);
+      context.scale(-1, 1);
+    }
+
     context.drawImage(
       video,
       rect.sourceX,
@@ -98,7 +105,7 @@ export const useCameraCapture = ({
       'image/jpeg',
       CAPTURED_IMAGE_QUALITY,
     );
-  }, [stopStream, videoRef, streamRef, setPending]);
+  }, [mirror, stopStream, videoRef, streamRef, setPending]);
 
   const handleRetake = useCallback(() => {
     if (pending) {

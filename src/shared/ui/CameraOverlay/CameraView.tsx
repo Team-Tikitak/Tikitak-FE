@@ -2,6 +2,7 @@
 import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { type CameraError } from '@/shared/hooks/useCamera';
+import { cn } from '@/shared/lib';
 import { CameraButton } from '@/shared/ui';
 
 const ERROR_MESSAGES = {
@@ -17,6 +18,7 @@ interface CameraViewProps {
   onCapture: () => void;
   onClose: () => void;
   onToggleFacingMode: () => void;
+  mirrored?: boolean;
 }
 
 export const CameraView = ({
@@ -26,6 +28,7 @@ export const CameraView = ({
   onCapture,
   onClose,
   onToggleFacingMode,
+  mirrored = false,
 }: CameraViewProps) => {
   return (
     <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
@@ -34,7 +37,10 @@ export const CameraView = ({
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 h-full w-full scale-[1.01] object-cover"
+        className={cn(
+          'absolute inset-0 h-full w-full scale-[1.01] object-cover',
+          mirrored && '-scale-x-[1.01]',
+        )}
       />
 
       <button

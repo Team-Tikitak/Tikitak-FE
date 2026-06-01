@@ -25,9 +25,15 @@ export const composePhotoWithStickers = async (
         const entry = getSticker(placed.stickerId);
         const image = await loadImage(entry.url);
         const size = baseStickerSize * placed.scale;
-        const x = placed.xRatio * photo.naturalWidth - size / 2;
-        const y = placed.yRatio * photo.naturalHeight - size / 2;
-        context.drawImage(image, x, y, size, size);
+        const x = placed.xRatio * photo.naturalWidth;
+        const y = placed.yRatio * photo.naturalHeight;
+        const rotation = ((placed.rotation ?? 0) * Math.PI) / 180;
+
+        context.save();
+        context.translate(x, y);
+        context.rotate(rotation);
+        context.drawImage(image, -size / 2, -size / 2, size, size);
+        context.restore();
       }),
     );
 
