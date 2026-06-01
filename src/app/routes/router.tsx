@@ -11,6 +11,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RootErrorBoundary />,
     children: [
       {
         errorElement: <RootErrorBoundary />,
@@ -48,19 +49,19 @@ export const router = createBrowserRouter([
               {
                 path: PATHS.FEED_CREATE,
                 lazy: () =>
-                  import('@/pages/feedCreate/ui').then((m) => ({ Component: m.FeedCreatePage })),
+                  import('@/pages/feedEditor/ui').then((m) => ({ Component: m.FeedCreatePage })),
               },
               {
                 path: PATHS.DAILY_FEED_CREATE,
                 lazy: () =>
-                  import('@/pages/dailyFeedCreate/ui').then((m) => ({
+                  import('@/pages/dailyFeedEditor/ui').then((m) => ({
                     Component: m.DailyFeedCreatePage,
                   })),
               },
               {
                 path: PATHS.DAILY_FEED_EDIT,
                 lazy: () =>
-                  import('@/pages/dailyFeedEdit/ui/DailyFeedEditPage').then((m) => ({
+                  import('@/pages/dailyFeedEditor/ui').then((m) => ({
                     Component: m.DailyFeedEditPage,
                   })),
               },
@@ -105,7 +106,7 @@ export const router = createBrowserRouter([
               {
                 path: PATHS.FEED_EDIT,
                 lazy: () =>
-                  import('@/pages/feedEdit/ui/FeedEditPage').then((m) => ({
+                  import('@/pages/feedEditor/ui').then((m) => ({
                     Component: m.FeedEditPage,
                   })),
               },
