@@ -19,6 +19,7 @@ export const ContentImageCard = ({
     <div
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? title : undefined}
       onClick={onClick}
       onKeyDown={onClick ? (e) => (e.key === 'Enter' || e.key === ' ') && onClick() : undefined}
       className={cn(

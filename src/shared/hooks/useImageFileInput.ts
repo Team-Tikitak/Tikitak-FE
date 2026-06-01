@@ -59,6 +59,7 @@ export const useImageFileInput = ({
       multiple,
       onChange: handleChange,
       className: 'hidden',
+      'aria-label': '사진 선택',
     },
   };
 };

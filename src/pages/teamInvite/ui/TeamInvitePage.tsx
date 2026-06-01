@@ -36,6 +36,7 @@ export const TeamInvitePage = () => {
         <input
           type="text"
           readOnly
+          aria-label="초대 링크"
           value={inviteUrl ?? ''}
           className="body-1 w-53 truncate rounded-xs border border-gray-300 px-1 outline-none"
         />
