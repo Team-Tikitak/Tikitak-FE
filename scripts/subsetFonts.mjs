@@ -1,4 +1,4 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import subsetFont from 'subset-font';
@@ -24,13 +24,13 @@ for (const [start, end] of KEEP_RANGES) {
   for (let code = start; code <= end; code += 1) keepText += String.fromCodePoint(code);
 }
 
-const targets = ['SUIT-Regular', 'SUIT-Medium', 'SUIT-SemiBold', 'SUIT-Bold', 'Pretendard-Regular'];
+const targets = ['SUIT-Regular', 'SUIT-Medium', 'SUIT-SemiBold', 'SUIT-Bold'];
 
 for (const name of targets) {
   const file = path.join(fontsDir, `${name}.woff2`);
-  const before = (await stat(file)).size;
-  const subset = await subsetFont(await readFile(file), keepText, { targetFormat: 'woff2' });
+  const buffer = await readFile(file);
+  const subset = await subsetFont(buffer, keepText, { targetFormat: 'woff2' });
   await writeFile(file, subset);
   const kb = (n) => `${(n / 1024).toFixed(0)}KB`;
-  console.log(`${name}: ${kb(before)} -> ${kb(subset.length)}`);
+  console.log(`${name}: ${kb(buffer.length)} -> ${kb(subset.length)}`);
 }
