@@ -2,7 +2,8 @@ import type { Team } from '@/shared/api/user/types';
 import { openOverlay } from '@/shared/lib';
 import { BottomSheetOverlay, TeamListSheet } from '@/shared/ui/BottomSheet';
 
-const COLLAPSED_HEIGHT = 294;
+// 팀 2개 풀 + 3번째 살짝 보이는 높이
+const COLLAPSED_HEIGHT = 360;
 const TOP_GAP = 80;
 
 interface UseTeamPickerSheetParams {

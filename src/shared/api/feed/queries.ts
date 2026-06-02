@@ -15,7 +15,7 @@ import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 
 type FeedListCacheData = FeedListResponse | InfiniteData<FeedListResponse>;
 
-const FEED_LIST_STALE_TIME_MS = 0;
+const FEED_LIST_STALE_TIME_MS = 15 * 1000;
 
 const removeFeedFromPage = (page: FeedListResponse, feedId: number): FeedListResponse => ({
   ...page,
@@ -58,9 +58,6 @@ export const useFeeds = (teamId: number | null | undefined, params: FeedListPara
     queryFn: () => unwrap(() => getFeeds(teamId as number, params)),
     enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: FEED_LIST_STALE_TIME_MS,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
   });
 
 export const useInfiniteFeeds = (teamId: number | null | undefined, params: FeedListParams = {}) =>
@@ -79,9 +76,6 @@ export const useInfiniteFeeds = (teamId: number | null | undefined, params: Feed
       lastPage.pageInfo.hasNext ? (lastPage.pageInfo.nextCursor ?? undefined) : undefined,
     enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: FEED_LIST_STALE_TIME_MS,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
   });
 
 export const usePatchFeed = (teamId: number, feedId: number) => {
@@ -102,6 +96,7 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
   const navigate = useNavigate();
 
   return useMutation({
+    meta: { errorMessage: '삭제에 실패했어요' },
     mutationFn: () => unwrap(() => deleteFeed(teamId, feedId)),
     onMutate: async () => {
       markFeedDeleting();

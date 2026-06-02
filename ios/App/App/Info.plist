@@ -44,5 +44,13 @@
 	<string>UIStatusBarStyleDarkContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>게시물 사진 촬영에 카메라를 사용해요.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>앨범에서 사진을 불러올 때 사용해요.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>촬영한 사진을 앨범에 저장할 때 사용해요.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>내 주변 기록과 지도 표시에 위치를 사용해요.</string>
 </dict>
 </plist>

@@ -26,7 +26,7 @@ export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
           <ContentImageCard
             title="모두의 PICK"
             description="반응과 댓글이 가장 많은 사진"
-            imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl, 'feed-image')}
+            imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
             onClick={() => navigate(toFeedDetail(String(firstPick.feedId)))}
           />
         )}
@@ -34,7 +34,7 @@ export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
           <ContentImageCard
             title={`${firstRegion.region}에서`}
             description="지역별로 모아보는 사진"
-            imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl, 'feed-image')}
+            imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
           />
         )}
       </div>

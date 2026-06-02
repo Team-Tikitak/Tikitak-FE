@@ -74,13 +74,7 @@ export function BottomSheetOverlay({
 
   const inner = (
     <Drawer.Portal>
-      <Drawer.Overlay
-        style={{
-          top: 'env(safe-area-inset-top)',
-          bottom: 'calc(env(safe-area-inset-bottom) * -1)',
-        }}
-        className="fixed inset-x-0 z-40 bg-black/50"
-      />
+      <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
       <Drawer.Content
         {...(ariaDescription ? {} : { 'aria-describedby': undefined })}
         onPointerDownOutside={(event) => {
@@ -110,22 +104,9 @@ export function BottomSheetOverlay({
     </Drawer.Portal>
   );
 
-  if (snapPoints) {
-    return (
-      <Drawer.Root
-        open={open}
-        onOpenChange={handleOpenChange}
-        onAnimationEnd={handleAnimationEnd}
-        repositionInputs={false}
-        snapPoints={snapPoints}
-        activeSnapPoint={activeSnapPoint}
-        setActiveSnapPoint={setActiveSnapPoint}
-        fadeFromIndex={fadeFromIndex ?? 0}
-      >
-        {inner}
-      </Drawer.Root>
-    );
-  }
+  const snapProps = snapPoints
+    ? { snapPoints, activeSnapPoint, setActiveSnapPoint, fadeFromIndex: fadeFromIndex ?? 0 }
+    : {};
 
   return (
     <Drawer.Root
@@ -133,6 +114,7 @@ export function BottomSheetOverlay({
       onOpenChange={handleOpenChange}
       onAnimationEnd={handleAnimationEnd}
       repositionInputs={false}
+      {...snapProps}
     >
       {inner}
     </Drawer.Root>

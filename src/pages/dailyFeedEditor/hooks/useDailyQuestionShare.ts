@@ -1,7 +1,8 @@
-﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { usePostDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
+import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseDailyQuestionShareParams {
@@ -19,30 +20,27 @@ export const useDailyQuestionShare = ({
 }: UseDailyQuestionShareParams) => {
   const navigate = useNavigate();
   const postDailyQuestionMutation = usePostDailyQuestion(teamId ?? 0, questionId ?? 0);
-  const [isSharing, setIsSharing] = useState(false);
+  const { submit, isSharing } = useShareSubmit('오늘의 게시물 작성에 실패했어요.');
 
-  const share = async () => {
-    if (!teamId || !photo || !questionId || isSharing) return;
-    setIsSharing(true);
-    try {
+  const share = () => {
+    if (!teamId || !photo || !questionId) return;
+    const tid = teamId;
+    const capturedPhoto = photo;
+    return submit(async () => {
       const [mediaPublicId] = await uploadMediaBlobs({
         purpose: 'DAILY_QUESTION_IMAGE',
-        teamId: teamId ?? undefined,
-        blobs: [photo.blob],
+        teamId: tid,
+        blobs: [capturedPhoto.blob],
         fileNamePrefix: 'daily-question',
       });
-      await postDailyQuestionMutation.mutateAsync({
-        content,
-        mediaPublicId,
-      });
+      try {
+        await postDailyQuestionMutation.mutateAsync({ content, mediaPublicId });
+      } catch (error) {
+        await deleteMedia(mediaPublicId).catch(() => undefined);
+        throw error;
+      }
       navigate(-1);
-    } catch (error) {
-      console.error('오늘의 게시물 작성 실패', error);
-      // TODO: 글로벌 토스트 도입 시 교체
-      alert('오늘의 게시물 작성에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    } finally {
-      setIsSharing(false);
-    }
+    });
   };
 
   return { share, isSharing };

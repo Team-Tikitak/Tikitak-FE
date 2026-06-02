@@ -16,5 +16,6 @@ export * from './useInfiniteScroll';
 export * from './usePendingSticker';
 export * from './usePinComments';
 export * from './usePinchDrag';
+export * from './useShareSubmit';
 export * from './useTeamPickerSheet';
 export * from './useTrashDragZone';

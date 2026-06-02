@@ -79,7 +79,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
   const photoItems = [
     ...keptImages.map((image) => ({
       key: `existing-${image.feedImageId}`,
-      src: normalizeImageUrl(image.imageUrl, 'feed-image') ?? '',
+      src: normalizeImageUrl(image.imageUrl) ?? '',
       onRemove: () => removeExistingImage(image.feedImageId),
     })),
     ...photos.map((photo) => ({

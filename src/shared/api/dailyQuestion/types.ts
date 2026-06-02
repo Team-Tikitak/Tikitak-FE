@@ -7,7 +7,7 @@ export interface Answer {
   updatedAt: string;
 }
 
-export interface getDailyQuestionResponse {
+export interface GetDailyQuestionResponse {
   questionId: number;
   content: string;
   date: string;
@@ -16,7 +16,7 @@ export interface getDailyQuestionResponse {
   answer: Answer | null;
 }
 
-export interface postDailyQuestionRequest {
+export interface PostDailyQuestionRequest {
   content: string;
   mediaPublicId: string;
 }
@@ -26,7 +26,7 @@ export interface Question {
   content: string;
   answerDate: string;
 }
-export interface dailyQuestionResponse {
+export interface DailyQuestionResponse {
   feedId: number;
   type: FeedType;
   question: Question;
@@ -35,7 +35,7 @@ export interface dailyQuestionResponse {
   updatedAt: string;
 }
 
-export interface patchDailyQuestionRequest {
+export interface PatchDailyQuestionRequest {
   content?: {
     defined: boolean;
     value: string;

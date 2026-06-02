@@ -11,7 +11,7 @@ export interface LoadingStateProps extends ComponentPropsWithoutRef<'div'> {
 
 const variantClassName: Record<LoadingStateVariant, string> = {
   page: 'min-h-[320px] py-12',
-  fullscreen: 'h-full min-h-dvh',
+  fullscreen: 'h-full',
   inline: 'py-6',
 };
 

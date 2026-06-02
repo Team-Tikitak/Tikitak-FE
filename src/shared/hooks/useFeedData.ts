@@ -17,7 +17,7 @@ export const useFeedData = (teamId: number, feedId: number) => {
   const sortedImages = (data?.images ?? []).sort((a, b) => a.orderIndex - b.orderIndex);
 
   const images: CarouselImage[] = sortedImages.map((img) => ({
-    src: normalizeImageUrl(img.imageUrl, 'feed-image') ?? '',
+    src: normalizeImageUrl(img.imageUrl) ?? '',
   }));
   const feedImageIds: number[] = sortedImages.map((img) => img.feedImageId);
 

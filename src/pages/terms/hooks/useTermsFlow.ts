@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { usePutAgreements } from '@/shared/api/user/queries';
+import { requestAppPermissions } from '@/shared/lib/requestAppPermissions';
 import { useTermsAgreement } from './useTermsAgreement';
 
 export const useTermsFlow = () => {
@@ -14,6 +15,7 @@ export const useTermsFlow = () => {
     if (!allChecked || isSubmitting) return;
     try {
       await putAgreements({ termsAgreed: true, privacyAgreed: true });
+      await requestAppPermissions();
       navigate(PATHS.ONBOARDING);
     } catch (error) {
       console.error('약관 동의 저장 실패', error);

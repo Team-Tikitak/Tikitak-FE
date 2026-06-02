@@ -1,9 +1,10 @@
-﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { usePatchFeed } from '@/shared/api/feed/queries';
 import type { FeedImage, FeedPlace } from '@/shared/api/feed/types';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
+import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseFeedEditShareParams {
@@ -27,12 +28,10 @@ export const useFeedEditShare = ({
 }: UseFeedEditShareParams) => {
   const navigate = useNavigate();
   const patchFeedMutation = usePatchFeed(teamId, feedId);
-  const [isSharing, setIsSharing] = useState(false);
+  const { submit, isSharing } = useShareSubmit('피드 수정에 실패했어요.');
 
-  const share = async () => {
-    if (isSharing) return;
-    setIsSharing(true);
-    try {
+  const share = () =>
+    submit(async () => {
       const newMediaPublicIds =
         newPhotos.length > 0
           ? await uploadMediaBlobs({
@@ -49,20 +48,19 @@ export const useFeedEditShare = ({
 
       const mediaPublicIds = [...existingMediaPublicIds, ...newMediaPublicIds];
 
-      await patchFeedMutation.mutateAsync({
-        content,
-        ...(mediaPublicIds.length > 0 ? { mediaPublicIds } : {}),
-        place: selectedPlace,
-        taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
-      });
+      try {
+        await patchFeedMutation.mutateAsync({
+          content,
+          ...(mediaPublicIds.length > 0 ? { mediaPublicIds } : {}),
+          place: selectedPlace,
+          taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
+        });
+      } catch (error) {
+        await Promise.all(newMediaPublicIds.map((id) => deleteMedia(id).catch(() => undefined)));
+        throw error;
+      }
       navigate(-1);
-    } catch (error) {
-      console.error('피드 수정 실패', error);
-      alert('피드 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    } finally {
-      setIsSharing(false);
-    }
-  };
+    });
 
   return { share, isSharing };
 };

@@ -82,7 +82,7 @@ export const storeHeroPin = (
   const payload: StoredHeroPinPayload = {
     placeId: pin.placeId,
     teamId,
-    thumbnailUrl: normalizeImageUrl(pin.thumbnailUrl, 'feed-image'),
+    thumbnailUrl: normalizeImageUrl(pin.thumbnailUrl),
     feedCount: pin.feedCount,
     level: viewport?.level,
     x: position.x,

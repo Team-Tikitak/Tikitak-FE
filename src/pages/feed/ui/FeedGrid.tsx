@@ -4,6 +4,8 @@ import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import type { FeedItem } from '../model/types';
 
+const GRID_EAGER_COUNT = 12;
+
 interface FeedGridProps extends Omit<ComponentPropsWithRef<'ul'>, 'children'> {
   items: FeedItem[];
 }
@@ -12,7 +14,7 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
   return (
     <ul ref={ref} className={cn('grid grid-cols-3 gap-1', className)} {...props}>
       {items.map((item, index) => {
-        const isAboveFold = index < 9;
+        const isAboveFold = index < GRID_EAGER_COUNT;
         return (
           <li key={item.id} className="overflow-hidden rounded-sm">
             <Link

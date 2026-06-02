@@ -26,6 +26,7 @@ export const useCreateTeam = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '팀 생성에 실패했어요' },
     mutationFn: (body: CreateTeamRequest) => unwrap(() => postTeam(body)),
     onSuccess: () => {
       invalidateTeamMembershipQueries(queryClient);
@@ -39,6 +40,7 @@ export const useLeaveTeam = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '팀 나가기에 실패했어요' },
     mutationFn: deleteTeamMemberMe,
     onSuccess: (_, teamId) => {
       queryClient.setQueryData(
@@ -56,6 +58,7 @@ export const useTeamDelete = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '팀 삭제에 실패했어요' },
     mutationFn: (teamId: number) => postTeamDeleteRequest(teamId),
     onSuccess: () => {
       invalidateTeamMembershipQueries(queryClient);
@@ -68,6 +71,7 @@ export const usePatchTeamProfile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { errorMessage: '프로필 수정에 실패했어요' },
     mutationFn: (variables: PatchTeamProfileVariables) => patchTeamProfile(variables),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
@@ -79,6 +83,7 @@ export const usePatchTeamProfile = () => {
 export const useDeleteTeamMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { errorMessage: '멤버 내보내기에 실패했어요' },
     mutationFn: (variables: DeleteTeamMemberVariables) => deleteTeamMember(variables),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });

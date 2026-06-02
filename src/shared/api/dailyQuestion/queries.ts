@@ -3,7 +3,7 @@ import { getDailyQuestion, patchDailyQuestion, postDailyQuestion } from './api';
 import { dailyQuestionKeys } from './keys';
 import { feedKeys } from '../feed/keys';
 import { unwrap } from '../request';
-import type { patchDailyQuestionRequest, postDailyQuestionRequest } from './types';
+import type { PatchDailyQuestionRequest, PostDailyQuestionRequest } from './types';
 
 export const useGetDailyQuestion = (teamId: number) =>
   useQuery({
@@ -16,7 +16,7 @@ export const useGetDailyQuestion = (teamId: number) =>
 export const usePostDailyQuestion = (teamId: number, questionId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: postDailyQuestionRequest) =>
+    mutationFn: (body: PostDailyQuestionRequest) =>
       unwrap(() => postDailyQuestion(teamId, questionId, body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
@@ -28,7 +28,7 @@ export const usePostDailyQuestion = (teamId: number, questionId: number) => {
 export const usePatchDailyQuestion = (teamId: number, questionId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: patchDailyQuestionRequest) =>
+    mutationFn: (body: PatchDailyQuestionRequest) =>
       unwrap(() => patchDailyQuestion(teamId, questionId, body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });

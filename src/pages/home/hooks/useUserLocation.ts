@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { useEffect, useState } from 'react';
 
 type LatLng = { latitude: number; longitude: number };
@@ -7,21 +8,46 @@ const GEOLOCATION_TIMEOUT = 5000;
 
 export const useUserLocation = () => {
   const [center, setCenter] = useState<LatLng>(DEFAULT_CENTER);
-  // geolocation 미지원이면 즉시 확정(기본 좌표)
-  const [located, setLocated] = useState(
-    () => typeof navigator === 'undefined' || !navigator.geolocation,
-  );
+  const [located, setLocated] = useState(false);
 
   useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCenter({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-        setLocated(true);
-      },
-      () => setLocated(true),
-      { timeout: GEOLOCATION_TIMEOUT },
-    );
+    let cancelled = false;
+
+    const settle = (coords?: LatLng) => {
+      if (cancelled) return;
+      if (coords) setCenter(coords);
+      setLocated(true);
+    };
+
+    const locate = async () => {
+      // 네이티브 WKWebView는 navigator.geolocation 미동작 → @capacitor/geolocation 사용
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const { Geolocation } = await import('@capacitor/geolocation');
+          const pos = await Geolocation.getCurrentPosition({ timeout: GEOLOCATION_TIMEOUT });
+          settle({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        } catch {
+          settle();
+        }
+        return;
+      }
+
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        settle();
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => settle({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        () => settle(),
+        { timeout: GEOLOCATION_TIMEOUT },
+      );
+    };
+
+    void locate();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { center, located };
