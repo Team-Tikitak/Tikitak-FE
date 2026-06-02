@@ -1528,6 +1528,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/camera@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@capacitor/camera@npm:8.2.0"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/8f94d8abdd4c10eeefe924e5edb6fdec98fccf8fbc672b2399b00aefaa1b654a9d008efc1f775d1ae679e85421793ca947e6a9e7ad6dbed9d2b2ff8341c99eda
+  languageName: node
+  linkType: hard
+
 "@capacitor/cli@npm:^5.3.0":
   version: 5.7.8
   resolution: "@capacitor/cli@npm:5.7.8"
@@ -1593,6 +1602,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/dialog@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@capacitor/dialog@npm:8.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/f0158670dc17258125b4c25aca5d44b0fac0f7337fcd7374fe32e0baf7dd16466eb960b5ab381b9cee132a8853f03b396214a5787bc64efea414567f79abdbf8
+  languageName: node
+  linkType: hard
+
+"@capacitor/geolocation@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@capacitor/geolocation@npm:8.2.0"
+  dependencies:
+    "@capacitor/synapse": "npm:^1.0.4"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/3d715008cb89d763fa59dee632c71213e178c016820f9febe0b537ebb57eeb140b9148e8fc2362c609430735321936e7ec0a95788957c4cc03ace9442bd0a12d
+  languageName: node
+  linkType: hard
+
 "@capacitor/ios@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/ios@npm:8.3.4"
@@ -1626,6 +1655,13 @@ __metadata:
   peerDependencies:
     "@capacitor/core": ">=8.0.0"
   checksum: 10c0/2e27cf6629666b9e3078ac26e68a13d211a442b24ce64e40510ca9741666abe72c64c0be05b2645ebfcd297413a2f5238812218649e74b906d11893378a15231
+  languageName: node
+  linkType: hard
+
+"@capacitor/synapse@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "@capacitor/synapse@npm:1.0.4"
+  checksum: 10c0/83f37d06ebdb4234596f123417043aae8b0fd3b5905d399fe8bb7f1d7c3352c8449bef093793b01a0b3c4a59208ac27aec5b1ed7cf5e399c5c3004cc0ca74646
   languageName: node
   linkType: hard
 
@@ -4656,8 +4692,11 @@ __metadata:
     "@capacitor/android": "npm:^8.3.4"
     "@capacitor/app": "npm:^8.1.0"
     "@capacitor/assets": "npm:^3.0.5"
+    "@capacitor/camera": "npm:^8.2.0"
     "@capacitor/cli": "npm:^8.3.4"
     "@capacitor/core": "npm:^8.3.4"
+    "@capacitor/dialog": "npm:^8.0.1"
+    "@capacitor/geolocation": "npm:^8.2.0"
     "@capacitor/ios": "npm:^8.3.4"
     "@capacitor/keyboard": "npm:^8.0.3"
     "@capacitor/splash-screen": "npm:^8.0.1"
