@@ -1,8 +1,8 @@
-﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { usePatchDailyQuestion } from '@/shared/api/dailyQuestion/queries';
-import type { patchDailyQuestionRequest } from '@/shared/api/dailyQuestion/types';
+import type { PatchDailyQuestionRequest } from '@/shared/api/dailyQuestion/types';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
+import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseDailyFeedEditShareParams {
@@ -22,13 +22,12 @@ export const useDailyFeedEditShare = ({
 }: UseDailyFeedEditShareParams) => {
   const navigate = useNavigate();
   const patchDailyQuestionMutation = usePatchDailyQuestion(teamId, questionId ?? 0);
-  const [isSharing, setIsSharing] = useState(false);
+  const { submit, isSharing } = useShareSubmit('오늘의 게시물 수정에 실패했어요.');
 
-  const share = async () => {
-    if (!teamId || !questionId || isSharing) return;
-    setIsSharing(true);
-    try {
-      const body: patchDailyQuestionRequest = {
+  const share = () => {
+    if (!teamId || !questionId) return;
+    return submit(async () => {
+      const body: PatchDailyQuestionRequest = {
         content: { defined: true, value: content },
       };
 
@@ -46,12 +45,7 @@ export const useDailyFeedEditShare = ({
 
       await patchDailyQuestionMutation.mutateAsync(body);
       navigate(-1);
-    } catch (error) {
-      console.error('오늘의 게시물 수정 실패', error);
-      alert('오늘의 게시물 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    } finally {
-      setIsSharing(false);
-    }
+    });
   };
 
   return { share, isSharing };

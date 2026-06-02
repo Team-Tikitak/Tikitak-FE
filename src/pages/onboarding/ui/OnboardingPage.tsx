@@ -5,6 +5,7 @@ import { PATHS } from '@/app/routes/paths';
 import { invitationKeys } from '@/shared/api/invitation/keys';
 import type { InvitationPreviewResponse } from '@/shared/api/invitation/types';
 import { useMe, usePatchOnboarding } from '@/shared/api/user/queries';
+import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import { CharacterPreviewStep } from './CharacterPreviewStep';
 import { QuestionStep } from './QuestionStep';
 import { ResultStep } from './ResultStep';
@@ -27,6 +28,7 @@ export const OnboardingPage = () => {
   const queryClient = useQueryClient();
   const { step, answers, canGoBack, goBack, goTo, recordAnswerAndAdvance } = useOnboardingFlow();
   const patchOnboarding = usePatchOnboarding();
+  const { submit, isSharing } = useShareSubmit('온보딩 저장에 실패했어요.');
   const { data: me } = useMe();
 
   const handleBack = () => {
@@ -54,8 +56,8 @@ export const OnboardingPage = () => {
 
   const characterId: CharacterId = isCharacterId(answers.q2) ? answers.q2 : FALLBACK_CHARACTER;
 
-  const handleComplete = async () => {
-    try {
+  const handleComplete = () =>
+    submit(async () => {
       await patchOnboarding.mutateAsync({
         profileCharacterType: CHARACTER_TO_PROFILE_TYPE[characterId],
       });
@@ -72,18 +74,13 @@ export const OnboardingPage = () => {
         return;
       }
       navigate(PATHS.HOME);
-    } catch (error) {
-      console.error('온보딩 저장 실패', error);
-      // TODO: 글로벌 토스트 도입 시 교체
-      alert('온보딩 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    }
-  };
+    });
 
   return (
     <ResultStep
       characterId={characterId}
       userName={me?.name ?? ''}
-      isLoading={patchOnboarding.isPending}
+      isLoading={isSharing}
       onBack={handleBack}
       onComplete={handleComplete}
     />
