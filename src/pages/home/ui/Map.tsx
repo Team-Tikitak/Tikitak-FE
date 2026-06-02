@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Pin } from '@/shared/api/map/types';
 import { normalizeImageUrl } from '@/shared/lib';
+import { LoadingState } from '@/shared/ui';
 import { MapImage } from './MapImage';
 import { StoredHeroPin } from './StoredHeroPin';
 import { useKakaoMap } from '../hooks/useKakaoMap';
@@ -19,7 +20,7 @@ const PIN_SIZE = 87;
 export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [storedHeroPin, setStoredHeroPin] = useState(readStoredHeroPin);
-  const { renderItems, sdkError, getCurrentViewport, expandCluster } = useKakaoMap(
+  const { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster } = useKakaoMap(
     mapRef,
     pins,
     initialCenter,
@@ -57,6 +58,11 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
   return (
     <>
       <div ref={mapRef} className="pointer-events-auto absolute inset-0 z-0" />
+      {!mapReady && (
+        <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center bg-white">
+          <LoadingState />
+        </div>
+      )}
       <div className="pointer-events-none absolute inset-0 z-0">
         {shouldRenderStoredHeroPin && (
           <StoredHeroPin storedHeroPin={storedHeroPin} pinSize={PIN_SIZE} />
