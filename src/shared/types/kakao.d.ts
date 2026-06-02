@@ -24,7 +24,10 @@ declare global {
     getLevel: () => number;
     getBounds: () => KakaoLatLngBounds;
     setCenter: (latLng: KakaoLatLng) => void;
-    setLevel: (level: number, options?: { anchor?: KakaoLatLng }) => void;
+    setLevel: (
+      level: number,
+      options?: { anchor?: KakaoLatLng; animate?: boolean | { duration?: number } },
+    ) => void;
     panTo: (latLng: KakaoLatLng) => void;
   }
 

@@ -204,8 +204,11 @@ export const useKakaoMap = (
     hasUserDraggedMapRef.current = true;
     const expansionZoom = index.getClusterExpansionZoom(clusterId);
     const target = new kakaoMaps.LatLng(latitude, longitude);
-    map.setLevel(zoomToKakaoLevel(expansionZoom), { anchor: target });
-    map.panTo(target);
+    // 탭 지점 기준 단일 애니메이션 확대 (2단 모션 제거)
+    map.setLevel(zoomToKakaoLevel(expansionZoom), {
+      anchor: target,
+      animate: { duration: 300 },
+    });
   };
 
   return { renderItems, sdkError, getCurrentViewport, expandCluster };
