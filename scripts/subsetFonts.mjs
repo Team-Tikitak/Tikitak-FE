@@ -24,13 +24,7 @@ for (const [start, end] of KEEP_RANGES) {
   for (let code = start; code <= end; code += 1) keepText += String.fromCodePoint(code);
 }
 
-const targets = [
-  'SUIT-Regular',
-  'SUIT-Medium',
-  'SUIT-SemiBold',
-  'SUIT-Bold',
-  'Pretendard-Regular',
-];
+const targets = ['SUIT-Regular', 'SUIT-Medium', 'SUIT-SemiBold', 'SUIT-Bold', 'Pretendard-Regular'];
 
 for (const name of targets) {
   const file = path.join(fontsDir, `${name}.woff2`);
