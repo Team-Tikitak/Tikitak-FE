@@ -6,9 +6,16 @@ import type { FeedItem } from '../model/types';
 
 interface FeedListItemProps extends Omit<ComponentPropsWithRef<'article'>, 'children'> {
   item: FeedItem;
+  eager?: boolean;
 }
 
-export const FeedListItem = ({ item, className, ref, ...props }: FeedListItemProps) => {
+export const FeedListItem = ({
+  item,
+  eager = false,
+  className,
+  ref,
+  ...props
+}: FeedListItemProps) => {
   return (
     <article ref={ref} className={cn('flex w-full items-start gap-4', className)} {...props}>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -37,8 +44,8 @@ export const FeedListItem = ({ item, className, ref, ...props }: FeedListItemPro
           data-hero-exit-key={`pin-${item.id}`}
           src={item.thumbnailUrl}
           alt=""
-          loading="eager"
-          decoding="sync"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
           className="no-native-image size-full object-cover"
         />
         <span className="font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white">

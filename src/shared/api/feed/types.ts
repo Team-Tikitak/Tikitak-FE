@@ -74,6 +74,7 @@ export interface FeedPageInfo {
   nextCursor: string | null;
   hasNext: boolean;
   size: number;
+  totalCount: number;
 }
 
 export interface FeedListResponse {

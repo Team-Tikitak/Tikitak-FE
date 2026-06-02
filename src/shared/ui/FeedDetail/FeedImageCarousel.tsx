@@ -113,6 +113,8 @@ export function FeedImageCarousel({
               onLongPress={onLongPress && ((position) => onLongPress(position, index))}
               heroKey={index === 0 ? heroKey : undefined}
               fetchPriority={index === 0 ? 'high' : 'auto'}
+              loading="eager"
+              decoding={index === 0 ? 'sync' : 'async'}
             />
           ))}
         </div>

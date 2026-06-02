@@ -14,6 +14,8 @@ import { FeedSkeleton } from './FeedSkeleton';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { readFeedViewMode, storeFeedViewMode } from '../lib/viewModeStorage';
 
+const FEED_LIST_EAGER_COUNT = 6;
+
 export const FeedPage = () => {
   const navigate = useNavigate();
   const [viewMode, setViewModeState] = useState<FeedViewMode>(readFeedViewMode);
@@ -30,7 +32,7 @@ export const FeedPage = () => {
     () => data?.pages.flatMap((page) => page.items).map(adaptFeedListItem) ?? [],
     [data],
   );
-  const totalCount = feeds.length;
+  const totalCount = data?.pages[0]?.pageInfo.totalCount ?? feeds.length;
   const showFeedLoading = isMePending || isLoading;
   const { observerRef } = useInfiniteScroll({
     hasNextPage: Boolean(hasNextPage) && !showFeedLoading && !isError,
@@ -73,14 +75,14 @@ export const FeedPage = () => {
           <FeedGrid items={feeds} />
         ) : (
           <ul className="flex flex-col gap-5">
-            {feeds.map((feed) => (
+            {feeds.map((feed, index) => (
               <li key={feed.id} className="flex flex-col gap-5">
                 <Link
                   to={toFeedDetail(feed.id)}
                   state={{ thumbnailUrl: feed.thumbnailUrl }}
                   className="block"
                 >
-                  <FeedListItem item={feed} />
+                  <FeedListItem item={feed} eager={index < FEED_LIST_EAGER_COUNT} />
                 </Link>
                 <Divider />
               </li>

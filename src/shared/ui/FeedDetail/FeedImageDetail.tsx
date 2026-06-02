@@ -25,6 +25,8 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
   fetchPriority?: 'high' | 'low' | 'auto';
+  loading?: 'eager' | 'lazy';
+  decoding?: 'sync' | 'async' | 'auto';
 };
 
 const LONG_PRESS_DELAY = 800;
@@ -37,6 +39,8 @@ export function FeedImageDetail({
   onLongPress,
   heroKey,
   fetchPriority = 'auto',
+  loading = 'lazy',
+  decoding = 'async',
   className,
   ref,
   ...props
@@ -91,8 +95,8 @@ export function FeedImageDetail({
       <img
         src={src}
         alt={alt}
-        loading="eager"
-        decoding="sync"
+        loading={loading}
+        decoding={decoding}
         fetchPriority={fetchPriority}
         className="no-native-image h-full w-full object-cover"
         draggable={false}
