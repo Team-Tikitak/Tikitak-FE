@@ -16,43 +16,21 @@ export const useInfiniteScroll = ({
   rootMargin = '200px',
 }: UseInfiniteScrollParams) => {
   const observerRef = useRef<HTMLDivElement | null>(null);
-  const callbacksRef = useRef({ hasNextPage, isFetchingNextPage, fetchNextPage });
-
-  useEffect(() => {
-    callbacksRef.current = { hasNextPage, isFetchingNextPage, fetchNextPage };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     const target = observerRef.current;
-
-    if (!target) {
-      return;
-    }
+    if (!target || !hasNextPage || isFetchingNextPage) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        const {
-          hasNextPage: canFetchNextPage,
-          isFetchingNextPage: loadingNextPage,
-          fetchNextPage: fetchNext,
-        } = callbacksRef.current;
-
-        if (entry?.isIntersecting && canFetchNextPage && !loadingNextPage) {
-          void fetchNext();
-        }
+      (entries) => {
+        if (entries[0]?.isIntersecting) void fetchNextPage();
       },
-      {
-        threshold,
-        rootMargin,
-      },
+      { threshold, rootMargin },
     );
-
     observer.observe(target);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [threshold, rootMargin]);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, threshold, rootMargin]);
 
   return { observerRef };
 };
