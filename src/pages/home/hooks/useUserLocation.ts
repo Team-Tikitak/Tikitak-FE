@@ -13,7 +13,7 @@ export const useUserLocation = () => {
   );
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCenter({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });

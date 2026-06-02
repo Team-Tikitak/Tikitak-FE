@@ -21,9 +21,12 @@ const bootstrap = async () => {
           regs.forEach((reg) => void reg.unregister());
         });
       }
+    } else if (document.readyState === 'complete') {
+      // 이미 load 완료(async bootstrap 도중) → 바로 등록
+      registerSW({ immediate: true });
     } else {
-      // SW 등록은 load 이후로 미뤄 초기 로드 경합을 줄인다.
-      window.addEventListener('load', () => registerSW({ immediate: true }));
+      // load 이후로 미뤄 초기 로드 경합을 줄인다.
+      window.addEventListener('load', () => registerSW({ immediate: true }), { once: true });
     }
   }
 
