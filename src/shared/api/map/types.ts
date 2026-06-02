@@ -8,6 +8,6 @@ export interface Pin {
   feedCount: number;
 }
 
-export type getPinsResponse = {
+export type GetPinsResponse = {
   pins: Pin[];
 };
