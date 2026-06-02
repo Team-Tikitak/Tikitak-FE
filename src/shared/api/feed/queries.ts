@@ -15,6 +15,8 @@ import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 
 type FeedListCacheData = FeedListResponse | InfiniteData<FeedListResponse>;
 
+const FEED_LIST_STALE_TIME_MS = 0;
+
 const removeFeedFromPage = (page: FeedListResponse, feedId: number): FeedListResponse => ({
   ...page,
   items: page.items.filter((item) => item.feedId !== feedId),
@@ -55,7 +57,10 @@ export const useFeeds = (teamId: number | null | undefined, params: FeedListPara
     queryKey: feedKeys.listFiltered(teamId ?? 0, params),
     queryFn: () => unwrap(() => getFeeds(teamId as number, params)),
     enabled: typeof teamId === 'number' && teamId > 0,
-    staleTime: 30 * 1000,
+    staleTime: FEED_LIST_STALE_TIME_MS,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 
 export const useInfiniteFeeds = (teamId: number | null | undefined, params: FeedListParams = {}) =>
@@ -73,7 +78,10 @@ export const useInfiniteFeeds = (teamId: number | null | undefined, params: Feed
     getNextPageParam: (lastPage) =>
       lastPage.pageInfo.hasNext ? (lastPage.pageInfo.nextCursor ?? undefined) : undefined,
     enabled: typeof teamId === 'number' && teamId > 0,
-    staleTime: 30 * 1000,
+    staleTime: FEED_LIST_STALE_TIME_MS,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 
 export const usePatchFeed = (teamId: number, feedId: number) => {

@@ -1,5 +1,14 @@
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  /* iOS PWA: 키보드 포커스 시 문서 스크롤로 헤더가 노치 뒤로 밀리는 것 방지 — main만 스크롤 */
   body {
+    overflow: hidden;
+    overscroll-behavior: none;
     background-color: #1a1c1f;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

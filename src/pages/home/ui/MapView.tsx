@@ -20,15 +20,17 @@ export const MapView = ({ teamId }: MapViewProps) => {
   const queryClient = useQueryClient();
 
   const { dailyQuestion, showDailyQuestion, pins } = useMapView(teamId);
-  const { center } = useUserLocation();
+  const { center, located } = useUserLocation();
 
   const handlePinClick = useCallback(
     async (pin: Pin) => {
       const params = { placeId: pin.placeId };
       await queryClient
-        .prefetchQuery({
-          queryKey: feedKeys.listFiltered(teamId, params),
-          queryFn: () => unwrap(() => getFeeds(teamId, params)),
+        .prefetchInfiniteQuery({
+          queryKey: feedKeys.infiniteListFiltered(teamId, params),
+          queryFn: ({ pageParam }) =>
+            unwrap(() => getFeeds(teamId, { ...params, cursor: pageParam })),
+          initialPageParam: undefined as string | undefined,
           staleTime: 30 * 1000,
         })
         .catch(() => undefined);
@@ -44,7 +46,13 @@ export const MapView = ({ teamId }: MapViewProps) => {
 
   return (
     <div className="pointer-events-none relative isolate w-full flex-1">
-      <Map pins={pins} teamId={teamId} initialCenter={center} onPinClick={handlePinClick} />
+      <Map
+        pins={pins}
+        teamId={teamId}
+        initialCenter={center}
+        locationResolved={located}
+        onPinClick={handlePinClick}
+      />
       {showDailyQuestion && (
         <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
           <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />

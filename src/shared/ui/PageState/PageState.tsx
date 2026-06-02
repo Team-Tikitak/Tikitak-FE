@@ -22,13 +22,23 @@ export const PageState = ({
   children,
 }: PageStateProps) => {
   if (isLoading) {
-    return <PageShell header={header}>{loadingSlot ?? <LoadingState />}</PageShell>;
+    return (
+      <PageShell
+        header={header}
+        contentClassName="flex flex-1 flex-col items-center justify-center"
+      >
+        {loadingSlot ?? <LoadingState />}
+      </PageShell>
+    );
   }
 
   if (isError) {
     return (
-      <PageShell header={header}>
-        {errorSlot ?? <p className="body-3 mt-10 text-center text-gray-500">{errorMessage}</p>}
+      <PageShell
+        header={header}
+        contentClassName="flex flex-1 flex-col items-center justify-center"
+      >
+        {errorSlot ?? <p className="body-3 text-center text-gray-500">{errorMessage}</p>}
       </PageShell>
     );
   }

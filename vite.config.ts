@@ -56,15 +56,6 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
-            urlPattern: ({ url }) =>
-              url.hostname === 'api.tikitak.space' || url.hostname === 'dev-api.tikitak.space',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'tikitak-api',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-            },
-          },
-          {
             urlPattern: ({ url }) => url.hostname === 'dapi.kakao.com',
             handler: 'CacheFirst',
             options: {

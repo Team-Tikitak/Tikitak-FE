@@ -17,4 +17,5 @@ export * from './normalizeImageUrl';
 export * from './openOverlay';
 export * from './pinUtils';
 export * from './revokeObjectUrl';
+export * from './statusBarDim';
 export * from './toQueryString';

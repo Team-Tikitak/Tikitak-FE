@@ -49,11 +49,10 @@ export const useKakaoMap = (
   mapRef: React.RefObject<HTMLDivElement | null>,
   pins: Pin[],
   initialCenter: { latitude: number; longitude: number },
+  locationResolved: boolean,
 ) => {
   const mapInstanceRef = useRef<KakaoMap | null>(null);
-  const initialCenterRef = useRef(initialCenter);
   const hasUserDraggedMapRef = useRef(false);
-  const shouldSyncInitialCenterRef = useRef(true);
   const [renderItems, setRenderItems] = useState<MapRenderItem[]>(() => restoreCachedItems(pins));
   const [mapReady, setMapReady] = useState(false);
   const [sdkError, setSdkError] = useState(false);
@@ -63,6 +62,19 @@ export const useKakaoMap = (
   useEffect(() => {
     if (mapInstanceRef.current || !mapRef.current) return;
 
+    const storedHeroPin = readStoredHeroPin();
+    const storedPinCenter =
+      typeof storedHeroPin?.latitude === 'number' && typeof storedHeroPin.longitude === 'number'
+        ? {
+            latitude: storedHeroPin.latitude,
+            longitude: storedHeroPin.longitude,
+            level: storedHeroPin.level ?? lastViewport?.level ?? 3,
+          }
+        : null;
+
+    // 복원 컨텍스트 없는 신규 진입은 현재 위치 확정 후 생성 → 기본 좌표 깜빡임 방지
+    if (!storedPinCenter && !lastViewport && !locationResolved) return;
+
     let cancelled = false;
 
     ensureKakaoSdk()
@@ -70,22 +82,12 @@ export const useKakaoMap = (
         const kakaoMaps = window.kakao?.maps;
         if (cancelled || mapInstanceRef.current || !mapRef.current || !kakaoMaps) return;
 
-        const storedHeroPin = readStoredHeroPin();
-        const storedPinCenter =
-          typeof storedHeroPin?.latitude === 'number' && typeof storedHeroPin.longitude === 'number'
-            ? {
-                latitude: storedHeroPin.latitude,
-                longitude: storedHeroPin.longitude,
-                level: storedHeroPin.level ?? lastViewport?.level ?? 3,
-              }
-            : null;
         const startCenter = storedPinCenter ??
           lastViewport ?? {
-            latitude: initialCenterRef.current.latitude,
-            longitude: initialCenterRef.current.longitude,
+            latitude: initialCenter.latitude,
+            longitude: initialCenter.longitude,
             level: 3,
           };
-        shouldSyncInitialCenterRef.current = !storedPinCenter && !lastViewport;
 
         const map = new kakaoMaps.Map(mapRef.current, {
           center: new kakaoMaps.LatLng(startCenter.latitude, startCenter.longitude),
@@ -102,7 +104,7 @@ export const useKakaoMap = (
     return () => {
       cancelled = true;
     };
-  }, [mapRef]);
+  }, [mapRef, locationResolved, initialCenter.latitude, initialCenter.longitude]);
 
   useEffect(() => {
     const kakaoMaps = window.kakao?.maps;
@@ -181,22 +183,6 @@ export const useKakaoMap = (
       kakaoMaps.event.removeListener(map, 'idle', updatePositions);
     };
   }, [mapReady, pins, index]);
-
-  useEffect(() => {
-    const kakaoMaps = window.kakao?.maps;
-    const map = mapInstanceRef.current;
-    if (
-      !mapReady ||
-      !map ||
-      !kakaoMaps ||
-      hasUserDraggedMapRef.current ||
-      !shouldSyncInitialCenterRef.current
-    ) {
-      return;
-    }
-
-    map.setCenter(new kakaoMaps.LatLng(initialCenter.latitude, initialCenter.longitude));
-  }, [mapReady, initialCenter.latitude, initialCenter.longitude]);
 
   const getCurrentViewport = (): MapViewport | undefined => {
     const map = mapInstanceRef.current;
