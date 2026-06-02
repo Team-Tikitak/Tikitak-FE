@@ -50,8 +50,7 @@ export const useDailyFeedEditForm = (feedDetail: FeedDetailResponse) => {
   };
 
   const currentPhotoUrl =
-    newPhoto?.url ??
-    (existingImageUrl ? (normalizeImageUrl(existingImageUrl, 'feed-image') ?? null) : null);
+    newPhoto?.url ?? (existingImageUrl ? (normalizeImageUrl(existingImageUrl) ?? null) : null);
 
   const existingMediaPublicId = existingImageUrl ? (initialImage?.mediaPublicId ?? null) : null;
 

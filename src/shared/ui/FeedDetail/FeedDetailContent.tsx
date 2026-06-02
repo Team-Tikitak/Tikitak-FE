@@ -45,7 +45,7 @@ export const FeedDetailContent = ({
   );
   const routeStateThumbnail = (useLocation().state as FeedDetailLocationState | null)?.thumbnailUrl;
   const rawFallbackThumbnail = placeholderThumbnail ?? routeStateThumbnail;
-  const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail, 'feed-image');
+  const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail);
   const isFallback = images.length === 0;
   const renderedImages = !isFallback
     ? images

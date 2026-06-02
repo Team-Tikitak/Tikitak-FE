@@ -73,7 +73,7 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
             return (
               <MapImage
                 key={`cluster-${item.clusterId}`}
-                src={normalizeImageUrl(item.thumbnailUrl, 'feed-image')}
+                src={normalizeImageUrl(item.thumbnailUrl)}
                 count={item.count}
                 className="pointer-events-auto"
                 style={style}
@@ -88,7 +88,7 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
             <MapImage
               key={item.placeId}
               data-hero-exit-key={`pin-${item.placeId}`}
-              src={normalizeImageUrl(pin.thumbnailUrl, 'feed-image')}
+              src={normalizeImageUrl(pin.thumbnailUrl)}
               count={pin.feedCount}
               className="pointer-events-auto"
               style={style}
