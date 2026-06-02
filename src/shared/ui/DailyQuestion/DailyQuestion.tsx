@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ComponentPropsWithRef } from 'react';
 import RightIcon from '@/shared/assets/Icon/RightIcon.svg?react';
+import TodaysTikitakLogo from '@/shared/assets/Logo/TodaysTikitak.svg?react';
 import { cn } from '@/shared/lib';
 
 export interface DailyQuestionProps extends ComponentPropsWithRef<'button'> {
@@ -45,7 +46,11 @@ export const DailyQuestion = ({
       )}
       {...props}
     >
-      <span className="logo shrink-0 text-white">Today's Tiki-tak!</span>
+      <TodaysTikitakLogo
+        role="img"
+        aria-label="Today's Tiki-tak!"
+        className="h-3.5 w-[77px] shrink-0"
+      />
       <div ref={containerRef} className="flex min-w-0 flex-1 items-center overflow-hidden">
         <span
           ref={textRef}

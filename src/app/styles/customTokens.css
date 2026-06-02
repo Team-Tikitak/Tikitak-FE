@@ -2,8 +2,7 @@
   --color-kakao-yellow: #ffe809;
   --color-invite-border: #dbdcdf;
   --font-sans: 'SUIT', sans-serif;
-  --font-pretendard: 'Pretendard', sans-serif;
-  --font-orange: 'bd-orange-variable', sans-serif;
+  --font-pretendard: 'Pretendard Variable', 'Pretendard', sans-serif;
 
   --animate-marquee-left: marquee-left 29s linear infinite;
   --animate-marquee-right: marquee-right 25s linear infinite;

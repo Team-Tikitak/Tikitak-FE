@@ -4242,6 +4242,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/subset-font@npm:^2":
+  version: 2.3.0
+  resolution: "@types/subset-font@npm:2.3.0"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/2137b97111deeea64edcb14a40abcd4e4b116f266b086ea36f0198a1748e9e2cd739934b82b83e5060d3c5a7e708d5e89a0981f3cccccf3550cd9939df6979b2
+  languageName: node
+  linkType: hard
+
 "@types/supercluster@npm:^7.1.3":
   version: 7.1.3
   resolution: "@types/supercluster@npm:7.1.3"
@@ -4721,6 +4730,7 @@ __metadata:
     "@types/node": "npm:^24.12.2"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
+    "@types/subset-font": "npm:^2"
     "@types/supercluster": "npm:^7.1.3"
     "@vitejs/plugin-react": "npm:^6.0.1"
     "@vitest/coverage-v8": "npm:4.1.4"
@@ -4742,6 +4752,7 @@ __metadata:
     jsdom: "npm:^29.0.2"
     lint-staged: "npm:^16.4.0"
     overlay-kit: "npm:^1.9.0"
+    pretendard: "npm:^1.3.9"
     prettier: "npm:3.8.1"
     prettier-plugin-tailwindcss: "npm:^0.7.2"
     qrcode.react: "npm:^4.2.0"
@@ -4751,6 +4762,7 @@ __metadata:
     react-router: "npm:^7.14.0"
     storybook: "npm:^10.3.6"
     style-dictionary: "npm:^5.4.0"
+    subset-font: "npm:^2.5.0"
     supercluster: "npm:^8.0.1"
     tailwind-merge: "npm:^3.5.0"
     tailwind-variants: "npm:^3.2.2"
@@ -7453,6 +7465,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fontverter@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "fontverter@npm:2.0.0"
+  dependencies:
+    wawoff2: "npm:^2.0.0"
+    woff2sfnt-sfnt2woff: "npm:^1.0.0"
+  checksum: 10c0/372f272fca749814594874050ef019e26741c85553b6b1ccf1490477d2f0a303869c35e95650b68866a138b60e0ec7baa2a1113d640ce54fd15a621a5ed35d2a
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3, for-each@npm:^0.3.5":
   version: 0.3.5
   resolution: "for-each@npm:0.3.5"
@@ -7905,6 +7927,13 @@ __metadata:
   version: 2.1.0
   resolution: "hard-rejection@npm:2.1.0"
   checksum: 10c0/febc3343a1ad575aedcc112580835b44a89a89e01f400b4eda6e8110869edfdab0b00cd1bd4c3bfec9475a57e79e0b355aecd5be46454b6a62b9a359af60e564
+  languageName: node
+  linkType: hard
+
+"harfbuzzjs@npm:^0.10.3":
+  version: 0.10.3
+  resolution: "harfbuzzjs@npm:0.10.3"
+  checksum: 10c0/0e657a6a4bccdf6564568e04a4a2ce7a2d50bbbb86b1461bfbe88b9191f20e38690ad4e8799f65b687738412379720b648610b7482369e56dfed42c86f882b20
   languageName: node
   linkType: hard
 
@@ -10018,7 +10047,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-limit@npm:^3.0.2":
+"p-limit@npm:^3.0.2, p-limit@npm:^3.1.0":
   version: 3.1.0
   resolution: "p-limit@npm:3.1.0"
   dependencies:
@@ -10079,6 +10108,13 @@ __metadata:
   version: 1.0.1
   resolution: "package-json-from-dist@npm:1.0.1"
   checksum: 10c0/62ba2785eb655fec084a257af34dbe24292ab74516d6aecef97ef72d4897310bc6898f6c85b5cd22770eaa1ce60d55a0230e150fb6a966e3ecd6c511e23d164b
+  languageName: node
+  linkType: hard
+
+"pako@npm:^1.0.7":
+  version: 1.0.11
+  resolution: "pako@npm:1.0.11"
+  checksum: 10c0/86dd99d8b34c3930345b8bbeb5e1cd8a05f608eeb40967b293f72fe469d0e9c88b783a8777e4cc7dc7c91ce54c5e93d88ff4b4f060e6ff18408fd21030d9ffbe
   languageName: node
   linkType: hard
 
@@ -10331,6 +10367,13 @@ __metadata:
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
   checksum: 10c0/b00d617431e7886c520a6f498a2e14c75ec58f6d93ba48c3b639cf241b54232d90daa05d83a9e9b9fef6baa63cb7e1e4602c2372fea5bc169668401eb127d0cd
+  languageName: node
+  linkType: hard
+
+"pretendard@npm:^1.3.9":
+  version: 1.3.9
+  resolution: "pretendard@npm:1.3.9"
+  checksum: 10c0/45da0108541a2bd78dc1e43c8a0fc25994d202745ff178faf834477cb341fc376ba367e4e742ef5c139be119c86b8f4d17c8ae4f3a85c310aa7fb4ff419a7cac
   languageName: node
   linkType: hard
 
@@ -11998,6 +12041,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"subset-font@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "subset-font@npm:2.5.0"
+  dependencies:
+    fontverter: "npm:^2.0.0"
+    harfbuzzjs: "npm:^0.10.3"
+    lodash: "npm:^4.17.21"
+    p-limit: "npm:^3.1.0"
+  checksum: 10c0/188a649d1ae101a2f89299e0a3b8e9932f7d977c57750e8ef0a6b5876ad7fbc3345a054c39bd314c076b09c7d5501d87a7e2dd720a2fe6feb8c39486cda02c9a
+  languageName: node
+  linkType: hard
+
 "supercluster@npm:^8.0.1":
   version: 8.0.1
   resolution: "supercluster@npm:8.0.1"
@@ -13116,6 +13171,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"wawoff2@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "wawoff2@npm:2.0.1"
+  dependencies:
+    argparse: "npm:^2.0.1"
+  bin:
+    woff2_compress.js: bin/woff2_compress.js
+    woff2_decompress.js: bin/woff2_decompress.js
+  checksum: 10c0/98a286b60114e15ed578bbeeef1759b4890a1e8106e1486d8d0d4106b8e6c7a99c4c1d1b64afc76a83893dae040cc19a59dd64cffd5754b5337b5c82efed3d12
+  languageName: node
+  linkType: hard
+
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1
   resolution: "webidl-conversions@npm:3.0.1"
@@ -13282,6 +13349,15 @@ __metadata:
   bin:
     why-is-node-running: cli.js
   checksum: 10c0/1cde0b01b827d2cf4cb11db962f3958b9175d5d9e7ac7361d1a7b0e2dc6069a263e69118bd974c4f6d0a890ef4eedfe34cf3d5167ec14203dbc9a18620537054
+  languageName: node
+  linkType: hard
+
+"woff2sfnt-sfnt2woff@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "woff2sfnt-sfnt2woff@npm:1.0.0"
+  dependencies:
+    pako: "npm:^1.0.7"
+  checksum: 10c0/2af93bdb98c511e1615bd2f31df023bf96c91922197ab7c1401177a0e77ae3528b53b0aeef57ee69e79857cffc8bdb974d7557089b0d999f1765c41ebc1e7ab5
   languageName: node
   linkType: hard
 
