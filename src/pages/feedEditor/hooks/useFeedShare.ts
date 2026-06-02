@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useCreateFeed } from '@/shared/api/feed/queries';
 import type { FeedPlace } from '@/shared/api/feed/types';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
@@ -35,12 +36,17 @@ export const useFeedShare = ({
         blobs: photos.map((photo) => photo.blob),
         fileNamePrefix: 'feed',
       });
-      await createFeedMutation.mutateAsync({
-        content,
-        mediaPublicIds,
-        place: selectedPlace,
-        taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
-      });
+      try {
+        await createFeedMutation.mutateAsync({
+          content,
+          mediaPublicIds,
+          place: selectedPlace,
+          taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
+        });
+      } catch (error) {
+        await Promise.all(mediaPublicIds.map((id) => deleteMedia(id).catch(() => undefined)));
+        throw error;
+      }
       navigate(-1);
     });
   };

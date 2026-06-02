@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { usePostDailyQuestion } from '@/shared/api/dailyQuestion/queries';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
@@ -32,7 +33,12 @@ export const useDailyQuestionShare = ({
         blobs: [capturedPhoto.blob],
         fileNamePrefix: 'daily-question',
       });
-      await postDailyQuestionMutation.mutateAsync({ content, mediaPublicId });
+      try {
+        await postDailyQuestionMutation.mutateAsync({ content, mediaPublicId });
+      } catch (error) {
+        await deleteMedia(mediaPublicId).catch(() => undefined);
+        throw error;
+      }
       navigate(-1);
     });
   };

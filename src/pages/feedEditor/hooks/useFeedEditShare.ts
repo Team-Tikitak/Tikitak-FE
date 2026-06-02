@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { usePatchFeed } from '@/shared/api/feed/queries';
 import type { FeedImage, FeedPlace } from '@/shared/api/feed/types';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
@@ -47,12 +48,17 @@ export const useFeedEditShare = ({
 
       const mediaPublicIds = [...existingMediaPublicIds, ...newMediaPublicIds];
 
-      await patchFeedMutation.mutateAsync({
-        content,
-        ...(mediaPublicIds.length > 0 ? { mediaPublicIds } : {}),
-        place: selectedPlace,
-        taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
-      });
+      try {
+        await patchFeedMutation.mutateAsync({
+          content,
+          ...(mediaPublicIds.length > 0 ? { mediaPublicIds } : {}),
+          place: selectedPlace,
+          taggedTeamMemberIds: selectedMembers.map((member) => member.teamMemberId),
+        });
+      } catch (error) {
+        await Promise.all(newMediaPublicIds.map((id) => deleteMedia(id).catch(() => undefined)));
+        throw error;
+      }
       navigate(-1);
     });
 

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { usePatchDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import type { PatchDailyQuestionRequest } from '@/shared/api/dailyQuestion/types';
+import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
@@ -31,6 +32,7 @@ export const useDailyFeedEditShare = ({
         content: { defined: true, value: content },
       };
 
+      let uploadedPublicId: string | undefined;
       if (newPhoto) {
         const [publicId] = await uploadMediaBlobs({
           purpose: 'DAILY_QUESTION_IMAGE',
@@ -38,12 +40,18 @@ export const useDailyFeedEditShare = ({
           blobs: [newPhoto.blob],
           fileNamePrefix: 'daily-question',
         });
+        uploadedPublicId = publicId;
         body.mediaPublicId = { defined: true, value: publicId };
       } else if (existingMediaPublicId) {
         body.mediaPublicId = { defined: true, value: existingMediaPublicId };
       }
 
-      await patchDailyQuestionMutation.mutateAsync(body);
+      try {
+        await patchDailyQuestionMutation.mutateAsync(body);
+      } catch (error) {
+        if (uploadedPublicId) await deleteMedia(uploadedPublicId).catch(() => undefined);
+        throw error;
+      }
       navigate(-1);
     });
   };
