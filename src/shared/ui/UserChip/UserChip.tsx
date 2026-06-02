@@ -48,10 +48,10 @@ export const UserChip = ({
         <button
           type="button"
           onClick={onRemove}
-          className="shrink-0 p-[3px] text-gray-300"
+          className="flex size-5 shrink-0 items-center justify-center text-black"
           aria-label="제거"
         >
-          <CloseIcon className="size-4" />
+          <CloseIcon className="size-2.5" />
         </button>
       )}
     </div>
