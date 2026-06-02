@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router';
+import { REDIRECT_AFTER_LOGIN_KEY } from '@/app/routes/loaders';
 import { PATHS } from '@/app/routes/paths';
 import { getAccessToken } from '@/shared/api/instance';
 import { useInvitationPreview } from '@/shared/api/invitation/queries';
@@ -16,7 +17,7 @@ export const useInviteAccept = () => {
 
   const handleConfirm = () => {
     if (!isLoggedIn) {
-      sessionStorage.setItem('redirectAfterLogin', `/invite/${token}`);
+      sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, `/invite/${token}`);
       navigate(PATHS.LOGIN);
       return;
     }

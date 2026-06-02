@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { redirect, type LoaderFunctionArgs } from 'react-router';
 import { queryClient } from '@/app/providers/queryClient';
 import { postRefreshToken } from '@/shared/api/auth/api';
@@ -22,6 +23,8 @@ const isSafeInternalPath = (path: string): boolean => {
   }
 };
 
+export const REDIRECT_AFTER_LOGIN_KEY = 'redirectAfterLogin';
+
 export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const accessToken = url.searchParams.get('accessToken');
@@ -32,8 +35,8 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  const redirectTo = sessionStorage.getItem('redirectAfterLogin');
-  sessionStorage.removeItem('redirectAfterLogin');
+  const redirectTo = sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY);
+  sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY);
 
   if (redirectTo && isSafeInternalPath(redirectTo)) {
     return redirect(redirectTo);
@@ -115,8 +118,13 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
           return accessToken;
         },
       });
-    } catch {
-      return redirect(PATHS.LOGIN);
+    } catch (error) {
+      // 401/403만 로그인, 5xx는 에러 바운더리로
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      if (status === 401 || status === 403) {
+        return redirect(PATHS.LOGIN);
+      }
+      throw error;
     }
   }
 

@@ -120,10 +120,16 @@ instance.interceptors.response.use(
 
         return instance(originalRequest);
       } catch (refreshError) {
-        clearAccessToken();
         processQueue(refreshError);
-        if (window.location.pathname !== PATHS.LOGIN) {
-          window.location.replace(PATHS.LOGIN);
+        // 401/403만 로그아웃, 5xx는 세션 유지
+        const refreshStatus = axios.isAxiosError(refreshError)
+          ? refreshError.response?.status
+          : undefined;
+        if (refreshStatus === 401 || refreshStatus === 403) {
+          clearAccessToken();
+          if (window.location.pathname !== PATHS.LOGIN) {
+            window.location.replace(PATHS.LOGIN);
+          }
         }
 
         return Promise.reject(refreshError);
