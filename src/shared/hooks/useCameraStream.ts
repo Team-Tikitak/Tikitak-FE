@@ -17,6 +17,11 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
     setIsReady(false);
   }, []);
 
