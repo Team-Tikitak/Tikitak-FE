@@ -25,6 +25,7 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '댓글 작성에 실패했어요' },
     mutationFn: (body: FeedCommentRequest) =>
       postFeedComment(teamId, feedId, body).then((res) => res.data.data),
     onSuccess: (newComment: FeedComment) => {
@@ -43,6 +44,7 @@ export const useDeleteFeedComment = (teamId: number, feedId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '댓글 삭제에 실패했어요' },
     mutationFn: (commentId: number) => deleteFeedComment(teamId, feedId, commentId),
     onSuccess: (_, commentId) => {
       queryClient.setQueryData<FeedCommentListResponse>(
@@ -63,6 +65,7 @@ export const usePatchFeedComment = (teamId: number, feedId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '댓글 수정에 실패했어요' },
     mutationFn: ({ commentId, body }: { commentId: number; body: PatchFeedCommentRequest }) =>
       patchFeedComment(teamId, feedId, commentId, body).then((res) => res.data.data),
     onSuccess: () => {

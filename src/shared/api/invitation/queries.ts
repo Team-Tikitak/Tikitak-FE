@@ -40,6 +40,7 @@ export const useAcceptInvitation = () => {
   const navigate = useNavigate();
 
   return useMutation({
+    meta: { errorMessage: '초대 수락에 실패했어요' },
     mutationFn: postAcceptInvitation,
     onSuccess: () => {
       invalidateTeamMembershipQueries(queryClient);

@@ -39,6 +39,7 @@ export const useGetAgreements = () =>
 export const usePutAgreements = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { errorMessage: '약관 동의 저장에 실패했어요' },
     mutationFn: putAgreements,
     onSuccess: (_data, variables) => {
       queryClient.setQueryData<AgreementsResponse>(userKeys.agreements(), (prev) =>
@@ -81,6 +82,7 @@ export const useDeleteMe = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { errorMessage: '회원 탈퇴에 실패했어요' },
     mutationFn: deleteMe,
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: userKeys.all });
@@ -94,6 +96,7 @@ export const useDeleteMe = () => {
 export const usePatchActiveTeam = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { errorMessage: '팀 전환에 실패했어요' },
     mutationFn: (teamId: number) => patchActiveTeam({ teamId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.me() });
