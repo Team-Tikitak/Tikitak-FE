@@ -211,5 +211,5 @@ export const useKakaoMap = (
     });
   };
 
-  return { renderItems, sdkError, getCurrentViewport, expandCluster };
+  return { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster };
 };

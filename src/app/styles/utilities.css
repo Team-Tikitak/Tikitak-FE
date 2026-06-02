@@ -6,13 +6,6 @@
   letter-spacing: -0.05em;
 }
 
-@utility logo {
-  font-family: var(--font-orange);
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 150%;
-}
-
 @utility no-scrollbar {
   scrollbar-width: none;
 

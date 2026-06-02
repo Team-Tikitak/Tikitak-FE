@@ -4,7 +4,7 @@ import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import type { FeedItem } from '../model/types';
 
-const GRID_EAGER_COUNT = 12;
+const GRID_EAGER_COUNT = 9;
 
 interface FeedGridProps extends Omit<ComponentPropsWithRef<'ul'>, 'children'> {
   items: FeedItem[];
@@ -20,12 +20,13 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
             <Link
               to={toFeedDetail(item.id)}
               state={{ thumbnailUrl: item.thumbnailUrl }}
+              aria-label={`${item.title || item.location || '피드'} 상세 보기`}
               className="block aspect-square size-full"
             >
               <img
                 data-hero-exit-key={`pin-${item.id}`}
                 src={item.thumbnailUrl}
-                alt={item.title}
+                alt=""
                 loading={isAboveFold ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
                 decoding="async"
