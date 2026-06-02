@@ -123,8 +123,8 @@ jobs:
             comment += line(results.lint, 'ESLint');
             comment += line(results.test, 'Test');
             comment += line(results.build, 'Build', '성공', '실패');
-            comment += line(results.barrel, 'Barrel', '동기화됨', '동기화 필요');
-            comment += line(results.tokens, 'Design Tokens', '동기화됨', '동기화 필요');
+            comment += line(results.barrel, 'Barrel', '동기화', '비동기화');
+            comment += line(results.tokens, 'Design Tokens', '동기화', '비동기화');
 
             try {
               await github.rest.issues.createComment({
