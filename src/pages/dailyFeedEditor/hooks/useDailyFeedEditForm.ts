@@ -9,7 +9,7 @@ import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
 export const useDailyFeedEditForm = (feedDetail: FeedDetailResponse) => {
   const navigate = useNavigate();
 
-  const [content, setContentRaw] = useState(feedDetail.content);
+  const [content, setContentRaw] = useState(feedDetail.content ?? '');
   const initialImage = feedDetail.images[0] ?? null;
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
     initialImage?.imageUrl ?? null,
@@ -17,7 +17,7 @@ export const useDailyFeedEditForm = (feedDetail: FeedDetailResponse) => {
   const [newPhoto, setNewPhoto] = useState<CapturedPhoto | null>(null);
 
   const snapshotRef = useRef({
-    content: feedDetail.content,
+    content: feedDetail.content ?? '',
     imageUrl: feedDetail.images[0]?.imageUrl ?? null,
   });
 
