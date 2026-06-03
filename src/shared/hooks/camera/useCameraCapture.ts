@@ -13,10 +13,10 @@ import {
   FEED_IMAGE_HEIGHT,
   FEED_IMAGE_WIDTH,
 } from '@/shared/constants';
-import { composePhotoWithStickers } from '@/shared/lib/composePhoto';
-import { computeCaptureRect } from '@/shared/lib/computeCaptureRect';
 import { createId } from '@/shared/lib/createId';
-import { cropImageBlobToAspectRatio } from '@/shared/lib/cropImageBlob';
+import { composePhotoWithStickers } from '@/shared/lib/image/composePhoto';
+import { computeCaptureRect } from '@/shared/lib/image/computeCaptureRect';
+import { cropImageBlobToAspectRatio } from '@/shared/lib/image/cropImageBlob';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 

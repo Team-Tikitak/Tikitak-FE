@@ -5,8 +5,8 @@ const SUPERCLUSTER_MAX_ZOOM = 20;
 const KAKAO_MIN_LEVEL = 1;
 const KAKAO_MAX_LEVEL = 14;
 const CLUSTER_RADIUS_PX = 50;
-// 이 zoom 초과(≈카카오 level 2 이하)부터 개별 핀 → 살짝만 확대해도 피드 탭 가능
-const CLUSTER_MAX_ZOOM = 17;
+// 이 zoom 초과(카카오 level 1)부터 개별 핀 → 한 단계 더 확대해야 피드 탭 가능
+const CLUSTER_MAX_ZOOM = 18;
 
 export const kakaoLevelToZoom = (level: number): number =>
   Math.max(0, Math.min(SUPERCLUSTER_MAX_ZOOM, Math.round(SUPERCLUSTER_MAX_ZOOM - level)));

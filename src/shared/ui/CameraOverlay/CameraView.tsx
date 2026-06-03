@@ -1,7 +1,7 @@
 ﻿import { type RefObject } from 'react';
 import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
-import { type CameraError } from '@/shared/hooks/useCamera';
+import { type CameraError } from '@/shared/hooks/camera/useCamera';
 import { cn } from '@/shared/lib';
 import { CameraButton } from './CameraButton';
 
@@ -47,7 +47,7 @@ export const CameraView = ({
         type="button"
         aria-label="카메라 닫기"
         onClick={onClose}
-        className="press-feedback absolute top-[calc(env(safe-area-inset-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
+        className="press-feedback absolute top-[calc(var(--safe-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
       >
         <CloseIcon3 className="size-[18px]" />
       </button>

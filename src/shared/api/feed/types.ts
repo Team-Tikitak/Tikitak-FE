@@ -60,6 +60,7 @@ export interface FeedListItem {
   type: FeedType;
   content: string | null;
   thumbnailImageUrl: string;
+  heroPreviewUrl: string;
   imageCount: number;
   author: FeedAuthor;
   place: FeedPlace | null;
@@ -108,6 +109,7 @@ export interface FeedMutationResponse {
 export interface FeedImage {
   feedImageId: number;
   imageUrl: string;
+  heroPreviewUrl: string;
   orderIndex: number;
   mediaPublicId?: string;
 }

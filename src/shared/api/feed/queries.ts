@@ -6,7 +6,7 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { markFeedDeleting } from '@/shared/lib/deleteContextStorage';
+import { markFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
 import { mapKeys } from '../map/keys';
@@ -20,7 +20,14 @@ const FEED_LIST_STALE_TIME_MS = 15 * 1000;
 const removeFeedFromPage = (page: FeedListResponse, feedId: number): FeedListResponse => ({
   ...page,
   items: page.items.filter((item) => item.feedId !== feedId),
+  pageInfo: {
+    ...page.pageInfo,
+    totalCount: Math.max(0, page.pageInfo.totalCount - 1),
+  },
 });
+
+const pageHasFeed = (page: FeedListResponse, feedId: number): boolean =>
+  page.items.some((item) => item.feedId === feedId);
 
 const removeFeedFromListCache = (
   old: FeedListCacheData | undefined,
@@ -31,13 +38,16 @@ const removeFeedFromListCache = (
   }
 
   if ('pages' in old) {
+    if (!old.pages.some((page) => pageHasFeed(page, feedId))) {
+      return old;
+    }
     return {
       ...old,
       pages: old.pages.map((page) => removeFeedFromPage(page, feedId)),
     };
   }
 
-  return removeFeedFromPage(old, feedId);
+  return pageHasFeed(old, feedId) ? removeFeedFromPage(old, feedId) : old;
 };
 
 export const useCreateFeed = (teamId: number) => {

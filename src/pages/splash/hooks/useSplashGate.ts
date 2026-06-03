@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
+import { restoreSession } from '@/shared/api/auth/restoreSession';
+import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
 const SPLASH_SEEN_KEY = 'splash-seen';
 const SPLASH_DURATION_MS = 2300;
@@ -9,21 +11,9 @@ interface UseSplashGateParams {
   animationStarted?: boolean;
 }
 
-const readSplashSeen = () => {
-  try {
-    return sessionStorage.getItem(SPLASH_SEEN_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
+const readSplashSeen = () => safeSessionGet(SPLASH_SEEN_KEY) === '1';
 
-const markSplashSeen = () => {
-  try {
-    sessionStorage.setItem(SPLASH_SEEN_KEY, '1');
-  } catch {
-    // 차단 시 다음 진입에 다시 노출
-  }
-};
+const markSplashSeen = () => safeSessionSet(SPLASH_SEEN_KEY, '1');
 
 export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams = {}) => {
   const navigate = useNavigate();
@@ -39,16 +29,29 @@ export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams 
       return;
     }
 
+    let cancelled = false;
+    const restorePromise = restoreSession();
+
     const timer = window.setTimeout(() => {
-      markSplashSeen();
-      navigate(PATHS.LOGIN, {
-        replace: true,
-        state: { fromSplash: true },
-        viewTransition: true,
+      void restorePromise.then((authed) => {
+        if (cancelled) return;
+        markSplashSeen();
+        if (authed) {
+          navigate(PATHS.HOME, { replace: true });
+        } else {
+          navigate(PATHS.LOGIN, {
+            replace: true,
+            state: { fromSplash: true },
+            viewTransition: true,
+          });
+        }
       });
     }, SPLASH_DURATION_MS);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [alreadySeen, animationStarted, navigate]);
 
   return { alreadySeen };

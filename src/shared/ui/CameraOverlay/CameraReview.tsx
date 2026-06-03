@@ -3,7 +3,7 @@ import CancelIcon from '@/shared/assets/Icon/CancelIcon.svg?react';
 import StickerIcon from '@/shared/assets/Icon/StickerIcon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/TrashIcon.svg?react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
-import { useTrashDragZone } from '@/shared/hooks/useTrashDragZone';
+import { useTrashDragZone } from '@/shared/hooks/camera/useTrashDragZone';
 import { cn } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
@@ -73,7 +73,7 @@ export const CameraReview = ({
           type="button"
           aria-label="재촬영"
           onClick={onRetake}
-          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] left-5 z-10"
+          className="press-feedback absolute top-[calc(var(--safe-top)+20px)] left-5 z-10"
         >
           <CancelIcon className="size-9" />
         </button>
@@ -82,7 +82,7 @@ export const CameraReview = ({
           aria-label="스티커 추가"
           aria-pressed={isPickerOpen}
           onClick={() => setIsPickerOpen((prev) => !prev)}
-          className="press-feedback absolute top-[calc(env(safe-area-inset-top)+20px)] right-5 z-10"
+          className="press-feedback absolute top-[calc(var(--safe-top)+20px)] right-5 z-10"
         >
           <StickerIcon className="size-9" />
         </button>
@@ -100,7 +100,7 @@ export const CameraReview = ({
         ref={trashRef}
         aria-hidden={!draggingId}
         className={cn(
-          'pointer-events-none absolute bottom-[80px] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
+          'pointer-events-none absolute bottom-[148px] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
           draggingId ? 'opacity-100' : 'opacity-0',
           isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
         )}

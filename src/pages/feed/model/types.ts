@@ -5,5 +5,6 @@ export interface FeedItem {
   participantAvatarUrls: string[];
   date: string;
   thumbnailUrl: string;
+  heroPreviewUrl: string;
   photoCount: number;
 }

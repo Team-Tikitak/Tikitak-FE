@@ -1,4 +1,19 @@
 @layer base {
+  :root {
+    /* iOS/web은 env(), Android edge-to-edge는 Capacitor SystemBars CSS 변수 fallback 사용 */
+    --status-bar-height: 24px;
+    --keyboard-height: 0px;
+    --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  }
+
+  html.cap-android {
+    --safe-top: max(
+      var(--safe-area-inset-top, 0px),
+      env(safe-area-inset-top, 0px),
+      var(--status-bar-height)
+    );
+  }
+
   html,
   body,
   #root {

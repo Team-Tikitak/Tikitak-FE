@@ -4,7 +4,7 @@ import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { useInfiniteFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
-import { useInfiniteScroll } from '@/shared/hooks';
+import { useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';
 import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
@@ -15,6 +15,10 @@ import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { readFeedViewMode, storeFeedViewMode } from '../lib/viewModeStorage';
 
 const FEED_LIST_EAGER_COUNT = 6;
+const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
+
+const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
+  `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
 
 export const FeedPage = () => {
   const navigate = useNavigate();
@@ -34,10 +38,15 @@ export const FeedPage = () => {
   );
   const totalCount = data?.pages[0]?.pageInfo.totalCount ?? feeds.length;
   const showFeedLoading = isMePending || isLoading;
+  const scrollKey = teamId ? getFeedScrollKey(teamId, viewMode) : null;
   const { observerRef } = useInfiniteScroll({
     hasNextPage: Boolean(hasNextPage) && !showFeedLoading && !isError,
     isFetchingNextPage,
     fetchNextPage,
+  });
+  const { scrollRef, handleScroll } = useScrollRestore(scrollKey, {
+    ready: !showFeedLoading && !isError,
+    contentSignal: feeds.length,
   });
 
   if (!isMePending && !teamId) {
@@ -55,7 +64,11 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24">
+      <div
+        ref={scrollRef}
+        className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
+        onScroll={handleScroll}
+      >
         <FeedCountToolbar
           count={totalCount}
           loading={showFeedLoading}

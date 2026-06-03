@@ -35,7 +35,9 @@ export const MapView = ({ teamId }: MapViewProps) => {
         })
         .catch(() => undefined);
 
-      navigate(toPlaceFeeds(pin.placeId), { state: { thumbnailUrl: pin.thumbnailUrl } });
+      navigate(toPlaceFeeds(pin.placeId), {
+        state: { thumbnailUrl: pin.thumbnailUrl, heroPreviewUrl: pin.heroPreviewUrl },
+      });
     },
     [navigate, queryClient, teamId],
   );
@@ -54,7 +56,10 @@ export const MapView = ({ teamId }: MapViewProps) => {
         onPinClick={handlePinClick}
       />
       {showDailyQuestion && (
-        <div className="pointer-events-auto absolute inset-x-0 top-0 z-10">
+        <div
+          className="pointer-events-auto absolute inset-x-0 top-0 z-10"
+          data-daily-question-banner
+        >
           <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
         </div>
       )}

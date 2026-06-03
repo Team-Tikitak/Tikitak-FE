@@ -1,5 +1,5 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
-import { alertDialog } from '@/shared/lib/nativeDialog';
+import { alertDialog } from '@/shared/lib/native/nativeDialog';
 
 declare module '@tanstack/react-query' {
   interface Register {

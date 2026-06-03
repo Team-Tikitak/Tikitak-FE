@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { confirmDialog } from '@/shared/lib/nativeDialog';
+import { confirmDialog } from '@/shared/lib/native/nativeDialog';
 
 const confirmRetry = (message: string): Promise<boolean> =>
   confirmDialog({

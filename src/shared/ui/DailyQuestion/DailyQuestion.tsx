@@ -7,6 +7,9 @@ export interface DailyQuestionProps extends ComponentPropsWithRef<'button'> {
   question: string;
 }
 
+const MARQUEE_EDGE_MASK =
+  'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)';
+
 export const DailyQuestion = ({
   question,
   onClick,
@@ -41,7 +44,7 @@ export const DailyQuestion = ({
       ref={ref}
       onClick={onClick}
       className={cn(
-        'flex h-9 w-full shrink-0 items-center justify-center gap-[10px] bg-[#43b0e0] px-5 text-white',
+        'flex h-9 w-full shrink-0 items-center gap-[10px] bg-[#43b0e0] px-5 text-white',
         className,
       )}
       {...props}
@@ -49,9 +52,17 @@ export const DailyQuestion = ({
       <TodaysTikitakLogo
         role="img"
         aria-label="Today's Tiki-tak!"
-        className="h-3.5 w-[77px] shrink-0"
+        className="h-3.5 w-[77px] shrink-0 translate-y-[2px]"
       />
-      <div ref={containerRef} className="flex min-w-0 flex-1 items-center overflow-hidden">
+      <div
+        ref={containerRef}
+        className="flex min-w-0 flex-1 items-center overflow-hidden"
+        style={
+          scrollPx > 0
+            ? { maskImage: MARQUEE_EDGE_MASK, WebkitMaskImage: MARQUEE_EDGE_MASK }
+            : undefined
+        }
+      >
         <span
           ref={textRef}
           className={cn(
@@ -62,7 +73,7 @@ export const DailyQuestion = ({
             scrollPx > 0
               ? ({
                   '--marquee-distance': `-${scrollPx}px`,
-                  animationDuration: `${Math.max(2, scrollPx / 35)}s`,
+                  animationDuration: `${Math.max(3, scrollPx / 25)}s`,
                 } as React.CSSProperties)
               : undefined
           }

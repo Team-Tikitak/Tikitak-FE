@@ -266,3 +266,7 @@
 .dialog-overlay[data-state='open'] > * {
   opacity: 1;
 }
+
+[data-vaul-overlay][data-vaul-snap-points='true'][data-state='open'] {
+  animation: page-fade-in 400ms cubic-bezier(0.32, 0.72, 0, 1);
+}

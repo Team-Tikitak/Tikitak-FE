@@ -2,14 +2,20 @@ import { useNavigate } from 'react-router';
 import { PATHS, toTeamInvite } from '@/app/routes/paths';
 import { useDeleteTeamMember, useLeaveTeam, useTeamDelete } from '@/shared/api/team/queries';
 import type { TeamMemberItem } from '@/shared/api/team/types';
+import { alertDialog } from '@/shared/lib/native/nativeDialog';
 import { openConfirmDialog } from '@/shared/ui/ConfirmDialog';
 
 interface UseTeamDetailActionsParams {
   teamId: number;
   teamName: string;
+  memberCount: number;
 }
 
-export const useTeamDetailActions = ({ teamId, teamName }: UseTeamDetailActionsParams) => {
+export const useTeamDetailActions = ({
+  teamId,
+  teamName,
+  memberCount,
+}: UseTeamDetailActionsParams) => {
   const navigate = useNavigate();
   const { mutate: mutateLeaveTeam } = useLeaveTeam();
   const { mutate: postTeamDelete } = useTeamDelete();
@@ -37,7 +43,14 @@ export const useTeamDetailActions = ({ teamId, teamName }: UseTeamDetailActionsP
         }),
     });
 
-  const confirmDelete = () =>
+  const confirmDelete = () => {
+    if (memberCount > 1) {
+      void alertDialog(
+        '팀원이 남아 있으면 그룹을 삭제할 수 없어요. 먼저 모든 팀원을 내보내 주세요.',
+        '그룹을 삭제할 수 없어요',
+      );
+      return;
+    }
     openConfirmDialog({
       title: '정말 그룹을 삭제하시겠어요?',
       description: '그룹의 모든 기록이 삭제되며 복구할 수 없어요.',
@@ -45,6 +58,7 @@ export const useTeamDetailActions = ({ teamId, teamName }: UseTeamDetailActionsP
       destructive: true,
       onConfirm: () => postTeamDelete(teamId),
     });
+  };
 
   const goInvite = () => navigate(toTeamInvite(teamId));
 

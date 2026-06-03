@@ -23,6 +23,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "cap:sync": "yarn build && cap sync",
+    "cap:sync:android": "yarn build && cap sync android",
+    "cap:sync:ios": "yarn build && cap sync ios",
     "cap:open:ios": "cap open ios",
     "cap:open:android": "cap open android",
     "cap:run:ios": "yarn build && cap run ios",
@@ -36,6 +38,7 @@
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",
+    "@capacitor/browser": "^8.0.3",
     "@capacitor/camera": "^8.2.0",
     "@capacitor/core": "^8.3.4",
     "@capacitor/dialog": "^8.0.1",

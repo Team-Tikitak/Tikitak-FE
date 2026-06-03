@@ -1,5 +1,5 @@
 import type { CapturedPhoto } from '@/shared/types/photo';
-import { createId } from './createId';
+import { createId } from '../createId';
 
 export const createPhotoFromFile = (file: File): CapturedPhoto => ({
   id: createId(),

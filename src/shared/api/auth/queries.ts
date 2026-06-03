@@ -2,23 +2,29 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { clearAccessToken, endLogout, setAccessToken, startLogout } from '@/shared/api/instance';
-import { postLogout, postRefreshToken } from './api';
+import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys } from './keys';
+import { sessionQueryOptions } from './sessionQuery';
 import { unwrap } from '../request';
 import { userKeys } from '../user/keys';
 
-export const useAuthInit = () =>
-  useQuery({
-    queryKey: authKeys.session(),
-    queryFn: async () => {
-      const { accessToken } = await unwrap(() => postRefreshToken());
-      setAccessToken(accessToken);
-      return accessToken;
+export const useAuthInit = () => useQuery(sessionQueryOptions);
+
+export const useLoginCodeExchange = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { errorMessage: '로그인에 실패했어요. 다시 시도해주세요.' },
+    mutationFn: (loginCode: string) => unwrap(() => postLoginCodeExchange({ loginCode })),
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken);
+      queryClient.invalidateQueries({ queryKey: authKeys.all });
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+      navigate(PATHS.HOME, { replace: true });
     },
-    retry: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
   });
+};
 
 export const useLogout = () => {
   const navigate = useNavigate();

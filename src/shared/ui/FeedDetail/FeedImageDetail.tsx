@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef, useRef } from 'react';
+import { type ComponentPropsWithRef, useRef, useState } from 'react';
 import { cn, getPointerRatio } from '@/shared/lib';
 import { Picker } from '../Picker/Picker';
 
@@ -24,6 +24,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   pins?: Pin[];
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
+  heroPreviewUrl?: string;
   fetchPriority?: 'high' | 'low' | 'auto';
   loading?: 'eager' | 'lazy';
   decoding?: 'sync' | 'async' | 'auto';
@@ -38,6 +39,7 @@ export function FeedImageDetail({
   pins = [],
   onLongPress,
   heroKey,
+  heroPreviewUrl,
   fetchPriority = 'auto',
   loading = 'lazy',
   decoding = 'async',
@@ -47,6 +49,7 @@ export function FeedImageDetail({
 }: FeedImageDetailProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
     const { x: xRatio, y: yRatio } = getPointerRatio(e, e.currentTarget);
@@ -92,13 +95,30 @@ export function FeedImageDetail({
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
       {...props}
     >
+      {heroPreviewUrl && (
+        <img
+          src={heroPreviewUrl}
+          alt=""
+          aria-hidden
+          className="no-native-image absolute inset-0 h-full w-full object-cover"
+          draggable={false}
+        />
+      )}
       <img
+        ref={(node) => {
+          if (node?.complete && node.naturalWidth > 0) setLoaded(true);
+        }}
         src={src}
         alt={alt}
         loading={loading}
         decoding={decoding}
         fetchPriority={fetchPriority}
-        className="no-native-image h-full w-full object-cover"
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          'no-native-image h-full w-full object-cover',
+          heroPreviewUrl && 'absolute inset-0 transition-opacity duration-500',
+          heroPreviewUrl && !loaded && 'opacity-0',
+        )}
         draggable={false}
       />
       <div

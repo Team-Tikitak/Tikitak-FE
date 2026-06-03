@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
-import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 import { isTodayKstDate, openOverlay } from '@/shared/lib';
 import { Header, PageState } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';

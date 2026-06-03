@@ -1,6 +1,6 @@
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import { formatYmd } from '@/shared/lib/date';
-import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
+import { normalizeImageUrl, toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
 import type { CarouselImage, Participant } from '@/shared/ui';
 
 export const useFeedData = (teamId: number, feedId: number) => {
@@ -17,7 +17,8 @@ export const useFeedData = (teamId: number, feedId: number) => {
   const sortedImages = (data?.images ?? []).sort((a, b) => a.orderIndex - b.orderIndex);
 
   const images: CarouselImage[] = sortedImages.map((img) => ({
-    src: normalizeImageUrl(img.imageUrl) ?? '',
+    src: toSafeImageUrl(img.imageUrl),
+    heroPreviewUrl: normalizeImageUrl(img.heroPreviewUrl),
   }));
   const feedImageIds: number[] = sortedImages.map((img) => img.feedImageId);
 

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
-import { LoadingState, UserChip } from '@/shared/ui';
+import { UserChip } from '@/shared/ui';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 import { DailyFeedFormView } from './DailyFeedFormView';
 import { useActiveTeamMemberProfile } from '../hooks/useActiveTeamMemberProfile';
@@ -13,7 +13,7 @@ export const DailyFeedCreatePage = () => {
   const navigate = useNavigate();
   const activeTeamMemberProfile = useActiveTeamMemberProfile();
   const { teamId } = activeTeamMemberProfile;
-  const { data: dailyQuestion, isLoading: isQuestionLoading } = useGetDailyQuestion(teamId);
+  const { data: dailyQuestion } = useGetDailyQuestion(teamId);
 
   const { content, setContent, photo, addPhoto, removePhoto, maxContentLength, isShareDisabled } =
     useDailyQuestionCreateForm();
@@ -47,8 +47,6 @@ export const DailyFeedCreatePage = () => {
       maxContentLength={maxContentLength}
       onBack={() => navigate(-1)}
       onSubmit={share}
-      isLoading={isQuestionLoading}
-      loadingState={<LoadingState />}
       footer={
         activeTeamMemberProfile.nickname && (
           <section className="mt-7 flex flex-col items-start gap-3">

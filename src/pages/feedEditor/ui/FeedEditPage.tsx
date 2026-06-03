@@ -4,9 +4,9 @@ import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
-import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
-import { DEFAULT_MAX_PHOTO_COUNT, useFeedForm } from '@/shared/hooks/useFeedForm';
-import { normalizeImageUrl } from '@/shared/lib';
+import { DEFAULT_MAX_PHOTO_COUNT, useFeedForm } from '@/shared/hooks/feed/useFeedForm';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
+import { toSafeImageUrl } from '@/shared/lib';
 import { Header, PageState } from '@/shared/ui';
 import { confirmDiscardChanges } from '@/shared/ui/ConfirmDialog';
 import { FeedFormView } from './FeedFormView';
@@ -81,7 +81,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormPr
   const photoItems = [
     ...keptImages.map((image) => ({
       key: `existing-${image.feedImageId}`,
-      src: normalizeImageUrl(image.imageUrl) ?? '',
+      src: toSafeImageUrl(image.imageUrl),
       onRemove: () => removeExistingImage(image.feedImageId),
     })),
     ...photos.map((photo) => ({

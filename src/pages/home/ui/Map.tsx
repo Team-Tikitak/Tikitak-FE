@@ -16,16 +16,13 @@ interface MapProps {
 }
 
 const PIN_SIZE = 87;
+const PIN_ENTER_MAX_LEVEL = 6;
 
 export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [storedHeroPin, setStoredHeroPin] = useState(readStoredHeroPin);
-  const { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster } = useKakaoMap(
-    mapRef,
-    pins,
-    initialCenter,
-    locationResolved,
-  );
+  const { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster, focusPin } =
+    useKakaoMap(mapRef, pins, initialCenter, locationResolved);
 
   // hero 전환에 쓰인 뒤(지도 실렌더 후) 저장된 hero 핀 정리 — 클러스터/뷰 밖에서 잔상으로 남지 않게
   useEffect(() => {
@@ -60,7 +57,7 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
       <div ref={mapRef} className="pointer-events-auto absolute inset-0 z-0" />
       {!mapReady && (
         <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center bg-white">
-          <LoadingState />
+          <LoadingState variant="fullscreen" />
         </div>
       )}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -99,7 +96,12 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
               className="pointer-events-auto"
               style={style}
               onClick={() => {
-                storeHeroPin(pin, { x: item.x, y: item.y }, teamId, getCurrentViewport());
+                const viewport = getCurrentViewport();
+                if (viewport && viewport.level > PIN_ENTER_MAX_LEVEL) {
+                  focusPin(pin.longitude, pin.latitude, PIN_ENTER_MAX_LEVEL);
+                  return;
+                }
+                storeHeroPin(pin, { x: item.x, y: item.y }, teamId, viewport);
                 onPinClick?.(pin);
               }}
             />

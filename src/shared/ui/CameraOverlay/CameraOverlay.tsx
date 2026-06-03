@@ -1,4 +1,4 @@
-﻿import { type CapturedPhoto, useCamera } from '@/shared/hooks/useCamera';
+﻿import { type CapturedPhoto, useCamera } from '@/shared/hooks/camera/useCamera';
 import { CameraReview } from './CameraReview';
 import { CameraView } from './CameraView';
 
@@ -28,6 +28,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleToggleFacingMode,
     facingMode,
   } = useCamera({
+    open,
     onCapture: (photo) => {
       onCapture(photo);
       onClose();

@@ -41,6 +41,7 @@ export const LocationSearchOverlay = ({
       onExitComplete={onExitComplete}
       ariaTitle="장소 검색"
       ariaDescription="장소를 검색해 추가하세요"
+      avoidKeyboard
     >
       <LocationSearchSheet
         locations={items}

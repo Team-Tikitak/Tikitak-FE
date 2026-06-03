@@ -3,7 +3,7 @@ import { PATHS } from '@/app/routes/paths';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import type { TeamMember } from '@/shared/api/team/types';
 import { useGetTeams, useMe } from '@/shared/api/user/queries';
-import { useFeedForm } from '@/shared/hooks/useFeedForm';
+import { useFeedForm } from '@/shared/hooks/feed/useFeedForm';
 import { EmptyTeamView, Header, PageState } from '@/shared/ui';
 import { FeedFormView } from './FeedFormView';
 import { useFeedShare } from '../hooks/useFeedShare';
@@ -69,6 +69,7 @@ export const FeedCreatePage = () => {
     <PageState
       header={<Header title="글쓰기" onBack={() => navigate(-1)} />}
       isLoading={isLoading}
+      loadingSlot={<div />}
       isError={!isLoading && !teamId}
       errorSlot={<EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />}
     >

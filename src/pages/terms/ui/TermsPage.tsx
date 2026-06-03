@@ -4,10 +4,12 @@ import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
 import { TermsCheckRow } from './TermsCheckRow';
 import { PERMISSIONS } from '../constants/permissions';
+import { usePermissionRequests } from '../hooks/usePermissionRequests';
 import { useTermsFlow } from '../hooks/useTermsFlow';
 
 export const TermsPage = () => {
   const { terms, allChecked, isSubmitting, toggleAll, toggle, submit, goBack } = useTermsFlow();
+  const { grantedPermissions, pendingPermission, requestPermission } = usePermissionRequests();
 
   return (
     <PageShell
@@ -67,6 +69,9 @@ export const TermsPage = () => {
             key={permission.name}
             name={permission.name}
             description={permission.description}
+            checked={grantedPermissions.has(permission.key)}
+            disabled={pendingPermission === permission.key}
+            onClick={() => void requestPermission(permission.key)}
           />
         ))}
       </section>

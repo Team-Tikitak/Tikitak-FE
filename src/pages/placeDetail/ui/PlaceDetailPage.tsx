@@ -10,6 +10,7 @@ const FEED_DETAIL_HINT_KEY = 'feed-detail-long-press-hint-seen';
 
 interface PlaceFeedsLocationState {
   thumbnailUrl?: string;
+  heroPreviewUrl?: string;
 }
 
 export const PlaceDetailPage = () => {
@@ -26,7 +27,8 @@ export const PlaceDetailPage = () => {
     isFetchingNextPage,
   } = usePlaceFeeds();
   const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
-  const pinThumbnail = (useLocation().state as PlaceFeedsLocationState | null)?.thumbnailUrl;
+  const placeState = useLocation().state as PlaceFeedsLocationState | null;
+  const pinPlaceholder = placeState?.heroPreviewUrl ?? placeState?.thumbnailUrl;
   const { observerRef } = useInfiniteScroll({
     hasNextPage: Boolean(hasNextPage) && !isLoading && !isError,
     isFetchingNextPage,
@@ -49,7 +51,7 @@ export const PlaceDetailPage = () => {
             teamId={teamId}
             feedId={feedId}
             heroKey={index === 0 ? `pin-${placeId}` : undefined}
-            placeholderThumbnail={index === 0 ? pinThumbnail : undefined}
+            placeholderThumbnail={index === 0 ? pinPlaceholder : undefined}
             showHint={!seen && index === 0}
             onHintDismiss={markSeen}
           />

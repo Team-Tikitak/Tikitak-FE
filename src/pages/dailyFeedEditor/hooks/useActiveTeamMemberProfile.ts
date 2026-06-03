@@ -1,6 +1,6 @@
 import { useTeamMembers } from '@/shared/api/team/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
-import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 
 export const useActiveTeamMemberProfile = () => {
   const teamId = useActiveTeamId();

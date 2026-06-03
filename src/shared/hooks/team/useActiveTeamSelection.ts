@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
-import { useTeamPickerSheet } from '@/shared/hooks/useTeamPickerSheet';
+import { useTeamPickerSheet } from './useTeamPickerSheet';
 
 export const useActiveTeamSelection = () => {
   const navigate = useNavigate();
@@ -15,6 +15,14 @@ export const useActiveTeamSelection = () => {
 
   const activeTeamId = selectedTeamId ?? me?.activeTeamId ?? null;
   const activeTeam = teamItems.find((team) => team.teamId === activeTeamId) ?? teamItems[0];
+
+  useEffect(() => {
+    if (isMePending || isTeamsPending || !teams || teams.length === 0) return;
+    const isActiveValid = teams.some((team) => team.teamId === me?.activeTeamId);
+    if (!isActiveValid) {
+      patchActiveTeam(teams[0].teamId);
+    }
+  }, [me?.activeTeamId, teams, isMePending, isTeamsPending, patchActiveTeam]);
 
   const { openSheet: openTeamSheet } = useTeamPickerSheet({
     teams: teamItems,

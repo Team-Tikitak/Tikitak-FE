@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FeedPlace } from '@/shared/api/feed/types';
 import type { TeamMember } from '@/shared/api/team/types';
-import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/useFeedForm';
+import { useFeedForm as useFeedCreateForm } from '@/shared/hooks/feed/useFeedForm';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 const makePhoto = (id: string): CapturedPhoto => ({
