@@ -1,13 +1,9 @@
 ﻿import { useCallback, useState } from 'react';
-import { useCameraCapture } from '@/shared/hooks/useCameraCapture';
-import {
-  useCameraStream,
-  type CameraError,
-  type CameraFacingMode,
-} from '@/shared/hooks/useCameraStream';
-import { usePendingSticker } from '@/shared/hooks/usePendingSticker';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import type { PendingState, PlacedSticker } from '@/shared/types/sticker';
+import { useCameraCapture } from './useCameraCapture';
+import { useCameraStream, type CameraError, type CameraFacingMode } from './useCameraStream';
+import { usePendingSticker } from './usePendingSticker';
 
 export type { CameraError };
 export type { CapturedPhoto };

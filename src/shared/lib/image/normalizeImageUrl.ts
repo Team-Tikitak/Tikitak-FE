@@ -5,3 +5,5 @@ export const normalizeImageUrl = (url?: string | null): string | undefined => {
   if (url.startsWith('/')) return url;
   return `https://${url}`;
 };
+
+export const toSafeImageUrl = (url?: string | null): string => normalizeImageUrl(url) ?? '';

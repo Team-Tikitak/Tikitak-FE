@@ -1,5 +1,5 @@
 ﻿import { getSticker } from '@/shared/assets/Sticker/catalog';
-import { usePinchDrag } from '@/shared/hooks/usePinchDrag';
+import { usePinchDrag } from '@/shared/hooks/camera/usePinchDrag';
 import { type PlacedSticker } from '@/shared/types/sticker';
 
 interface PlacedStickerViewProps {

@@ -1,6 +1,6 @@
 import type { FeedListItem as ApiFeedListItem } from '@/shared/api/feed/types';
 import { formatYmd } from '@/shared/lib/date';
-import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
+import { normalizeImageUrl, toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
 import type { FeedItem } from '../model/types';
 
 export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
@@ -11,8 +11,8 @@ export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
     title: item.content,
     participantAvatarUrls: authorAvatar ? [authorAvatar] : [],
     date: formatYmd(item.createdAt),
-    thumbnailUrl: normalizeImageUrl(item.thumbnailImageUrl) ?? '',
-    heroPreviewUrl: normalizeImageUrl(item.heroPreviewUrl) ?? '',
+    thumbnailUrl: toSafeImageUrl(item.thumbnailImageUrl),
+    heroPreviewUrl: toSafeImageUrl(item.heroPreviewUrl),
     photoCount: item.imageCount,
   };
 };

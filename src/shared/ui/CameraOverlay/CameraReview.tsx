@@ -3,7 +3,7 @@ import CancelIcon from '@/shared/assets/Icon/CancelIcon.svg?react';
 import StickerIcon from '@/shared/assets/Icon/StickerIcon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/TrashIcon.svg?react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
-import { useTrashDragZone } from '@/shared/hooks/useTrashDragZone';
+import { useTrashDragZone } from '@/shared/hooks/camera/useTrashDragZone';
 import { cn } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';

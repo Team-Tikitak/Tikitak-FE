@@ -29,6 +29,15 @@ let lastViewport: MapViewport | null = null;
 
 const DEFAULT_MAP_LEVEL = 2;
 
+const readViewport = (map: KakaoMap): MapViewport => {
+  const center = map.getCenter();
+  return {
+    latitude: center.getLat(),
+    longitude: center.getLng(),
+    level: map.getLevel(),
+  };
+};
+
 const restoreCachedItems = (pins: Pin[]): MapRenderItem[] => {
   const storedHeroPin = readStoredHeroPin();
 
@@ -115,15 +124,6 @@ export const useKakaoMap = (
 
     let rafId: number | null = null;
 
-    const getCurrentViewport = (): MapViewport => {
-      const center = map.getCenter();
-      return {
-        latitude: center.getLat(),
-        longitude: center.getLng(),
-        level: map.getLevel(),
-      };
-    };
-
     const updatePositions = () => {
       const proj = map.getProjection();
       const bounds = map.getBounds();
@@ -161,7 +161,7 @@ export const useKakaoMap = (
       });
 
       setRenderItems(items);
-      lastViewport = getCurrentViewport();
+      lastViewport = readViewport(map);
     };
 
     const updatePositionsOnInteraction = () => {
@@ -190,12 +190,7 @@ export const useKakaoMap = (
     const map = mapInstanceRef.current;
     if (!map) return undefined;
 
-    const center = map.getCenter();
-    return {
-      latitude: center.getLat(),
-      longitude: center.getLng(),
-      level: map.getLevel(),
-    };
+    return readViewport(map);
   };
 
   const expandCluster = (clusterId: number, longitude: number, latitude: number) => {

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
-import { useActiveTeamId } from '@/shared/hooks/useActiveTeamId';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 
 export const useFeedDetail = () => {
   const { feedId } = useParams<{ feedId: string }>();

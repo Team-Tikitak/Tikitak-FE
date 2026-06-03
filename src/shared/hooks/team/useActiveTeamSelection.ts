@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
-import { useTeamPickerSheet } from '@/shared/hooks/useTeamPickerSheet';
+import { useTeamPickerSheet } from './useTeamPickerSheet';
 
 export const useActiveTeamSelection = () => {
   const navigate = useNavigate();

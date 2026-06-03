@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
-import { useFeedData } from '@/shared/hooks/useFeedData';
+import { useFeedData } from '@/shared/hooks/feed/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
 import { normalizeImageUrl } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';

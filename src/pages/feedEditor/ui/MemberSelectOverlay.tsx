@@ -1,5 +1,5 @@
 import type { TeamMember } from '@/shared/api/team/types';
-import { MAX_TAGGED_MEMBERS } from '@/shared/hooks/useFeedForm';
+import { MAX_TAGGED_MEMBERS } from '@/shared/hooks/feed/useFeedForm';
 import { normalizeImageUrl } from '@/shared/lib';
 import {
   BottomSheetOverlay,

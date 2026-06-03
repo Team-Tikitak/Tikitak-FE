@@ -6,7 +6,7 @@ import {
 } from '@/shared/api/feedComment/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
 import { createId } from '@/shared/lib/createId';
-import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
+import { toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
 import { makeSlot, isSamePos, groupCommentsByPos, buildApiPin } from '@/shared/lib/pinUtils';
 import { type Pin, type CommentSheetItem } from '@/shared/ui';
 
@@ -28,7 +28,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
   const [pendingNewPin, setPendingNewPin] = useState<{ slot: string; id: string } | null>(null);
 
   const { data: teams } = useGetTeams();
-  const myProfileImageUrl = normalizeImageUrl(teams?.find((t) => t.isActive)?.profileImgUrl) ?? '';
+  const myProfileImageUrl = toSafeImageUrl(teams?.find((t) => t.isActive)?.profileImgUrl);
 
   const { data: commentsData } = useGetFeedComments(teamId, feedId);
   const { mutate: postComment } = usePostFeedComment(teamId, feedId);
@@ -131,7 +131,7 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
             id: String(c.commentId),
             authorName: c.author.nickname,
             text: c.content,
-            avatarSrc: normalizeImageUrl(c.author.profileImageUrl) ?? '',
+            avatarSrc: toSafeImageUrl(c.author.profileImageUrl),
             isMine: c.isMine,
             onDelete: c.isMine ? () => deleteComment(c.commentId) : undefined,
           }))

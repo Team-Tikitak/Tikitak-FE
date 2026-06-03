@@ -1,7 +1,7 @@
 ﻿import { type RefObject } from 'react';
 import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
-import { type CameraError } from '@/shared/hooks/useCamera';
+import { type CameraError } from '@/shared/hooks/camera/useCamera';
 import { cn } from '@/shared/lib';
 import { CameraButton } from './CameraButton';
 

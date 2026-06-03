@@ -1,37 +1,15 @@
-import { Capacitor } from '@capacitor/core';
-import { useState } from 'react';
 import { PageShell } from '@/app/layout';
-import { alertDialog } from '@/shared/lib/nativeDialog';
-import { requestAppPermission, type AppPermission } from '@/shared/lib/requestAppPermissions';
 import { Button } from '@/shared/ui/Button';
 import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
 import { TermsCheckRow } from './TermsCheckRow';
 import { PERMISSIONS } from '../constants/permissions';
+import { usePermissionRequests } from '../hooks/usePermissionRequests';
 import { useTermsFlow } from '../hooks/useTermsFlow';
 
 export const TermsPage = () => {
   const { terms, allChecked, isSubmitting, toggleAll, toggle, submit, goBack } = useTermsFlow();
-  const [grantedPermissions, setGrantedPermissions] = useState<Set<AppPermission>>(() => new Set());
-  const [pendingPermission, setPendingPermission] = useState<AppPermission | null>(null);
-
-  const handlePermissionClick = async (permission: AppPermission) => {
-    if (!Capacitor.isNativePlatform()) return;
-    if (pendingPermission) return;
-
-    setPendingPermission(permission);
-    const granted = await requestAppPermission(permission);
-    setPendingPermission(null);
-
-    if (!granted) {
-      await alertDialog(
-        '권한 팝업이 뜨지 않으면 iOS 설정에서 앱 권한을 허용해주세요.',
-        '권한 설정 필요',
-      );
-      return;
-    }
-    setGrantedPermissions((prev) => new Set(prev).add(permission));
-  };
+  const { grantedPermissions, pendingPermission, requestPermission } = usePermissionRequests();
 
   return (
     <PageShell
@@ -93,7 +71,7 @@ export const TermsPage = () => {
             description={permission.description}
             checked={grantedPermissions.has(permission.key)}
             disabled={pendingPermission === permission.key}
-            onClick={() => void handlePermissionClick(permission.key)}
+            onClick={() => void requestPermission(permission.key)}
           />
         ))}
       </section>

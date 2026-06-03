@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { normalizeImageUrl } from '@/shared/lib';
+import { toSafeImageUrl } from '@/shared/lib';
 import { Button, Header, PageSection } from '@/shared/ui';
 import { MemberCard } from './MemberCard';
 import { MyProfileCard } from './MyProfileCard';
@@ -66,7 +66,7 @@ export const TeamDetailPage = () => {
           {members.map((member) => (
             <MemberCard
               key={member.teamMemberId}
-              avatarSrc={normalizeImageUrl(member.profileImgUrl) ?? ''}
+              avatarSrc={toSafeImageUrl(member.profileImgUrl)}
               name={member.nickname}
               email={member.email}
               onRemove={isOwner ? () => confirmRemoveMember(member) : undefined}

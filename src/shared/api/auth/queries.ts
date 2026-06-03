@@ -2,23 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { clearAccessToken, endLogout, setAccessToken, startLogout } from '@/shared/api/instance';
-import { postLoginCodeExchange, postLogout, postRefreshToken } from './api';
+import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys } from './keys';
+import { sessionQueryOptions } from './sessionQuery';
 import { unwrap } from '../request';
 import { userKeys } from '../user/keys';
 
-export const useAuthInit = () =>
-  useQuery({
-    queryKey: authKeys.session(),
-    queryFn: async () => {
-      const { accessToken } = await unwrap(() => postRefreshToken());
-      setAccessToken(accessToken);
-      return accessToken;
-    },
-    retry: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
+export const useAuthInit = () => useQuery(sessionQueryOptions);
 
 export const useLoginCodeExchange = () => {
   const navigate = useNavigate();

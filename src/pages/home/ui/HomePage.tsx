@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
-import { useActiveTeamSelection } from '@/shared/hooks/useActiveTeamSelection';
+import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';
 import { LoadingState } from '@/shared/ui/LoadingState';

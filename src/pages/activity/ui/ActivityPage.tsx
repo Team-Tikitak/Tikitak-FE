@@ -4,7 +4,7 @@ import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { shouldShowDailyQuestion } from '@/shared/api/dailyQuestion/selectors';
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
-import { useActiveTeamSelection } from '@/shared/hooks/useActiveTeamSelection';
+import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';

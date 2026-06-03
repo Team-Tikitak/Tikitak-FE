@@ -3,7 +3,7 @@ import type { TeamMember } from '@/shared/api/team/types';
 import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
-import type { useFeedForm } from '@/shared/hooks/useFeedForm';
+import type { useFeedForm } from '@/shared/hooks/feed/useFeedForm';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { toTeamDetail } from '@/app/routes/paths';
 import { useTeamMembers } from '@/shared/api/team/queries';
 import type { Team } from '@/shared/api/user/types';
-import { normalizeImageUrl } from '@/shared/lib';
+import { toSafeImageUrl } from '@/shared/lib';
 import { TeamCard } from './TeamCard';
 
 interface MyPageTeamCardProps {
@@ -15,11 +15,11 @@ export const MyPageTeamCard = ({ team }: MyPageTeamCardProps) => {
 
   const users = membersData?.members.map((member) => ({
     id: member.teamMemberId,
-    src: normalizeImageUrl(member.profileImgUrl) ?? '',
+    src: toSafeImageUrl(member.profileImgUrl),
   })) ?? [
     {
       id: team.teamMemberId,
-      src: normalizeImageUrl(team.profileImgUrl) ?? '',
+      src: toSafeImageUrl(team.profileImgUrl),
     },
   ];
 

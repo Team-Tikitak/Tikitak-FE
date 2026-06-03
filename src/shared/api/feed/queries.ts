@@ -6,7 +6,7 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { markFeedDeleting } from '@/shared/lib/deleteContextStorage';
+import { markFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
 import { mapKeys } from '../map/keys';

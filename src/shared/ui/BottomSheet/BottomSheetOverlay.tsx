@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { cn } from '@/shared/lib';
-import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/statusBarDim';
+import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
 
 type BottomSheetSnapPoint = number | string;
 type BottomSheetOverlayChildren =

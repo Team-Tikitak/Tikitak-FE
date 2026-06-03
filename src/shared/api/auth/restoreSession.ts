@@ -1,22 +1,9 @@
 import { queryClient } from '@/app/providers/queryClient';
-import { setAccessToken } from '@/shared/api/instance';
-import { postRefreshToken } from './api';
-import { authKeys } from './keys';
-import { unwrap } from '../request';
+import { sessionQueryOptions } from './sessionQuery';
 
 export const restoreSession = async (): Promise<boolean> => {
   try {
-    await queryClient.fetchQuery({
-      queryKey: authKeys.session(),
-      queryFn: async () => {
-        const { accessToken } = await unwrap(() => postRefreshToken());
-        setAccessToken(accessToken);
-        return accessToken;
-      },
-      retry: false,
-      staleTime: Infinity,
-      gcTime: Infinity,
-    });
+    await queryClient.fetchQuery(sessionQueryOptions);
     return true;
   } catch {
     return false;
