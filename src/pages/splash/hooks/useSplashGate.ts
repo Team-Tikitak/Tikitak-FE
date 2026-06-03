@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
+import { restoreSession } from '@/shared/api/auth/restoreSession';
 
 const SPLASH_SEEN_KEY = 'splash-seen';
 const SPLASH_DURATION_MS = 2300;
@@ -39,16 +40,29 @@ export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams 
       return;
     }
 
+    let cancelled = false;
+    const restorePromise = restoreSession();
+
     const timer = window.setTimeout(() => {
-      markSplashSeen();
-      navigate(PATHS.LOGIN, {
-        replace: true,
-        state: { fromSplash: true },
-        viewTransition: true,
+      void restorePromise.then((authed) => {
+        if (cancelled) return;
+        markSplashSeen();
+        if (authed) {
+          navigate(PATHS.HOME, { replace: true });
+        } else {
+          navigate(PATHS.LOGIN, {
+            replace: true,
+            state: { fromSplash: true },
+            viewTransition: true,
+          });
+        }
       });
     }, SPLASH_DURATION_MS);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [alreadySeen, animationStarted, navigate]);
 
   return { alreadySeen };
