@@ -18,6 +18,7 @@ const PARTICIPANTS_SHEET_TITLE = '\uCC38\uC5EC\uD55C \uC778\uC6D0';
 
 interface FeedDetailLocationState {
   thumbnailUrl?: string;
+  heroPreviewUrl?: string;
 }
 
 interface FeedDetailContentProps {
@@ -43,8 +44,9 @@ export const FeedDetailContent = ({
     teamId,
     feedId,
   );
-  const routeStateThumbnail = (useLocation().state as FeedDetailLocationState | null)?.thumbnailUrl;
-  const rawFallbackThumbnail = placeholderThumbnail ?? routeStateThumbnail;
+  const routeState = useLocation().state as FeedDetailLocationState | null;
+  const rawFallbackThumbnail =
+    placeholderThumbnail ?? routeState?.heroPreviewUrl ?? routeState?.thumbnailUrl;
   const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail);
   const isFallback = images.length === 0;
   const renderedImages = !isFallback
@@ -111,6 +113,7 @@ export const FeedDetailContent = ({
           onExitComplete={completeClose}
           ariaTitle={COMMENT_SHEET_TITLE}
           ariaDescription={COMMENT_SHEET_DESCRIPTION}
+          avoidKeyboard
         >
           <CommentSheet
             inputVariant="commentup"
