@@ -20,7 +20,7 @@ export const usePermissionRequests = () => {
 
     if (!granted) {
       await alertDialog(
-        '권한 팝업이 뜨지 않으면 iOS 설정에서 앱 권한을 허용해주세요.',
+        '권한 팝업이 뜨지 않으면 설정에서 앱 권한을 허용해주세요.',
         '권한 설정 필요',
       );
       return;

@@ -18,19 +18,9 @@ export const requestAppPermission = async (permission: AppPermission) => {
   const { Camera } = await import('@capacitor/camera');
   const currentStatus = await Camera.checkPermissions().catch(() => null);
   const currentPermissionState = currentStatus?.[permission];
-  if (isGranted(currentPermissionState)) {
-    if (permission === 'photos' && currentPermissionState === 'limited') {
-      await Camera.pickLimitedLibraryPhotos().catch(() => undefined);
-    }
-    return true;
-  }
+  if (isGranted(currentPermissionState)) return true;
   if (isBlocked(currentPermissionState)) return false;
 
   const status = await Camera.requestPermissions({ permissions: [permission] }).catch(() => null);
-  const permissionState = status?.[permission];
-  if (permission === 'photos' && permissionState === 'limited') {
-    await Camera.pickLimitedLibraryPhotos().catch(() => undefined);
-  }
-
-  return isGranted(permissionState);
+  return isGranted(status?.[permission]);
 };
