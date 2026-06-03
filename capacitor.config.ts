@@ -4,6 +4,11 @@ const config: CapacitorConfig = {
   appId: 'space.tikitak.app',
   appName: 'Tikitak',
   webDir: 'dist',
+  server: {
+    hostname: 'tikitak.space',
+    androidScheme: 'https',
+    iosScheme: 'https',
+  },
   ios: {
     contentInset: 'never',
     backgroundColor: '#ffffff',
@@ -19,9 +24,15 @@ const config: CapacitorConfig = {
       resizeOnFullScreen: true,
     },
     StatusBar: {
-      overlaysWebView: false,
-      style: 'DARK',
+      overlaysWebView: true,
+      style: 'LIGHT',
       backgroundColor: '#ffffff',
+    },
+    SystemBars: {
+      insetsHandling: 'css',
+      style: 'LIGHT',
+      hidden: false,
+      animation: 'NONE',
     },
     SplashScreen: {
       launchShowDuration: 500,

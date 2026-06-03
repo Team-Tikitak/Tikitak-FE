@@ -47,7 +47,7 @@ export const CameraView = ({
         type="button"
         aria-label="카메라 닫기"
         onClick={onClose}
-        className="press-feedback absolute top-[calc(env(safe-area-inset-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
+        className="press-feedback absolute top-[calc(var(--safe-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
       >
         <CloseIcon3 className="size-[18px]" />
       </button>
