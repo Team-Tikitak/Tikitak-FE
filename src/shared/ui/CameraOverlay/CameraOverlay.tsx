@@ -28,6 +28,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleToggleFacingMode,
     facingMode,
   } = useCamera({
+    open,
     onCapture: (photo) => {
       onCapture(photo);
       onClose();
