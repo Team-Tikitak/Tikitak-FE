@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import type { FeedDetailResponse } from '@/shared/api/feed/types';
 import { useTeamMembers } from '@/shared/api/team/queries';
+import { useGetTeams } from '@/shared/api/user/queries';
 import { DEFAULT_MAX_PHOTO_COUNT, useFeedForm } from '@/shared/hooks/feed/useFeedForm';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 import { toSafeImageUrl } from '@/shared/lib';
@@ -15,9 +16,10 @@ interface FeedEditFormProps {
   teamId: number;
   feedId: number;
   feedDetail: FeedDetailResponse;
+  myMemberId: number | null;
 }
 
-const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
+const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormProps) => {
   const navigate = useNavigate();
 
   const initialMembers = (feedDetail.taggedMembers ?? []).map((m) => ({
@@ -44,7 +46,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
   const teamMembers = teamMembersData?.members ?? [];
 
   const snapshotRef = useRef({
-    content: feedDetail.content,
+    content: feedDetail.content ?? '',
     placeId: feedDetail.place?.placeId ?? null,
     memberIds: new Set(feedDetail.taggedMembers.map((m) => m.teamMemberId)),
   });
@@ -98,7 +100,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
       onSubmit={share}
       form={form}
       teamMembers={teamMembers}
-      myMemberId={undefined}
+      myMemberId={myMemberId}
       photoItems={photoItems}
       photoCount={keptImages.length + photos.length}
     />
@@ -111,6 +113,9 @@ export const FeedEditPage = () => {
   const teamId = useActiveTeamId();
   const feedIdNum = Number(feedId);
 
+  const { data: teams } = useGetTeams();
+  const myMemberId = teams?.find((team) => team.teamId === teamId)?.teamMemberId ?? null;
+
   const { data: feedDetail, isLoading, isError } = useGetFeedDetail(teamId, feedIdNum);
 
   return (
@@ -120,7 +125,14 @@ export const FeedEditPage = () => {
       isError={!isLoading && (isError || !feedDetail)}
       errorMessage="글을 불러오지 못했습니다."
     >
-      {feedDetail && <FeedEditForm teamId={teamId} feedId={feedIdNum} feedDetail={feedDetail} />}
+      {feedDetail && (
+        <FeedEditForm
+          teamId={teamId}
+          feedId={feedIdNum}
+          feedDetail={feedDetail}
+          myMemberId={myMemberId}
+        />
+      )}
     </PageState>
   );
 };

@@ -4,6 +4,7 @@ export const AvatarGroupVariants = tv({
   base: 'flex items-center',
   variants: {
     size: {
+      xs: '-space-x-1',
       sm: '-space-x-2',
       md: '-space-x-[15px]',
     },

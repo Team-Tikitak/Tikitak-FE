@@ -10,7 +10,7 @@ export const MAX_TAGGED_MEMBERS = 11;
 
 interface UseFeedFormOptions {
   maxPhotoCount?: number;
-  initialContent?: string;
+  initialContent?: string | null;
   initialPlace?: FeedPlace | null;
   initialMembers?: TeamMember[];
 }
@@ -21,7 +21,7 @@ export const useFeedForm = ({
   initialPlace = null,
   initialMembers = [],
 }: UseFeedFormOptions = {}) => {
-  const [content, setContentRaw] = useState(initialContent);
+  const [content, setContentRaw] = useState(initialContent ?? '');
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<FeedPlace | null>(initialPlace);
   const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>(initialMembers);
