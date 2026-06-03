@@ -69,6 +69,7 @@ export const FeedCreatePage = () => {
     <PageState
       header={<Header title="글쓰기" onBack={() => navigate(-1)} />}
       isLoading={isLoading}
+      loadingSlot={<div />}
       isError={!isLoading && !teamId}
       errorSlot={<EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />}
     >
