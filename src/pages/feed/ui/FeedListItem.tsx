@@ -1,8 +1,9 @@
 import { type ComponentPropsWithRef } from 'react';
-import TakSpark from '@/shared/assets/Character/TakSpark.svg';
 import { cn } from '@/shared/lib';
-import { ImageWithFallback } from '@/shared/ui';
+import { AvatarGroup } from '@/shared/ui/AvatarGroup/AvatarGroup';
 import type { FeedItem } from '../model/types';
+
+const MAX_VISIBLE_AVATARS = 4;
 
 interface FeedListItemProps extends Omit<ComponentPropsWithRef<'article'>, 'children'> {
   item: FeedItem;
@@ -26,16 +27,11 @@ export const FeedListItem = ({
             </p>
             <p className="body-9 w-full truncate text-black">{item.title}</p>
           </div>
-          <div className="flex h-6 items-center -space-x-1">
-            {item.participantAvatarUrls.map((url, index) => (
-              <ImageWithFallback
-                key={`${item.id}-${index}`}
-                src={url}
-                fallbackSrc={TakSpark}
-                alt=""
-              />
-            ))}
-          </div>
+          <AvatarGroup
+            users={item.participantAvatarUrls.map((src, index) => ({ id: index, src }))}
+            size="xs"
+            max={MAX_VISIBLE_AVATARS}
+          />
         </div>
         <p className="body-10 text-gray-500">{item.date}</p>
       </div>

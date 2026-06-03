@@ -18,6 +18,7 @@ type AvatarGroupProps = VariantProps<typeof AvatarGroupVariants> &
   };
 
 const overflowSizeClassName = {
+  xs: 'size-6 text-[10px]',
   sm: 'size-7 text-[10px]',
   md: 'size-9 text-xs',
 } as const;
