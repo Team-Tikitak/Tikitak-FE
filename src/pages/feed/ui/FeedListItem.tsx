@@ -27,11 +27,13 @@ export const FeedListItem = ({
             </p>
             <p className="body-9 w-full truncate text-black">{item.title}</p>
           </div>
-          <AvatarGroup
-            users={item.participantAvatarUrls.map((src, index) => ({ id: index, src }))}
-            size="xs"
-            max={MAX_VISIBLE_AVATARS}
-          />
+          {item.participantAvatarUrls.length > 0 && (
+            <AvatarGroup
+              users={item.participantAvatarUrls.map((src, index) => ({ id: index, src }))}
+              size="xs"
+              max={MAX_VISIBLE_AVATARS}
+            />
+          )}
         </div>
         <p className="body-10 text-gray-500">{item.date}</p>
       </div>
