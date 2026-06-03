@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
@@ -15,9 +15,30 @@ import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { readFeedViewMode, storeFeedViewMode } from '../lib/viewModeStorage';
 
 const FEED_LIST_EAGER_COUNT = 6;
+const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
+const SCROLL_RESTORE_MAX_ATTEMPTS = 8;
+
+const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
+  `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
+
+const readFeedScrollTop = (key: string) => {
+  const value = sessionStorage.getItem(key);
+  const scrollTop = value ? Number(value) : 0;
+
+  return Number.isFinite(scrollTop) ? scrollTop : 0;
+};
+
+const storeFeedScrollTop = (key: string, scrollTop: number) => {
+  sessionStorage.setItem(key, String(Math.max(0, Math.round(scrollTop))));
+};
 
 export const FeedPage = () => {
   const navigate = useNavigate();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const restoredKeyRef = useRef<string | null>(null);
+  const pendingScrollFrameRef = useRef<number | null>(null);
+  const pendingScrollKeyRef = useRef<string | null>(null);
+  const latestScrollTopRef = useRef(0);
   const [viewMode, setViewModeState] = useState<FeedViewMode>(readFeedViewMode);
   const setViewMode = (mode: FeedViewMode) => {
     setViewModeState(mode);
@@ -34,11 +55,69 @@ export const FeedPage = () => {
   );
   const totalCount = data?.pages[0]?.pageInfo.totalCount ?? feeds.length;
   const showFeedLoading = isMePending || isLoading;
+  const scrollKey = teamId ? getFeedScrollKey(teamId, viewMode) : null;
   const { observerRef } = useInfiniteScroll({
     hasNextPage: Boolean(hasNextPage) && !showFeedLoading && !isError,
     isFetchingNextPage,
     fetchNextPage,
   });
+
+  const persistScrollTop = (scrollTop: number) => {
+    if (!scrollKey) return;
+    pendingScrollKeyRef.current = scrollKey;
+    latestScrollTopRef.current = scrollTop;
+    if (pendingScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(pendingScrollFrameRef.current);
+    }
+    pendingScrollFrameRef.current = window.requestAnimationFrame(() => {
+      storeFeedScrollTop(scrollKey, scrollTop);
+      pendingScrollFrameRef.current = null;
+    });
+  };
+
+  useEffect(
+    () => () => {
+      if (pendingScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(pendingScrollFrameRef.current);
+        if (pendingScrollKeyRef.current) {
+          storeFeedScrollTop(pendingScrollKeyRef.current, latestScrollTopRef.current);
+        }
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!scrollKey || showFeedLoading || isError || restoredKeyRef.current === scrollKey) return;
+
+    const savedScrollTop = readFeedScrollTop(scrollKey);
+    if (savedScrollTop <= 0) {
+      restoredKeyRef.current = scrollKey;
+      return;
+    }
+
+    let frame = 0;
+    let attempts = 0;
+
+    const restore = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const maxScrollTop = Math.max(0, container.scrollHeight - container.clientHeight);
+      if (maxScrollTop >= savedScrollTop || attempts >= SCROLL_RESTORE_MAX_ATTEMPTS) {
+        container.scrollTop = Math.min(savedScrollTop, maxScrollTop);
+        restoredKeyRef.current = scrollKey;
+        return;
+      }
+
+      attempts += 1;
+      frame = window.requestAnimationFrame(restore);
+    };
+
+    frame = window.requestAnimationFrame(restore);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [feeds.length, isError, scrollKey, showFeedLoading]);
 
   if (!isMePending && !teamId) {
     return (
@@ -55,7 +134,11 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24">
+      <div
+        ref={scrollContainerRef}
+        className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
+        onScroll={(event) => persistScrollTop(event.currentTarget.scrollTop)}
+      >
         <FeedCountToolbar
           count={totalCount}
           loading={showFeedLoading}
