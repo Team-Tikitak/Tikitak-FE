@@ -19,6 +19,8 @@ interface BottomSheetOverlayProps {
   snapPoints?: BottomSheetSnapPoint[];
   defaultSnapPoint?: BottomSheetSnapPoint;
   fadeFromIndex?: number;
+  avoidKeyboard?: boolean;
+  repositionInputs?: boolean;
 }
 
 export function BottomSheetOverlay({
@@ -32,6 +34,8 @@ export function BottomSheetOverlay({
   snapPoints,
   defaultSnapPoint,
   fadeFromIndex,
+  avoidKeyboard = false,
+  repositionInputs = false,
 }: BottomSheetOverlayProps) {
   const [activeSnapPoint, setActiveSnapPoint] = useState<BottomSheetSnapPoint | null>(
     defaultSnapPoint ?? snapPoints?.[0] ?? null,
@@ -91,6 +95,8 @@ export function BottomSheetOverlay({
         }}
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full flex-col outline-none sm:max-w-[393px]',
+          avoidKeyboard &&
+            'bottom-[var(--keyboard-height)] transition-[bottom] duration-200 ease-out',
           snapPoints && 'h-full',
           className,
         )}
@@ -113,7 +119,7 @@ export function BottomSheetOverlay({
       open={open}
       onOpenChange={handleOpenChange}
       onAnimationEnd={handleAnimationEnd}
-      repositionInputs={false}
+      repositionInputs={repositionInputs}
       {...snapProps}
     >
       {inner}
