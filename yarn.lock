@@ -1528,6 +1528,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/browser@npm:^8.0.3":
+  version: 8.0.3
+  resolution: "@capacitor/browser@npm:8.0.3"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/c4dea47e4035a54f4697f062f176285d66015812fd544c18f39b6c2f4fdfb327011c603abc6fafee6af5a1399777e5cf1e0c5c19e6e6c1a2f4af8bdaf9b5d2cf
+  languageName: node
+  linkType: hard
+
 "@capacitor/camera@npm:^8.2.0":
   version: 8.2.0
   resolution: "@capacitor/camera@npm:8.2.0"
@@ -4701,6 +4710,7 @@ __metadata:
     "@capacitor/android": "npm:^8.3.4"
     "@capacitor/app": "npm:^8.1.0"
     "@capacitor/assets": "npm:^3.0.5"
+    "@capacitor/browser": "npm:^8.0.3"
     "@capacitor/camera": "npm:^8.2.0"
     "@capacitor/cli": "npm:^8.3.4"
     "@capacitor/core": "npm:^8.3.4"
