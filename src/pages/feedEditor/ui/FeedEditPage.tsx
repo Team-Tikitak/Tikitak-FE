@@ -44,7 +44,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail }: FeedEditFormProps) => {
   const teamMembers = teamMembersData?.members ?? [];
 
   const snapshotRef = useRef({
-    content: feedDetail.content,
+    content: feedDetail.content ?? '',
     placeId: feedDetail.place?.placeId ?? null,
     memberIds: new Set(feedDetail.taggedMembers.map((m) => m.teamMemberId)),
   });

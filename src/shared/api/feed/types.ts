@@ -58,7 +58,7 @@ export interface FeedReactionSummary {
 export interface FeedListItem {
   feedId: number;
   type: FeedType;
-  content: string;
+  content: string | null;
   thumbnailImageUrl: string;
   imageCount: number;
   author: FeedAuthor;
@@ -68,6 +68,7 @@ export interface FeedListItem {
   reactionSummary: FeedReactionSummary;
   myReaction: ReactionType | null;
   createdAt: string;
+  taggedMembers: FeedTaggedMember[];
 }
 
 export interface FeedPageInfo {
@@ -94,7 +95,7 @@ export interface FeedListParams {
 export interface FeedMutationResponse {
   feedId: number;
   type: FeedType;
-  content: string;
+  content: string | null;
   thumbnailImageUrl: string;
   imageCount: number;
   place: FeedPlace | null;
@@ -114,7 +115,7 @@ export interface FeedImage {
 export interface FeedDetailResponse {
   feedId: number;
   type: FeedType;
-  content: string;
+  content: string | null;
   author: FeedAuthor;
   images: FeedImage[];
   place: FeedPlace;

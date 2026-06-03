@@ -4,14 +4,13 @@ import { normalizeImageUrl } from '@/shared/lib/normalizeImageUrl';
 import type { FeedItem } from '../model/types';
 
 export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
-  const authorAvatar = normalizeImageUrl(item.author.profileImageUrl);
   return {
     id: String(item.feedId),
     location: item.place?.name ?? '',
-    title: item.content,
-    participantAvatarUrls: authorAvatar ? [authorAvatar] : [],
+    title: item.content ?? '',
     date: formatYmd(item.createdAt),
     thumbnailUrl: normalizeImageUrl(item.thumbnailImageUrl) ?? '',
     photoCount: item.imageCount,
+    participantAvatarUrls: item.taggedMembers.map((member) => member.profileImageUrl),
   };
 };
