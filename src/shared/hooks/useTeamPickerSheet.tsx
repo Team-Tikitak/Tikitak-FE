@@ -5,6 +5,14 @@ import { BottomSheetOverlay, TeamListSheet } from '@/shared/ui/BottomSheet';
 // 팀 2개 풀 + 3번째 살짝 보이는 높이
 const COLLAPSED_HEIGHT = 360;
 const TOP_GAP = 80;
+const DAILY_QUESTION_BANNER_SELECTOR = '[data-daily-question-banner]';
+
+const getExpandedHeight = () => {
+  const dailyQuestionBanner = document.querySelector(DAILY_QUESTION_BANNER_SELECTOR);
+  const topGap = dailyQuestionBanner?.getBoundingClientRect().bottom ?? TOP_GAP;
+
+  return Math.max(COLLAPSED_HEIGHT, window.innerHeight - topGap);
+};
 
 interface UseTeamPickerSheetParams {
   teams: Team[];
@@ -20,7 +28,7 @@ export const useTeamPickerSheet = ({
   onCreateTeam,
 }: UseTeamPickerSheetParams) => {
   const openSheet = () => {
-    const expandedHeight = Math.max(COLLAPSED_HEIGHT, window.innerHeight - TOP_GAP);
+    const expandedHeight = getExpandedHeight();
     const collapsedSnap = `${COLLAPSED_HEIGHT}px`;
     const expandedSnap = `${expandedHeight}px`;
     const snapPoints = [collapsedSnap, expandedSnap];
