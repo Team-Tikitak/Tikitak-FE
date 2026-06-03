@@ -12,6 +12,7 @@ export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
     participantAvatarUrls: authorAvatar ? [authorAvatar] : [],
     date: formatYmd(item.createdAt),
     thumbnailUrl: normalizeImageUrl(item.thumbnailImageUrl) ?? '',
+    heroPreviewUrl: normalizeImageUrl(item.heroPreviewUrl) ?? '',
     photoCount: item.imageCount,
   };
 };

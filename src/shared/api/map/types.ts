@@ -5,6 +5,7 @@ export interface Pin {
   longitude: number;
   address: string;
   thumbnailUrl: string;
+  heroPreviewUrl?: string;
   feedCount: number;
 }
 
