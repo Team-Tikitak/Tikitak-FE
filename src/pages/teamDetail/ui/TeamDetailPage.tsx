@@ -16,7 +16,7 @@ export const TeamDetailPage = () => {
 
   const { teamName, myProfile, members, isOwner, isLoading, isError } = useTeamDetail(teamId);
   const { confirmLeave, confirmRemoveMember, confirmDelete, goInvite, goEditProfile } =
-    useTeamDetailActions({ teamId, teamName });
+    useTeamDetailActions({ teamId, teamName, memberCount: members.length });
 
   if (isError) {
     return (

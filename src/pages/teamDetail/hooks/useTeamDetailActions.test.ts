@@ -3,14 +3,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TeamMemberItem } from '@/shared/api/team/types';
 import { useTeamDetailActions } from './useTeamDetailActions';
 
-const { navigateMock, leaveTeamMock, teamDeleteMock, removeMemberMock, openConfirmDialogMock } =
-  vi.hoisted(() => ({
-    navigateMock: vi.fn(),
-    leaveTeamMock: vi.fn(),
-    teamDeleteMock: vi.fn(),
-    removeMemberMock: vi.fn(),
-    openConfirmDialogMock: vi.fn(),
-  }));
+const {
+  navigateMock,
+  leaveTeamMock,
+  teamDeleteMock,
+  removeMemberMock,
+  openConfirmDialogMock,
+  alertDialogMock,
+} = vi.hoisted(() => ({
+  navigateMock: vi.fn(),
+  leaveTeamMock: vi.fn(),
+  teamDeleteMock: vi.fn(),
+  removeMemberMock: vi.fn(),
+  openConfirmDialogMock: vi.fn(),
+  alertDialogMock: vi.fn(),
+}));
 
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
@@ -22,6 +29,9 @@ vi.mock('@/shared/api/team/queries', () => ({
 }));
 vi.mock('@/shared/ui/ConfirmDialog', () => ({
   openConfirmDialog: openConfirmDialogMock,
+}));
+vi.mock('@/shared/lib/native/nativeDialog', () => ({
+  alertDialog: alertDialogMock,
 }));
 
 const confirmLast = () => {
@@ -38,7 +48,7 @@ const makeMember = (teamMemberId: number): TeamMemberItem => ({
 });
 
 describe('useTeamDetailActions', () => {
-  const params = { teamId: 7, teamName: '우리팀' };
+  const params = { teamId: 7, teamName: '우리팀', memberCount: 1 };
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -63,6 +73,14 @@ describe('useTeamDetailActions', () => {
     result.current.confirmDelete();
     confirmLast();
     expect(teamDeleteMock).toHaveBeenCalledWith(7);
+  });
+
+  it('멤버가 2명 이상이면 삭제 시 확인 알림만 띄우고 삭제하지 않는다', () => {
+    const { result } = renderHook(() => useTeamDetailActions({ ...params, memberCount: 2 }));
+    result.current.confirmDelete();
+    expect(alertDialogMock).toHaveBeenCalled();
+    expect(openConfirmDialogMock).not.toHaveBeenCalled();
+    expect(teamDeleteMock).not.toHaveBeenCalled();
   });
 
   it('프로필 수정 이동 시 edit 모드 state와 함께 navigate한다', () => {
