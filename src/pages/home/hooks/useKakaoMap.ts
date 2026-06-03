@@ -27,6 +27,8 @@ export type MapRenderItem =
 const positionCache = new globalThis.Map<string, { x: number; y: number }>();
 let lastViewport: MapViewport | null = null;
 
+const DEFAULT_MAP_LEVEL = 2;
+
 const restoreCachedItems = (pins: Pin[]): MapRenderItem[] => {
   const storedHeroPin = readStoredHeroPin();
 
@@ -68,7 +70,7 @@ export const useKakaoMap = (
         ? {
             latitude: storedHeroPin.latitude,
             longitude: storedHeroPin.longitude,
-            level: storedHeroPin.level ?? lastViewport?.level ?? 3,
+            level: storedHeroPin.level ?? lastViewport?.level ?? DEFAULT_MAP_LEVEL,
           }
         : null;
 
@@ -86,7 +88,7 @@ export const useKakaoMap = (
           lastViewport ?? {
             latitude: initialCenter.latitude,
             longitude: initialCenter.longitude,
-            level: 3,
+            level: DEFAULT_MAP_LEVEL,
           };
 
         const map = new kakaoMaps.Map(mapRef.current, {
@@ -211,5 +213,17 @@ export const useKakaoMap = (
     });
   };
 
-  return { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster };
+  const focusPin = (longitude: number, latitude: number, level: number) => {
+    const map = mapInstanceRef.current;
+    const kakaoMaps = window.kakao?.maps;
+    if (!map || !kakaoMaps) return;
+
+    hasUserDraggedMapRef.current = true;
+    map.setLevel(level, {
+      anchor: new kakaoMaps.LatLng(latitude, longitude),
+      animate: { duration: 300 },
+    });
+  };
+
+  return { renderItems, sdkError, mapReady, getCurrentViewport, expandCluster, focusPin };
 };
