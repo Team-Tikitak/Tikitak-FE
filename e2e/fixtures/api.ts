@@ -237,7 +237,7 @@ export const mockActivityHome = async (page: Page, teamId: number): Promise<void
 
 // 피드 목록 mock — 그리드 채울 6개 아이템
 export const mockFeedList = async (page: Page, teamId: number): Promise<void> => {
-  await page.route(new RegExp(`/api/v1/teams/${teamId}/feeds(\\?.*)?$`), async (route) => {
+  await page.route(`**/api/v1/teams/${teamId}/feeds`, async (route) => {
     if (route.request().method() !== 'GET') return route.fallback();
     const items = Array.from({ length: 6 }, (_, i) => ({ ...FEED_LIST_ITEM, feedId: i + 1 }));
     await route.fulfill(
@@ -283,53 +283,50 @@ export const mockFeedDetail = async (page: Page, teamId: number, feedId: number)
     );
   });
 
-  // 상세 — `$`로 끝을 막아 /comments 경로와 충돌 방지
-  await page.route(
-    new RegExp(`/api/v1/teams/${teamId}/feeds/${feedId}(\\?.*)?$`),
-    async (route) => {
-      if (route.request().method() !== 'GET') return route.fallback();
-      await route.fulfill(
-        json(
-          wrap({
-            feedId,
-            type: 'GENERAL',
-            content: '시각 회귀 상세 본문입니다. 좋은 하루였어요.',
-            author: {
-              teamMemberId: 200,
-              nickname: '테스터',
-              profileImageUrl: 'p.jpg',
-              anonymous: false,
-              isAnonymous: false,
+  // 상세 — glob은 하위 경로(/comments)를 매칭하지 않아 충돌 없음
+  await page.route(`**/api/v1/teams/${teamId}/feeds/${feedId}`, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    await route.fulfill(
+      json(
+        wrap({
+          feedId,
+          type: 'GENERAL',
+          content: '시각 회귀 상세 본문입니다. 좋은 하루였어요.',
+          author: {
+            teamMemberId: 200,
+            nickname: '테스터',
+            profileImageUrl: 'p.jpg',
+            anonymous: false,
+            isAnonymous: false,
+          },
+          images: [
+            {
+              feedImageId: 10,
+              imageUrl: 'detail.jpg',
+              heroPreviewUrl: 'preview.jpg',
+              orderIndex: 0,
             },
-            images: [
-              {
-                feedImageId: 10,
-                imageUrl: 'detail.jpg',
-                heroPreviewUrl: 'preview.jpg',
-                orderIndex: 0,
-              },
-            ],
-            place: {
-              placeId: 'p1',
-              name: '카페 마루',
-              latitude: 37.5,
-              longitude: 127.0,
-              address: '서울',
-            },
-            question: { questionId: 1, content: '', answerDate: '2026-05-01' },
-            taggedMembers: [{ teamMemberId: 201, nickname: '동행', profileImageUrl: 'p.jpg' }],
-            commentCount: 1,
-            reactionSummary: { totalCount: 0, items: [] },
-            myReaction: 'TAK_LEADER',
-            createdAt: '2026-05-01T00:00:00.000Z',
-            updatedAt: '2026-05-01T00:00:00.000Z',
-            mine: true,
-            isMine: true,
-          }),
-        ),
-      );
-    },
-  );
+          ],
+          place: {
+            placeId: 'p1',
+            name: '카페 마루',
+            latitude: 37.5,
+            longitude: 127.0,
+            address: '서울',
+          },
+          question: { questionId: 1, content: '', answerDate: '2026-05-01' },
+          taggedMembers: [{ teamMemberId: 201, nickname: '동행', profileImageUrl: 'p.jpg' }],
+          commentCount: 1,
+          reactionSummary: { totalCount: 0, items: [] },
+          myReaction: 'TAK_LEADER',
+          createdAt: '2026-05-01T00:00:00.000Z',
+          updatedAt: '2026-05-01T00:00:00.000Z',
+          mine: true,
+          isMine: true,
+        }),
+      ),
+    );
+  });
 };
 
 export const stubKakaoMap = async (page: Page): Promise<void> => {

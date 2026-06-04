@@ -39,10 +39,10 @@ test.describe('@visual 시각 회귀', () => {
   );
 
   const settle = async (page: Page) => {
+    // toHaveScreenshot가 연속 2프레임 동일까지 자동 대기하므로 별도 sleep 불필요.
     await page.evaluate(async () => {
       await document.fonts.ready;
     });
-    await page.waitForTimeout(300);
   };
 
   test('로그인 페이지', async ({ page }) => {
