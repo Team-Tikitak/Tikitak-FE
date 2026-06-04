@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       update:
-        description: 'baseline 스냅샷 갱신 후 커밋'
+        description: '기존 baseline까지 모두 새로 생성(의도적 UI 변경 시)'
         type: boolean
         default: false
 
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   visual:
@@ -51,32 +51,26 @@ jobs:
       - name: Build production bundle
         run: yarn build
 
+      # 없는 baseline은 생성(이때 실행은 fail), 있는 baseline은 비교(회귀 시 fail).
+      # workflow_dispatch(update)면 기존 것까지 모두 새로 생성.
       - name: Run visual tests
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.update) }}
-        run: yarn e2e --project=mobile-chrome
+        run: >-
+          yarn e2e --project=mobile-chrome
+          --update-snapshots=${{ (github.event_name == 'workflow_dispatch' && inputs.update) && 'all' || 'missing' }}
         env:
           CI: 'true'
 
-      - name: Update baselines
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.update }}
-        run: yarn e2e --project=mobile-chrome --update-snapshots
-        env:
-          CI: 'true'
+      # 생성·갱신된 baseline PNG를 아티팩트로 노출 → 웹에서 받아 레포에 커밋(시딩/갱신).
+      - name: Upload baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt-baselines
+          path: e2e/**/*-snapshots/**
+          if-no-files-found: ignore
+          retention-days: 7
 
-      - name: Commit updated baselines
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.update }}
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add 'e2e/**/*-snapshots/**'
-          if git diff --cached --quiet; then
-            echo "baseline 변경 없음"
-          else
-            git commit -m "test: VRT baseline 갱신"
-            git push origin HEAD:${{ github.ref_name }}
-          fi
-
+      # 회귀 실패 시 diff 확인용 리포트(-actual/-diff 포함).
       - name: Upload report on failure
         if: failure()
         uses: actions/upload-artifact@v4
