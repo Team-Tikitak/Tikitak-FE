@@ -100,7 +100,7 @@ export function FeedImageDetail({
           src={heroPreviewUrl}
           alt=""
           aria-hidden
-          className="no-native-image absolute inset-0 h-full w-full object-cover"
+          className="no-native-image absolute inset-0 h-full w-full object-cover blur-md"
           draggable={false}
         />
       )}
@@ -116,7 +116,7 @@ export function FeedImageDetail({
         onLoad={() => setLoaded(true)}
         className={cn(
           'no-native-image h-full w-full object-cover',
-          heroPreviewUrl && 'absolute inset-0 transition-opacity duration-500',
+          heroPreviewUrl && 'absolute inset-0 transition-opacity duration-300 ease-out',
           heroPreviewUrl && !loaded && 'opacity-0',
         )}
         draggable={false}

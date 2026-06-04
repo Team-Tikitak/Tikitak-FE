@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import { markFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
+import { dailyQuestionKeys } from '../dailyQuestion/keys';
 import { mapKeys } from '../map/keys';
 import { unwrap } from '../request';
 import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
@@ -55,8 +56,8 @@ export const useCreateFeed = (teamId: number) => {
 
   return useMutation({
     mutationFn: (body: FeedRequest) => unwrap(() => postFeed(teamId, body)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: feedKeys.list(teamId), type: 'all' });
       queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
     },
   });
@@ -130,6 +131,7 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
       queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
       queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
+      queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
     },
     onSuccess: () => {
       navigate(-1);

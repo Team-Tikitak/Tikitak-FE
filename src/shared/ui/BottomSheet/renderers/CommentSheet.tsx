@@ -1,5 +1,6 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
 import MoreIcon from '@/shared/assets/Icon/More_Icon.svg?react';
+import { MAX_COMMENT_LENGTH } from '@/shared/constants/comment';
 import { cn } from '@/shared/lib';
 import { ActiveMenu } from '../../ActiveMenu/ActiveMenu';
 import { Avatar } from '../../Avatar';
@@ -97,7 +98,8 @@ export function CommentSheet({
           className="mt-6 mb-4 shrink-0 gap-0"
           inputProps={{
             value,
-            onChange: (event) => setValue(event.target.value),
+            maxLength: MAX_COMMENT_LENGTH,
+            onChange: (event) => setValue(event.target.value.slice(0, MAX_COMMENT_LENGTH)),
             onKeyDown: (event) => {
               if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                 event.preventDefault();

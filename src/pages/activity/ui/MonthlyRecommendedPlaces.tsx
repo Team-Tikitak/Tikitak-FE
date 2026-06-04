@@ -24,12 +24,16 @@ interface MonthlyRecommendedPlacesProps {
 
 export const MonthlyRecommendedPlaces = ({ teamId }: MonthlyRecommendedPlacesProps) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
-  const { data: placesData } = useRecommendedPlaces(teamId);
+  const { data: placesData, isPending } = useRecommendedPlaces(teamId);
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
       <div className="relative flex items-center gap-2">
-        <h2 className="body-2 text-black">{placesData?.month}월 추천 장소</h2>
+        {isPending ? (
+          <div className="h-[22px] w-28 animate-pulse rounded bg-gray-200" />
+        ) : (
+          <h2 className="body-2 text-black">{placesData?.month}월 추천 장소</h2>
+        )}
         <button
           type="button"
           aria-label="추천 장소 안내"
@@ -43,15 +47,21 @@ export const MonthlyRecommendedPlaces = ({ teamId }: MonthlyRecommendedPlacesPro
         )}
       </div>
       <div className="flex w-full items-center gap-4">
-        {placesData?.places.map((place) => (
-          <ContentImageCard
-            key={place.name}
-            title={place.name}
-            description={place.curation}
-            imageUrl={place.imageUrl}
-            onClick={place.kakaoMapUrl ? () => window.open(place.kakaoMapUrl, '_blank') : undefined}
-          />
-        ))}
+        {isPending
+          ? ['s1', 's2'].map((key) => (
+              <div key={key} className="h-[204px] flex-1 animate-pulse rounded-lg bg-gray-200" />
+            ))
+          : placesData?.places.map((place) => (
+              <ContentImageCard
+                key={place.name}
+                title={place.name}
+                description={place.curation}
+                imageUrl={place.imageUrl}
+                onClick={
+                  place.kakaoMapUrl ? () => window.open(place.kakaoMapUrl, '_blank') : undefined
+                }
+              />
+            ))}
       </div>
     </section>
   );

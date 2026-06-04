@@ -13,6 +13,11 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
 
+  // 시각 회귀(@visual)는 고정된 Playwright Docker 이미지(visual.yml)에서만 실행한다.
+  // VISUAL 미설정(로컬·기존 e2e.yml) 시 baseline OS 불일치를 피하려 자동 제외.
+  grep: process.env.VISUAL ? /@visual/ : undefined,
+  grepInvert: process.env.VISUAL ? undefined : /@visual/,
+
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry',

@@ -18,9 +18,9 @@ export const usePostDailyQuestion = (teamId: number, questionId: number) => {
   return useMutation({
     mutationFn: (body: PostDailyQuestionRequest) =>
       unwrap(() => postDailyQuestion(teamId, questionId, body)),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
-      queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
+      await queryClient.refetchQueries({ queryKey: feedKeys.list(teamId), type: 'all' });
     },
   });
 };
