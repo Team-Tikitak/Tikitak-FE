@@ -1,0 +1,80 @@
+name: Visual Regression
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      update:
+        description: '기존 baseline까지 모두 새로 생성(의도적 UI 변경 시)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    name: Playwright VRT
+    runs-on: ubuntu-latest
+    # 고정 이미지로 렌더링 환경(폰트·브라우저)을 핀 → baseline drift 방지.
+    # 태그는 @playwright/test 버전과 일치시킬 것.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-jammy
+    timeout-minutes: 20
+    env:
+      VISUAL: '1'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build production bundle
+        run: yarn build
+
+      # 없는 baseline은 생성(이때 실행은 fail), 있는 baseline은 비교(회귀 시 fail).
+      # workflow_dispatch(update)면 기존 것까지 모두 새로 생성.
+      - name: Run visual tests
+        run: >-
+          yarn e2e --project=mobile-chrome
+          --update-snapshots=${{ (github.event_name == 'workflow_dispatch' && inputs.update) && 'all' || 'missing' }}
+        env:
+          CI: 'true'
+
+      # 생성·갱신된 baseline PNG를 아티팩트로 노출 → 웹에서 받아 레포에 커밋(시딩/갱신).
+      - name: Upload baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt-baselines
+          path: e2e/**/*-snapshots/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # 회귀 실패 시 diff 확인용 리포트(-actual/-diff 포함).
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt-report
+          path: playwright-report/
+          retention-days: 7
