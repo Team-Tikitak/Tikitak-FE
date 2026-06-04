@@ -119,9 +119,9 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
         },
       });
     } catch (error) {
-      // 401/403만 로그인, 5xx는 에러 바운더리로
+      // 4xx(세션 없음·무효: 400/401/403 등) → 로그인, 5xx·네트워크는 에러 바운더리로
       const status = axios.isAxiosError(error) ? error.response?.status : undefined;
-      if (status === 401 || status === 403) {
+      if (status !== undefined && status >= 400 && status < 500) {
         return redirect(PATHS.LOGIN);
       }
       throw error;
