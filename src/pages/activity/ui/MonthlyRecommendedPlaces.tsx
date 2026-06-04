@@ -29,7 +29,11 @@ export const MonthlyRecommendedPlaces = ({ teamId }: MonthlyRecommendedPlacesPro
   return (
     <section className="flex w-full flex-col gap-[18px]">
       <div className="relative flex items-center gap-2">
-        <h2 className="body-2 text-black">{placesData?.month ?? ''}월 추천 장소</h2>
+        {isPending ? (
+          <div className="h-[22px] w-28 animate-pulse rounded bg-gray-200" />
+        ) : (
+          <h2 className="body-2 text-black">{placesData?.month}월 추천 장소</h2>
+        )}
         <button
           type="button"
           aria-label="추천 장소 안내"
