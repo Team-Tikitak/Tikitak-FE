@@ -24,7 +24,10 @@ export const HomePage = () => {
         header={<AppHeader teamName="" teamNameLoading onTeamSelect={openTeamSheet} />}
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
-        <LoadingState variant="fullscreen" />
+        <LoadingState
+          variant="fullscreen"
+          className="pb-[calc(60px+env(safe-area-inset-bottom))]"
+        />
       </PageShell>
     );
   }
