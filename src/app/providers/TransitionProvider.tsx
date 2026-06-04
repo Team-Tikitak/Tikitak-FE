@@ -42,6 +42,8 @@ const ssgoiConfig: SsgoiConfig = {
 
     ...hero({ paths: [PATHS.FEED, '/feed/*'], type: 'static' }),
 
+    ...fade({ paths: [PATHS.ACTIVITY, '/feed/*'] }),
+
     ...fade({ paths: ['*'] }),
   ],
   middleware: (from, to) => {

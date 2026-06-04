@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
+import { MAX_TEAM_NICKNAME_LENGTH } from '@/shared/constants/team';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
@@ -84,6 +85,7 @@ export const TeamProfileSetupForm = ({
         <CommentInputField
           variant="comment"
           placeholder="이름을 입력하세요"
+          maxLength={MAX_TEAM_NICKNAME_LENGTH}
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />

@@ -1,0 +1,3 @@
+export const MAX_TEAM_NAME_LENGTH = 50;
+export const MAX_TEAM_DESCRIPTION_LENGTH = 50;
+export const MAX_TEAM_NICKNAME_LENGTH = 30;

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
+import { MAX_TEAM_DESCRIPTION_LENGTH, MAX_TEAM_NAME_LENGTH } from '@/shared/constants/team';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamCreateForm } from '../hooks/useTeamCreateForm';
 
@@ -28,6 +29,7 @@ export const TeamCreatePage = () => {
         <CommentInputField
           variant="comment"
           placeholder="우리 팀만의 재미있는 이름을 지어보세요"
+          maxLength={MAX_TEAM_NAME_LENGTH}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -37,6 +39,7 @@ export const TeamCreatePage = () => {
         <CommentInputField
           variant="comment"
           placeholder="팀을 소개해보세요"
+          maxLength={MAX_TEAM_DESCRIPTION_LENGTH}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
