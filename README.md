@@ -13,8 +13,10 @@
 
 <img width="1140" height="750" alt="포스터" src="https://github.com/user-attachments/assets/d749aebd-51ff-4ac5-90f3-91faed983301" />
 
-티키탁(Tiki-Tak) 은 대학생 팀 프로젝트 과정의 순간들을 함께 기록하고 회고하는 팀 단위 아카이브 서비스입니다.
+<br/>
+<br/>
 
+**팀 프로젝트의 과정과 추억을 팀원들과 함께 기록하고, 나중에 언제든 다시 꺼내보는 팀 단위 추억 아카이브 서비스**
 <br/>
 
 ## 📱 주요 기능
