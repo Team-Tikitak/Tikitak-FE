@@ -153,6 +153,5 @@
   </tr>
 </table>
 
-<br/>
 <img width="1920" height="1080" alt="마무리" src="https://github.com/user-attachments/assets/5a194921-b0c7-4858-8ca3-7c0c4750d39d" />
 
