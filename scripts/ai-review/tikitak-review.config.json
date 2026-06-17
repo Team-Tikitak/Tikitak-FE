@@ -1,0 +1,50 @@
+{
+  "github": {
+    "baseBranch": "main",
+    "commentLanguage": "ko",
+    "postMode": "summary_and_inline"
+  },
+  "context": {
+    "reviewDocs": ["README.md", ".gemini/styleguide.md", ".github/PULL_REQUEST_TEMPLATE.md"],
+    "ignoreDiffPatterns": [
+      "yarn.lock",
+      ".yarn/**",
+      "dist/**",
+      "coverage/**",
+      "storybook-static/**",
+      "playwright-report/**",
+      "test-results/**",
+      "node_modules/**",
+      "**/*.snap",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.gif",
+      "**/*.webp",
+      "**/*.svg",
+      "**/*.ico"
+    ],
+    "relatedContext": {
+      "alwaysInclude": [
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        ".github/workflows/frontend-ci.yml",
+        "scripts/ai-review/tikitak-review.config.json",
+        "scripts/ai-review/review-result.schema.json",
+        "scripts/ai-review/tikitak-review-guide.md"
+      ],
+      "maxFiles": 24,
+      "maxBytesPerFile": 12000,
+      "maxTotalBytes": 120000
+    },
+    "maxDocBytes": 240000,
+    "maxBytesPerDoc": 28000,
+    "maxDiffBytes": 420000
+  },
+  "review": {
+    "mode": "related",
+    "policyPath": "scripts/ai-review/tikitak-review-guide.md",
+    "priorities": ["repo_convention", "correctness", "accessibility", "type_safety", "test_gap"]
+  }
+}
