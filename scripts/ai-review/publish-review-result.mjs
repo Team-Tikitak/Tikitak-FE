@@ -266,7 +266,11 @@ function formatFindingDetails(finding) {
 }
 
 function escapeTableCell(value) {
-  return String(value).replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function formatSha(value) {
