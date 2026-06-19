@@ -266,11 +266,7 @@ function formatFindingDetails(finding) {
 }
 
 function escapeTableCell(value) {
-  return String(value)
-    .replace(/\\/g, '\\\\')
-    .replace(/\|/g, '\\|')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return String(value).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 }
 
 function formatSha(value) {
@@ -587,11 +583,18 @@ async function githubApi({ token, method, path, body }) {
   });
 
   const text = await response.text();
-  const payload = text ? JSON.parse(text) : null;
   if (!response.ok) {
     throw new Error(`GitHub API failed: ${response.status} ${redactSecrets(text).slice(0, 500)}`);
   }
-  return payload;
+
+  try {
+    return text ? JSON.parse(text) : null;
+  } catch (error) {
+    const responsePreview = redactSecrets(text).slice(0, 200);
+    throw new Error(
+      `Failed to parse GitHub API response as JSON: ${error.message}. Response: ${responsePreview}`,
+    );
+  }
 }
 
 function redactSecrets(value) {

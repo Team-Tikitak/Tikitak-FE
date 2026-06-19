@@ -97,7 +97,7 @@ async function main() {
     reviewMode,
     docs: docs.map((doc) => ({
       path: doc.path,
-      bytes: doc.content.length,
+      bytes: utf8ByteLength(doc.content),
       truncated: doc.truncated,
     })),
     diff: {
@@ -111,7 +111,7 @@ async function main() {
       files: relatedContext.files.map((file) => ({
         path: file.path,
         reason: file.reason,
-        bytes: file.content.length,
+        bytes: utf8ByteLength(file.content),
         truncated: file.truncated,
       })),
       skippedFiles: relatedContext.skippedFiles,
@@ -271,15 +271,23 @@ function collectDocs(root, config, warnings) {
 
     let content = readFileSync(absolutePath, 'utf8');
     let truncated = false;
-    if (content.length > maxPerDoc) {
-      content = `${content.slice(0, maxPerDoc)}\n\n[TRUNCATED: maxBytesPerDoc reached]`;
-      truncated = true;
-    }
-    if (total + content.length > maxTotal) {
-      content = `${content.slice(0, Math.max(0, maxTotal - total))}\n\n[TRUNCATED: maxDocBytes reached]`;
-      truncated = true;
-    }
-    total += content.length;
+    const perDocResult = truncateUtf8WithMarker(
+      content,
+      maxPerDoc,
+      '\n\n[TRUNCATED: maxBytesPerDoc reached]',
+    );
+    content = perDocResult.content;
+    truncated = perDocResult.truncated;
+
+    const totalResult = truncateUtf8WithMarker(
+      content,
+      Math.max(0, maxTotal - total),
+      '\n\n[TRUNCATED: maxDocBytes reached]',
+    );
+    content = totalResult.content;
+    truncated ||= totalResult.truncated;
+
+    total += utf8ByteLength(content);
     docs.push({ path: relativePath, content, truncated });
   }
 
@@ -354,12 +362,13 @@ function collectDiff(root, prInfo, config, warnings) {
       ...includedFiles,
     ]);
     let unified = git(root, ['diff', '--unified=5', baseSha, headSha, '--', ...includedFiles]);
-    let truncated = false;
     const maxDiffBytes = config.context.maxDiffBytes ?? DEFAULT_CONFIG.context.maxDiffBytes;
-    if (unified.length > maxDiffBytes) {
-      unified = `${unified.slice(0, maxDiffBytes)}\n\n[TRUNCATED: maxDiffBytes reached]`;
-      truncated = true;
-    }
+    const diffResult = truncateUtf8WithMarker(
+      unified,
+      maxDiffBytes,
+      '\n\n[TRUNCATED: maxDiffBytes reached]',
+    );
+    unified = diffResult.content;
 
     return {
       changedFiles: nameStatus,
@@ -367,7 +376,7 @@ function collectDiff(root, prInfo, config, warnings) {
       ignoredFiles,
       stat,
       unified,
-      truncated,
+      truncated: diffResult.truncated,
     };
   } catch (error) {
     warnings.push(`Failed to collect git diff: ${error.message}`);
@@ -454,17 +463,24 @@ function collectRelatedContext(root, prInfo, config, diff, reviewMode, warnings)
 
     let content = original;
     let fileTruncated = false;
-    if (content.length > maxBytesPerFile) {
-      content = `${content.slice(0, maxBytesPerFile)}\n\n[TRUNCATED: maxBytesPerFile reached]`;
-      fileTruncated = true;
-    }
-    if (totalBytes + content.length > maxTotalBytes) {
-      content = `${content.slice(0, Math.max(0, maxTotalBytes - totalBytes))}\n\n[TRUNCATED: maxTotalBytes reached]`;
-      fileTruncated = true;
-      truncated = true;
-    }
+    const perFileResult = truncateUtf8WithMarker(
+      content,
+      maxBytesPerFile,
+      '\n\n[TRUNCATED: maxBytesPerFile reached]',
+    );
+    content = perFileResult.content;
+    fileTruncated = perFileResult.truncated;
 
-    totalBytes += content.length;
+    const totalResult = truncateUtf8WithMarker(
+      content,
+      Math.max(0, maxTotalBytes - totalBytes),
+      '\n\n[TRUNCATED: maxTotalBytes reached]',
+    );
+    content = totalResult.content;
+    fileTruncated ||= totalResult.truncated;
+    truncated ||= totalResult.truncated;
+
+    totalBytes += utf8ByteLength(content);
     files.push({
       path: candidate.path,
       reason: candidate.reason,
@@ -769,6 +785,43 @@ function matchesAny(filePath, patterns) {
 
 function normalizePath(filePath) {
   return filePath.split(path.sep).join('/');
+}
+
+function utf8ByteLength(value) {
+  return Buffer.byteLength(String(value), 'utf8');
+}
+
+function truncateUtf8(value, maxBytes) {
+  if (maxBytes <= 0) {
+    return '';
+  }
+
+  const buffer = Buffer.from(String(value), 'utf8');
+  if (buffer.length <= maxBytes) {
+    return String(value);
+  }
+
+  let end = maxBytes;
+  while (end > 0 && (buffer[end] & 0xc0) === 0x80) {
+    end -= 1;
+  }
+  return buffer.subarray(0, end).toString('utf8');
+}
+
+function truncateUtf8WithMarker(value, maxBytes, marker) {
+  if (utf8ByteLength(value) <= maxBytes) {
+    return { content: String(value), truncated: false };
+  }
+
+  const markerBytes = utf8ByteLength(marker);
+  if (markerBytes >= maxBytes) {
+    return { content: truncateUtf8(marker, maxBytes), truncated: true };
+  }
+
+  return {
+    content: `${truncateUtf8(value, maxBytes - markerBytes)}${marker}`,
+    truncated: true,
+  };
 }
 
 function escapeRegExp(value) {
