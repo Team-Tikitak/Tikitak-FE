@@ -8,7 +8,7 @@ export interface DailyQuestionProps extends ComponentPropsWithRef<'button'> {
 }
 
 const MARQUEE_EDGE_MASK =
-  'linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)';
+  'linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)';
 
 export const DailyQuestion = ({
   question,

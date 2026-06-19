@@ -1,0 +1,90 @@
+name: Tikitak PR Review
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+concurrency:
+  group: tikitak-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  tikitak-pr-review:
+    name: Run Tikitak PR review
+    if: ${{ !github.event.pull_request.draft && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GITHUB_TOKEN: ${{ github.token }}
+      CODEX_MODEL: ${{ vars.CODEX_MODEL || 'gpt-5.5' }}
+
+    steps:
+      - name: Checkout trusted base commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+
+      - name: Fetch pull request head for diff only
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin \
+            "+refs/pull/${{ github.event.pull_request.number }}/head:refs/remotes/pull/${{ github.event.pull_request.number }}/head"
+        shell: bash
+
+      - name: Prepare Tikitak review context
+        run: |
+          node scripts/ai-review/prepare-review-context.mjs \
+            --config scripts/ai-review/tikitak-review.config.json \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --repository "${{ github.repository }}" \
+            --branch "${{ github.head_ref }}" \
+            --base-sha "${{ github.event.pull_request.base.sha }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --out tikitak-review-prompt.md \
+            --metadata-out tikitak-review-context.json
+
+      - name: Run structured AI review
+        id: run-ai-review
+        uses: openai/codex-action@main
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: tikitak-review-prompt.md
+          output-schema-file: scripts/ai-review/review-result.schema.json
+          output-file: tikitak-review-output.json
+          sandbox: read-only
+          model: ${{ env.CODEX_MODEL }}
+
+      - name: Inspect review output
+        if: ${{ always() }}
+        run: |
+          if [ -s tikitak-review-output.json ]; then
+            jq '.' tikitak-review-output.json || true
+          else
+            echo "tikitak-review-output.json is missing or empty"
+          fi
+        shell: bash
+
+      - name: Publish Tikitak review comments
+        if: ${{ always() }}
+        run: |
+          node scripts/ai-review/publish-review-result.mjs \
+            --review tikitak-review-output.json \
+            --context tikitak-review-context.json \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --repository "${{ github.repository }}"
