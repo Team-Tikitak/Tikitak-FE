@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   auto-setup:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Auto assign and setup PR
