@@ -31,13 +31,13 @@ jobs:
       tokens: ${{ steps.tokens.outcome }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: yarn
@@ -101,7 +101,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Comment results on PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const results = {
