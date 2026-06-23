@@ -21,6 +21,7 @@ reviews:
   suggested_reviewers: false
   collapse_walkthrough: false
   changed_files_summary: true
+  abort_on_close: true
 
   path_filters:
     - '!.yarn/**'
@@ -39,7 +40,7 @@ reviews:
 
   auto_review:
     enabled: true
-    drafts: true
+    drafts: false
 
   path_instructions:
     - path: 'src/**'
