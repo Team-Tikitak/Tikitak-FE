@@ -27,6 +27,12 @@ export default defineConfig([
     'tmp/**',
     'android/**',
     'ios/**',
+    'dev-dist',
+    'coverage',
+    'playwright-report',
+    'test-results',
+    'blob-report',
+    '**/*.min.js',
   ]),
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
