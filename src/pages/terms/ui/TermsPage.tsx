@@ -9,7 +9,14 @@ import { useTermsFlow } from '../hooks/useTermsFlow';
 
 export const TermsPage = () => {
   const { terms, allChecked, isSubmitting, toggleAll, toggle, submit, goBack } = useTermsFlow();
-  const { grantedPermissions, pendingPermission, requestPermission } = usePermissionRequests();
+  const { grantedPermissions, pendingPermission, requestPermission, requestAllPermissions } =
+    usePermissionRequests();
+
+  const handleToggleAll = () => {
+    const turningOn = !allChecked;
+    toggleAll();
+    if (turningOn) void requestAllPermissions();
+  };
 
   return (
     <PageShell
@@ -40,7 +47,7 @@ export const TermsPage = () => {
           variant="all"
           checked={allChecked}
           label="전체 동의하기"
-          onToggle={toggleAll}
+          onToggle={handleToggleAll}
         />
         <TermsCheckRow
           variant="item"
