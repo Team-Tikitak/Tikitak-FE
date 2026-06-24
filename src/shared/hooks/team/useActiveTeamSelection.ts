@@ -9,6 +9,7 @@ export const useActiveTeamSelection = () => {
   const { data: me, isPending: isMePending } = useMe();
   const { data: teams, isPending: isTeamsPending } = useGetTeams();
   const { mutate: patchActiveTeam } = usePatchActiveTeam();
+  const { mutate: healActiveTeam } = usePatchActiveTeam({ silent: true });
 
   const teamItems = teams ?? [];
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
@@ -20,9 +21,9 @@ export const useActiveTeamSelection = () => {
     if (isMePending || isTeamsPending || !teams || teams.length === 0) return;
     const isActiveValid = teams.some((team) => team.teamId === me?.activeTeamId);
     if (!isActiveValid) {
-      patchActiveTeam(teams[0].teamId);
+      healActiveTeam(teams[0].teamId);
     }
-  }, [me?.activeTeamId, teams, isMePending, isTeamsPending, patchActiveTeam]);
+  }, [me?.activeTeamId, teams, isMePending, isTeamsPending, healActiveTeam]);
 
   const { openSheet: openTeamSheet } = useTeamPickerSheet({
     teams: teamItems,

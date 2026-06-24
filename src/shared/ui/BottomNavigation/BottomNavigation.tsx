@@ -85,7 +85,7 @@ export const BottomNavigation = ({
         aria-label={createAriaLabel}
         onClick={handleCreateClick}
         disabled={createDisabled}
-        className="shrink-0 -translate-y-5"
+        className="shrink-0 -translate-y-7"
       />
       <ul className="flex flex-1 justify-around">
         {RIGHT_TABS.map((tab) => (

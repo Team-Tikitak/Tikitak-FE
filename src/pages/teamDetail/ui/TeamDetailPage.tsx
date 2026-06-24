@@ -45,12 +45,14 @@ export const TeamDetailPage = () => {
       header={<Header title={teamName} showBackButton onBack={() => navigate(-1)} />}
       contentClassName="flex flex-col gap-8 px-5 py-7"
       bottom={
-        <button
-          className="body-2 w-full cursor-pointer text-center text-gray-500 underline"
-          onClick={confirmLeave}
-        >
-          그룹 나가기
-        </button>
+        !isOwner && (
+          <button
+            className="body-2 w-full cursor-pointer text-center text-gray-500 underline"
+            onClick={confirmLeave}
+          >
+            그룹 나가기
+          </button>
+        )
       }
     >
       <PageSection title="내 프로필">

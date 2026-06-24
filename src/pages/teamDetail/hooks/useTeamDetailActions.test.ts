@@ -10,6 +10,9 @@ const {
   removeMemberMock,
   openConfirmDialogMock,
   alertDialogMock,
+  confirmDialogMock,
+  confirmExactTextDialogMock,
+  isNativeDialogPlatformMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   leaveTeamMock: vi.fn(),
@@ -17,6 +20,9 @@ const {
   removeMemberMock: vi.fn(),
   openConfirmDialogMock: vi.fn(),
   alertDialogMock: vi.fn(),
+  confirmDialogMock: vi.fn(),
+  confirmExactTextDialogMock: vi.fn(),
+  isNativeDialogPlatformMock: vi.fn(),
 }));
 
 vi.mock('react-router', () => ({
@@ -32,6 +38,9 @@ vi.mock('@/shared/ui/ConfirmDialog', () => ({
 }));
 vi.mock('@/shared/lib/native/nativeDialog', () => ({
   alertDialog: alertDialogMock,
+  confirmDialog: confirmDialogMock,
+  confirmExactTextDialog: confirmExactTextDialogMock,
+  isNativeDialogPlatform: isNativeDialogPlatformMock,
 }));
 
 const confirmLast = () => {
@@ -52,6 +61,7 @@ describe('useTeamDetailActions', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    isNativeDialogPlatformMock.mockReturnValue(false);
   });
 
   it('나가기 확인 시 leaveTeam mutation을 teamId로 호출한다', () => {
@@ -73,6 +83,44 @@ describe('useTeamDetailActions', () => {
     result.current.confirmDelete();
     confirmLast();
     expect(teamDeleteMock).toHaveBeenCalledWith(7);
+  });
+
+  it('앱에서는 나가기를 네이티브 confirm으로 확인한 뒤 실행한다', async () => {
+    isNativeDialogPlatformMock.mockReturnValue(true);
+    confirmDialogMock.mockResolvedValue(true);
+
+    const { result } = renderHook(() => useTeamDetailActions(params));
+    await result.current.confirmLeave();
+
+    expect(confirmDialogMock).toHaveBeenCalledWith(
+      expect.objectContaining({ okButtonTitle: '나가기', cancelButtonTitle: '취소' }),
+    );
+    expect(openConfirmDialogMock).not.toHaveBeenCalled();
+    expect(leaveTeamMock).toHaveBeenCalledWith(7);
+  });
+
+  it('앱에서는 그룹 삭제 문구 입력이 맞을 때만 삭제한다', async () => {
+    isNativeDialogPlatformMock.mockReturnValue(true);
+    confirmExactTextDialogMock.mockResolvedValue(true);
+
+    const { result } = renderHook(() => useTeamDetailActions(params));
+    await result.current.confirmDelete();
+
+    expect(confirmExactTextDialogMock).toHaveBeenCalledWith(
+      expect.objectContaining({ confirmationText: '삭제하기' }),
+    );
+    expect(openConfirmDialogMock).not.toHaveBeenCalled();
+    expect(teamDeleteMock).toHaveBeenCalledWith(7);
+  });
+
+  it('앱에서 그룹 삭제 문구 입력이 틀리면 삭제하지 않는다', async () => {
+    isNativeDialogPlatformMock.mockReturnValue(true);
+    confirmExactTextDialogMock.mockResolvedValue(false);
+
+    const { result } = renderHook(() => useTeamDetailActions(params));
+    await result.current.confirmDelete();
+
+    expect(teamDeleteMock).not.toHaveBeenCalled();
   });
 
   it('멤버가 2명 이상이면 삭제 시 확인 알림만 띄우고 삭제하지 않는다', () => {
