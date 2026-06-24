@@ -93,10 +93,10 @@ export const useDeleteMe = () => {
   });
 };
 
-export const usePatchActiveTeam = () => {
+export const usePatchActiveTeam = ({ silent = false }: { silent?: boolean } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    meta: { errorMessage: '팀 전환에 실패했어요' },
+    meta: silent ? undefined : { errorMessage: '팀 전환에 실패했어요' },
     mutationFn: (teamId: number) => patchActiveTeam({ teamId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.me() });
