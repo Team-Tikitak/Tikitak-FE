@@ -3,5 +3,6 @@
  */
 
 export * from './nativeDialog';
+export * from './openAppSettings';
 export * from './requestAppPermissions';
 export * from './statusBarDim';
