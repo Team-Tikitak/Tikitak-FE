@@ -29,6 +29,24 @@
     background-color: #1a1c1f;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* 네이티브 앱 느낌: 텍스트 선택·롱프레스 콜아웃 차단 (상속됨) */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* 입력 요소는 선택·편집이 필요하므로 예외 */
+  input,
+  textarea,
+  [contenteditable]:not([contenteditable='false']) {
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+
+  /* user-drag는 상속되지 않아 직접 지정 — 이미지·링크 드래그 차단 */
+  img,
+  a {
+    -webkit-user-drag: none;
   }
 
   @media (max-width: 480px) {
