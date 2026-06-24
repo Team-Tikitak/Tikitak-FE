@@ -4,7 +4,11 @@ import { PATHS } from '@/app/routes/paths';
 import { useLogout } from '@/shared/api/auth/queries';
 import { useDeleteMe, useGetTeams } from '@/shared/api/user/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
-import { alertDialog } from '@/shared/lib/native/nativeDialog';
+import {
+  alertDialog,
+  confirmExactTextDialog,
+  isNativeDialogPlatform,
+} from '@/shared/lib/native/nativeDialog';
 import { Header, ListCard, PageSection } from '@/shared/ui';
 import { openConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { MyPageSkeleton } from './MyPageSkeleton';
@@ -17,12 +21,23 @@ export const MyPage = () => {
   const { mutate: logout } = useLogout();
   const { mutate: deleteMe } = useDeleteMe();
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (teams.some((team) => team.role === 'OWNER')) {
       void alertDialog(
         '팀장으로 있는 그룹이 있으면 탈퇴할 수 없어요. 먼저 그룹을 삭제하거나 다른 멤버에게 위임해 주세요.',
         '회원 탈퇴를 할 수 없어요',
       );
+      return;
+    }
+    if (isNativeDialogPlatform()) {
+      const confirmed = await confirmExactTextDialog({
+        title: '정말 탈퇴하시겠어요?',
+        message: '계정과 작성한 기록은 복구할 수 없어요. 계속하려면 "탈퇴하기"를 입력해 주세요.',
+        confirmationText: '탈퇴하기',
+        okButtonTitle: '확인',
+        cancelButtonTitle: '취소',
+      });
+      if (confirmed) deleteMe();
       return;
     }
     openConfirmDialog({
