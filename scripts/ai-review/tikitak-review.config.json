@@ -5,7 +5,7 @@
     "postMode": "summary_and_inline"
   },
   "context": {
-    "reviewDocs": ["README.md", ".gemini/styleguide.md", ".github/PULL_REQUEST_TEMPLATE.md"],
+    "reviewDocs": ["README.md", ".github/PULL_REQUEST_TEMPLATE.md"],
     "ignoreDiffPatterns": [
       "yarn.lock",
       ".yarn/**",
