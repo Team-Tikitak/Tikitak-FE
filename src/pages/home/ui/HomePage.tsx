@@ -17,6 +17,7 @@ export const HomePage = () => {
   } = useActiveTeamSelection();
 
   const hasTeams = me?.hasTeam ?? false;
+  const hasActiveTeam = hasTeams && selectedTeam !== undefined;
 
   if (isPending) {
     return (
@@ -32,13 +33,13 @@ export const HomePage = () => {
     );
   }
 
-  if (hasTeams) {
+  if (hasActiveTeam) {
     return (
       <PageShell
         header={<AppHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
-        <MapView teamId={selectedTeam?.teamId ?? 0} />
+        <MapView teamId={selectedTeam.teamId} />
       </PageShell>
     );
   }
