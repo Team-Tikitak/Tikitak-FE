@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Tikitak',
   webDir: 'dist',
   server: {
-    hostname: 'tikitak.space',
+    url: 'https://app.tikitak.space',
     androidScheme: 'https',
     iosScheme: 'https',
   },
