@@ -15,6 +15,7 @@ reviews:
   suggested_reviewers: false
   collapse_walkthrough: true
   sequence_diagrams: false
+  estimate_code_review_effort: false
   changed_files_summary: true
   abort_on_close: true
 
