@@ -26,14 +26,13 @@ const renderCircle = (char: RowCharacter, key: string) => {
 };
 
 interface CharacterPreviewStepProps {
-  onBack: () => void;
   onStart: () => void;
 }
 
-export const CharacterPreviewStep = ({ onBack, onStart }: CharacterPreviewStepProps) => {
+export const CharacterPreviewStep = ({ onStart }: CharacterPreviewStepProps) => {
   return (
     <PageShell
-      header={<Header showBackButton onBack={onBack} />}
+      header={<Header showBackButton={false} />}
       contentClassName="flex flex-col"
       bottom={
         <Button variant="primary" onClick={onStart}>

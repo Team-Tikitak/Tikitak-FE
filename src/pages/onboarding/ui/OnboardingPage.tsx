@@ -34,13 +34,11 @@ export const OnboardingPage = () => {
   const handleBack = () => {
     if (canGoBack) {
       goBack();
-      return;
     }
-    navigate(-1);
   };
 
   if (step === 'character-preview') {
-    return <CharacterPreviewStep onBack={handleBack} onStart={() => goTo('q1')} />;
+    return <CharacterPreviewStep onStart={() => goTo('q1')} />;
   }
 
   if (isQuestionStep(step)) {
