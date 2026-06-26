@@ -1,5 +1,5 @@
 import { useMutationState, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { LOGIN_CODE_EXCHANGE_MUTATION_KEY } from '@/shared/api/auth/keys';
 import AppleIcon from '@/shared/assets/Icon/AppleIcon.svg?react';
@@ -17,7 +17,13 @@ export const LoginPage = () => {
     filters: { mutationKey: LOGIN_CODE_EXCHANGE_MUTATION_KEY },
     select: (mutation) => mutation.state.status,
   }).at(-1);
-  const isLoggingIn = loginStatus === 'pending' || loginStatus === 'success';
+
+  const [startedLogin, setStartedLogin] = useState(false);
+  if (loginStatus === 'pending' && !startedLogin) {
+    setStartedLogin(true);
+  }
+
+  const isLoggingIn = loginStatus === 'pending' || (startedLogin && loginStatus === 'success');
 
   const queryClient = useQueryClient();
   useEffect(() => {
