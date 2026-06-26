@@ -13,7 +13,9 @@ reviews:
   assess_linked_issues: true
   auto_apply_labels: false
   suggested_reviewers: false
-  collapse_walkthrough: false
+  collapse_walkthrough: true
+  sequence_diagrams: false
+  estimate_code_review_effort: false
   changed_files_summary: true
   abort_on_close: true
 
@@ -55,10 +57,28 @@ reviews:
     - path: '{ios/**,**/capacitor.config.*}'
       instructions: |
         모바일 웹과 Capacitor 환경의 내비게이션, safe-area, native bridge 회귀를 함께 검토한다.
+    - path: 'src/shared/ui/**'
+      instructions: |
+        공용 컴포넌트는 className·ref를 항상 노출하고, 스타일 변형은 tailwind-variants(tv)로 표현한다.
+        div+onClick 대신 button/a 등 시맨틱 요소를 쓰고 a11y(label·키보드·ARIA)를 확인한다.
+        한 페이지 전용 컴포넌트를 shared로 올리지 않는다(도메인 결합 기준).
+        variant/status 같은 union은 as const 튜플+파생 타입, 값별 설정은 Record+satisfies로 누락을 막는다.
+    - path: 'src/shared/api/**/queries.ts'
+      instructions: |
+        query key는 도메인별 keys 팩토리로 관리하고 응답에 영향 주는 params를 포함한다.
+        mutation 후 invalidate/refetch/낙관적 업데이트(onMutate→onError 롤백→onSettled) 선택 기준이 명확한지 본다.
+        사용자 대면 mutation 실패는 meta.errorMessage 패턴으로 안내한다.
+        navigate 직전 목적지 loader가 의존하는 캐시는 동기 확정하는지 확인한다.
+    - path: 'src/{app/lib/native,shared/lib/native}/**'
+      instructions: |
+        네이티브/웹 분기는 Capacitor.isNativePlatform()로 가드하고 웹 폴백을 둔다.
+        safe-area·키보드는 CSS 변수(--safe-top/--keyboard-height) 체계를 따른다.
+        권한은 prompt/denied를 구분하고 denied는 설정 안내로 처리한다.
+        getUserMedia·Blob URL·타이머는 cleanup 쌍을 작성한다.
+
+  tools:
+    gitleaks:
+      enabled: true
 
 chat:
   auto_reply: true
-
-tools:
-  gitleaks:
-    enabled: true
