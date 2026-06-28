@@ -1662,6 +1662,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/preferences@npm:^8.0.0":
+  version: 8.0.1
+  resolution: "@capacitor/preferences@npm:8.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/cbed0229a685f484c396fd043354688fdeec69264f322180b62c5adb0322561b288a63eb38ee9b38cf78ea7dbc3b9dc8dd8c2e52b54a7f752a1b2f07bfd29f0d
+  languageName: node
+  linkType: hard
+
 "@capacitor/splash-screen@npm:^8.0.1":
   version: 8.0.1
   resolution: "@capacitor/splash-screen@npm:8.0.1"
@@ -4732,6 +4741,7 @@ __metadata:
     "@capacitor/geolocation": "npm:^8.2.0"
     "@capacitor/ios": "npm:^8.3.4"
     "@capacitor/keyboard": "npm:^8.0.3"
+    "@capacitor/preferences": "npm:^8.0.0"
     "@capacitor/splash-screen": "npm:^8.0.1"
     "@capacitor/status-bar": "npm:^8.0.2"
     "@chromatic-com/storybook": "npm:^5.1.2"

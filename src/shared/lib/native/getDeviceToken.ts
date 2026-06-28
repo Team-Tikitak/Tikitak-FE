@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import type { DevicePlatform } from '@/shared/api/notification/types';
+import { clearStoredDeviceToken } from '@/shared/lib/native/deviceTokenStorage';
 import type { FirebaseMessagingPlugin } from '@capacitor-firebase/messaging';
 
 export interface DeviceToken {
@@ -65,6 +66,7 @@ export const getDeviceToken = async (): Promise<DeviceTokenResult> => {
 
 export const invalidateDeviceToken = async (): Promise<void> => {
   if (!Capacitor.isNativePlatform()) return;
+  await clearStoredDeviceToken();
   try {
     const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
     await FirebaseMessaging.deleteToken();

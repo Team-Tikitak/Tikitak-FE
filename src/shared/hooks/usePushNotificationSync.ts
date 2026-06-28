@@ -1,14 +1,13 @@
 import { Capacitor } from '@capacitor/core';
 import { useEffect } from 'react';
 import { useRegisterDeviceToken } from '@/shared/api/notification/queries';
+import { storeDeviceToken } from '@/shared/lib/native/deviceTokenStorage';
 import { getDeviceToken, resolvePlatform } from '@/shared/lib/native/getDeviceToken';
 import { confirmDialog } from '@/shared/lib/native/nativeDialog';
 import { openAppSettings } from '@/shared/lib/native/openAppSettings';
 import { useAuthStore } from '@/shared/stores/authStore';
 
 export const usePushNotificationSync = () => {
-  // 토큰 문자열이 아니라 로그인 여부(boolean)에만 의존한다.
-  // 토큰 문자열을 쓰면 401 인터셉터의 토큰 갱신마다 effect가 재실행되어 중복 등록된다.
   const isLoggedIn = useAuthStore((state) => Boolean(state.accessToken));
   const { mutate: registerDeviceToken } = useRegisterDeviceToken();
 
@@ -21,7 +20,10 @@ export const usePushNotificationSync = () => {
     const register = (fcmToken: string) => {
       const platform = resolvePlatform();
       if (!platform) return;
-      registerDeviceToken({ fcmToken, platform });
+      registerDeviceToken(
+        { fcmToken, platform },
+        { onSuccess: () => void storeDeviceToken(fcmToken) },
+      );
     };
 
     void (async () => {

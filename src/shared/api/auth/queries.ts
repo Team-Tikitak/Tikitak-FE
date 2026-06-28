@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { clearAccessToken, endLogout, setAccessToken, startLogout } from '@/shared/api/instance';
+import {
+  clearStoredDeviceToken,
+  readStoredDeviceToken,
+} from '@/shared/lib/native/deviceTokenStorage';
 import { getDeviceTokenIfGranted } from '@/shared/lib/native/getDeviceToken';
 import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys, LOGIN_CODE_EXCHANGE_MUTATION_KEY } from './keys';
@@ -35,10 +39,12 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const token = await getDeviceTokenIfGranted();
-      if (token) {
-        await deleteDeviceToken({ fcmToken: token.fcmToken }).catch(() => undefined);
+      const fcmToken =
+        (await readStoredDeviceToken()) ?? (await getDeviceTokenIfGranted())?.fcmToken;
+      if (fcmToken) {
+        await deleteDeviceToken({ fcmToken }).catch(() => undefined);
       }
+      await clearStoredDeviceToken();
       return postLogout();
     },
     onMutate: () => {
