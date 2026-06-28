@@ -39,12 +39,7 @@ export const usePushNotificationSync = () => {
         return;
       }
 
-      // 권한 거부 상태면 토큰이 발급될 일이 없으므로 종료.
       if (result.status === 'already-denied') return;
-
-      // granted면 즉시 등록. unavailable(예: iOS 콜드스타트에 APNs 토큰 미준비로
-      // 첫 getToken 실패)이어도 종료하지 않고 아래 리스너를 등록해, APNs 토큰이
-      // 도착해 FCM 토큰이 발급되는 순간 tokenReceived로 받아 등록한다.
       if (result.status === 'granted') register(result.token.fcmToken);
 
       const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
