@@ -25,11 +25,13 @@ describe('useTrashDragZone', () => {
     expect(result.current.isOverTrash).toBe(false);
   });
 
-  it('handleDragStart sets draggingId', () => {
+  it('draggingId is set on first move, not on dragStart', () => {
     const { result } = renderHook(() => useTrashDragZone({ onMove: vi.fn(), onRemove: vi.fn() }));
+    attachTrash(result.current.trashRef, { left: 0, top: 0, width: 50, height: 50 });
     act(() => result.current.handleDragStart('sticker-1'));
+    expect(result.current.draggingId).toBeNull();
+    act(() => result.current.handleDragMove('sticker-1', 0.5, 0.5, 200, 200));
     expect(result.current.draggingId).toBe('sticker-1');
-    expect(result.current.isOverTrash).toBe(false);
   });
 
   it('handleDragMove calls onMove when pointer is outside trash', () => {

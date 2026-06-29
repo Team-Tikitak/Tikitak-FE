@@ -1,13 +1,12 @@
-import { type PointerEvent, type RefObject, useEffect, useRef } from 'react';
+import { type PointerEvent, type RefObject, useEffect, useRef, useState } from 'react';
 import { getPointerRatio } from '@/shared/lib';
+import { type PlacedSticker } from '@/shared/types/sticker';
 
 const normalizeAngleDelta = (delta: number) => Math.atan2(Math.sin(delta), Math.cos(delta));
 
-interface UsePinchDragOptions {
-  id: string;
-  scale: number;
-  rotation: number;
+interface UseStickerGesturesOptions {
   containerRef: RefObject<HTMLElement | null>;
+  stickers: PlacedSticker[];
   onDragStart: (id: string) => void;
   onDragMove: (
     id: string,
@@ -23,11 +22,9 @@ interface UsePinchDragOptions {
   maxScale?: number;
 }
 
-export const usePinchDrag = ({
-  id,
-  scale,
-  rotation,
+export const useStickerGestures = ({
   containerRef,
+  stickers,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -35,43 +32,74 @@ export const usePinchDrag = ({
   onRotate,
   minScale = 0.4,
   maxScale = 3,
-}: UsePinchDragOptions) => {
+}: UseStickerGesturesOptions) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const activeIdRef = useRef<string | null>(null);
+  const stickersRef = useRef(stickers);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const dragSessionRef = useRef(false);
+  const dragMoveEnabledRef = useRef(false);
   const pinchStartRef = useRef<{
     distance: number;
     angle: number;
     scale: number;
     rotation: number;
   } | null>(null);
-  const isDraggingRef = useRef(false);
-  const scaleRef = useRef(scale);
-  const rotationRef = useRef(rotation);
+
   useEffect(() => {
-    scaleRef.current = scale;
-  }, [scale]);
-  useEffect(() => {
-    rotationRef.current = rotation;
-  }, [rotation]);
+    stickersRef.current = stickers;
+  }, [stickers]);
+
+  const updateActive = (id: string | null) => {
+    activeIdRef.current = id;
+    setActiveId(id);
+  };
+
+  const getActiveSticker = () =>
+    stickersRef.current.find((sticker) => sticker.id === activeIdRef.current) ?? null;
 
   const recomputePinchStart = () => {
-    const [p1, p2] = Array.from(pointersRef.current.values());
+    const sticker = getActiveSticker();
+    const points = Array.from(pointersRef.current.values());
+    if (!sticker || points.length < 2) {
+      pinchStartRef.current = null;
+      return;
+    }
+    const [p1, p2] = points;
     pinchStartRef.current = {
       distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
       angle: Math.atan2(p2.y - p1.y, p2.x - p1.x),
-      scale: scaleRef.current,
-      rotation: rotationRef.current,
+      scale: sticker.scale,
+      rotation: sticker.rotation ?? 0,
     };
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLElement>) => {
+    const target = event.target as Element;
+    if (target.closest('[data-sticker-control]')) return;
+
+    if (pointersRef.current.size === 0) {
+      const stickerEl = target.closest<HTMLElement>('[data-sticker-id]');
+      if (!stickerEl?.dataset.stickerId) {
+        updateActive(null);
+        return;
+      }
+      updateActive(stickerEl.dataset.stickerId);
+    }
+    if (!activeIdRef.current) return;
+
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
     if (pointersRef.current.size === 1) {
-      isDraggingRef.current = true;
-      onDragStart(id);
+      dragMoveEnabledRef.current = true;
+      if (!dragSessionRef.current) {
+        dragSessionRef.current = true;
+        onDragStart(activeIdRef.current);
+      }
     } else if (pointersRef.current.size === 2) {
+      dragMoveEnabledRef.current = false;
       recomputePinchStart();
     }
   };
@@ -79,8 +107,10 @@ export const usePinchDrag = ({
   const handlePointerMove = (event: PointerEvent<HTMLElement>) => {
     if (!pointersRef.current.has(event.pointerId)) return;
     pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const id = activeIdRef.current;
+    if (!id) return;
 
-    if (pointersRef.current.size === 2 && pinchStartRef.current) {
+    if (pointersRef.current.size >= 2 && pinchStartRef.current) {
       const [p1, p2] = Array.from(pointersRef.current.values());
       const currentDistance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
       const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -94,7 +124,7 @@ export const usePinchDrag = ({
       return;
     }
 
-    if (pointersRef.current.size === 1 && isDraggingRef.current) {
+    if (pointersRef.current.size === 1 && dragMoveEnabledRef.current) {
       const container = containerRef.current;
       if (!container) return;
       const { x: xRatio, y: yRatio } = getPointerRatio(event, container);
@@ -103,30 +133,34 @@ export const usePinchDrag = ({
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLElement>) => {
-    const wasPinch = pointersRef.current.size === 2;
+    if (!pointersRef.current.has(event.pointerId)) return;
     pointersRef.current.delete(event.pointerId);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    const id = activeIdRef.current;
 
-    if (pointersRef.current.size === 2) {
+    if (pointersRef.current.size >= 2) {
       recomputePinchStart();
     } else {
       pinchStartRef.current = null;
+      dragMoveEnabledRef.current = false;
     }
-    if (wasPinch && pointersRef.current.size === 1 && isDraggingRef.current) {
-      onDragStart(id);
-    }
-    if (pointersRef.current.size === 0 && isDraggingRef.current) {
-      isDraggingRef.current = false;
-      onDragEnd(id);
+
+    if (pointersRef.current.size === 0) {
+      if (dragSessionRef.current && id) onDragEnd(id);
+      dragSessionRef.current = false;
     }
   };
 
   return {
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
-    handlePointerCancel: handlePointerUp,
+    activeId,
+    setActiveId: updateActive,
+    stickerGestureProps: {
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: handlePointerUp,
+      onPointerCancel: handlePointerUp,
+    },
   };
 };

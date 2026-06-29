@@ -1,4 +1,5 @@
 ﻿import { useCallback, useState } from 'react';
+import { getFilterCss, type PhotoFilterId } from '@/shared/lib/image/photoFilter';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import type { PendingState, PlacedSticker } from '@/shared/types/sticker';
 import { useCameraCapture } from './useCameraCapture';
@@ -17,6 +18,7 @@ interface UseCameraOptions {
 export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
   const [pending, setPending] = useState<PendingState | null>(null);
   const [facingMode, setFacingMode] = useState<CameraFacingMode>('environment');
+  const [activeFilterId, setActiveFilterId] = useState<PhotoFilterId>('none');
   const stream = useCameraStream(!open || pending !== null, facingMode);
 
   const handleToggleFacingMode = useCallback(
@@ -32,6 +34,7 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     pending,
     setPending,
     onCapture,
+    filterCss: getFilterCss(activeFilterId),
   });
 
   const stickers = usePendingSticker(
@@ -57,7 +60,10 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     isReady: stream.isReady,
     isConfirming: capture.isConfirming,
     handleCapture: capture.handleCapture,
-    handleRetake: capture.handleRetake,
+    handleRetake: () => {
+      setActiveFilterId('none');
+      capture.handleRetake();
+    },
     handleAddSticker: stickers.handleAddSticker,
     handleMoveSticker: stickers.handleMoveSticker,
     handleScaleSticker: stickers.handleScaleSticker,
@@ -67,5 +73,7 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     handleClose,
     handleToggleFacingMode,
     facingMode,
+    activeFilterId,
+    handleSelectFilter: setActiveFilterId,
   };
 };

@@ -25,8 +25,8 @@ export const useTrashDragZone = ({ onMove, onRemove }: UseTrashDragZoneOptions) 
     );
   };
 
-  const handleDragStart = (id: string) => {
-    setDraggingId(id);
+  const handleDragStart = (_id: string) => {
+    // draggingId는 첫 이동에서 켠다 (탭 선택만으론 삭제 모드 진입 방지)
     setOverTrash(false);
     trashRectRef.current = trashRef.current?.getBoundingClientRect() ?? null;
   };
@@ -38,6 +38,7 @@ export const useTrashDragZone = ({ onMove, onRemove }: UseTrashDragZoneOptions) 
     screenX: number,
     screenY: number,
   ) => {
+    setDraggingId(id);
     setOverTrash(isPointerOverTrash(screenX, screenY));
     onMove(id, xRatio, yRatio);
   };

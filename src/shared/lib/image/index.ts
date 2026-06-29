@@ -8,4 +8,5 @@ export * from './createPhotoFromFile';
 export * from './cropImageBlob';
 export * from './loadImage';
 export * from './normalizeImageUrl';
+export * from './photoFilter';
 export * from './revokeObjectUrl';
