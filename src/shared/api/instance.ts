@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { PATHS } from '@/app/routes/paths';
+import { invalidateDeviceToken } from '@/shared/lib/native/getDeviceToken';
 import { useAuthStore } from '../stores/authStore';
 import { AUTH_ENDPOINTS } from './auth/endpoints';
 
@@ -127,6 +128,8 @@ instance.interceptors.response.use(
           : undefined;
         if (refreshStatus === 401 || refreshStatus === 403) {
           clearAccessToken();
+          await invalidateDeviceToken();
+
           if (window.location.pathname !== PATHS.LOGIN) {
             window.location.replace(PATHS.LOGIN);
           }

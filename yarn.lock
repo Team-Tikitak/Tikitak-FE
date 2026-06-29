@@ -1488,6 +1488,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor-firebase/messaging@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "@capacitor-firebase/messaging@npm:8.3.0"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+    firebase: ^12.6.0
+  peerDependenciesMeta:
+    firebase:
+      optional: true
+  checksum: 10c0/6b17408f435299bb6ac28c0ddf61fd2937838088cfb6af721c3f733ec983fa5727dc1a45b8e6e39516644093a9392dcaa8f309d5d1ac81a2958f0846e675c66f
+  languageName: node
+  linkType: hard
+
 "@capacitor/android@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/android@npm:8.3.4"
@@ -1646,6 +1659,15 @@ __metadata:
   peerDependencies:
     "@capacitor/core": ">=8.0.0"
   checksum: 10c0/502c7ff5b88367df92ab4c0a51f04d70a6bd2b7ce03ead881035e63286282bc4abfb35d9fe55c8ebed538fe8b665e632050810e89ac6014a70fc98afaf8bbf23
+  languageName: node
+  linkType: hard
+
+"@capacitor/preferences@npm:^8.0.0":
+  version: 8.0.1
+  resolution: "@capacitor/preferences@npm:8.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/cbed0229a685f484c396fd043354688fdeec69264f322180b62c5adb0322561b288a63eb38ee9b38cf78ea7dbc3b9dc8dd8c2e52b54a7f752a1b2f07bfd29f0d
   languageName: node
   linkType: hard
 
@@ -4707,6 +4729,7 @@ __metadata:
   resolution: "Tikitak-FE@workspace:."
   dependencies:
     "@axe-core/playwright": "npm:^4.11.3"
+    "@capacitor-firebase/messaging": "npm:^8.3.0"
     "@capacitor/android": "npm:^8.3.4"
     "@capacitor/app": "npm:^8.1.0"
     "@capacitor/assets": "npm:^3.0.5"
@@ -4718,6 +4741,7 @@ __metadata:
     "@capacitor/geolocation": "npm:^8.2.0"
     "@capacitor/ios": "npm:^8.3.4"
     "@capacitor/keyboard": "npm:^8.0.3"
+    "@capacitor/preferences": "npm:^8.0.0"
     "@capacitor/splash-screen": "npm:^8.0.1"
     "@capacitor/status-bar": "npm:^8.0.2"
     "@chromatic-com/storybook": "npm:^5.1.2"
