@@ -27,7 +27,9 @@ export const setupKeyboardInsets = async (platform: string): Promise<void> => {
   const { Keyboard } = await import('@capacitor/keyboard');
 
   const onShow = ({ keyboardHeight }: { keyboardHeight: number }) =>
-    setKeyboardHeight(platform === 'android' ? getAndroidKeyboardOffset(keyboardHeight) : 0);
+    setKeyboardHeight(
+      platform === 'android' ? getAndroidKeyboardOffset(keyboardHeight) : keyboardHeight,
+    );
   const onHide = () => setKeyboardHeight(0);
 
   Keyboard.addListener('keyboardWillShow', onShow);

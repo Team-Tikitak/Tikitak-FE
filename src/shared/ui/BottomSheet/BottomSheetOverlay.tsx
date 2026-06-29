@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { cn } from '@/shared/lib';
+import { setKeyboardResizeMode } from '@/shared/lib/native/keyboardResize';
 import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
 
 type BottomSheetSnapPoint = number | string;
@@ -59,6 +60,15 @@ export function BottomSheetOverlay({
     [],
   );
 
+  // 키보드 입력 시트는 열린 동안 iOS 웹뷰 리사이즈를 멈춰 시트가 키보드를 부드럽게 따라가게 함
+  useEffect(() => {
+    if (!avoidKeyboard || !open) return;
+    void setKeyboardResizeMode('none');
+    return () => {
+      void setKeyboardResizeMode('native');
+    };
+  }, [avoidKeyboard, open]);
+
   const releaseDim = () => {
     if (dimmedRef.current) {
       dimmedRef.current = false;
@@ -95,8 +105,7 @@ export function BottomSheetOverlay({
         }}
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full flex-col outline-none sm:max-w-[393px]',
-          avoidKeyboard &&
-            'bottom-[var(--keyboard-height)] transition-[bottom] duration-200 ease-out',
+          avoidKeyboard && 'bottom-(--keyboard-height) transition-[bottom] duration-200 ease-out',
           snapPoints && 'h-full',
           className,
         )}
