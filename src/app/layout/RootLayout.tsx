@@ -2,6 +2,7 @@ import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
 import { useOAuthDeepLink } from '@/app/lib/useOAuthDeepLink';
 import { PATHS } from '@/app/routes/paths';
+import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
 import { cn } from '@/shared/lib';
 import { GlobalBottomNavigation } from './GlobalBottomNavigation';
 import { TransitionProvider } from '../providers/TransitionProvider';
@@ -19,6 +20,7 @@ const getRouteKey = (pathname: string): string => {
 
 export const RootLayout = ({ className }: RootLayoutProps) => {
   useOAuthDeepLink();
+  useEdgeSwipeBack();
   const location = useLocation();
 
   return (
