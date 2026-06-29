@@ -16,13 +16,19 @@ export const usePushNotificationSync = () => {
 
     let cancelled = false;
     let removeListener: (() => void) | undefined;
+    let latestToken: string | undefined;
 
     const register = (fcmToken: string) => {
       const platform = resolvePlatform();
       if (!platform) return;
+      latestToken = fcmToken;
       registerDeviceToken(
         { fcmToken, platform },
-        { onSuccess: () => void storeDeviceToken(fcmToken) },
+        {
+          onSuccess: () => {
+            if (fcmToken === latestToken) void storeDeviceToken(fcmToken);
+          },
+        },
       );
     };
 

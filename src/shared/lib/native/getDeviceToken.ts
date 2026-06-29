@@ -66,10 +66,10 @@ export const getDeviceToken = async (): Promise<DeviceTokenResult> => {
 
 export const invalidateDeviceToken = async (): Promise<void> => {
   if (!Capacitor.isNativePlatform()) return;
-  await clearStoredDeviceToken();
   try {
     const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
     await FirebaseMessaging.deleteToken();
+    await clearStoredDeviceToken();
   } catch {
     // 폐기 실패는 무시
   }

@@ -42,9 +42,13 @@ export const useLogout = () => {
       const fcmToken =
         (await readStoredDeviceToken()) ?? (await getDeviceTokenIfGranted())?.fcmToken;
       if (fcmToken) {
-        await deleteDeviceToken({ fcmToken }).catch(() => undefined);
+        try {
+          await deleteDeviceToken({ fcmToken });
+          await clearStoredDeviceToken();
+        } catch {
+          // 해제 실패 시 토큰을 보존
+        }
       }
-      await clearStoredDeviceToken();
       return postLogout();
     },
     onMutate: () => {
