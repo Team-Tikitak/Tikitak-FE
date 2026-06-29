@@ -31,7 +31,10 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
     let cancelled = false;
 
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode }, audio: false })
+      .getUserMedia({
+        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false,
+      })
       .then((stream) => {
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop());
