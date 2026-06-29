@@ -6,6 +6,7 @@ export * from './camera';
 export * from './feed';
 export * from './team';
 export * from './useDebounce';
+export * from './useEdgeSwipeBack';
 export * from './useFirstVisitHint';
 export * from './useImageFileInput';
 export * from './useInfiniteScroll';
