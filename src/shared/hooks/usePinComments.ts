@@ -4,6 +4,7 @@ import {
   useGetFeedComments,
   usePostFeedComment,
 } from '@/shared/api/feedComment/queries';
+import type { CommentAuthor } from '@/shared/api/feedComment/types';
 import { useGetTeams } from '@/shared/api/user/queries';
 import { createId } from '@/shared/lib/createId';
 import { toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
@@ -55,12 +56,26 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
 
   const submitComment = (text: string) => {
     if (!pendingPosition) return;
+
+    const me = teams?.find((t) => t.isActive);
+    const optimisticAuthor: CommentAuthor = {
+      teamMemberId: me?.teamMemberId ?? -1,
+      nickname: me?.nickname ?? '나',
+      profileImageUrl: myProfileImageUrl,
+      anonymous: false,
+      isAnonymous: false,
+    };
+
     postComment({
-      feedImageId: pendingPosition.feedImageId,
-      content: text,
-      positionX: pendingPosition.x,
-      positionY: pendingPosition.y,
+      body: {
+        feedImageId: pendingPosition.feedImageId,
+        content: text,
+        positionX: pendingPosition.x,
+        positionY: pendingPosition.y,
+      },
+      optimisticAuthor,
     });
+
     if (pendingNewPin) {
       setAddedPins((prev) => ({
         ...prev,

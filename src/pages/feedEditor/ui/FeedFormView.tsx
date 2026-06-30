@@ -87,6 +87,7 @@ export const FeedFormView = ({
         onExitComplete={unmount}
         teamMembers={teamMembers}
         selectedMembers={selectedMembers}
+        myMemberId={myMemberId}
         onConfirm={(picked) => {
           const me =
             myMemberId != null ? teamMembers.find((m) => m.teamMemberId === myMemberId) : undefined;

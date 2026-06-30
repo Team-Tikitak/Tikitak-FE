@@ -3,10 +3,14 @@ import { Capacitor } from '@capacitor/core';
 // Single access point for native dialogs. Capacitor Dialog falls back to web dialogs on web.
 export const isNativeDialogPlatform = (): boolean => Capacitor.isNativePlatform();
 
-export const alertDialog = async (message: string, title = '오류'): Promise<void> => {
+export const alertDialog = async (
+  message: string,
+  title = '오류',
+  buttonTitle = '확인',
+): Promise<void> => {
   try {
     const { Dialog } = await import('@capacitor/dialog');
-    await Dialog.alert({ title, message });
+    await Dialog.alert({ title, message, buttonTitle });
   } catch {
     // Ignore dialog display failures.
   }

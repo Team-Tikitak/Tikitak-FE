@@ -6,7 +6,8 @@ import type { FeedItem } from '../model/types';
 export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
   return {
     id: String(item.feedId),
-    location: item.place?.name ?? '',
+    location:
+      item.type === 'DAILY_QUESTION' ? (item.question?.content ?? '') : (item.place?.name ?? ''),
     title: item.content ?? '',
     date: formatYmd(item.createdAt),
     thumbnailUrl: toSafeImageUrl(item.thumbnailImageUrl),
