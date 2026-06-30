@@ -20,6 +20,12 @@ export const PHOTO_FILTERS: PhotoFilter[] = [
 export const getFilterCss = (id: PhotoFilterId): string =>
   PHOTO_FILTERS.find((filter) => filter.id === id)?.css ?? 'none';
 
+// iOS 17 미만 WKWebView 등은 CanvasRenderingContext2D.filter 미지원 → 굽기가 적용 안 됨
+export const isCanvasFilterSupported = (): boolean => {
+  const context = document.createElement('canvas').getContext('2d');
+  return context !== null && 'filter' in context;
+};
+
 export const applyFilterToBlob = async (blob: Blob, filterCss: string): Promise<Blob> => {
   if (!filterCss || filterCss === 'none') return blob;
 
@@ -30,7 +36,7 @@ export const applyFilterToBlob = async (blob: Blob, filterCss: string): Promise<
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
     const context = canvas.getContext('2d');
-    if (!context) return blob;
+    if (!context || !('filter' in context)) return blob;
 
     context.filter = filterCss;
     context.drawImage(image, 0, 0);
