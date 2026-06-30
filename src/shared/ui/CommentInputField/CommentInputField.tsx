@@ -30,6 +30,7 @@ const SUBMIT_ARIA_LABEL = '\uB313\uAE00 \uB4F1\uB85D';
 
 const inputClassName =
   'body-1 h-12 min-w-0 rounded-max bg-gray-200 px-5 text-gray-700 placeholder:text-gray-700 outline-none transition-colors focus-within:bg-gray-100 focus-within:ring-2 focus-within:ring-main-001/40 disabled:cursor-not-allowed disabled:opacity-50';
+const zoomGuardClassName = 'ios-input-zoom-guard ios-input-zoom-guard-box';
 
 export const CommentInputField = (props: CommentInputFieldProps) => {
   if (props.variant === 'searchbar') {
@@ -52,6 +53,7 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
           aria-label={restInputProps['aria-label'] ?? placeholder}
           className={cn(
             'min-w-0 flex-1 bg-transparent outline-none placeholder:text-gray-700',
+            zoomGuardClassName,
             inputClassNameProp,
           )}
           {...restInputProps}
@@ -92,7 +94,7 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
           disabled={inputDisabled}
           placeholder={placeholder}
           aria-label={restInputProps['aria-label'] ?? placeholder}
-          className={cn(inputClassName, 'w-auto flex-1', inputClassNameProp)}
+          className={cn(inputClassName, 'w-auto flex-1', zoomGuardClassName, inputClassNameProp)}
           {...restInputProps}
         />
         <button
@@ -126,7 +128,7 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
       type="text"
       placeholder={placeholder}
       aria-label={inputProps['aria-label'] ?? placeholder}
-      className={cn(inputClassName, 'w-full', className)}
+      className={cn(inputClassName, 'w-full', zoomGuardClassName, className)}
       {...inputProps}
     />
   );

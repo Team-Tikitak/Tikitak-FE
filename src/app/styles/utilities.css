@@ -38,3 +38,21 @@
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
 }
+
+@utility ios-input-zoom-guard {
+  font-size: 16px;
+  transform: scale(0.875);
+  transform-origin: left center;
+}
+
+@utility ios-input-zoom-guard-box {
+  width: calc(100% / 0.875);
+}
+
+@utility ios-textarea-zoom-guard {
+  width: calc(100% / 0.875);
+  height: calc(100% / 0.875);
+  font-size: 16px;
+  transform: scale(0.875);
+  transform-origin: left top;
+}

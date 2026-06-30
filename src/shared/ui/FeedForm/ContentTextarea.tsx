@@ -22,7 +22,7 @@ export const ContentTextarea = ({
       aria-label={placeholder}
       placeholder={placeholder}
       maxLength={maxLength}
-      className="font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none text-[14px] leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
+      className="ios-textarea-zoom-guard font-pretendard placeholder:font-pretendard min-h-0 flex-1 resize-none leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
     />
     <p className="body-10 self-end text-gray-500">
       <span>{value.length}</span> / {maxLength.toLocaleString()}
