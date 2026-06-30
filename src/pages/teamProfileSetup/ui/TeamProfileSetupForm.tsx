@@ -14,7 +14,7 @@ const HEADER_TITLE = {
 } as const;
 
 const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_AVATAR_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_AVATAR_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 interface TeamProfileSetupFormProps {
   mode: 'create' | 'join' | 'edit';

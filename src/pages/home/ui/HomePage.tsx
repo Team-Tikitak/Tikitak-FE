@@ -14,12 +14,14 @@ export const HomePage = () => {
     activeTeam: selectedTeam,
     openTeamSheet,
     isTeamsPending: isPending,
+    isFetching,
   } = useActiveTeamSelection();
 
   const hasTeams = me?.hasTeam ?? false;
   const hasActiveTeam = hasTeams && selectedTeam !== undefined;
 
-  if (isPending) {
+  // 재요청 중 빈 캐시로 EmptyState 깜빡임 방지
+  if (isPending || (isFetching && !hasActiveTeam)) {
     return (
       <PageShell
         header={<AppHeader teamName="" teamNameLoading onTeamSelect={openTeamSheet} />}

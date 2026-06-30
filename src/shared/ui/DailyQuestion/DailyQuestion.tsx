@@ -66,7 +66,7 @@ export const DailyQuestion = ({
         <span
           ref={textRef}
           className={cn(
-            'inline-block text-[12px] leading-normal font-bold whitespace-nowrap text-white',
+            'inline-block px-2 text-[12px] leading-normal font-bold whitespace-nowrap text-white',
             scrollPx > 0 && 'animate-marquee-scroll',
           )}
           style={

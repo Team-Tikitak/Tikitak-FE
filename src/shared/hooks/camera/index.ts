@@ -6,5 +6,5 @@ export * from './useCamera';
 export * from './useCameraCapture';
 export * from './useCameraStream';
 export * from './usePendingSticker';
-export * from './usePinchDrag';
+export * from './useStickerGestures';
 export * from './useTrashDragZone';

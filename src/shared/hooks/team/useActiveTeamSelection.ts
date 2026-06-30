@@ -6,8 +6,8 @@ import { useTeamPickerSheet } from './useTeamPickerSheet';
 
 export const useActiveTeamSelection = () => {
   const navigate = useNavigate();
-  const { data: me, isPending: isMePending } = useMe();
-  const { data: teams, isPending: isTeamsPending } = useGetTeams();
+  const { data: me, isPending: isMePending, isFetching: isMeFetching } = useMe();
+  const { data: teams, isPending: isTeamsPending, isFetching: isTeamsFetching } = useGetTeams();
   const { mutate: patchActiveTeam } = usePatchActiveTeam();
   const { mutate: healActiveTeam } = usePatchActiveTeam({ silent: true });
 
@@ -42,5 +42,6 @@ export const useActiveTeamSelection = () => {
     openTeamSheet,
     isMePending,
     isTeamsPending,
+    isFetching: isMeFetching || isTeamsFetching,
   };
 };

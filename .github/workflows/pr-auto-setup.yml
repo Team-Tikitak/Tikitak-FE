@@ -90,7 +90,7 @@ jobs:
                 'refactor': '♻️Refactor',
                 'test': '✅Test',
                 'docs': '📝Docs',
-                'chore': '🛠️ Chore'
+                'chore': '🔧Chore'
               };
               const labelToAdd = labelMap[labelMatch[1].toLowerCase()];
 

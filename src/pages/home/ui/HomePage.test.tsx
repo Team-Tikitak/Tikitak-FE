@@ -43,16 +43,19 @@ const setHomeState = ({
   hasTeam,
   activeTeam,
   isTeamsPending = false,
+  isFetching = false,
 }: {
   hasTeam: boolean;
   activeTeam?: { teamId: number; teamName: string };
   isTeamsPending?: boolean;
+  isFetching?: boolean;
 }) => {
   useActiveTeamSelectionMock.mockReturnValue({
     me: { hasTeam },
     activeTeam,
     openTeamSheet: vi.fn(),
     isTeamsPending,
+    isFetching,
   });
 };
 
@@ -69,6 +72,15 @@ describe('HomePage', () => {
     expect(screen.getByTestId('empty-team')).toBeInTheDocument();
     expect(screen.queryByTestId('map-view')).not.toBeInTheDocument();
     expect(mapViewMock).not.toHaveBeenCalled();
+  });
+
+  it('재요청 중이고 활성 팀이 아직 없으면 EmptyTeamView 대신 로딩을 보여준다', () => {
+    setHomeState({ hasTeam: true, isFetching: true });
+
+    render(<HomePage />);
+
+    expect(screen.getByTestId('loading')).toBeInTheDocument();
+    expect(screen.queryByTestId('empty-team')).not.toBeInTheDocument();
   });
 
   it('실제 활성 팀이 있을 때만 지도를 렌더링한다', () => {

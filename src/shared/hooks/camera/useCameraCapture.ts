@@ -17,6 +17,7 @@ import { createId } from '@/shared/lib/createId';
 import { composePhotoWithStickers } from '@/shared/lib/image/composePhoto';
 import { computeCaptureRect } from '@/shared/lib/image/computeCaptureRect';
 import { cropImageBlobToAspectRatio } from '@/shared/lib/image/cropImageBlob';
+import { applyFilterToBlob } from '@/shared/lib/image/photoFilter';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 
@@ -30,6 +31,7 @@ interface UseCameraCaptureOptions {
   pending: PendingState | null;
   setPending: Dispatch<SetStateAction<PendingState | null>>;
   onCapture: (photo: CapturedPhoto) => void;
+  filterCss?: string;
 }
 
 export const useCameraCapture = ({
@@ -40,6 +42,7 @@ export const useCameraCapture = ({
   pending,
   setPending,
   onCapture,
+  filterCss = 'none',
 }: UseCameraCaptureOptions) => {
   const pendingRef = useRef<PendingState | null>(null);
   const isMountedRef = useRef(true);
@@ -118,10 +121,11 @@ export const useCameraCapture = ({
     if (!pending || isConfirming) return;
     setIsConfirming(true);
     try {
+      const filteredBlob = await applyFilterToBlob(pending.rawBlob, filterCss);
       const composedBlob =
         pending.stickers.length > 0
-          ? await composePhotoWithStickers(pending.rawBlob, pending.stickers)
-          : pending.rawBlob;
+          ? await composePhotoWithStickers(filteredBlob, pending.stickers)
+          : filteredBlob;
       const uploadBlob = await cropImageBlobToAspectRatio(
         composedBlob,
         FEED_IMAGE_WIDTH,
@@ -144,7 +148,7 @@ export const useCameraCapture = ({
     } finally {
       if (isMountedRef.current) setIsConfirming(false);
     }
-  }, [isConfirming, onCapture, pending, setPending]);
+  }, [filterCss, isConfirming, onCapture, pending, setPending]);
 
   return {
     isConfirming,

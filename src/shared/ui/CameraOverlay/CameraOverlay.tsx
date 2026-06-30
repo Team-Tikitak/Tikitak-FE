@@ -27,6 +27,8 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleClose,
     handleToggleFacingMode,
     facingMode,
+    activeFilterId,
+    handleSelectFilter,
   } = useCamera({
     open,
     onCapture: (photo) => {
@@ -42,7 +44,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-60 flex items-stretch justify-center">
+    <div className="fixed inset-0 z-60 flex items-stretch justify-center" data-no-swipe-back>
       <div className="relative h-full w-full sm:max-w-[393px]">
         {pendingPreview ? (
           <CameraReview
@@ -56,6 +58,8 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
             onRemoveSticker={handleRemoveSticker}
             onRetake={handleRetake}
             onConfirm={handleConfirm}
+            activeFilterId={activeFilterId}
+            onSelectFilter={handleSelectFilter}
           />
         ) : (
           <CameraView

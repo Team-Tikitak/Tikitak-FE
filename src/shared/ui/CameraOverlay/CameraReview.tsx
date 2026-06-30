@@ -1,14 +1,24 @@
 ﻿import { useRef, useState } from 'react';
 import CancelIcon from '@/shared/assets/Icon/CancelIcon.svg?react';
+import FilterIcon from '@/shared/assets/Icon/FilterIcon.svg?react';
 import StickerIcon from '@/shared/assets/Icon/StickerIcon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/TrashIcon.svg?react';
 import { type StickerId } from '@/shared/assets/Sticker/catalog';
+import { useStickerGestures } from '@/shared/hooks/camera/useStickerGestures';
 import { useTrashDragZone } from '@/shared/hooks/camera/useTrashDragZone';
 import { cn } from '@/shared/lib';
+import {
+  getFilterCss,
+  isCanvasFilterSupported,
+  PHOTO_FILTERS,
+  type PhotoFilterId,
+} from '@/shared/lib/image/photoFilter';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
 import { PlacedStickerView } from './PlacedStickerView';
 import { StickerPicker } from './StickerPicker';
+
+const CANVAS_FILTER_SUPPORTED = isCanvasFilterSupported();
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -21,6 +31,8 @@ interface CameraReviewProps {
   onRemoveSticker: (id: string) => void;
   onRetake: () => void;
   onConfirm: () => void;
+  activeFilterId: PhotoFilterId;
+  onSelectFilter: (id: PhotoFilterId) => void;
 }
 
 export const CameraReview = ({
@@ -34,11 +46,23 @@ export const CameraReview = ({
   onRemoveSticker,
   onRetake,
   onConfirm,
+  activeFilterId,
+  onSelectFilter,
 }: CameraReviewProps) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const photoRef = useRef<HTMLDivElement>(null);
   const { trashRef, draggingId, isOverTrash, handleDragStart, handleDragMove, handleDragEnd } =
     useTrashDragZone({ onMove: onMoveSticker, onRemove: onRemoveSticker });
+  const { activeId, stickerGestureProps } = useStickerGestures({
+    containerRef: photoRef,
+    stickers,
+    onDragStart: handleDragStart,
+    onDragMove: handleDragMove,
+    onDragEnd: handleDragEnd,
+    onScale: onScaleSticker,
+    onRotate: onRotateSticker,
+  });
 
   const handleSelectSticker = (stickerId: StickerId) => {
     onAddSticker(stickerId);
@@ -46,46 +70,117 @@ export const CameraReview = ({
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-white">
+    <div className="relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white">
       <div
         ref={photoRef}
-        className="absolute top-0 right-0 bottom-[124px] left-0 overflow-hidden rounded-[20px] bg-black"
+        {...stickerGestureProps}
+        className="relative mt-(--safe-top) aspect-3/4 w-full shrink-0 touch-none overflow-hidden rounded-[20px] bg-black"
       >
         <img
           src={imageUrl}
           alt="촬영된 사진"
+          style={{ filter: getFilterCss(activeFilterId) }}
           className="no-native-image h-full w-full object-cover"
         />
         {stickers.map((sticker) => (
           <PlacedStickerView
             key={sticker.id}
             sticker={sticker}
-            containerRef={photoRef}
-            onDragStart={handleDragStart}
-            onDragMove={handleDragMove}
-            onDragEnd={handleDragEnd}
-            onScale={onScaleSticker}
-            onRotate={onRotateSticker}
+            isActive={activeId === sticker.id}
           />
         ))}
 
         <button
           type="button"
           aria-label="재촬영"
+          data-sticker-control
           onClick={onRetake}
-          className="press-feedback absolute top-[calc(var(--safe-top)+20px)] left-5 z-10"
+          className="press-feedback absolute top-4 left-5 z-10"
         >
           <CancelIcon className="size-9" />
         </button>
+
+        <div
+          ref={trashRef}
+          aria-hidden={!draggingId}
+          className={cn(
+            'pointer-events-none absolute bottom-4 left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
+            draggingId ? 'opacity-100' : 'opacity-0',
+            isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
+          )}
+        >
+          <TrashIcon className="size-5 text-white" />
+        </div>
+      </div>
+
+      {isFilterOpen && (
+        <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5">
+          {PHOTO_FILTERS.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              aria-label={`${filter.label} 필터`}
+              aria-pressed={activeFilterId === filter.id}
+              onClick={() => onSelectFilter(filter.id)}
+              className="flex shrink-0 flex-col items-center gap-1"
+            >
+              <span
+                className={cn(
+                  'size-14 overflow-hidden rounded-lg border-2',
+                  activeFilterId === filter.id ? 'border-main-001' : 'border-transparent',
+                )}
+              >
+                <img
+                  src={imageUrl}
+                  alt=""
+                  style={{ filter: filter.css }}
+                  className="size-full object-cover"
+                />
+              </span>
+              <span
+                className={cn(
+                  'text-xs',
+                  activeFilterId === filter.id ? 'text-main-001' : 'text-gray-700',
+                )}
+              >
+                {filter.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-center gap-8">
         <button
           type="button"
           aria-label="스티커 추가"
           aria-pressed={isPickerOpen}
-          onClick={() => setIsPickerOpen((prev) => !prev)}
-          className="press-feedback absolute top-[calc(var(--safe-top)+20px)] right-5 z-10"
+          onClick={() => {
+            setIsFilterOpen(false);
+            setIsPickerOpen((prev) => !prev);
+          }}
+          className="press-feedback flex flex-col items-center gap-1 text-gray-700"
         >
           <StickerIcon className="size-9" />
+          <span className="text-xs">스티커</span>
         </button>
+        {CANVAS_FILTER_SUPPORTED && (
+          <button
+            type="button"
+            aria-label="필터"
+            aria-pressed={isFilterOpen}
+            onClick={() => {
+              setIsPickerOpen(false);
+              setIsFilterOpen((prev) => !prev);
+            }}
+            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+          >
+            <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
+              <FilterIcon className="size-5 text-white" aria-hidden="true" />
+            </span>
+            <span className="text-xs">필터</span>
+          </button>
+        )}
       </div>
 
       {!isPickerOpen && !draggingId && (
@@ -95,18 +190,6 @@ export const CameraReview = ({
           </Button>
         </div>
       )}
-
-      <div
-        ref={trashRef}
-        aria-hidden={!draggingId}
-        className={cn(
-          'pointer-events-none absolute bottom-[148px] left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
-          draggingId ? 'opacity-100' : 'opacity-0',
-          isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
-        )}
-      >
-        <TrashIcon className="size-5 text-white" />
-      </div>
 
       <StickerPicker
         open={isPickerOpen}

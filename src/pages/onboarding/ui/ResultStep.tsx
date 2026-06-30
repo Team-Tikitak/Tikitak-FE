@@ -55,12 +55,14 @@ export const ResultStep = ({
           aria-label={name}
           className="animate-bubble-pop h-[145px] w-[159px] [animation-delay:200ms] motion-reduce:animate-none"
         />
-        <div className="animate-card-enter flex items-center gap-[7px] rounded-[20px] border border-gray-200 bg-white px-4 py-1.5 [animation-delay:340ms] motion-reduce:animate-none">
-          <Icon aria-hidden="true" className="size-6" />
-          <span className="font-title text-[13.6px] leading-[21.343px] font-bold text-black">
-            {userName}
-          </span>
-        </div>
+        {userName ? (
+          <div className="animate-card-enter flex items-center gap-[7px] rounded-[20px] border border-gray-200 bg-white px-4 py-1.5 [animation-delay:340ms] motion-reduce:animate-none">
+            <Icon aria-hidden="true" className="size-6" />
+            <span className="font-title text-[13.6px] leading-[21.343px] font-bold text-black">
+              {userName}
+            </span>
+          </div>
+        ) : null}
       </section>
     </PageShell>
   );

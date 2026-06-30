@@ -76,4 +76,22 @@ describe('useActiveTeamSelection', () => {
 
     expect(patchActiveTeamMock).not.toHaveBeenCalled();
   });
+
+  it('useMe 또는 useGetTeams 중 하나라도 refetch 중이면 isFetching이 true다', () => {
+    useMeMock.mockReturnValue({ data: { activeTeamId: 1 } as MeResponse, isFetching: false });
+    useGetTeamsMock.mockReturnValue({ data: [makeTeam(1)], isFetching: true });
+
+    const { result } = renderHook(() => useActiveTeamSelection());
+
+    expect(result.current.isFetching).toBe(true);
+  });
+
+  it('둘 다 idle이면 isFetching이 false다', () => {
+    useMeMock.mockReturnValue({ data: { activeTeamId: 1 } as MeResponse, isFetching: false });
+    useGetTeamsMock.mockReturnValue({ data: [makeTeam(1)], isFetching: false });
+
+    const { result } = renderHook(() => useActiveTeamSelection());
+
+    expect(result.current.isFetching).toBe(false);
+  });
 });
