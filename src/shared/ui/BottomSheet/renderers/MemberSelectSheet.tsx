@@ -20,7 +20,6 @@ export interface MemberSelectSheetProps extends Omit<
   onConfirm?: (memberIds: string[]) => void;
   confirmLabel?: string;
   maxSelection?: number;
-  /** 항상 선택된 상태로 고정되어 토글할 수 없는 멤버 id (예: 본인) */
   lockedId?: string;
 }
 
