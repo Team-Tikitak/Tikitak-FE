@@ -38,7 +38,7 @@ export const TeamInvitePage = () => {
           readOnly
           aria-label="초대 링크"
           value={inviteUrl ?? ''}
-          className="body-1 ios-input-zoom-guard ios-input-zoom-guard-box w-53 truncate rounded-xs border border-gray-300 px-1 outline-none select-text [-webkit-touch-callout:default]"
+          className="body-1 ios-input-zoom-guard w-53 truncate rounded-xs border border-gray-300 px-1 outline-none select-text [-webkit-touch-callout:default]"
         />
         <button
           type="button"

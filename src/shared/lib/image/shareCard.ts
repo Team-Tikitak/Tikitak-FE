@@ -20,6 +20,7 @@ const CARD_HEIGHT = 1920;
 const PHOTO = { x: 100, y: 250, w: 880, h: 1180, radius: 38 };
 const META = { x: 120, y: 1488, w: 840, h: 172, radius: 34 };
 const MEDIA_CDN_BASE_URL = import.meta.env.VITE_MEDIA_CDN_BASE_URL ?? '';
+const IMAGE_FETCH_TIMEOUT_MS = 15_000;
 
 const buildImageUrlCandidates = (url: string): string[] => {
   const candidates: string[] = [];
@@ -48,11 +49,21 @@ const buildImageUrlCandidates = (url: string): string[] => {
 };
 
 // <img crossOrigin>은 일반 <img>로 캐시된 비-CORS 응답과 충돌 → fetch로 받아 same-origin objectURL로 로드
+const fetchWithTimeout = async (url: string): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+  try {
+    return await fetch(url, { mode: 'cors', signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+};
+
 const fetchImageBlob = async (url: string): Promise<Blob> => {
   let lastError: unknown;
   for (const candidateUrl of buildImageUrlCandidates(url)) {
     try {
-      const response = await fetch(candidateUrl, { mode: 'cors' });
+      const response = await fetchWithTimeout(candidateUrl);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.blob();
     } catch (error) {
@@ -241,22 +252,37 @@ export const generateFeedShareCard = async (data: FeedShareCardData): Promise<Bl
   ctx.fill();
   ctx.restore();
 
-  if (data.authorName) {
+  const metaPaddingX = 36;
+  const metaLeft = META.x + metaPaddingX;
+  const metaTopY = META.y + 58;
+  const metaTextWidth = META.w - metaPaddingX * 2;
+  let authorMaxWidth = metaTextWidth;
+
+  if (data.date) {
+    ctx.font = '500 30px SUIT, sans-serif';
+    authorMaxWidth = Math.max(0, metaTextWidth - ctx.measureText(data.date).width - 28);
+  }
+
+  if (data.authorName && authorMaxWidth > 0) {
     ctx.fillStyle = '#6B7280';
     ctx.font = '600 34px SUIT, sans-serif';
-    ctx.fillText(truncateToWidth(ctx, data.authorName, META.w - 64), META.x + 36, META.y + 58);
+    ctx.fillText(truncateToWidth(ctx, data.authorName, authorMaxWidth), metaLeft, metaTopY);
   }
 
   if (data.title) {
     ctx.fillStyle = '#111827';
     ctx.font = '700 64px SUIT, sans-serif';
-    ctx.fillText(truncateToWidth(ctx, data.title, META.w - 64), META.x + 36, META.y + 128);
+    ctx.fillText(truncateToWidth(ctx, data.title, metaTextWidth), metaLeft, META.y + 128);
   }
 
   if (data.date) {
     ctx.fillStyle = '#6B7280';
     ctx.font = '500 30px SUIT, sans-serif';
-    ctx.fillText(data.date, META.x + META.w - ctx.measureText(data.date).width - 36, META.y + 58);
+    ctx.fillText(
+      data.date,
+      META.x + META.w - ctx.measureText(data.date).width - metaPaddingX,
+      metaTopY,
+    );
   }
 
   ctx.save();

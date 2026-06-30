@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       svgr(),
       VitePWA({
-        disable: process.env.VITE_PWA_DISABLE === 'true',
+        disable: env.VITE_PWA_DISABLE === 'true',
         registerType: 'autoUpdate',
         includeAssets: [
           'favicon.ico',

@@ -38,7 +38,7 @@ export const useCreateTeam = () => {
         null,
       );
       if (created) {
-        await patchActiveTeamApi({ teamId: created.teamId }).catch(() => {});
+        await patchActiveTeamApi({ teamId: created.teamId });
       }
       invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: true });

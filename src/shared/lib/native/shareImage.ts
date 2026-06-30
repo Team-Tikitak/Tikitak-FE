@@ -33,6 +33,8 @@ export const shareImageBlob = async (blob: Blob, options: ShareImageOptions): Pr
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = options.fileName;
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 };
