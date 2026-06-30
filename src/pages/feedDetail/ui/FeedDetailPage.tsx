@@ -6,6 +6,7 @@ import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
 import ShareIcon from '@/shared/assets/Icon/ShareIcon.svg?react';
 import { useFeedData } from '@/shared/hooks/feed/useFeedData';
 import { useShareFeedCard } from '@/shared/hooks/feed/useShareFeedCard';
+import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
 import { Header, openConfirmDialog } from '@/shared/ui';
 import { ActiveMenu } from '@/shared/ui/ActiveMenu/ActiveMenu';
@@ -15,6 +16,7 @@ import { useFeedDetail } from '../hooks/useFeedDetail';
 const FEED_DETAIL_HINT_KEY = 'feed-detail-long-press-hint-seen';
 
 export const FeedDetailPage = () => {
+  useEdgeSwipeBack();
   const navigate = useNavigate();
   const { teamId, feedIdNum, placeName, isMine, feedType } = useFeedDetail();
   const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
