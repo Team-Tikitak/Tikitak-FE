@@ -28,8 +28,10 @@ type CommentInputFieldProps =
 const DEFAULT_PLACEHOLDER = '\uB313\uAE00\uC744 \uB0A8\uACA8\uBCF4\uC138\uC694.';
 const SUBMIT_ARIA_LABEL = '\uB313\uAE00 \uB4F1\uB85D';
 
-const inputClassName =
-  'body-1 h-12 min-w-0 rounded-max bg-gray-200 px-5 text-gray-700 placeholder:text-gray-700 outline-none transition-colors focus-within:bg-gray-100 focus-within:ring-2 focus-within:ring-main-001/40 disabled:cursor-not-allowed disabled:opacity-50';
+const inputFrameClassName =
+  'body-1 h-12 min-w-0 rounded-max bg-gray-200 text-gray-700 transition-colors focus-within:bg-gray-100 focus-within:ring-2 focus-within:ring-main-001/40';
+const inputControlClassName =
+  'h-full min-w-0 bg-transparent px-5 text-gray-700 placeholder:text-gray-700 outline-none disabled:cursor-not-allowed';
 const zoomGuardClassName = 'ios-input-zoom-guard ios-input-zoom-guard-box';
 
 export const CommentInputField = (props: CommentInputFieldProps) => {
@@ -43,21 +45,29 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
 
     return (
       <div
-        className={cn(inputClassName, 'flex w-full items-center gap-3 overflow-hidden', className)}
+        className={cn(
+          inputFrameClassName,
+          'flex w-full items-center gap-3 overflow-hidden px-5',
+          restInputProps.disabled && 'cursor-not-allowed opacity-50',
+          className,
+        )}
         {...containerProps}
       >
-        <input
-          ref={ref}
-          type="text"
-          placeholder={placeholder}
-          aria-label={restInputProps['aria-label'] ?? placeholder}
-          className={cn(
-            'min-w-0 flex-1 bg-transparent outline-none placeholder:text-gray-700',
-            zoomGuardClassName,
-            inputClassNameProp,
-          )}
-          {...restInputProps}
-        />
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <input
+            ref={ref}
+            type="text"
+            placeholder={placeholder}
+            aria-label={restInputProps['aria-label'] ?? placeholder}
+            className={cn(
+              inputControlClassName,
+              'w-full px-0 placeholder:text-gray-700',
+              zoomGuardClassName,
+              inputClassNameProp,
+            )}
+            {...restInputProps}
+          />
+        </div>
         <SearchIcon className="size-5 shrink-0 text-gray-700" aria-hidden="true" />
       </div>
     );
@@ -88,15 +98,23 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
 
     return (
       <div className={cn('flex w-full items-center gap-3', className)} {...containerProps}>
-        <input
-          ref={ref}
-          type="text"
-          disabled={inputDisabled}
-          placeholder={placeholder}
-          aria-label={restInputProps['aria-label'] ?? placeholder}
-          className={cn(inputClassName, 'w-auto flex-1', zoomGuardClassName, inputClassNameProp)}
-          {...restInputProps}
-        />
+        <div
+          className={cn(
+            inputFrameClassName,
+            'flex-1 overflow-hidden',
+            inputDisabled && 'cursor-not-allowed opacity-50',
+          )}
+        >
+          <input
+            ref={ref}
+            type="text"
+            disabled={inputDisabled}
+            placeholder={placeholder}
+            aria-label={restInputProps['aria-label'] ?? placeholder}
+            className={cn(inputControlClassName, 'w-full', zoomGuardClassName, inputClassNameProp)}
+            {...restInputProps}
+          />
+        </div>
         <button
           type="button"
           aria-label={submitAriaLabel ?? SUBMIT_ARIA_LABEL}
@@ -123,13 +141,22 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
   } = props;
 
   return (
-    <input
-      ref={ref}
-      type="text"
-      placeholder={placeholder}
-      aria-label={inputProps['aria-label'] ?? placeholder}
-      className={cn(inputClassName, 'w-full', zoomGuardClassName, className)}
-      {...inputProps}
-    />
+    <div
+      className={cn(
+        inputFrameClassName,
+        'w-full overflow-hidden',
+        inputProps.disabled && 'cursor-not-allowed opacity-50',
+        className,
+      )}
+    >
+      <input
+        ref={ref}
+        type="text"
+        placeholder={placeholder}
+        aria-label={inputProps['aria-label'] ?? placeholder}
+        className={cn(inputControlClassName, 'w-full', zoomGuardClassName)}
+        {...inputProps}
+      />
+    </div>
   );
 };
