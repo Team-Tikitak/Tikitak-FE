@@ -17,6 +17,8 @@ export const composePhotoWithStickers = async (
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Canvas 2D context unavailable');
 
+    context.imageSmoothingQuality = 'high';
+
     context.drawImage(photo, 0, 0);
 
     const baseStickerSize = photo.naturalWidth * STICKER_SIZE_RATIO;
@@ -47,7 +49,7 @@ export const composePhotoWithStickers = async (
           resolve(blob);
         },
         'image/jpeg',
-        0.9,
+        0.95,
       );
     });
   } finally {

@@ -7,18 +7,11 @@ import { type StickerId } from '@/shared/assets/Sticker/catalog';
 import { useStickerGestures } from '@/shared/hooks/camera/useStickerGestures';
 import { useTrashDragZone } from '@/shared/hooks/camera/useTrashDragZone';
 import { cn } from '@/shared/lib';
-import {
-  getFilterCss,
-  isCanvasFilterSupported,
-  PHOTO_FILTERS,
-  type PhotoFilterId,
-} from '@/shared/lib/image/photoFilter';
+import { getFilterCss, PHOTO_FILTERS, type PhotoFilterId } from '@/shared/lib/image/photoFilter';
 import { type PlacedSticker } from '@/shared/types/sticker';
 import { Button } from '@/shared/ui';
 import { PlacedStickerView } from './PlacedStickerView';
 import { StickerPicker } from './StickerPicker';
-
-const CANVAS_FILTER_SUPPORTED = isCanvasFilterSupported();
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -164,23 +157,21 @@ export const CameraReview = ({
           <StickerIcon className="size-9" />
           <span className="text-xs">스티커</span>
         </button>
-        {CANVAS_FILTER_SUPPORTED && (
-          <button
-            type="button"
-            aria-label="필터"
-            aria-pressed={isFilterOpen}
-            onClick={() => {
-              setIsPickerOpen(false);
-              setIsFilterOpen((prev) => !prev);
-            }}
-            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
-              <FilterIcon className="size-5 text-white" aria-hidden="true" />
-            </span>
-            <span className="text-xs">필터</span>
-          </button>
-        )}
+        <button
+          type="button"
+          aria-label="필터"
+          aria-pressed={isFilterOpen}
+          onClick={() => {
+            setIsPickerOpen(false);
+            setIsFilterOpen((prev) => !prev);
+          }}
+          className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
+            <FilterIcon className="size-5 text-white" aria-hidden="true" />
+          </span>
+          <span className="text-xs">필터</span>
+        </button>
       </div>
 
       {!isPickerOpen && !draggingId && (

@@ -33,13 +33,15 @@ export const TeamInvitePage = () => {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <input
-          type="text"
-          readOnly
-          aria-label="초대 링크"
-          value={inviteUrl ?? ''}
-          className="body-1 w-53 truncate rounded-xs border border-gray-300 px-1 outline-none select-text [-webkit-touch-callout:default]"
-        />
+        <div className="body-1 w-53 overflow-hidden rounded-xs border border-gray-300">
+          <input
+            type="text"
+            readOnly
+            aria-label="초대 링크"
+            value={inviteUrl ?? ''}
+            className="ios-input-zoom-guard ios-input-zoom-guard-box h-full w-full truncate bg-transparent px-1 outline-none select-text [-webkit-touch-callout:default]"
+          />
+        </div>
         <button
           type="button"
           aria-label="초대 링크 복사"

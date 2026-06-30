@@ -23,6 +23,8 @@ export const cropImageBlobToAspectRatio = async (
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Canvas 2D context unavailable');
 
+    context.imageSmoothingQuality = 'high';
+
     context.drawImage(
       image,
       rect.sourceX,
@@ -45,7 +47,7 @@ export const cropImageBlobToAspectRatio = async (
           resolve(blob);
         },
         'image/jpeg',
-        0.9,
+        0.95,
       );
     });
   } finally {

@@ -21,7 +21,7 @@ import { applyFilterToBlob } from '@/shared/lib/image/photoFilter';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 
-const CAPTURED_IMAGE_QUALITY = 0.9;
+const CAPTURED_IMAGE_QUALITY = 0.95;
 
 interface UseCameraCaptureOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -77,6 +77,8 @@ export const useCameraCapture = ({
     canvas.height = rect.sourceHeight;
     const context = canvas.getContext('2d');
     if (!context) return;
+
+    context.imageSmoothingQuality = 'high';
 
     if (mirror) {
       context.translate(rect.sourceWidth, 0);

@@ -32,7 +32,7 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
 
     navigator.mediaDevices
       .getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: { facingMode, width: { ideal: 2560 }, height: { ideal: 1440 } },
         audio: false,
       })
       .then((stream) => {
