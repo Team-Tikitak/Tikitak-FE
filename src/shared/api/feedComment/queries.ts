@@ -16,9 +16,11 @@ interface PostCommentVars {
 }
 
 interface PostCommentContext {
-  previous?: FeedCommentListResponse;
   tempId: number;
 }
+
+let tempIdSeed = 0;
+const nextTempId = () => --tempIdSeed;
 
 export const useGetFeedComments = (
   teamId: number,
@@ -40,11 +42,10 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
     meta: { errorMessage: '댓글 작성에 실패했어요' },
     mutationFn: ({ body }) => postFeedComment(teamId, feedId, body).then((res) => res.data.data),
 
-    onMutate: ({ body, optimisticAuthor }) => {
-      queryClient.cancelQueries({ queryKey });
+    onMutate: async ({ body, optimisticAuthor }) => {
+      await queryClient.cancelQueries({ queryKey });
 
-      const previous = queryClient.getQueryData<FeedCommentListResponse>(queryKey);
-      const tempId = -Date.now();
+      const tempId = nextTempId();
 
       const now = new Date().toISOString();
       const optimisticComment: FeedComment = {
@@ -65,11 +66,14 @@ export const usePostFeedComment = (teamId: number, feedId: number) => {
         old ? { ...old, items: [...old.items, optimisticComment] } : old,
       );
 
-      return { previous, tempId };
+      return { tempId };
     },
 
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      if (!context) return;
+      queryClient.setQueryData<FeedCommentListResponse>(queryKey, (old) =>
+        old ? { ...old, items: old.items.filter((c) => c.commentId !== context.tempId) } : old,
+      );
     },
 
     onSuccess: (newComment, _vars, context) => {
