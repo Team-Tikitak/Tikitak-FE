@@ -11,6 +11,7 @@ export * from './useFirstVisitHint';
 export * from './useImageFileInput';
 export * from './useInfiniteScroll';
 export * from './usePinComments';
+export * from './usePushNotificationDeepLink';
 export * from './usePushNotificationSync';
 export * from './useScrollRestore';
 export * from './useShareSubmit';
