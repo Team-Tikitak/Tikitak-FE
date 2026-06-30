@@ -22,7 +22,7 @@ export const FeedListItem = ({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-2">
           <div className="flex w-full flex-col gap-1">
-            <p className="font-pretendard line-clamp-2 w-full text-balance break-keep text-[14px] tracking-[-0.004em] text-gray-700">
+            <p className="font-pretendard line-clamp-2 w-full text-[14px] tracking-[-0.004em] text-balance break-keep text-gray-700">
               {item.location}
             </p>
             <p className="body-9 w-full truncate text-black">{item.title}</p>
