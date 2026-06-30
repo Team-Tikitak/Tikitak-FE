@@ -1,8 +1,8 @@
 import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
 import { useOAuthDeepLink } from '@/app/lib/useOAuthDeepLink';
+import { usePushNotificationDeepLink } from '@/app/lib/usePushNotificationDeepLink';
 import { PATHS } from '@/app/routes/paths';
-import { usePushNotificationDeepLink } from '@/shared/hooks/usePushNotificationDeepLink';
 import { usePushNotificationSync } from '@/shared/hooks/usePushNotificationSync';
 import { cn } from '@/shared/lib';
 import { GlobalBottomNavigation } from './GlobalBottomNavigation';

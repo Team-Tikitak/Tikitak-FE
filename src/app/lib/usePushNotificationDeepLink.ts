@@ -23,7 +23,7 @@ export const usePushNotificationDeepLink = () => {
 
       const targetTeamId = teamId != null ? Number(teamId) : null;
       if (targetTeamId && targetTeamId !== activeTeamId) {
-        patchActiveTeam(targetTeamId, { onSuccess: goToFeed });
+        patchActiveTeam(targetTeamId, { onSuccess: goToFeed, onError: goToFeed });
       } else {
         goToFeed();
       }
