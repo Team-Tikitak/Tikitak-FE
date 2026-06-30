@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
 import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import { Header, PageState } from '@/shared/ui';
@@ -14,6 +15,7 @@ interface PlaceFeedsLocationState {
 }
 
 export const PlaceDetailPage = () => {
+  useEdgeSwipeBack();
   const navigate = useNavigate();
   const {
     teamId,
