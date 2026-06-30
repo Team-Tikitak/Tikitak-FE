@@ -13,6 +13,7 @@ import {
 import { invalidateTeamMembershipQueries } from './invalidateTeamMembership';
 import { teamKeys } from './keys';
 import { unwrap } from '../request';
+import { patchActiveTeam as patchActiveTeamApi } from '../user/api';
 import { userKeys } from '../user/keys';
 import type {
   CreateTeamRequest,
@@ -28,7 +29,17 @@ export const useCreateTeam = () => {
   return useMutation({
     meta: { errorMessage: '팀 생성에 실패했어요' },
     mutationFn: (body: CreateTeamRequest) => unwrap(() => postTeam(body)),
-    onSuccess: () => {
+    // 생성 응답에 teamId가 없어 최신 teamId 팀을 활성으로 설정
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: userKeys.teams(), type: 'all' });
+      const teams = queryClient.getQueryData<Team[]>(userKeys.teams());
+      const created = teams?.reduce<Team | null>(
+        (latest, team) => (!latest || team.teamId > latest.teamId ? team : latest),
+        null,
+      );
+      if (created) {
+        await patchActiveTeamApi({ teamId: created.teamId }).catch(() => {});
+      }
       invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: true });
     },
