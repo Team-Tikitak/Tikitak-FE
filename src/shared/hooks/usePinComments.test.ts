@@ -114,7 +114,10 @@ describe('usePinComments', () => {
     act(() => result.current.addPinAt(42, 0, 30, 40));
     act(() => result.current.submitComment('하이'));
     expect(mockPostComment).toHaveBeenCalledWith(
-      expect.objectContaining({ content: '하이', feedImageId: 10 }),
+      expect.objectContaining({
+        body: expect.objectContaining({ content: '하이', feedImageId: 10 }),
+        optimisticAuthor: expect.objectContaining({ nickname: '나' }),
+      }),
     );
   });
 

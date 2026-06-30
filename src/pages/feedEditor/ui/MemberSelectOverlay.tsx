@@ -14,6 +14,7 @@ interface MemberSelectOverlayProps {
   teamMembers: TeamMember[];
   selectedMembers: TeamMember[];
   onConfirm: (members: TeamMember[]) => void;
+  myMemberId?: number | null;
 }
 
 export const MemberSelectOverlay = ({
@@ -23,6 +24,7 @@ export const MemberSelectOverlay = ({
   teamMembers,
   selectedMembers,
   onConfirm,
+  myMemberId,
 }: MemberSelectOverlayProps) => {
   const items: MemberSelectSheetItem[] = teamMembers.map((member) => ({
     id: String(member.teamMemberId),
@@ -42,6 +44,7 @@ export const MemberSelectOverlay = ({
       <MemberSelectSheet
         members={items}
         initialSelectedIds={initialSelectedIds}
+        lockedId={myMemberId != null ? String(myMemberId) : undefined}
         maxSelection={MAX_TAGGED_MEMBERS}
         onConfirm={(memberIds) => {
           const idSet = new Set(memberIds);
