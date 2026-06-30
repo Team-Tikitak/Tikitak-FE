@@ -20,6 +20,8 @@ export interface MemberSelectSheetProps extends Omit<
   onConfirm?: (memberIds: string[]) => void;
   confirmLabel?: string;
   maxSelection?: number;
+  /** 항상 선택된 상태로 고정되어 토글할 수 없는 멤버 id (예: 본인) */
+  lockedId?: string;
 }
 
 export function MemberSelectSheet({
@@ -28,14 +30,20 @@ export function MemberSelectSheet({
   onConfirm,
   confirmLabel = '완료',
   maxSelection,
+  lockedId,
   className,
   ...props
 }: MemberSelectSheetProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
+    lockedId != null && !initialSelectedIds.includes(lockedId)
+      ? [lockedId, ...initialSelectedIds]
+      : initialSelectedIds,
+  );
   const selectedSet = new Set(selectedIds);
   const atCap = typeof maxSelection === 'number' && selectedIds.length >= maxSelection;
 
   const toggle = (memberId: string) => {
+    if (memberId === lockedId) return;
     setSelectedIds((prev) => {
       if (prev.includes(memberId)) return prev.filter((id) => id !== memberId);
       if (typeof maxSelection === 'number' && prev.length >= maxSelection) return prev;
@@ -53,12 +61,13 @@ export function MemberSelectSheet({
       <div className="no-scrollbar flex h-[120px] w-full shrink-0 flex-wrap content-start gap-x-2 gap-y-3 overflow-y-auto">
         {members.map((member) => {
           const selected = selectedSet.has(member.id);
-          const disabled = atCap && !selected;
+          const locked = member.id === lockedId;
+          const disabled = locked || (atCap && !selected);
           return (
             <button
               key={member.id}
               type="button"
-              className="h-fit shrink-0 disabled:opacity-40"
+              className={cn('h-fit shrink-0', !locked && 'disabled:opacity-40')}
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => toggle(member.id)}
