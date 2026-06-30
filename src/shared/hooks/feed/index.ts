@@ -4,3 +4,4 @@
 
 export * from './useFeedData';
 export * from './useFeedForm';
+export * from './useShareFeedCard';
