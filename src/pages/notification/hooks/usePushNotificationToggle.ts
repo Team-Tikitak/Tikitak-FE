@@ -23,8 +23,6 @@ export const usePushNotificationToggle = () => {
   const { mutateAsync: registerToken } = useRegisterDeviceToken();
   const { mutateAsync: deleteToken } = useDeleteDeviceToken();
 
-  // 저장된 설정값 + 현재 OS 권한을 합쳐 실제 수신 상태로 초기화.
-  // 앱 밖에서 권한이 회수되면 저장값이 true여도 실제로는 꺼진 상태이므로 OFF로 표시.
   useEffect(() => {
     void (async () => {
       const stored = await readPushEnabled();

@@ -75,7 +75,6 @@ export const invalidateDeviceToken = async (): Promise<void> => {
   }
 };
 
-/** 권한 요청 프롬프트 없이 현재 OS 알림 권한이 허용 상태인지 확인. */
 export const isNotificationPermissionGranted = async (): Promise<boolean> => {
   if (!Capacitor.isNativePlatform()) return false;
   try {
