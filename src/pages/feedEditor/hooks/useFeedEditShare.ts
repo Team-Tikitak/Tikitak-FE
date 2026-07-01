@@ -5,6 +5,7 @@ import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
+import { alertDialog } from '@/shared/lib/native/nativeDialog';
 import type { CapturedPhoto } from '@/shared/types/photo';
 
 interface UseFeedEditShareParams {
@@ -15,6 +16,7 @@ interface UseFeedEditShareParams {
   newPhotos: CapturedPhoto[];
   selectedPlace: FeedPlace | null;
   selectedMembers: TeamMember[];
+  taggableMembers?: TeamMember[];
 }
 
 export const useFeedEditShare = ({
@@ -25,6 +27,7 @@ export const useFeedEditShare = ({
   newPhotos,
   selectedPlace,
   selectedMembers,
+  taggableMembers,
 }: UseFeedEditShareParams) => {
   const navigate = useNavigate();
   const patchFeedMutation = usePatchFeed(teamId, feedId);
@@ -32,6 +35,18 @@ export const useFeedEditShare = ({
 
   const share = () =>
     submit(async () => {
+      if (taggableMembers) {
+        const taggableMemberIds = new Set(taggableMembers.map((member) => member.teamMemberId));
+        const hasUntaggableMember = selectedMembers.some(
+          (member) => !taggableMemberIds.has(member.teamMemberId),
+        );
+
+        if (hasUntaggableMember) {
+          await alertDialog('탈퇴한 멤버는 태그할 수 없습니다');
+          return;
+        }
+      }
+
       const newMediaPublicIds =
         newPhotos.length > 0
           ? await uploadMediaBlobs({

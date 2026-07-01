@@ -59,6 +59,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormPr
     newPhotos: photos,
     selectedPlace,
     selectedMembers,
+    taggableMembers: teamMembersData?.members,
   });
 
   const handleBack = () => {
