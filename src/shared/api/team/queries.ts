@@ -109,9 +109,10 @@ export const useGetTeamDetail = (teamId: number | null | undefined) =>
     queryKey: teamKeys.detail(teamId ?? 0),
     queryFn: () => unwrap(() => getTeamDetail(teamId as number)),
     enabled: typeof teamId === 'number',
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    // 다른 기기에서 멤버가 합류해도 방장 캐시는 무효화되지 않으므로, 앱 포그라운드 복귀(focus) 시
+    // 항상 최신화하고, 재진입 시엔 30초 지났으면 갱신(전역 5분보다 짧게, 매 마운트 강제 재조회는 X).
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: 'always',
   });
 
 export const useTeamMembers = (teamId: number | null | undefined) =>
