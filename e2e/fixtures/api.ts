@@ -165,7 +165,7 @@ const FEED_LIST_ITEM = {
   createdAt: '2026-05-01T00:00:00.000Z',
 };
 
-// 활동 페이지 데이터 mock — daily(배너 숨김) + best-attendance + everyone-pick + regions + recommended-places
+// 활동 페이지 데이터 mock — daily(배너 숨김) + best-attendance + everyone-pick + regions
 export const mockActivityHome = async (page: Page, teamId: number): Promise<void> => {
   const base = `**/api/v1/teams/${teamId}`;
 
@@ -215,20 +215,6 @@ export const mockActivityHome = async (page: Page, teamId: number): Promise<void
         wrap({
           month: 5,
           regions: [{ region: '서울', feedCount: 4, thumbnailImageUrl: 'r.jpg' }],
-        }),
-      ),
-    ),
-  );
-
-  await page.route(`${base}/home/recommended-places`, async (route) =>
-    route.fulfill(
-      json(
-        wrap({
-          month: 5,
-          places: [
-            { name: '카페 마루', curation: '분위기 좋은 카페', imageUrl: 'c.jpg', kakaoMapUrl: '' },
-            { name: '한강공원', curation: '산책하기 좋은 곳', imageUrl: 'h.jpg', kakaoMapUrl: '' },
-          ],
         }),
       ),
     ),
