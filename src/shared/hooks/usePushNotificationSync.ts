@@ -1,10 +1,7 @@
 import { Capacitor } from '@capacitor/core';
-import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useRegisterDeviceToken } from '@/shared/api/notification/queries';
-import { unwrap } from '@/shared/api/request';
-import { getAgreements } from '@/shared/api/user/api';
-import { userKeys } from '@/shared/api/user/keys';
+import { useGetAgreements } from '@/shared/api/user/queries';
 import { storeDeviceToken } from '@/shared/lib/native/deviceTokenStorage';
 import {
   getDeviceToken,
@@ -22,11 +19,8 @@ export const usePushNotificationSync = () => {
 
   // 약관 화면을 건너뛰는(이미 동의한) 유저를 판별하기 위해 약관 동의 여부를 구독한다.
   // 로더가 채워둔 캐시를 공유하며, 값이 도착하면 아래 effect가 재실행된다.
-  const { data: agreements } = useQuery({
-    queryKey: userKeys.agreements(),
-    queryFn: () => unwrap(() => getAgreements()),
+  const { data: agreements } = useGetAgreements({
     enabled: isLoggedIn && Capacitor.isNativePlatform(),
-    staleTime: 5 * 60 * 1000,
   });
   const hasAgreedTerms = Boolean(agreements?.termsAgreed && agreements?.privacyAgreed);
 

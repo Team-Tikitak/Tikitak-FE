@@ -29,10 +29,11 @@ export const useMe = ({ enabled = true }: UseMeOptions = {}) =>
     staleTime: 5 * 60 * 1000,
   });
 
-export const useGetAgreements = () =>
+export const useGetAgreements = ({ enabled = true }: UseMeOptions = {}) =>
   useQuery({
     queryKey: userKeys.agreements(),
     queryFn: () => unwrap(() => getAgreements()),
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 
