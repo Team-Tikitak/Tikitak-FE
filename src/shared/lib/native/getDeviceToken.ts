@@ -75,6 +75,18 @@ export const invalidateDeviceToken = async (): Promise<void> => {
   }
 };
 
+/** 권한 요청 프롬프트 없이 현재 OS 알림 권한이 허용 상태인지 확인. */
+export const isNotificationPermissionGranted = async (): Promise<boolean> => {
+  if (!Capacitor.isNativePlatform()) return false;
+  try {
+    const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
+    const { receive } = await FirebaseMessaging.checkPermissions();
+    return receive === 'granted';
+  } catch {
+    return false;
+  }
+};
+
 export const getDeviceTokenIfGranted = async (): Promise<DeviceToken | null> => {
   const platform = resolvePlatform();
   if (!platform) return null;

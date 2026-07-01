@@ -7,7 +7,11 @@ import {
   storeDeviceToken,
   storePushEnabled,
 } from '@/shared/lib/native/deviceTokenStorage';
-import { getDeviceToken, invalidateDeviceToken } from '@/shared/lib/native/getDeviceToken';
+import {
+  getDeviceToken,
+  invalidateDeviceToken,
+  isNotificationPermissionGranted,
+} from '@/shared/lib/native/getDeviceToken';
 import { confirmDialog } from '@/shared/lib/native/nativeDialog';
 import { openAppSettings } from '@/shared/lib/native/openAppSettings';
 
@@ -19,9 +23,19 @@ export const usePushNotificationToggle = () => {
   const { mutateAsync: registerToken } = useRegisterDeviceToken();
   const { mutateAsync: deleteToken } = useDeleteDeviceToken();
 
+  // 저장된 설정값 + 현재 OS 권한을 합쳐 실제 수신 상태로 초기화.
+  // 앱 밖에서 권한이 회수되면 저장값이 true여도 실제로는 꺼진 상태이므로 OFF로 표시.
   useEffect(() => {
-    void readPushEnabled().then(setEnabled);
-  }, []);
+    void (async () => {
+      const stored = await readPushEnabled();
+      if (!supported) {
+        setEnabled(stored);
+        return;
+      }
+      const granted = await isNotificationPermissionGranted();
+      setEnabled(stored && granted);
+    })();
+  }, [supported]);
 
   const enable = async (): Promise<boolean> => {
     const result = await getDeviceToken();
