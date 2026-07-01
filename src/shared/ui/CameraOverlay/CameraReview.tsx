@@ -62,8 +62,15 @@ export const CameraReview = ({
     setIsPickerOpen(false);
   };
 
+  const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !draggingId;
+
   return (
-    <div className="relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white">
+    <div
+      className={cn(
+        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white',
+        shouldShowUploadButton && 'pb-[calc(112px+env(safe-area-inset-bottom))]',
+      )}
+    >
       <div
         ref={photoRef}
         {...stickerGestureProps}
@@ -174,8 +181,8 @@ export const CameraReview = ({
         </button>
       </div>
 
-      {!isPickerOpen && !draggingId && (
-        <div className="absolute right-5 bottom-14 left-5 z-10">
+      {shouldShowUploadButton && (
+        <div className="absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10">
           <Button variant="primary" disabled={isConfirming} onClick={onConfirm}>
             업로드
           </Button>

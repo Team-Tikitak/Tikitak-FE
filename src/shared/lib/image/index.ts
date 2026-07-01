@@ -10,5 +10,6 @@ export * from './loadImage';
 export * from './normalizeImageUrl';
 export * from './optimizeFeedImageBlob';
 export * from './photoFilter';
+export * from './readGalleryPhotoBlob';
 export * from './revokeObjectUrl';
 export * from './shareCard';
