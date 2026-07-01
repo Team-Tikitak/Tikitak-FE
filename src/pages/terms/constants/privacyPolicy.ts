@@ -245,11 +245,7 @@ export const PRIVACY_POLICY: LegalDoc = {
         },
         {
           type: 'list',
-          items: [
-            '담당: 티키탁 개인정보 보호팀',
-            '이메일:',
-            '처리 기간: 영업일 기준 3일 이내',
-          ],
+          items: ['담당: 티키탁 개인정보 보호팀', '이메일:', '처리 기간: 영업일 기준 3일 이내'],
         },
         {
           type: 'paragraph',

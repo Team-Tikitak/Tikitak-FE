@@ -195,7 +195,10 @@ export const TERMS_OF_SERVICE: LegalDoc = {
       id: 'service-9',
       heading: '제9조 이용자의 금지행위',
       blocks: [
-        { type: 'paragraph', text: '이용자는 서비스 이용과 관련하여 다음 행위를 해서는 안 됩니다.' },
+        {
+          type: 'paragraph',
+          text: '이용자는 서비스 이용과 관련하여 다음 행위를 해서는 안 됩니다.',
+        },
         {
           type: 'list',
           items: [
@@ -241,7 +244,10 @@ export const TERMS_OF_SERVICE: LegalDoc = {
       id: 'service-11',
       heading: '제11조 서비스의 중단 및 변경',
       blocks: [
-        { type: 'paragraph', text: '① 회사는 다음의 경우 서비스 제공을 일시적으로 중단할 수 있습니다.' },
+        {
+          type: 'paragraph',
+          text: '① 회사는 다음의 경우 서비스 제공을 일시적으로 중단할 수 있습니다.',
+        },
         {
           type: 'list',
           items: [

@@ -50,11 +50,15 @@ const BlockView = ({ block }: { block: LegalBlock }) => {
         {block.items.map((item) => {
           const isLink = typeof item !== 'string';
           return (
-            <li key={isLink ? item.text : item} className="flex gap-2 body-3 text-gray-700">
+            <li key={isLink ? item.text : item} className="body-3 flex gap-2 text-gray-700">
               <span aria-hidden className="shrink-0 text-gray-400">
                 ·
               </span>
-              {isLink ? <LinkListItem item={item} /> : <span className="min-w-0 flex-1">{item}</span>}
+              {isLink ? (
+                <LinkListItem item={item} />
+              ) : (
+                <span className="min-w-0 flex-1">{item}</span>
+              )}
             </li>
           );
         })}
@@ -62,7 +66,7 @@ const BlockView = ({ block }: { block: LegalBlock }) => {
     );
   }
   return (
-    <p className="body-3 whitespace-pre-line rounded-lg bg-gray-100 px-4 py-3 text-gray-600">
+    <p className="body-3 rounded-lg bg-gray-100 px-4 py-3 whitespace-pre-line text-gray-600">
       {block.text}
     </p>
   );
