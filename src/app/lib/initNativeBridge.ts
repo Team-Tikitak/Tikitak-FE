@@ -18,6 +18,6 @@ export const initNativeBridge = async (): Promise<void> => {
   applyNativeViewportMeta();
   disablePinchZoom();
   setupBackButton();
-  setupAppFocus();
+  void setupAppFocus();
   await setupKeyboardInsets(platform);
 };
