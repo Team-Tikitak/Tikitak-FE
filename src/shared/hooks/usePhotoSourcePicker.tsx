@@ -59,12 +59,16 @@ export const usePhotoSourcePicker = ({
     }
     for (const photo of photos.slice(0, remaining)) {
       if (!photo.webPath) continue;
-      const sourceBlob = await fetch(photo.webPath).then((response) => response.blob());
-      const blob = await optimizeFeedImageBlob(sourceBlob);
-      if (!isWithinSizeLimit(blob)) {
+      try {
+        const sourceBlob = await fetch(photo.webPath).then((response) => response.blob());
+        const blob = await optimizeFeedImageBlob(sourceBlob);
+        if (!isWithinSizeLimit(blob)) {
+          continue;
+        }
+        onAdd({ id: createId(), url: URL.createObjectURL(blob), blob });
+      } catch {
         continue;
       }
-      onAdd({ id: createId(), url: URL.createObjectURL(blob), blob });
     }
   };
 

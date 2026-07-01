@@ -66,11 +66,24 @@ export function FeedImageDetail({
     setFit(imageAspect > frameAspect ? 'contain' : 'cover');
   }, []);
 
-  const captureNatural = (image: HTMLImageElement) => {
-    if (!image.naturalWidth || !image.naturalHeight) return;
-    naturalRef.current = { width: image.naturalWidth, height: image.naturalHeight };
-    measureFit();
-  };
+  const captureNatural = useCallback(
+    (image: HTMLImageElement) => {
+      if (!image.naturalWidth || !image.naturalHeight) return;
+      naturalRef.current = { width: image.naturalWidth, height: image.naturalHeight };
+      measureFit();
+    },
+    [measureFit],
+  );
+
+  const assignImageRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      if (node?.complete && node.naturalWidth > 0) {
+        setLoaded(true);
+        captureNatural(node);
+      }
+    },
+    [captureNatural],
+  );
 
   const assignFigureRef = (node: HTMLElement | null) => {
     figureRef.current = node;
@@ -144,12 +157,7 @@ export function FeedImageDetail({
       )}
       {!previewOnly && (
         <img
-          ref={(node) => {
-            if (node?.complete && node.naturalWidth > 0) {
-              setLoaded(true);
-              captureNatural(node);
-            }
-          }}
+          ref={assignImageRef}
           src={src}
           alt={alt}
           loading={loading}

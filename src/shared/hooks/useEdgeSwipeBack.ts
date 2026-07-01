@@ -22,7 +22,7 @@ export const useEdgeSwipeBack = (onBack?: () => void) => {
       (window.history.state?.idx ?? 0) > 0;
 
     const triggerBack = () => {
-      if (triggered || !canNavigateBack()) return;
+      if (triggered) return;
       triggered = true;
       tracking = false;
       if (onBack) {
@@ -39,7 +39,7 @@ export const useEdgeSwipeBack = (onBack?: () => void) => {
     };
 
     const onDown = (e: PointerEvent) => {
-      tracking = e.pointerType === 'touch' && e.clientX <= EDGE_WIDTH_PX;
+      tracking = e.pointerType === 'touch' && e.clientX <= EDGE_WIDTH_PX && canNavigateBack();
       triggered = false;
       startX = e.clientX;
       startY = e.clientY;
