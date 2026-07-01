@@ -1,6 +1,7 @@
 @theme {
   --color-kakao-yellow: #ffe809;
   --color-invite-border: #dbdcdf;
+  --shadow-switch: 0px 2px 6px 0px #00000059;
   --font-sans: 'SUIT', sans-serif;
   --font-pretendard: 'Pretendard Variable', 'Pretendard', sans-serif;
 

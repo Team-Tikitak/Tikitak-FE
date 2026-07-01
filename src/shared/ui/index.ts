@@ -34,4 +34,5 @@ export * from './Picker';
 export * from './ProgressBar';
 export * from './Radio';
 export * from './Skeleton';
+export * from './Switch';
 export * from './UserChip';

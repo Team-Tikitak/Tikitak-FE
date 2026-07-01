@@ -15,6 +15,7 @@ export const HomePage = () => {
     openTeamSheet,
     isTeamsPending: isPending,
     isFetching,
+    toNotificationPage,
   } = useActiveTeamSelection();
 
   const hasTeams = me?.hasTeam ?? false;
@@ -24,7 +25,14 @@ export const HomePage = () => {
   if (isPending || (isFetching && !hasActiveTeam)) {
     return (
       <PageShell
-        header={<AppHeader teamName="" teamNameLoading onTeamSelect={openTeamSheet} />}
+        header={
+          <AppHeader
+            teamName=""
+            teamNameLoading
+            onTeamSelect={openTeamSheet}
+            onBellClick={toNotificationPage}
+          />
+        }
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
         <LoadingState
@@ -38,7 +46,13 @@ export const HomePage = () => {
   if (hasActiveTeam) {
     return (
       <PageShell
-        header={<AppHeader teamName={selectedTeam?.teamName ?? ''} onTeamSelect={openTeamSheet} />}
+        header={
+          <AppHeader
+            teamName={selectedTeam?.teamName ?? ''}
+            onTeamSelect={openTeamSheet}
+            onBellClick={toNotificationPage}
+          />
+        }
         contentClassName="flex flex-1 flex-col overflow-hidden"
       >
         <MapView teamId={selectedTeam.teamId} />

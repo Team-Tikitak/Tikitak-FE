@@ -75,6 +75,17 @@ export const invalidateDeviceToken = async (): Promise<void> => {
   }
 };
 
+export const isNotificationPermissionGranted = async (): Promise<boolean> => {
+  if (!Capacitor.isNativePlatform()) return false;
+  try {
+    const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
+    const { receive } = await FirebaseMessaging.checkPermissions();
+    return receive === 'granted';
+  } catch {
+    return false;
+  }
+};
+
 export const getDeviceTokenIfGranted = async (): Promise<DeviceToken | null> => {
   const platform = resolvePlatform();
   if (!platform) return null;

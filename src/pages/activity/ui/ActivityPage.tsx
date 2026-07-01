@@ -13,7 +13,8 @@ import { MonthlyMemories } from './MonthlyMemories';
 
 export const ActivityPage = () => {
   const navigate = useNavigate();
-  const { activeTeam, openTeamSheet, isMePending, isTeamsPending } = useActiveTeamSelection();
+  const { activeTeam, openTeamSheet, toNotificationPage, isMePending, isTeamsPending } =
+    useActiveTeamSelection();
   const { data: question, isPending: isQuestionPending } = useGetDailyQuestion(
     activeTeam?.teamId ?? 0,
   );
@@ -51,6 +52,7 @@ export const ActivityPage = () => {
           teamName={activeTeam?.teamName ?? ''}
           teamNameLoading={isHeaderLoading}
           onTeamSelect={openTeamSheet}
+          onBellClick={toNotificationPage}
         />
       }
       contentClassName="flex flex-col gap-9 bg-white pb-28"

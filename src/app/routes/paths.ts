@@ -23,6 +23,7 @@ export const PATHS = {
   DAILY_FEED_EDIT: '/feed/:feedId/edit/daily',
   PLACE_FEEDS: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',
+  NOTIFICATION: '/notification',
 } as const;
 
 export const toTermsDoc = (docType: LegalDocType) => `/terms/${docType}`;
