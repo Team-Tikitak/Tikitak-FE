@@ -61,7 +61,7 @@ export function CommentSheet({
   return (
     <BottomSheet
       title={COMMENT_TITLE}
-      className={cn('bottom-sheet-base flex flex-col', className)}
+      className={cn('comment-bottom-sheet-base flex flex-col', className)}
       contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >

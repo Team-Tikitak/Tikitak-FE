@@ -70,4 +70,19 @@ describe('FeedImageCarousel', () => {
 
     expect(screen.getByText('1/3')).toBeInTheDocument();
   });
+
+  it('fallback preview에서 실제 이미지로 바뀌어도 첫 이미지 figure를 remount하지 않는다', () => {
+    const { container, rerender } = render(
+      <FeedImageCarousel
+        images={[{ src: '/thumb.jpg', heroPreviewUrl: '/preview.jpg', previewOnly: true }]}
+      />,
+    );
+    const figure = container.querySelector('figure');
+
+    rerender(
+      <FeedImageCarousel images={[{ src: '/detail.jpg', heroPreviewUrl: '/preview.jpg' }]} />,
+    );
+
+    expect(container.querySelector('figure')).toBe(figure);
+  });
 });

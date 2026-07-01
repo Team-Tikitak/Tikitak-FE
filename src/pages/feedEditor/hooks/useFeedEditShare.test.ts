@@ -5,14 +5,21 @@ import type { TeamMember } from '@/shared/api/team/types';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { useFeedEditShare } from './useFeedEditShare';
 
-const { navigateMock, patchFeedMock, uploadMediaBlobsMock, deleteMediaMock, submitMock } =
-  vi.hoisted(() => ({
-    navigateMock: vi.fn(),
-    patchFeedMock: vi.fn(),
-    uploadMediaBlobsMock: vi.fn(),
-    deleteMediaMock: vi.fn(),
-    submitMock: vi.fn(),
-  }));
+const {
+  navigateMock,
+  patchFeedMock,
+  uploadMediaBlobsMock,
+  deleteMediaMock,
+  submitMock,
+  alertDialogMock,
+} = vi.hoisted(() => ({
+  navigateMock: vi.fn(),
+  patchFeedMock: vi.fn(),
+  uploadMediaBlobsMock: vi.fn(),
+  deleteMediaMock: vi.fn(),
+  submitMock: vi.fn(),
+  alertDialogMock: vi.fn(),
+}));
 
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
@@ -31,6 +38,9 @@ vi.mock('@/shared/hooks/useShareSubmit', () => ({
     submit: submitMock,
     isSharing: false,
   }),
+}));
+vi.mock('@/shared/lib/native/nativeDialog', () => ({
+  alertDialog: alertDialogMock,
 }));
 
 const makePhoto = (id: string): CapturedPhoto => ({ id, url: `blob:${id}`, blob: new Blob() });
@@ -51,6 +61,7 @@ const renderShare = (overrides: Partial<Parameters<typeof useFeedEditShare>[0]> 
       newPhotos: [],
       selectedPlace: null,
       selectedMembers: [],
+      taggableMembers: [],
       ...overrides,
     }),
   );
@@ -76,6 +87,7 @@ describe('useFeedEditShare', () => {
       newPhotos: [makePhoto('p-1'), makePhoto('p-2')],
       selectedPlace: makePlace(),
       selectedMembers: [makeMember(11), makeMember(22)],
+      taggableMembers: [makeMember(11), makeMember(22)],
     });
 
     await act(async () => {
@@ -126,5 +138,22 @@ describe('useFeedEditShare', () => {
       expect.objectContaining({ mediaPublicIds: ['old-1'] }),
     );
     expect(navigateMock).toHaveBeenCalledWith(-1);
+  });
+
+  it('현재 태그할 수 없는 멤버가 선택되어 있으면 네이티브 다이얼로그를 띄우고 수정하지 않는다', async () => {
+    const { result } = renderShare({
+      selectedMembers: [makeMember(11), makeMember(99)],
+      taggableMembers: [makeMember(11)],
+      newPhotos: [makePhoto('p-1')],
+    });
+
+    await act(async () => {
+      await result.current.share();
+    });
+
+    expect(alertDialogMock).toHaveBeenCalledWith('탈퇴한 멤버는 태그할 수 없습니다');
+    expect(uploadMediaBlobsMock).not.toHaveBeenCalled();
+    expect(patchFeedMock).not.toHaveBeenCalled();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 });

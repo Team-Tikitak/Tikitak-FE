@@ -92,7 +92,7 @@ export const FeedPage = () => {
               <li key={feed.id} className="flex flex-col gap-5">
                 <Link
                   to={toFeedDetail(feed.id)}
-                  state={{ thumbnailUrl: feed.thumbnailUrl }}
+                  state={{ thumbnailUrl: feed.thumbnailUrl, heroPreviewUrl: feed.heroPreviewUrl }}
                   className="block"
                 >
                   <FeedListItem item={feed} eager={index < FEED_LIST_EAGER_COUNT} />

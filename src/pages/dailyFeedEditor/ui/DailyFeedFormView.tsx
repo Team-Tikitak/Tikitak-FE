@@ -1,4 +1,5 @@
 import { PageShell } from '@/app/layout';
+import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { Button, DailyQuestion, Header } from '@/shared/ui';
 import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import type { ReactNode } from 'react';
@@ -38,20 +39,24 @@ export const DailyFeedFormView = ({
   loadingState = null,
   footer = null,
 }: DailyFeedFormViewProps) => {
+  const isKeyboardVisible = useKeyboardVisible();
+
   return (
     <PageShell
       header={<Header title={title} onBack={onBack} />}
       contentClassName="flex flex-col overflow-hidden"
       bottomClassName="px-5 pt-3 pb-[calc(24px+env(safe-area-inset-bottom))]"
       bottom={
-        <Button
-          variant="primary"
-          disabled={submitDisabled}
-          onClick={onSubmit}
-          className="disabled:bg-gray-300 disabled:text-gray-400"
-        >
-          {submitLabel}
-        </Button>
+        isKeyboardVisible ? null : (
+          <Button
+            variant="primary"
+            disabled={submitDisabled}
+            onClick={onSubmit}
+            className="disabled:bg-gray-300 disabled:text-gray-400"
+          >
+            {submitLabel}
+          </Button>
+        )
       }
     >
       <DailyQuestion question={questionText} />

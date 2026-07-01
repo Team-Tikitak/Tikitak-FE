@@ -52,7 +52,7 @@ export const MyPage = () => {
   return (
     <PageShell
       header={<Header title="마이페이지" variant="left" rightIcon={null} />}
-      contentClassName="no-scrollbar flex flex-col gap-8 px-5 pt-7 pb-28"
+      contentClassName="no-scrollbar flex flex-col gap-8 overflow-y-auto px-5 pt-7 pb-28 [&>*]:shrink-0"
     >
       {isTeamsPending ? (
         <MyPageSkeleton />

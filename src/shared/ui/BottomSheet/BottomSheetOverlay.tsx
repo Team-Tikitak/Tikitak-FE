@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
+import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { cn } from '@/shared/lib';
 import { setKeyboardResizeMode } from '@/shared/lib/native/keyboardResize';
 import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
@@ -41,6 +42,7 @@ export function BottomSheetOverlay({
   const [activeSnapPoint, setActiveSnapPoint] = useState<BottomSheetSnapPoint | null>(
     defaultSnapPoint ?? snapPoints?.[0] ?? null,
   );
+  const keyboardVisible = useKeyboardVisible();
   const dimmedRef = useRef(false);
 
   // 열림과 동시에 status bar dim, 닫힘 애니메이션 종료/언마운트 시 복원 → 오버레이와 동기화
@@ -91,6 +93,7 @@ export function BottomSheetOverlay({
       <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50" />
       <Drawer.Content
         {...(ariaDescription ? {} : { 'aria-describedby': undefined })}
+        data-keyboard-visible={avoidKeyboard && keyboardVisible ? 'true' : undefined}
         onPointerDownOutside={(event) => {
           const target = event.target as Element;
           if (target.closest('[data-active-menu]')) {
@@ -110,6 +113,12 @@ export function BottomSheetOverlay({
           className,
         )}
       >
+        {avoidKeyboard ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-full h-(--keyboard-height) bg-white"
+          />
+        ) : null}
         <Drawer.Title className="sr-only">{ariaTitle}</Drawer.Title>
         {ariaDescription ? (
           <Drawer.Description className="sr-only">{ariaDescription}</Drawer.Description>

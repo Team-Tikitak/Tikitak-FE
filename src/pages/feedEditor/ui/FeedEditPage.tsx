@@ -42,7 +42,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormPr
   });
   const { content, photos, selectedPlace, selectedMembers, removePhoto } = form;
 
-  const { data: teamMembersData } = useTeamMembers(teamId);
+  const { data: teamMembersData, isLoading: isTeamMembersLoading } = useTeamMembers(teamId);
   const teamMembers = teamMembersData?.members ?? [];
 
   const snapshotRef = useRef({
@@ -59,6 +59,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormPr
     newPhotos: photos,
     selectedPlace,
     selectedMembers,
+    taggableMembers: teamMembers,
   });
 
   const handleBack = () => {
@@ -95,7 +96,7 @@ const FeedEditForm = ({ teamId, feedId, feedDetail, myMemberId }: FeedEditFormPr
     <FeedFormView
       title="글 수정"
       submitLabel="수정하기"
-      submitDisabled={keptImages.length + photos.length === 0 || isSharing}
+      submitDisabled={keptImages.length + photos.length === 0 || isSharing || isTeamMembersLoading}
       onBack={handleBack}
       onSubmit={share}
       form={form}

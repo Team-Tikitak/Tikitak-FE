@@ -56,8 +56,8 @@ export const useCreateFeed = (teamId: number) => {
 
   return useMutation({
     mutationFn: (body: FeedRequest) => unwrap(() => postFeed(teamId, body)),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: feedKeys.list(teamId), type: 'all' });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
       queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
     },
   });
