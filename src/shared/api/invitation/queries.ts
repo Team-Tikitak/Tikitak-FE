@@ -40,7 +40,8 @@ export const useAcceptInvitation = () => {
   const navigate = useNavigate();
 
   return useMutation({
-    meta: { errorMessage: '초대 수락에 실패했어요' },
+    // 강퇴당한 팀 재참여 불가 등 서버가 구체적 사유를 내려주므로 서버 메시지를 우선 노출
+    meta: { errorMessage: '팀 참여에 실패했어요', useServerMessage: true },
     mutationFn: postAcceptInvitation,
     onSuccess: () => {
       invalidateTeamMembershipQueries(queryClient);

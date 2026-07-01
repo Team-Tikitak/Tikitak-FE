@@ -1,12 +1,31 @@
-import { BottomSheet } from '@/shared/ui/BottomSheet';
+import { cn } from '@/shared/lib';
+import { type BottomSheetProps, BottomSheet } from '@/shared/ui/BottomSheet';
 import { Switch } from '@/shared/ui/Switch';
-import { usePushNotificationToggle } from '../hooks/usePushNotificationToggle';
 
-export const NotificationSettingsSheet = () => {
-  const { supported, enabled, pending, toggle } = usePushNotificationToggle();
+export interface NotificationSettingsSheetProps extends Omit<
+  BottomSheetProps,
+  'children' | 'title'
+> {
+  supported: boolean;
+  enabled: boolean | null;
+  pending: boolean;
+  onToggle: () => void;
+}
 
+export function NotificationSettingsSheet({
+  supported,
+  enabled,
+  pending,
+  onToggle,
+  contentClassName,
+  ...props
+}: NotificationSettingsSheetProps) {
   return (
-    <BottomSheet title="알림 설정" contentClassName="pb-[calc(24px+env(safe-area-inset-bottom))]">
+    <BottomSheet
+      title="알림 설정"
+      contentClassName={cn('pb-[calc(24px+env(safe-area-inset-bottom))]', contentClassName)}
+      {...props}
+    >
       <div className="flex items-center justify-between py-2">
         <div className="flex flex-col gap-1">
           <p className="body-8 text-black">푸시 알림</p>
@@ -19,10 +38,10 @@ export const NotificationSettingsSheet = () => {
         <Switch
           checked={supported ? (enabled ?? false) : false}
           disabled={!supported || enabled === null || pending}
-          onCheckedChange={() => void toggle()}
+          onCheckedChange={onToggle}
           aria-label="푸시 알림"
         />
       </div>
     </BottomSheet>
   );
-};
+}

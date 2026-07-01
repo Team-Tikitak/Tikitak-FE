@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes';
 import { useHomeEveryonePick, useHomeRegions } from '@/shared/api/home/queries';
+import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
 import { normalizeImageUrl } from '@/shared/lib';
 import { ContentImageCard } from './ContentImageCard';
 
@@ -16,15 +17,30 @@ export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
   const isPending = isPickPending || isRegionsPending;
   const firstPick = pickData?.picks[0];
   const firstRegion = regionsData?.regions[0];
+  const month = pickData?.month ?? regionsData?.month;
 
-  if (!isPending && !firstPick && !firstRegion) return null;
+  if (!isPending && !firstPick && !firstRegion) {
+    return (
+      <section className="flex w-full flex-col gap-[18px]">
+        {month != null && <h2 className="body-2 text-black">{month}월 추억</h2>}
+        <div className="flex h-[204px] w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 px-6">
+          <TakBuilder className="w-[72px]" aria-hidden="true" />
+          <p className="body-10 text-center text-gray-600">
+            아직 이번 달의 추억이 없어요.
+            <br />
+            사진에 댓글을 남겨서 모두의 Pick을 채워주세요.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
       {isPending ? (
         <div className="h-[22px] w-24 animate-pulse rounded bg-gray-200" />
       ) : (
-        <h2 className="body-2 text-black">{pickData?.month ?? regionsData?.month}월 추억</h2>
+        <h2 className="body-2 text-black">{month}월 추억</h2>
       )}
       <div className="grid w-full grid-cols-2 gap-4">
         {isPending ? (

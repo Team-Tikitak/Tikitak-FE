@@ -1,6 +1,6 @@
 import { openOverlay } from '@/shared/lib';
 import { BottomSheetOverlay } from '@/shared/ui/BottomSheet';
-import { NotificationSettingsSheet } from '../ui/NotificationSettingsSheet';
+import { NotificationSettingsSheetContainer } from '../ui/NotificationSettingsSheetContainer';
 
 export const useNotificationSettingsSheet = () => {
   const openSheet = () => {
@@ -12,7 +12,7 @@ export const useNotificationSettingsSheet = () => {
         ariaTitle="알림 설정"
         ariaDescription="푸시 알림 수신 여부를 설정하세요"
       >
-        <NotificationSettingsSheet />
+        <NotificationSettingsSheetContainer />
       </BottomSheetOverlay>
     ));
   };
