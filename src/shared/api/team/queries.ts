@@ -97,10 +97,8 @@ export const useDeleteTeamMember = () => {
     meta: { errorMessage: '멤버 내보내기에 실패했어요' },
     mutationFn: (variables: DeleteTeamMemberVariables) => deleteTeamMember(variables),
     onSuccess: (_, { teamId }) => {
-      // 팀 상세 화면 멤버 목록은 detail 쿼리(teamMembers)에서 읽으므로 detail도 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
-      // 마이페이지 팀 카드의 인원 수(memberCount)는 teams 목록에서 읽으므로 함께 무효화한다.
       queryClient.invalidateQueries({ queryKey: userKeys.teams() });
     },
   });
