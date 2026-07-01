@@ -45,15 +45,24 @@ export const FeedDetailContent = ({
     feedId,
   );
   const routeState = useLocation().state as FeedDetailLocationState | null;
-  const rawFallbackThumbnail =
-    placeholderThumbnail ?? routeState?.heroPreviewUrl ?? routeState?.thumbnailUrl;
-  const fallbackThumbnail = normalizeImageUrl(rawFallbackThumbnail);
+  const fallbackHeroPreview = normalizeImageUrl(routeState?.heroPreviewUrl ?? placeholderThumbnail);
+  const fallbackThumbnail = normalizeImageUrl(
+    routeState?.thumbnailUrl ?? placeholderThumbnail ?? routeState?.heroPreviewUrl,
+  );
   const isFallback = images.length === 0;
   const renderedImages = !isFallback
     ? images
-    : fallbackThumbnail
-      ? [{ src: fallbackThumbnail }]
-      : [];
+    : fallbackHeroPreview
+      ? [
+          {
+            src: fallbackThumbnail ?? fallbackHeroPreview,
+            heroPreviewUrl: fallbackHeroPreview,
+            previewOnly: true,
+          },
+        ]
+      : fallbackThumbnail
+        ? [{ src: fallbackThumbnail }]
+        : [];
   const {
     openPinKey,
     displayPinKey,
