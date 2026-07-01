@@ -61,6 +61,7 @@ const renderShare = (overrides: Partial<Parameters<typeof useFeedEditShare>[0]> 
       newPhotos: [],
       selectedPlace: null,
       selectedMembers: [],
+      taggableMembers: [],
       ...overrides,
     }),
   );
@@ -86,6 +87,7 @@ describe('useFeedEditShare', () => {
       newPhotos: [makePhoto('p-1'), makePhoto('p-2')],
       selectedPlace: makePlace(),
       selectedMembers: [makeMember(11), makeMember(22)],
+      taggableMembers: [makeMember(11), makeMember(22)],
     });
 
     await act(async () => {

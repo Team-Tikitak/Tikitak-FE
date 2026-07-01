@@ -16,7 +16,7 @@ interface UseFeedEditShareParams {
   newPhotos: CapturedPhoto[];
   selectedPlace: FeedPlace | null;
   selectedMembers: TeamMember[];
-  taggableMembers?: TeamMember[];
+  taggableMembers: TeamMember[];
 }
 
 export const useFeedEditShare = ({
@@ -35,16 +35,14 @@ export const useFeedEditShare = ({
 
   const share = () =>
     submit(async () => {
-      if (taggableMembers) {
-        const taggableMemberIds = new Set(taggableMembers.map((member) => member.teamMemberId));
-        const hasUntaggableMember = selectedMembers.some(
-          (member) => !taggableMemberIds.has(member.teamMemberId),
-        );
+      const taggableMemberIds = new Set(taggableMembers.map((member) => member.teamMemberId));
+      const hasUntaggableMember = selectedMembers.some(
+        (member) => !taggableMemberIds.has(member.teamMemberId),
+      );
 
-        if (hasUntaggableMember) {
-          await alertDialog('탈퇴한 멤버는 태그할 수 없습니다');
-          return;
-        }
+      if (hasUntaggableMember) {
+        await alertDialog('탈퇴한 멤버는 태그할 수 없습니다');
+        return;
       }
 
       const newMediaPublicIds =
