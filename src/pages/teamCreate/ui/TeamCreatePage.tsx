@@ -1,13 +1,20 @@
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { MAX_TEAM_DESCRIPTION_LENGTH, MAX_TEAM_NAME_LENGTH } from '@/shared/constants/team';
+import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamCreateForm } from '../hooks/useTeamCreateForm';
+import type { TeamDraft } from '../model/types';
 
 export const TeamCreatePage = () => {
+  useEdgeSwipeBack();
+  const location = useLocation();
   const navigate = useNavigate();
-  const { name, setName, description, setDescription, isDisabled, draft } = useTeamCreateForm();
+  const initialDraft = location.state as Partial<TeamDraft> | null;
+  const { name, setName, description, setDescription, isDisabled, draft } = useTeamCreateForm(
+    initialDraft ?? undefined,
+  );
 
   return (
     <PageShell
