@@ -1,5 +1,4 @@
 export const HOME_ENDPOINTS = {
-  RECOMMENDED_PLACE: (teamId: number) => `/api/v1/teams/${teamId}/home/recommended-places`,
   REGIONS: (teamId: number) => `/api/v1/teams/${teamId}/home/regions`,
   EVERYONE_PICK: (teamId: number) => `/api/v1/teams/${teamId}/home/everyone-pick`,
   COMBINATIONS: (teamId: number) => `/api/v1/teams/${teamId}/home/combinations`,
