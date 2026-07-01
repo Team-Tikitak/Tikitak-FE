@@ -4,4 +4,5 @@
 
 export * from './PermissionItem';
 export * from './TermsCheckRow';
+export * from './TermsDetailPage';
 export * from './TermsPage';

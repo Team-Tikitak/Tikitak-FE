@@ -24,6 +24,7 @@ const ssgoiConfig: SsgoiConfig = {
 
     // Auth flow
     ...slide({ paths: [PATHS.LOGIN, PATHS.TERMS] }),
+    ...slide({ paths: [PATHS.TERMS, '/terms/*'] }),
     ...slide({ paths: [PATHS.TERMS, PATHS.ONBOARDING] }),
     ...slide({ paths: [PATHS.ONBOARDING, PATHS.HOME] }),
     ...slide({ paths: [PATHS.AUTH_CALLBACK, PATHS.TERMS] }),
