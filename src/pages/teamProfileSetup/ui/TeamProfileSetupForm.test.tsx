@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { TeamProfileSetupForm } from './TeamProfileSetupForm';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
