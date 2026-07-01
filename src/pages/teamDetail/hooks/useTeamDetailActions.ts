@@ -50,7 +50,7 @@ export const useTeamDetailActions = ({
     if (isNativeDialogPlatform()) {
       const confirmed = await confirmDialog({
         title: `${member.nickname} 님을 내보내시겠어요?`,
-        message: '내보낸 멤버는 다시 초대해야 합류할 수 있어요.',
+        message: '팀에서 내보낸 멤버는 다시 입장할 수 없어요.',
         okButtonTitle: '내보내기',
         cancelButtonTitle: '취소',
       });
@@ -64,7 +64,7 @@ export const useTeamDetailActions = ({
     }
     openConfirmDialog({
       title: `${member.nickname} 님을 내보내시겠어요?`,
-      description: '내보낸 멤버는 다시 초대해야 합류할 수 있어요.',
+      description: '팀에서 내보낸 멤버는 다시 입장할 수 없어요.',
       confirmLabel: '내보내기',
       destructive: true,
       onConfirm: () =>
