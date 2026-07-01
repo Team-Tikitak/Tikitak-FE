@@ -1,7 +1,9 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
+import { switchVariants } from './Switch.variant';
 
-export interface SwitchProps extends Omit<ComponentPropsWithRef<'button'>, 'onChange' | 'type'> {
+export interface SwitchProps
+  extends Omit<ComponentPropsWithRef<'button'>, 'onChange' | 'type' | 'onClick'> {
   checked: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }
@@ -13,27 +15,21 @@ export const Switch = ({
   className,
   ref,
   ...props
-}: SwitchProps) => (
-  <button
-    ref={ref}
-    type="button"
-    role="switch"
-    aria-checked={checked}
-    disabled={disabled}
-    onClick={() => onCheckedChange?.(!checked)}
-    className={cn(
-      'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out',
-      checked ? 'bg-main-001' : 'bg-gray-300',
-      disabled && 'opacity-50',
-      className,
-    )}
-    {...props}
-  >
-    <span
-      className={cn(
-        'shadow-switch inline-block size-[22px] rounded-full bg-white transition-transform duration-200 ease-out',
-        checked ? 'translate-x-[23px]' : 'translate-x-[3px]',
-      )}
-    />
-  </button>
-);
+}: SwitchProps) => {
+  const { track, thumb } = switchVariants({ checked, disabled });
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onCheckedChange?.(!checked)}
+      className={cn(track(), className)}
+      {...props}
+    >
+      <span className={thumb()} />
+    </button>
+  );
+};
