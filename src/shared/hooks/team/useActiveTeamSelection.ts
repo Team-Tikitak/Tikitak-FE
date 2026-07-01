@@ -35,6 +35,10 @@ export const useActiveTeamSelection = () => {
     onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
   });
 
+  const toNotificationPage = () => {
+    navigate(PATHS.NOTIFICATION);
+  };
+
   return {
     me,
     teams: teamItems,
@@ -43,5 +47,6 @@ export const useActiveTeamSelection = () => {
     isMePending,
     isTeamsPending,
     isFetching: isMeFetching || isTeamsFetching,
+    toNotificationPage,
   };
 };
