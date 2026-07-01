@@ -1,6 +1,6 @@
 import { MemoryRouter } from 'react-router';
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg';
-import { NotificationItem } from './notificationItem';
+import { NotificationItem } from './NotificationItem';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const minutesAgo = (n: number) => new Date(Date.now() - n * 60 * 1000).toISOString();

@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import SettingIcon from '@/shared/assets/Icon/SettingIcon.svg?react';
 import { Header } from '@/shared/ui';
-import { EmptyNotificationView } from './emptyNotificationView';
-import { NotificationItem } from './notificationItem';
-import { NotificationSkeleton } from './notificationSkeleton';
+import { EmptyNotificationView } from './EmptyNotificationView';
+import { NotificationItem } from './NotificationItem';
+import { NotificationSkeleton } from './NotificationSkeleton';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotificationSettingsSheet } from '../hooks/useNotificationSettingsSheet';
 

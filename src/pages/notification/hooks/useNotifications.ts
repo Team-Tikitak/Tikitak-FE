@@ -1,4 +1,4 @@
-import type { NotificationType } from '../ui/notificationItem';
+import type { NotificationType } from '../ui/NotificationItem';
 
 export interface NotificationListItem {
   id: number;
