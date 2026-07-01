@@ -34,13 +34,13 @@ jobs:
       VISUAL: '1'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: yarn
@@ -63,7 +63,7 @@ jobs:
       # 생성·갱신된 baseline PNG를 아티팩트로 노출 → 웹에서 받아 레포에 커밋(시딩/갱신).
       - name: Upload baselines
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vrt-baselines
           path: e2e/**/*-snapshots/**
@@ -73,7 +73,7 @@ jobs:
       # 회귀 실패 시 diff 확인용 리포트(-actual/-diff 포함).
       - name: Upload report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vrt-report
           path: playwright-report/
