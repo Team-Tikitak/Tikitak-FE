@@ -2,8 +2,10 @@ import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
 import { switchVariants } from './Switch.variant';
 
-export interface SwitchProps
-  extends Omit<ComponentPropsWithRef<'button'>, 'onChange' | 'type' | 'onClick'> {
+export interface SwitchProps extends Omit<
+  ComponentPropsWithRef<'button'>,
+  'onChange' | 'type' | 'onClick'
+> {
   checked: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }

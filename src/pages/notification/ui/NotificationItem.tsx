@@ -7,8 +7,10 @@ import { toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
 
 export type NotificationType = 'comment' | 'dailyFeed';
 
-export interface NotificationItemProps
-  extends Omit<ComponentPropsWithRef<typeof Link>, 'to' | 'state'> {
+export interface NotificationItemProps extends Omit<
+  ComponentPropsWithRef<typeof Link>,
+  'to' | 'state'
+> {
   type: NotificationType;
   actorName: string;
   targetName?: string;
