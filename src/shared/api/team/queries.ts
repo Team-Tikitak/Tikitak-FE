@@ -109,6 +109,9 @@ export const useGetTeamDetail = (teamId: number | null | undefined) =>
     queryKey: teamKeys.detail(teamId ?? 0),
     queryFn: () => unwrap(() => getTeamDetail(teamId as number)),
     enabled: typeof teamId === 'number',
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
 export const useTeamMembers = (teamId: number | null | undefined) =>

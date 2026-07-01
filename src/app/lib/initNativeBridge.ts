@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { setupAppFocus } from './native/appFocus';
 import { setupBackButton } from './native/backButton';
 import { disablePinchZoom } from './native/disablePinchZoom';
 import { setupKeyboardInsets } from './native/keyboardInsets';
@@ -17,5 +18,6 @@ export const initNativeBridge = async (): Promise<void> => {
   applyNativeViewportMeta();
   disablePinchZoom();
   setupBackButton();
+  setupAppFocus();
   await setupKeyboardInsets(platform);
 };
