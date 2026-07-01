@@ -38,8 +38,9 @@ export const CameraView = ({
         playsInline
         muted
         className={cn(
-          'absolute inset-0 h-full w-full object-cover',
+          'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
           mirrored ? '-scale-x-[1.01] scale-y-[1.01]' : 'scale-[1.01]',
+          isReady ? 'opacity-100' : 'opacity-0',
         )}
       />
 

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CAMERA_REVIEW_IMAGE_HEIGHT, CAMERA_REVIEW_IMAGE_WIDTH } from '@/shared/constants';
 
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
 export type CameraFacingMode = 'user' | 'environment';
+
+const CAMERA_PREVIEW_ASPECT_RATIO = CAMERA_REVIEW_IMAGE_WIDTH / CAMERA_REVIEW_IMAGE_HEIGHT;
 
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
@@ -32,7 +35,12 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
 
     navigator.mediaDevices
       .getUserMedia({
-        video: { facingMode, width: { ideal: 2560 }, height: { ideal: 1440 } },
+        video: {
+          facingMode,
+          width: { ideal: 1440 },
+          height: { ideal: 2560 },
+          aspectRatio: { ideal: CAMERA_PREVIEW_ASPECT_RATIO },
+        },
         audio: false,
       })
       .then((stream) => {
@@ -46,17 +54,26 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
         if (!video) return;
 
         video.srcObject = stream;
-        void video.play().catch(() => {});
 
-        if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
-          setIsReady(true);
+        let readyMarked = false;
+        const markReady = () => {
+          if (cancelled || readyMarked) return;
+          readyMarked = true;
+          requestAnimationFrame(() => {
+            if (!cancelled) setIsReady(true);
+          });
+        };
+
+        void video
+          .play()
+          .then(markReady)
+          .catch(() => {});
+
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+          markReady();
           return;
         }
-        const handleLoaded = () => {
-          if (cancelled) return;
-          setIsReady(true);
-        };
-        video.addEventListener('loadedmetadata', handleLoaded, { once: true });
+        video.addEventListener('loadeddata', markReady, { once: true });
       })
       .catch((cause) => {
         if (cancelled) return;
