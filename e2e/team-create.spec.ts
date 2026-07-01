@@ -1,5 +1,14 @@
 import { json, mockApi, wrap } from './fixtures/api';
 import { expect, test } from './fixtures/auth';
+import type { Page } from '@playwright/test';
+
+const closeKeyboard = async (page: Page) => {
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+};
 
 test.describe('팀 생성', () => {
   test.beforeEach(async ({ page }) => {
@@ -15,13 +24,17 @@ test.describe('팀 생성', () => {
 
     await page.getByPlaceholder('우리 팀만의 재미있는 이름을 지어보세요').fill('새로운팀');
     await page.getByPlaceholder('팀을 소개해보세요').fill('테스트 소개');
+    await closeKeyboard(page);
+    await expect(page.getByRole('button', { name: '완료' })).toBeVisible();
     await page.getByRole('button', { name: '완료' }).click();
 
     await page.waitForURL(/\/teams\/new\/profile$/, { timeout: 10_000 });
 
     await page.getByPlaceholder('이름을 입력하세요').fill('테스터');
+    await closeKeyboard(page);
     // 전환 중 이전 페이지 "완료" 잔존 → 1개 될 때까지 대기
     await expect(page.getByRole('button', { name: '완료' })).toHaveCount(1);
+    await expect(page.getByRole('button', { name: '완료' })).toBeVisible();
     await page.getByRole('button', { name: '완료' }).click();
 
     await page.waitForURL(/\/home$/, { timeout: 10_000 });
