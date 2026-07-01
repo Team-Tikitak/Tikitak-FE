@@ -4,8 +4,9 @@ import LocationIcon from '@/shared/assets/Icon/LocationIcon.svg?react';
 import UserIcon from '@/shared/assets/Icon/UserIcon.svg?react';
 import { MAX_PHOTO_FILE_SIZE_BYTES } from '@/shared/constants/feed';
 import type { useFeedForm } from '@/shared/hooks/feed/useFeedForm';
-import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
-import { createPhotoFromFile, normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
+import { usePhotoSourcePicker } from '@/shared/hooks/usePhotoSourcePicker';
+import { normalizeImageUrl, openOverlay } from '@/shared/lib';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { ContentTextarea, PhotoStrip, type PhotoStripItem } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from './LocationSearchOverlay';
@@ -36,6 +37,7 @@ export const FeedFormView = ({
   photoItems,
   photoCount,
 }: FeedFormViewProps) => {
+  const isKeyboardVisible = useKeyboardVisible();
   const {
     content,
     setContent,
@@ -51,18 +53,15 @@ export const FeedFormView = ({
     removeMember,
   } = form;
 
-  const { openPicker, inputProps } = useImageFileInput({
-    multiple: true,
+  const { pick, inputProps } = usePhotoSourcePicker({
+    remaining: Math.max(0, maxPhotoCount - photos.length),
     maxFileSizeBytes: MAX_PHOTO_FILE_SIZE_BYTES,
-    onSelect: (files) => {
-      const remaining = Math.max(0, maxPhotoCount - photos.length);
-      files.slice(0, remaining).forEach((file) => addPhoto(createPhotoFromFile(file)));
-    },
+    onAdd: addPhoto,
   });
 
   const handleAddPhoto = () => {
     if (!canAddMorePhotos) return;
-    openPicker();
+    void pick();
   };
 
   const handleAddLocation = () => {
@@ -108,14 +107,16 @@ export const FeedFormView = ({
       contentClassName="flex flex-col overflow-hidden"
       bottomClassName="px-5 pt-3 pb-[calc(24px+env(safe-area-inset-bottom))]"
       bottom={
-        <Button
-          variant="primary"
-          disabled={submitDisabled}
-          onClick={onSubmit}
-          className="disabled:bg-gray-300 disabled:text-gray-400"
-        >
-          {submitLabel}
-        </Button>
+        isKeyboardVisible ? null : (
+          <Button
+            variant="primary"
+            disabled={submitDisabled}
+            onClick={onSubmit}
+            className="disabled:bg-gray-300 disabled:text-gray-400"
+          >
+            {submitLabel}
+          </Button>
+        )
       }
     >
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pt-6 pb-8">
