@@ -94,11 +94,15 @@ export function FeedImageDetail({
     [captureNatural],
   );
 
-  const assignFigureRef = (node: HTMLElement | null) => {
-    figureRef.current = node;
-    if (typeof ref === 'function') ref(node);
-    else if (ref) (ref as React.RefObject<HTMLElement | null>).current = node;
-  };
+  const assignFigureRef = useCallback(
+    (node: HTMLElement | null) => {
+      figureRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) (ref as React.RefObject<HTMLElement | null>).current = node;
+      measureFit();
+    },
+    [measureFit, ref],
+  );
 
   useEffect(() => {
     const frame = figureRef.current;

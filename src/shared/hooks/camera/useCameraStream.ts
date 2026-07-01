@@ -12,12 +12,17 @@ const isCameraSupported = () =>
 export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 'environment') => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const readyFrameRef = useRef<number | null>(null);
   const [error, setError] = useState<CameraError | null>(() =>
     isCameraSupported() ? null : 'unsupported',
   );
   const [isReady, setIsReady] = useState(false);
 
   const stopStream = useCallback(() => {
+    if (readyFrameRef.current !== null) {
+      cancelAnimationFrame(readyFrameRef.current);
+      readyFrameRef.current = null;
+    }
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     const video = videoRef.current;
@@ -59,8 +64,9 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
         const markReady = () => {
           if (cancelled || readyMarked) return;
           readyMarked = true;
-          requestAnimationFrame(() => {
-            if (!cancelled) setIsReady(true);
+          readyFrameRef.current = requestAnimationFrame(() => {
+            readyFrameRef.current = null;
+            if (!cancelled && streamRef.current === stream) setIsReady(true);
           });
         };
 
