@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { useEffect } from 'react';
 import { useRegisterDeviceToken } from '@/shared/api/notification/queries';
-import { storeDeviceToken } from '@/shared/lib/native/deviceTokenStorage';
+import { readPushEnabled, storeDeviceToken } from '@/shared/lib/native/deviceTokenStorage';
 import { getDeviceToken, resolvePlatform } from '@/shared/lib/native/getDeviceToken';
 import { confirmDialog } from '@/shared/lib/native/nativeDialog';
 import { openAppSettings } from '@/shared/lib/native/openAppSettings';
@@ -18,7 +18,9 @@ export const usePushNotificationSync = () => {
     let removeListener: (() => void) | undefined;
     let latestToken: string | undefined;
 
-    const register = (fcmToken: string) => {
+    const register = async (fcmToken: string) => {
+      // 앱 내에서 알림을 꺼둔 경우 재등록하지 않음(끈 설정을 앱 재실행이 되돌리는 것 방지)
+      if (!(await readPushEnabled())) return;
       const platform = resolvePlatform();
       if (!platform) return;
       latestToken = fcmToken;
@@ -48,13 +50,13 @@ export const usePushNotificationSync = () => {
       }
 
       if (result.status === 'already-denied') return;
-      if (result.status === 'granted') register(result.token.fcmToken);
+      if (result.status === 'granted') void register(result.token.fcmToken);
 
       const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
       const handle = await FirebaseMessaging.addListener(
         'tokenReceived',
         ({ token: refreshed }) => {
-          if (refreshed) register(refreshed);
+          if (refreshed) void register(refreshed);
         },
       );
       if (cancelled) {

@@ -125,6 +125,13 @@ export const router = createBrowserRouter([
                     Component: m.ActivityPage,
                   })),
               },
+              {
+                path: PATHS.NOTIFICATION,
+                lazy: () =>
+                  import('@/pages/notification/ui/NotificationPage').then((m) => ({
+                    Component: m.NotificationPage,
+                  })),
+              },
             ],
           },
           { path: '*', element: <NotFoundPage /> },
