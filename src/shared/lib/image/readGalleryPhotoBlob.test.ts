@@ -40,6 +40,19 @@ describe('readGalleryPhotoBlob', () => {
     expect(await blob.text()).toBe('image-bytes');
   });
 
+  it('returns native blob data when Filesystem provides a Blob', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    const sourceBlob = new Blob(['blob-image'], { type: 'image/webp' });
+    readFileMock.mockResolvedValue({ data: sourceBlob });
+
+    const blob = await readGalleryPhotoBlob({
+      path: '/private/tmp/photo.webp',
+      format: 'webp',
+    } as GalleryPhoto);
+
+    expect(blob).toBe(sourceBlob);
+  });
+
   it('falls back to webPath fetch outside native runtime', async () => {
     isNativePlatformMock.mockReturnValue(false);
     const sourceBlob = new Blob(['web-image'], { type: 'image/png' });
