@@ -271,7 +271,7 @@ export const generateFeedShareCard = async (data: FeedShareCardData): Promise<Bl
 
   if (data.title) {
     ctx.fillStyle = '#111827';
-    ctx.font = '700 64px SUIT, sans-serif';
+    ctx.font = '700 48px SUIT, sans-serif';
     ctx.fillText(truncateToWidth(ctx, data.title, metaTextWidth), metaLeft, META.y + 128);
   }
 

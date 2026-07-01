@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef, useRef, useState } from 'react';
+import { type ComponentPropsWithRef, useCallback, useEffect, useRef, useState } from 'react';
 import { cn, getPointerRatio } from '@/shared/lib';
 import { Picker } from '../Picker/Picker';
 
@@ -25,6 +25,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
   heroPreviewUrl?: string;
+  previewOnly?: boolean;
   fetchPriority?: 'high' | 'low' | 'auto';
   loading?: 'eager' | 'lazy';
   decoding?: 'sync' | 'async' | 'auto';
@@ -40,6 +41,7 @@ export function FeedImageDetail({
   onLongPress,
   heroKey,
   heroPreviewUrl,
+  previewOnly = false,
   fetchPriority = 'auto',
   loading = 'lazy',
   decoding = 'async',
@@ -49,7 +51,53 @@ export function FeedImageDetail({
 }: FeedImageDetailProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
+  const figureRef = useRef<HTMLElement | null>(null);
+  const naturalRef = useRef<{ width: number; height: number } | null>(null);
   const [loaded, setLoaded] = useState(false);
+  // 이미지가 프레임(3:4)보다 넓으면(1:1·가로) contain으로 레터박스, 세로로 길면 cover로 꽉 채움
+  const [fit, setFit] = useState<'cover' | 'contain'>('cover');
+
+  const measureFit = useCallback(() => {
+    const frame = figureRef.current;
+    const natural = naturalRef.current;
+    if (!frame || !natural || !natural.width || !natural.height) return;
+    const frameAspect = frame.clientWidth / frame.clientHeight;
+    const imageAspect = natural.width / natural.height;
+    setFit(imageAspect > frameAspect ? 'contain' : 'cover');
+  }, []);
+
+  const captureNatural = useCallback(
+    (image: HTMLImageElement) => {
+      if (!image.naturalWidth || !image.naturalHeight) return;
+      naturalRef.current = { width: image.naturalWidth, height: image.naturalHeight };
+      measureFit();
+    },
+    [measureFit],
+  );
+
+  const assignImageRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      if (node?.complete && node.naturalWidth > 0) {
+        setLoaded(true);
+        captureNatural(node);
+      }
+    },
+    [captureNatural],
+  );
+
+  const assignFigureRef = (node: HTMLElement | null) => {
+    figureRef.current = node;
+    if (typeof ref === 'function') ref(node);
+    else if (ref) (ref as React.RefObject<HTMLElement | null>).current = node;
+  };
+
+  useEffect(() => {
+    const frame = figureRef.current;
+    if (!frame || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => measureFit());
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [measureFit]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
     const { x: xRatio, y: yRatio } = getPointerRatio(e, e.currentTarget);
@@ -87,10 +135,10 @@ export function FeedImageDetail({
   return (
     <figure
       className={cn(
-        'relative h-[min(524px,calc(100svh-240px))] min-h-[360px] w-full shrink-0 overflow-hidden bg-white select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
+        'relative h-[min(524px,calc(100svh-240px))] min-h-[360px] w-full shrink-0 overflow-hidden bg-black select-none [-webkit-touch-callout:none] [-webkit-user-select:none]',
         className,
       )}
-      ref={ref}
+      ref={assignFigureRef}
       onContextMenu={(e) => e.preventDefault()}
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
       {...props}
@@ -100,27 +148,34 @@ export function FeedImageDetail({
           src={heroPreviewUrl}
           alt=""
           aria-hidden
-          className="no-native-image absolute inset-0 h-full w-full object-cover blur-md"
+          className={cn(
+            'no-native-image absolute inset-0 h-full w-full object-cover blur-md transition-opacity duration-300',
+            loaded && !previewOnly && 'opacity-0',
+          )}
           draggable={false}
         />
       )}
-      <img
-        ref={(node) => {
-          if (node?.complete && node.naturalWidth > 0) setLoaded(true);
-        }}
-        src={src}
-        alt={alt}
-        loading={loading}
-        decoding={decoding}
-        fetchPriority={fetchPriority}
-        onLoad={() => setLoaded(true)}
-        className={cn(
-          'no-native-image h-full w-full object-cover',
-          heroPreviewUrl && 'absolute inset-0 transition-opacity duration-300 ease-out',
-          heroPreviewUrl && !loaded && 'opacity-0',
-        )}
-        draggable={false}
-      />
+      {!previewOnly && (
+        <img
+          ref={assignImageRef}
+          src={src}
+          alt={alt}
+          loading={loading}
+          decoding={decoding}
+          fetchPriority={fetchPriority}
+          onLoad={(event) => {
+            setLoaded(true);
+            captureNatural(event.currentTarget);
+          }}
+          className={cn(
+            'no-native-image h-full w-full',
+            fit === 'contain' ? 'object-contain' : 'object-cover',
+            heroPreviewUrl && 'absolute inset-0 transition-opacity duration-300 ease-out',
+            heroPreviewUrl && !loaded && 'opacity-0',
+          )}
+          draggable={false}
+        />
+      )}
       <div
         className="absolute inset-0 touch-pan-y"
         onPointerDown={handlePointerDown}

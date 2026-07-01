@@ -19,6 +19,16 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+@utility comment-bottom-sheet-base {
+  height: calc(294px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+
+  [data-keyboard-visible='true'] & {
+    height: 294px;
+    padding-bottom: 0;
+  }
+}
+
 @utility press-feedback {
   transition-property: transform, background-color, color;
   transition-duration: 150ms;

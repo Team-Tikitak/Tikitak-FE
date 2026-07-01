@@ -1,7 +1,10 @@
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { MAX_TEAM_NICKNAME_LENGTH } from '@/shared/constants/team';
+import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
@@ -30,12 +33,30 @@ export const TeamProfileSetupForm = ({
   initialAvatarUrl,
 }: TeamProfileSetupFormProps) => {
   const navigate = useNavigate();
-  const { submit, isPending } = useTeamProfileSetupFlow();
+  const { state, submit, isPending } = useTeamProfileSetupFlow();
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
     useTeamProfileSetupForm({
       initialNickname,
       initialAvatarUrl: mode === 'edit' ? undefined : initialAvatarUrl,
     });
+
+  const handleBack = useCallback(() => {
+    if (state?.mode === 'create') {
+      navigate(PATHS.TEAM_CREATE, {
+        state: {
+          name: state.name,
+          description: state.description,
+        },
+        replace: true,
+      });
+      return;
+    }
+
+    navigate(-1);
+  }, [navigate, state]);
+
+  useEdgeSwipeBack(handleBack);
+
   const { openPicker, inputProps } = useImageFileInput({
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
     maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
@@ -46,7 +67,7 @@ export const TeamProfileSetupForm = ({
 
   return (
     <PageShell
-      header={<Header title={HEADER_TITLE[mode]} showBackButton onBack={() => navigate(-1)} />}
+      header={<Header title={HEADER_TITLE[mode]} showBackButton onBack={handleBack} />}
       contentClassName="flex flex-col px-5 py-7"
       bottom={
         <Button
@@ -72,7 +93,7 @@ export const TeamProfileSetupForm = ({
         type="button"
         aria-label="프로필 사진 선택"
         onClick={openPicker}
-        className="press-feedback mb-7 flex size-28 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
+        className="press-feedback mb-7 flex aspect-square size-28 shrink-0 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
         {avatarPreviewUrl ? (
           <img src={avatarPreviewUrl} alt="" className="no-native-image size-full object-cover" />
