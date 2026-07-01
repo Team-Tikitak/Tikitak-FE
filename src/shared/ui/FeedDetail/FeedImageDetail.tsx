@@ -85,6 +85,15 @@ export function FeedImageDetail({
     [captureNatural],
   );
 
+  const assignPreviewRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      if (node?.complete && node.naturalWidth > 0) {
+        captureNatural(node);
+      }
+    },
+    [captureNatural],
+  );
+
   const assignFigureRef = (node: HTMLElement | null) => {
     figureRef.current = node;
     if (typeof ref === 'function') ref(node);
@@ -132,6 +141,8 @@ export function FeedImageDetail({
     startPosRef.current = null;
   };
 
+  const fitClassName = fit === 'contain' ? 'object-contain' : 'object-cover';
+
   return (
     <figure
       className={cn(
@@ -145,11 +156,14 @@ export function FeedImageDetail({
     >
       {heroPreviewUrl && (
         <img
+          ref={assignPreviewRef}
           src={heroPreviewUrl}
           alt=""
           aria-hidden
+          onLoad={(event) => captureNatural(event.currentTarget)}
           className={cn(
-            'no-native-image absolute inset-0 h-full w-full object-cover blur-md transition-opacity duration-300',
+            'no-native-image absolute inset-0 h-full w-full blur-md transition-opacity duration-[160ms]',
+            fitClassName,
             loaded && !previewOnly && 'opacity-0',
           )}
           draggable={false}
@@ -169,8 +183,8 @@ export function FeedImageDetail({
           }}
           className={cn(
             'no-native-image h-full w-full',
-            fit === 'contain' ? 'object-contain' : 'object-cover',
-            heroPreviewUrl && 'absolute inset-0 transition-opacity duration-300 ease-out',
+            fitClassName,
+            heroPreviewUrl && 'absolute inset-0 transition-opacity duration-[160ms] ease-out',
             heroPreviewUrl && !loaded && 'opacity-0',
           )}
           draggable={false}
