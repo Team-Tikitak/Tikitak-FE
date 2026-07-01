@@ -33,3 +33,4 @@ export const toFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit`;
 export const toDailyFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit/daily`;
 export const toPlaceFeeds = (placeId: string) => `/place/${placeId}`;
 export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;
+export const toInviteAccept = (token: string) => `/invite/${token}`;

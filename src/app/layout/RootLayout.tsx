@@ -1,5 +1,6 @@
 import { OverlayProvider } from 'overlay-kit';
 import { Outlet, useLocation } from 'react-router';
+import { useInviteDeepLink } from '@/app/lib/useInviteDeepLink';
 import { useOAuthDeepLink } from '@/app/lib/useOAuthDeepLink';
 import { usePushNotificationDeepLink } from '@/app/lib/usePushNotificationDeepLink';
 import { PATHS } from '@/app/routes/paths';
@@ -21,6 +22,7 @@ const getRouteKey = (pathname: string): string => {
 
 export const RootLayout = ({ className }: RootLayoutProps) => {
   useOAuthDeepLink();
+  useInviteDeepLink();
   usePushNotificationSync();
   usePushNotificationDeepLink();
   const location = useLocation();
