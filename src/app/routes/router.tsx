@@ -20,6 +20,10 @@ export const router = createBrowserRouter([
           { index: true, element: <SplashPage /> },
           { path: PATHS.LOGIN, element: <LoginPage /> },
           {
+            path: PATHS.TERMS_DETAIL,
+            lazy: () => import('@/pages/terms/ui').then((m) => ({ Component: m.TermsDetailPage })),
+          },
+          {
             path: PATHS.INVITE_ACCEPT,
             loader: inviteAcceptLoader,
             lazy: () =>

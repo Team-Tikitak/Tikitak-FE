@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-export type AppPermission = 'location' | 'camera' | 'photos';
+export type AppPermission = 'location' | 'camera' | 'photos' | 'notifications';
 
 const isGranted = (state: string | undefined) => state === 'granted' || state === 'limited';
 const isBlocked = (state: string | undefined) => state === 'denied' || state === 'restricted';
@@ -13,6 +13,12 @@ export const requestAppPermission = async (permission: AppPermission) => {
     const status = await Geolocation.requestPermissions().catch(() => null);
 
     return status?.location === 'granted' || status?.coarseLocation === 'granted';
+  }
+
+  if (permission === 'notifications') {
+    const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
+    const status = await FirebaseMessaging.requestPermissions().catch(() => null);
+    return status?.receive === 'granted';
   }
 
   const { Camera } = await import('@capacitor/camera');

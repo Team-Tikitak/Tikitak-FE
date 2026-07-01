@@ -10,7 +10,6 @@ import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
-import { MonthlyRecommendedPlaces } from './MonthlyRecommendedPlaces';
 
 export const ActivityPage = () => {
   const navigate = useNavigate();
@@ -74,7 +73,6 @@ export const ActivityPage = () => {
         <div className="flex flex-col gap-9 px-5">
           <MonthlyBestAttendance teamId={activeTeam?.teamId} />
           <MonthlyMemories teamId={activeTeam?.teamId} />
-          <MonthlyRecommendedPlaces teamId={activeTeam?.teamId} />
         </div>
       )}
     </PageShell>

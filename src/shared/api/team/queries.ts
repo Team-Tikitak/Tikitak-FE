@@ -97,7 +97,9 @@ export const useDeleteTeamMember = () => {
     meta: { errorMessage: '멤버 내보내기에 실패했어요' },
     mutationFn: (variables: DeleteTeamMemberVariables) => deleteTeamMember(variables),
     onSuccess: (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
+      queryClient.invalidateQueries({ queryKey: userKeys.teams() });
     },
   });
 };

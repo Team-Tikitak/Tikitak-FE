@@ -86,7 +86,7 @@ test.describe('@visual 시각 회귀', () => {
     await mockActivityHome(page, 100);
     await page.goto('/activity', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByText('추천 장소')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('이달의 Best 출석')).toBeVisible({ timeout: 10_000 });
     await settle(page);
 
     await expect(page).toHaveScreenshot('activity.png', {

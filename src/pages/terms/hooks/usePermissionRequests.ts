@@ -6,15 +6,20 @@ import {
   requestAppPermission,
   type AppPermission,
 } from '@/shared/lib/native/requestAppPermissions';
+import { usePushSyncStore } from '@/shared/stores/pushSyncStore';
 
-const ALL_PERMISSIONS: AppPermission[] = ['location', 'camera', 'photos'];
+const ALL_PERMISSIONS: AppPermission[] = ['location', 'camera', 'photos', 'notifications'];
 
 export const usePermissionRequests = () => {
   const [grantedPermissions, setGrantedPermissions] = useState<Set<AppPermission>>(() => new Set());
   const [pendingPermission, setPendingPermission] = useState<AppPermission | null>(null);
+  const requestPushSync = usePushSyncStore((state) => state.requestPushSync);
 
-  const markGranted = (permission: AppPermission) =>
+  const markGranted = (permission: AppPermission) => {
     setGrantedPermissions((prev) => new Set(prev).add(permission));
+    // 알림 권한을 새로 허용했다면 토큰 등록 sync를 다시 트리거한다.
+    if (permission === 'notifications') requestPushSync();
+  };
 
   const requestPermission = async (permission: AppPermission) => {
     if (!Capacitor.isNativePlatform()) return;

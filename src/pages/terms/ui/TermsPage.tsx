@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
+import { toTermsDoc } from '@/app/routes/paths';
 import { Button } from '@/shared/ui/Button';
 import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
@@ -8,6 +10,7 @@ import { usePermissionRequests } from '../hooks/usePermissionRequests';
 import { useTermsFlow } from '../hooks/useTermsFlow';
 
 export const TermsPage = () => {
+  const navigate = useNavigate();
   const { terms, allChecked, isSubmitting, toggleAll, toggle, submit, goBack } = useTermsFlow();
   const { grantedPermissions, pendingPermission, requestPermission, requestAllPermissions } =
     usePermissionRequests();
@@ -54,18 +57,14 @@ export const TermsPage = () => {
           checked={terms.service}
           label="(필수) 서비스 이용약관"
           onToggle={() => toggle('service')}
-          onDetailClick={() => {
-            // NOTE: 약관 상세 보기
-          }}
+          onDetailClick={() => navigate(toTermsDoc('service'))}
         />
         <TermsCheckRow
           variant="item"
           checked={terms.privacy}
           label="(필수) 개인정보 처리방침"
           onToggle={() => toggle('privacy')}
-          onDetailClick={() => {
-            // NOTE: 개인정보 처리방침 상세 보기
-          }}
+          onDetailClick={() => navigate(toTermsDoc('privacy'))}
         />
       </section>
 

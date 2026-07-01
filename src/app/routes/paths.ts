@@ -1,7 +1,10 @@
+import type { LegalDocType } from '@/pages/terms/constants/legalDocuments';
+
 export const PATHS = {
   ROOT: '/',
   LOGIN: '/login',
   TERMS: '/terms',
+  TERMS_DETAIL: '/terms/:docType',
   HOME: '/home',
   FEED: '/feed',
   ACTIVITY: '/activity',
@@ -23,6 +26,7 @@ export const PATHS = {
   NOTIFICATION: '/notification',
 } as const;
 
+export const toTermsDoc = (docType: LegalDocType) => `/terms/${docType}`;
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toFeedDetail = (feedId: string) => `/feed/${feedId}`;
 export const toFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit`;

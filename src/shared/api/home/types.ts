@@ -11,18 +11,6 @@ export interface HomeRegionsResponse {
   regions: HomeRegion[];
 }
 
-export interface Place {
-  name: string;
-  curation: string;
-  imageUrl: string;
-  kakaoMapUrl: string;
-}
-
-export interface RecommendedPlacesResponse {
-  month: number;
-  places: Place[];
-}
-
 export interface HomeEveryonePickResponse {
   month: number;
   picks: FeedListItem[];
