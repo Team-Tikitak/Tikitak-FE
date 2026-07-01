@@ -5,7 +5,8 @@ import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { MAX_TEAM_NICKNAME_LENGTH } from '@/shared/constants/team';
 import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
-import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
+import { usePhotoSourcePicker } from '@/shared/hooks/usePhotoSourcePicker';
+import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
 import { useTeamProfileSetupFlow } from '../hooks/useTeamProfileSetupFlow';
 import { useTeamProfileSetupForm } from '../hooks/useTeamProfileSetupForm';
@@ -18,6 +19,12 @@ const HEADER_TITLE = {
 
 const ALLOWED_AVATAR_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_AVATAR_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+const createAvatarFile = ({ id, blob }: CapturedPhoto) => {
+  const contentType = blob.type || 'image/jpeg';
+  const extension = contentType.split('/')[1] ?? 'jpg';
+  return new File([blob], `profile-${id}.${extension}`, { type: contentType });
+};
 
 interface TeamProfileSetupFormProps {
   mode: 'create' | 'join' | 'edit';
@@ -57,11 +64,14 @@ export const TeamProfileSetupForm = ({
 
   useEdgeSwipeBack(handleBack);
 
-  const { openPicker, inputProps } = useImageFileInput({
+  const { pick, inputProps } = usePhotoSourcePicker({
+    remaining: 1,
+    source: 'gallery',
     acceptedMimeTypes: ALLOWED_AVATAR_MIME_TYPES,
     maxFileSizeBytes: MAX_AVATAR_FILE_SIZE_BYTES,
-    onSelect: (files) => {
-      if (files[0]) setAvatar(files[0]);
+    onAdd: (photo) => {
+      setAvatar(createAvatarFile(photo));
+      URL.revokeObjectURL(photo.url);
     },
   });
 
@@ -92,7 +102,7 @@ export const TeamProfileSetupForm = ({
       <button
         type="button"
         aria-label="프로필 사진 선택"
-        onClick={openPicker}
+        onClick={() => void pick()}
         className="press-feedback mb-7 flex aspect-square size-28 shrink-0 items-center justify-center self-center overflow-hidden rounded-full border-[1.5px] border-gray-300"
       >
         {avatarPreviewUrl ? (
