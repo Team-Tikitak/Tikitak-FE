@@ -5,7 +5,6 @@
 export * from './CommentSheet';
 export * from './LocationSearchSheet';
 export * from './MemberSelectSheet';
-export * from './NotificationSettingsSheet';
 export * from './ParticipantsSheet';
 export * from './TeamListSheet';
 export * from './TeamMenuItem';

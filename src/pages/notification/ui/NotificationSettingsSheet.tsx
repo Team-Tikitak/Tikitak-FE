@@ -1,6 +1,6 @@
 import { cn } from '@/shared/lib';
-import { Switch } from '../../Switch';
-import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
+import { type BottomSheetProps, BottomSheet } from '@/shared/ui/BottomSheet';
+import { Switch } from '@/shared/ui/Switch';
 
 export interface NotificationSettingsSheetProps extends Omit<
   BottomSheetProps,
