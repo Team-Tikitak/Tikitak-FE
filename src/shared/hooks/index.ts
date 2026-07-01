@@ -10,6 +10,8 @@ export * from './useEdgeSwipeBack';
 export * from './useFirstVisitHint';
 export * from './useImageFileInput';
 export * from './useInfiniteScroll';
+export * from './useKeyboardVisible';
+export * from './usePhotoSourcePicker';
 export * from './usePinComments';
 export * from './usePushNotificationSync';
 export * from './useScrollRestore';
