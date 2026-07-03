@@ -11,6 +11,7 @@ export * from './useFirstVisitHint';
 export * from './useImageFileInput';
 export * from './useInfiniteScroll';
 export * from './useKeyboardVisible';
+export * from './useNativeKeyboardVisible';
 export * from './usePhotoSourcePicker';
 export * from './usePinComments';
 export * from './usePushNotificationSync';

@@ -12,7 +12,7 @@ type AvatarProps = VariantProps<typeof AvatarVariants> &
 export function Avatar({ src, alt = '', size, className, ...props }: AvatarProps) {
   return (
     <div className={cn(AvatarVariants({ size }), className)} {...props}>
-      <img src={src} alt={alt} className="size-full object-contain" />
+      <img src={src} alt={alt} className="size-full object-cover" />
     </div>
   );
 }

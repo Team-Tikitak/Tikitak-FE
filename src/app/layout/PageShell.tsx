@@ -5,6 +5,7 @@ interface PageShellProps {
   header?: ReactNode;
   children: ReactNode;
   bottom?: ReactNode;
+  className?: string;
   contentClassName?: string;
   bottomClassName?: string;
 }
@@ -13,11 +14,17 @@ export const PageShell = ({
   header,
   children,
   bottom,
+  className,
   contentClassName,
   bottomClassName,
 }: PageShellProps) => {
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white">
+    <div
+      className={cn(
+        'flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white',
+        className,
+      )}
+    >
       {header && <header className="shrink-0 pt-(--safe-top)">{header}</header>}
 
       <main className={cn('no-scrollbar min-h-0 flex-1 overflow-y-auto', contentClassName)}>

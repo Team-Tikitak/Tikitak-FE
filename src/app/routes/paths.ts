@@ -26,7 +26,7 @@ export const PATHS = {
   NOTIFICATION: '/notification',
 } as const;
 
-export const toTermsDoc = (docType: LegalDocType) => `/terms/${docType}`;
+export const toTermsDetail = (docType: LegalDocType) => `/terms/${docType}`;
 export const toTeamDetail = (teamId: number) => `/teams/${teamId}`;
 export const toFeedDetail = (feedId: string) => `/feed/${feedId}`;
 export const toFeedEdit = (feedId: string | number) => `/feed/${feedId}/edit`;
@@ -34,3 +34,4 @@ export const toDailyFeedEdit = (feedId: string | number) => `/feed/${feedId}/edi
 export const toPlaceFeeds = (placeId: string) => `/place/${placeId}`;
 export const toTeamInvite = (teamId: number) => `/teams/${teamId}/invite`;
 export const toInviteAccept = (token: string) => `/invite/${token}`;
+export const toInviteAppLink = (token: string) => `tikitak://invite/${encodeURIComponent(token)}`;

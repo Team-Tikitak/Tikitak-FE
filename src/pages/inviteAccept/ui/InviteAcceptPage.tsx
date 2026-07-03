@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { PageShell } from '@/app/layout';
 import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
@@ -8,7 +9,8 @@ import { InviteBackground } from './InviteBackground';
 import { useInviteAccept } from '../hooks/useInviteAccept';
 
 export const InviteAcceptPage = () => {
-  const { teamName, isInvalidInvite, handleConfirm } = useInviteAccept();
+  const { teamName, isInvalidInvite, handleConfirm, openInApp } = useInviteAccept();
+  const isApp = Capacitor.isNativePlatform();
 
   if (isInvalidInvite) {
     return <InvalidInvite />;
@@ -18,7 +20,10 @@ export const InviteAcceptPage = () => {
     <div className="relative isolate flex flex-1 flex-col">
       <InviteBackground />
 
-      <PageShell contentClassName="flex flex-col gap-4 pt-25 items-center px-4">
+      <PageShell
+        className="bg-transparent"
+        contentClassName="flex flex-col gap-4 pt-25 items-center px-4"
+      >
         <div className="flex flex-col items-center justify-center gap-2.5">
           <div className="flex items-center gap-2.5">
             <TikiTackLogo className="w-[91px]" />
@@ -34,14 +39,22 @@ export const InviteAcceptPage = () => {
         </div>
 
         <div className="mt-25 flex w-full flex-col items-center justify-center gap-3">
-          <Button
-            variant="secondary"
-            buttonIcon={<TikiTackIcon className="size-[22px]" />}
-            onClick={handleConfirm}
-          >
-            티키탁에서 초대장 확인하기
-          </Button>
-          <Button variant="secondary">설치하기</Button>
+          {isApp ? (
+            <Button variant="secondary" onClick={handleConfirm}>
+              참여하기
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                buttonIcon={<TikiTackIcon className="size-[22px]" />}
+                onClick={openInApp}
+              >
+                티키탁에서 초대장 확인하기
+              </Button>
+              <Button variant="secondary">설치하기</Button>
+            </>
+          )}
         </div>
       </PageShell>
     </div>

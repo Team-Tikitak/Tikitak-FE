@@ -8,8 +8,16 @@ import { toInviteAccept } from '@/app/routes/paths';
 // AASA "/invite/*"가 다중 세그먼트도 앱으로 보내므로, 끝 앵커 없이 첫 세그먼트를 토큰으로 잡아 계약을 맞춘다.
 const parseInviteToken = (url: string): string | null => {
   try {
-    const match = new URL(url).pathname.match(/^\/invite\/([^/]+)/);
-    return match ? decodeURIComponent(match[1]) : null;
+    const parsed = new URL(url);
+    // Universal Link: https://app.tikitak.space/invite/<token>
+    const pathMatch = parsed.pathname.match(/^\/invite\/([^/]+)/);
+    if (pathMatch) return decodeURIComponent(pathMatch[1]);
+    // 커스텀 스킴: tikitak://invite/<token> (host='invite', pathname='/<token>')
+    if (parsed.hostname === 'invite') {
+      const [segment] = parsed.pathname.replace(/^\//, '').split('/');
+      if (segment) return decodeURIComponent(segment);
+    }
+    return null;
   } catch {
     return null;
   }

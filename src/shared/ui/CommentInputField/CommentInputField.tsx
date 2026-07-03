@@ -92,6 +92,7 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
       className: submitButtonClassName,
       'aria-label': submitAriaLabel,
       disabled: submitDisabled,
+      onMouseDown: submitOnMouseDown,
       ...restSubmitButtonProps
     } = submitButtonProps ?? {};
     const isSubmitDisabled = submitDisabled ?? inputDisabled;
@@ -119,6 +120,10 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
           type="button"
           aria-label={submitAriaLabel ?? SUBMIT_ARIA_LABEL}
           disabled={isSubmitDisabled}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            submitOnMouseDown?.(event);
+          }}
           className={cn(
             'rounded-max bg-main-001 flex size-10 shrink-0 items-center justify-center text-white',
             'active:bg-main-002 transition-colors disabled:cursor-not-allowed disabled:opacity-50',

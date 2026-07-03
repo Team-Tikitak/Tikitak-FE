@@ -5,6 +5,7 @@ import { PATHS } from '@/app/routes/paths';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import { MAX_TEAM_NICKNAME_LENGTH } from '@/shared/constants/team';
 import { useEdgeSwipeBack } from '@/shared/hooks/useEdgeSwipeBack';
+import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { usePhotoSourcePicker } from '@/shared/hooks/usePhotoSourcePicker';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { Button, CommentInputField, Header, PageSection } from '@/shared/ui';
@@ -40,6 +41,7 @@ export const TeamProfileSetupForm = ({
   initialAvatarUrl,
 }: TeamProfileSetupFormProps) => {
   const navigate = useNavigate();
+  const isKeyboardVisible = useKeyboardVisible();
   const { state, submit, isPending } = useTeamProfileSetupFlow();
   const { nickname, setNickname, avatarFile, avatarPreviewUrl, setAvatar, isDisabled } =
     useTeamProfileSetupForm({
@@ -80,18 +82,20 @@ export const TeamProfileSetupForm = ({
       header={<Header title={HEADER_TITLE[mode]} showBackButton onBack={handleBack} />}
       contentClassName="flex flex-col px-5 py-7"
       bottom={
-        <Button
-          variant="primary"
-          disabled={isDisabled || isPending}
-          onClick={() =>
-            submit({
-              nickname,
-              avatarFile,
-            })
-          }
-        >
-          완료
-        </Button>
+        isKeyboardVisible ? null : (
+          <Button
+            variant="primary"
+            disabled={isDisabled || isPending}
+            onClick={() =>
+              submit({
+                nickname,
+                avatarFile,
+              })
+            }
+          >
+            완료
+          </Button>
+        )
       }
     >
       <h2 className="title-1 mb-15 text-start text-black">
@@ -119,6 +123,10 @@ export const TeamProfileSetupForm = ({
           maxLength={MAX_TEAM_NICKNAME_LENGTH}
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
+          enterKeyHint="done"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
         />
       </PageSection>
     </PageShell>

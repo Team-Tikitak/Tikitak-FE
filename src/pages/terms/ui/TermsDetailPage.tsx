@@ -1,6 +1,7 @@
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
+import { useEdgeSwipeBack } from '@/shared/hooks';
 import { Header } from '@/shared/ui';
 import {
   LEGAL_DOCS,
@@ -73,6 +74,7 @@ const BlockView = ({ block }: { block: LegalBlock }) => {
 };
 
 export const TermsDetailPage = () => {
+  useEdgeSwipeBack();
   const navigate = useNavigate();
   const { docType } = useParams<{ docType: string }>();
 

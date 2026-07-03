@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
@@ -17,6 +18,7 @@ export const TeamCreatePage = () => {
   const { name, setName, description, setDescription, isDisabled, draft } = useTeamCreateForm(
     initialDraft ?? undefined,
   );
+  const descriptionInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <PageShell
@@ -43,16 +45,25 @@ export const TeamCreatePage = () => {
           maxLength={MAX_TEAM_NAME_LENGTH}
           value={name}
           onChange={(e) => setName(e.target.value)}
+          enterKeyHint="next"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') descriptionInputRef.current?.focus();
+          }}
         />
       </PageSection>
 
       <PageSection title="한줄 소개">
         <CommentInputField
           variant="comment"
+          ref={descriptionInputRef}
           placeholder="팀을 소개해보세요"
           maxLength={MAX_TEAM_DESCRIPTION_LENGTH}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          enterKeyHint="done"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
         />
       </PageSection>
     </PageShell>
