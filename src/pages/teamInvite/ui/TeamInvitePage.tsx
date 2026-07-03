@@ -2,10 +2,12 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import CopyIcon from '@/shared/assets/Icon/CopyIcon.svg?react';
+import { useEdgeSwipeBack } from '@/shared/hooks';
 import { Button, Header } from '@/shared/ui';
 import { useTeamInvite } from '../hooks/useTeamInvite';
 
 export const TeamInvitePage = () => {
+  useEdgeSwipeBack();
   const navigate = useNavigate();
   const { teamName, inviteUrl, handleCopy, isLoading } = useTeamInvite();
 
