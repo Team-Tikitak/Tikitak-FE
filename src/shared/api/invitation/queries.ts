@@ -19,7 +19,7 @@ export const useInvitationLink = (teamId: number) =>
       try {
         return await unwrap(() => getInvitationLink(teamId));
       } catch (error) {
-        if (isAxiosError(error) && error.response?.status === 404) {
+        if (isAxiosError(error) && error.response?.data?.code === 'INVITE005') {
           return unwrap(() => putInvitationLink(teamId));
         }
         throw error;
