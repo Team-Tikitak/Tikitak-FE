@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useMe } from '@/shared/api/user/queries';
+import { useNativeKeyboardVisible } from '@/shared/hooks/useNativeKeyboardVisible';
 import { cn } from '@/shared/lib';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { BottomNavigation, type BottomNavigationTab } from '@/shared/ui';
@@ -27,12 +28,15 @@ export const GlobalBottomNavigation = () => {
   const activeTab = isTabPath(location.pathname)
     ? ACTIVE_TAB_BY_PATH[location.pathname]
     : undefined;
+  const isKeyboardVisible = useNativeKeyboardVisible();
 
   return (
     <div
       className={cn(
         'absolute bottom-0 left-1/2 z-30 w-full -translate-x-1/2 transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] sm:max-w-[393px]',
-        showTabBar ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
+        showTabBar && !isKeyboardVisible
+          ? 'pointer-events-auto opacity-100'
+          : 'pointer-events-none opacity-0',
       )}
     >
       <BottomNavigation activeTab={activeTab} createDisabled={!hasActiveTeam} />
