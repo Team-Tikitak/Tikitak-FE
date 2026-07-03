@@ -5,9 +5,9 @@ export const AvatarVariants = tv({
   variants: {
     size: {
       xs: 'size-6',
-      sm: 'size-7 gap-2.5 p-1.5',
-      md: 'size-9 gap-3 p-2',
-      lg: 'size-11 gap-[15px] p-2',
+      sm: 'size-7',
+      md: 'size-9',
+      lg: 'size-11',
     },
   },
   defaultVariants: {
