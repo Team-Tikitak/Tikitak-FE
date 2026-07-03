@@ -50,7 +50,7 @@ export const InviteAcceptPage = () => {
                 buttonIcon={<TikiTackIcon className="size-[22px]" />}
                 onClick={openInApp}
               >
-                티키탁 앱에서 확인하기
+                티키탁에서 초대장 확인하기
               </Button>
               <Button variant="secondary">설치하기</Button>
             </>
