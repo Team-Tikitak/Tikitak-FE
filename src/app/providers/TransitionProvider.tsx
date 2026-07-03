@@ -35,7 +35,7 @@ const ssgoiConfig: SsgoiConfig = {
     ...slide({ paths: [PATHS.TEAM_CREATE, PATHS.TEAM_PROFILE_SETUP] }),
     ...slide({ paths: [PATHS.HOME, '/teams/*'] }),
     ...slide({ paths: [PATHS.MY_PAGE, '/teams/*'] }),
-    ...slide({ paths: ['/teams/*', '/teams/*/invite'] }),
+    ...slide({ paths: [PATHS.TEAM_DETAIL, PATHS.TEAM_INVITE] }),
     ...slide({ paths: ['/teams/*', PATHS.TEAM_PROFILE_SETUP] }),
 
     // Home <-> place: Home renders a placeholder target before Kakao map pins mount.
