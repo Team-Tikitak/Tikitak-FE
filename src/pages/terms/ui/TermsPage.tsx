@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { toTermsDoc } from '@/app/routes/paths';
+import { toTermsDetail } from '@/app/routes/paths';
 import { Button } from '@/shared/ui/Button';
 import { Header } from '@/shared/ui/Header';
 import { PermissionItem } from './PermissionItem';
@@ -57,14 +57,14 @@ export const TermsPage = () => {
           checked={terms.service}
           label="(필수) 서비스 이용약관"
           onToggle={() => toggle('service')}
-          onDetailClick={() => navigate(toTermsDoc('service'))}
+          onDetailClick={() => navigate(toTermsDetail('service'))}
         />
         <TermsCheckRow
           variant="item"
           checked={terms.privacy}
           label="(필수) 개인정보 처리방침"
           onToggle={() => toggle('privacy')}
-          onDetailClick={() => navigate(toTermsDoc('privacy'))}
+          onDetailClick={() => navigate(toTermsDetail('privacy'))}
         />
       </section>
 
