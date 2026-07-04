@@ -1,13 +1,26 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
+import { tv } from 'tailwind-variants';
 import MoreIcon from '@/shared/assets/Icon/More_Icon.svg?react';
 import { MAX_COMMENT_LENGTH } from '@/shared/constants/comment';
-import { cn } from '@/shared/lib';
 import { ActiveMenu } from '../../ActiveMenu/ActiveMenu';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
 import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
 const COMMENT_TITLE = '\uB313\uAE00';
+
+const commentSheetVariants = tv({
+  base: 'flex flex-col',
+  variants: {
+    fitHeight: {
+      true: 'h-full pb-[env(safe-area-inset-bottom)]',
+      false: 'comment-bottom-sheet-base',
+    },
+  },
+  defaultVariants: {
+    fitHeight: false,
+  },
+});
 
 export interface CommentSheetItem {
   id: string;
@@ -63,12 +76,7 @@ export function CommentSheet({
   return (
     <BottomSheet
       title={COMMENT_TITLE}
-      className={cn(
-        fitHeight
-          ? 'flex h-full flex-col pb-[env(safe-area-inset-bottom)]'
-          : 'comment-bottom-sheet-base flex flex-col',
-        className,
-      )}
+      className={commentSheetVariants({ fitHeight, className })}
       contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >

@@ -86,10 +86,7 @@ export const FeedGrid = ({
                 if (source) onHeroCapture?.(item, source);
                 warmHeroAssets(item);
               }}
-              onFocus={(event) => {
-                const source =
-                  event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                if (source) onHeroCapture?.(item, source);
+              onFocus={() => {
                 warmHeroAssets(item);
               }}
               onMouseEnter={() => warmHeroAssets(item)}
