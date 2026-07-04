@@ -26,6 +26,7 @@ describe('CameraReview', () => {
     const { container } = render(<CameraReview {...baseProps} />);
 
     expect(screen.getByRole('button', { name: '업로드' })).toBeInTheDocument();
+    expect(screen.getByAltText('촬영된 사진')).toHaveClass('object-contain');
     expect(container.firstElementChild).toHaveClass('pb-[calc(112px+env(safe-area-inset-bottom))]');
   });
 
