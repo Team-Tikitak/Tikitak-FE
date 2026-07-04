@@ -70,7 +70,14 @@ export const CameraView = ({
       {isReady && !error && (
         <>
           {zoomSupported && (
-            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+132px)] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/35 p-1 backdrop-blur-md">
+            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+132px)] left-1/2 z-10 flex -translate-x-1/2 items-center rounded-full bg-black/35 p-1 backdrop-blur-md">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'absolute top-1 left-1 size-10 rounded-full bg-[rgba(30,31,31,0.72)] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+                  zoomLevel === 2 && 'translate-x-10',
+                )}
+              />
               {([1, 2] as const).map((level) => {
                 const selected = zoomLevel === level;
                 return (
@@ -81,8 +88,8 @@ export const CameraView = ({
                     aria-pressed={selected}
                     onClick={() => onZoomChange?.(level)}
                     className={cn(
-                      'press-feedback flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-colors',
-                      selected && 'text-main-001 bg-[rgba(30,31,31,0.72)]',
+                      'press-feedback relative z-10 flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-[color,transform] duration-200 ease-out active:scale-95',
+                      selected && 'text-main-001 scale-105',
                     )}
                   >
                     {level}x
