@@ -7,11 +7,13 @@ import {
 import type { FeedItem } from '../model/types';
 
 const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
+const FEED_HERO_MAX_AGE_MS = 5000;
 
 export interface StoredFeedHero {
   feedId: string;
   thumbnailUrl: string;
   heroPreviewUrl: string;
+  createdAt: number;
   left: number;
   top: number;
   width: number;
@@ -22,6 +24,7 @@ const isStoredFeedHero = (value: Partial<StoredFeedHero>): value is StoredFeedHe
   Boolean(value.feedId) &&
   typeof value.thumbnailUrl === 'string' &&
   typeof value.heroPreviewUrl === 'string' &&
+  typeof value.createdAt === 'number' &&
   typeof value.left === 'number' &&
   typeof value.top === 'number' &&
   typeof value.width === 'number' &&
@@ -32,8 +35,19 @@ export const readStoredFeedHero = (): StoredFeedHero | null => {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<StoredFeedHero>;
-    return isStoredFeedHero(parsed) ? parsed : null;
+    if (!isStoredFeedHero(parsed)) {
+      clearStoredFeedHero();
+      return null;
+    }
+
+    if (Date.now() - parsed.createdAt > FEED_HERO_MAX_AGE_MS) {
+      clearStoredFeedHero();
+      return null;
+    }
+
+    return parsed;
   } catch {
+    clearStoredFeedHero();
     return null;
   }
 };
@@ -49,6 +63,7 @@ export const storeFeedHero = (item: FeedItem, rect: DOMRect): StoredFeedHero => 
     feedId: item.id,
     thumbnailUrl,
     heroPreviewUrl,
+    createdAt: Date.now(),
     left: rect.left,
     top: rect.top,
     width: rect.width,

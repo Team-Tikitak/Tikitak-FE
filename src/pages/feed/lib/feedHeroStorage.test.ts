@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { clearStoredFeedHero, readStoredFeedHero, storeFeedHero } from './feedHeroStorage';
 import type { FeedItem } from '../model/types';
 
@@ -24,16 +24,21 @@ const makeRect = (): DOMRect =>
 
 describe('feedHeroStorage', () => {
   afterEach(() => {
+    vi.useRealTimers();
     clearStoredFeedHero();
   });
 
   it('stores visible source rect and falls back preview url to thumbnail url', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-04T10:00:00Z'));
+
     const stored = storeFeedHero(makeFeed(), makeRect());
 
     expect(stored).toEqual({
       feedId: '42',
       thumbnailUrl: 'https://example.com/thumb.jpg',
       heroPreviewUrl: 'https://example.com/thumb.jpg',
+      createdAt: new Date('2026-07-04T10:00:00Z').getTime(),
       left: 24,
       top: 180,
       width: 120,
@@ -46,6 +51,17 @@ describe('feedHeroStorage', () => {
     storeFeedHero(makeFeed(), makeRect());
 
     clearStoredFeedHero();
+
+    expect(readStoredFeedHero()).toBeNull();
+  });
+
+  it('drops stale hero sources instead of replaying old coordinates', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-07-04T10:00:00Z'));
+
+    storeFeedHero(makeFeed(), makeRect());
+
+    vi.setSystemTime(new Date('2026-07-04T10:00:06Z'));
 
     expect(readStoredFeedHero()).toBeNull();
   });
