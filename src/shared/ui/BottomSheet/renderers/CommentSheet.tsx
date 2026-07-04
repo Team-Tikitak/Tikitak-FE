@@ -36,6 +36,7 @@ export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
     comments: CommentSheetItem[];
     onSubmitComment?: (text: string) => void;
     onDeleteRequest?: (item: CommentSheetItem) => void;
+    fitHeight?: boolean;
   };
 
 export function CommentSheet({
@@ -45,6 +46,7 @@ export function CommentSheet({
   submitButtonProps,
   onSubmitComment,
   onDeleteRequest,
+  fitHeight = false,
   className,
   ...props
 }: CommentSheetProps) {
@@ -61,7 +63,12 @@ export function CommentSheet({
   return (
     <BottomSheet
       title={COMMENT_TITLE}
-      className={cn('comment-bottom-sheet-base flex flex-col', className)}
+      className={cn(
+        fitHeight
+          ? 'flex h-full flex-col pb-[env(safe-area-inset-bottom)]'
+          : 'comment-bottom-sheet-base flex flex-col',
+        className,
+      )}
       contentClassName="flex min-h-0 flex-1 flex-col"
       {...props}
     >
