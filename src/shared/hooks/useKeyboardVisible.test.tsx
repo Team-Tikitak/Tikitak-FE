@@ -42,4 +42,31 @@ describe('useKeyboardVisible', () => {
     unmount();
     input.remove();
   });
+
+  it('cancels pending hide when refocused before the keyboard layout settles', () => {
+    vi.useFakeTimers();
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+
+    const { result, unmount } = renderHook(() => useKeyboardVisible());
+
+    act(() => {
+      input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    });
+
+    expect(result.current).toBe(true);
+
+    act(() => {
+      input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      vi.advanceTimersByTime(0);
+      vi.advanceTimersByTime(100);
+      input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      vi.advanceTimersByTime(280);
+    });
+
+    expect(result.current).toBe(true);
+
+    unmount();
+    input.remove();
+  });
 });
