@@ -15,6 +15,22 @@ import { LongPressHint } from './LongPressHint';
 const COMMENT_SHEET_TITLE = '\uB313\uAE00';
 const COMMENT_SHEET_DESCRIPTION = '\uD540 \uC704\uCE58\uC5D0 \uB0A8\uAE34 \uB313\uAE00';
 const PARTICIPANTS_SHEET_TITLE = '\uCC38\uC5EC\uD55C \uC778\uC6D0';
+const COMMENT_COLLAPSED_HEIGHT = 294;
+const COMMENT_COLLAPSED_SNAP = `${COMMENT_COLLAPSED_HEIGHT}px`;
+const FEED_IMAGE_FRAME_SELECTOR = '[data-feed-detail-image-frame]';
+
+const getCommentExpandedSnap = () => {
+  if (typeof window === 'undefined') return COMMENT_COLLAPSED_SNAP;
+
+  const imageFrame = document.querySelector<HTMLElement>(FEED_IMAGE_FRAME_SELECTOR);
+  const imageTop = imageFrame?.getBoundingClientRect().top ?? COMMENT_COLLAPSED_HEIGHT;
+  const expandedHeight = Math.max(
+    COMMENT_COLLAPSED_HEIGHT,
+    Math.round(window.innerHeight - imageTop),
+  );
+
+  return `${expandedHeight}px`;
+};
 
 interface FeedDetailLocationState {
   thumbnailUrl?: string;
@@ -122,11 +138,15 @@ export const FeedDetailContent = ({
           onExitComplete={completeClose}
           ariaTitle={COMMENT_SHEET_TITLE}
           ariaDescription={COMMENT_SHEET_DESCRIPTION}
+          snapPoints={[COMMENT_COLLAPSED_SNAP, getCommentExpandedSnap()]}
+          defaultSnapPoint={COMMENT_COLLAPSED_SNAP}
+          fadeFromIndex={0}
           avoidKeyboard
         >
           <CommentSheet
             inputVariant="commentup"
             comments={commentsForOpenPin}
+            fitHeight
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
               item.onDelete?.();

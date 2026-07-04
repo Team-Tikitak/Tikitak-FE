@@ -155,6 +155,7 @@ export function FeedImageDetail({
       )}
       ref={assignFigureRef}
       onContextMenu={(e) => e.preventDefault()}
+      data-feed-detail-image-frame
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
       {...props}
     >
