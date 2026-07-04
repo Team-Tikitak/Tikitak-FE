@@ -27,6 +27,9 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     handleClose,
     handleToggleFacingMode,
     facingMode,
+    zoomLevel,
+    isZoomSupported,
+    handleSelectZoomLevel,
     activeFilterId,
     handleSelectFilter,
   } = useCamera({
@@ -70,6 +73,9 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
             onClose={handleClose}
             onToggleFacingMode={handleToggleFacingMode}
             mirrored={facingMode === 'user'}
+            zoomLevel={zoomLevel}
+            zoomSupported={isZoomSupported}
+            onZoomChange={handleSelectZoomLevel}
           />
         )}
       </div>

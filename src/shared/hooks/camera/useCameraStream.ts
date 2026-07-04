@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
 export type CameraFacingMode = 'user' | 'environment';
+export type CameraZoomLevel = 1 | 2;
 
 const CAMERA_STREAM_WIDTH = 1920;
 const CAMERA_STREAM_HEIGHT = 1080;
@@ -12,6 +13,7 @@ const isCameraSupported = () =>
 type ZoomableMediaTrackCapabilities = MediaTrackCapabilities & {
   zoom?: {
     min?: number;
+    max?: number;
   };
 };
 
@@ -84,31 +86,58 @@ const selectPreferredDeviceId = async (stream: MediaStream, facingMode: CameraFa
   return preferred.device.deviceId;
 };
 
-const resetTrackZoom = async (stream: MediaStream) => {
+const getTrackZoom = (capabilities: ZoomableMediaTrackCapabilities, zoomLevel: CameraZoomLevel) => {
+  const minZoom = capabilities.zoom?.min;
+  const maxZoom = capabilities.zoom?.max;
+  if (typeof minZoom !== 'number') return null;
+
+  const targetZoom = Math.max(zoomLevel, minZoom);
+  return typeof maxZoom === 'number' ? Math.min(targetZoom, maxZoom) : targetZoom;
+};
+
+const isTwoStepZoomSupported = (capabilities: ZoomableMediaTrackCapabilities) => {
+  const maxZoom = capabilities.zoom?.max;
+  return typeof maxZoom === 'number' && maxZoom >= 2;
+};
+
+const applyTrackZoom = async (stream: MediaStream, zoomLevel: CameraZoomLevel) => {
   const [track] = stream.getVideoTracks();
   if (!track?.getCapabilities || !track.applyConstraints) return;
 
   const capabilities = track.getCapabilities() as ZoomableMediaTrackCapabilities;
-  const minZoom = capabilities.zoom?.min;
-  if (typeof minZoom !== 'number') return;
+  const zoom = getTrackZoom(capabilities, zoomLevel);
+  if (zoom === null) return;
 
   try {
     await track.applyConstraints({
-      advanced: [{ zoom: minZoom } as ZoomableMediaTrackConstraintSet],
+      advanced: [{ zoom } as ZoomableMediaTrackConstraintSet],
     });
   } catch {
     // Some WebViews expose zoom capabilities but reject applying them.
   }
 };
 
-export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 'environment') => {
+const getZoomSupport = (stream: MediaStream) => {
+  const [track] = stream.getVideoTracks();
+  if (!track?.getCapabilities) return false;
+
+  return isTwoStepZoomSupported(track.getCapabilities() as ZoomableMediaTrackCapabilities);
+};
+
+export const useCameraStream = (
+  paused: boolean,
+  facingMode: CameraFacingMode = 'environment',
+  zoomLevel: CameraZoomLevel = 1,
+) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const readyFrameRef = useRef<number | null>(null);
+  const zoomLevelRef = useRef(zoomLevel);
   const [error, setError] = useState<CameraError | null>(() =>
     isCameraSupported() ? null : 'unsupported',
   );
   const [isReady, setIsReady] = useState(false);
+  const [isZoomSupported, setIsZoomSupported] = useState(false);
 
   const stopStream = useCallback(() => {
     if (readyFrameRef.current !== null) {
@@ -122,8 +151,13 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
       video.pause();
       video.srcObject = null;
     }
+    setIsZoomSupported(false);
     setIsReady(false);
   }, []);
+
+  useEffect(() => {
+    zoomLevelRef.current = zoomLevel;
+  }, [zoomLevel]);
 
   useEffect(() => {
     if (paused || !isCameraSupported()) return;
@@ -158,7 +192,9 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
           activeStream.getTracks().forEach((track) => track.stop());
           return;
         }
-        await resetTrackZoom(activeStream);
+        const zoomSupported = facingMode === 'environment' && getZoomSupport(activeStream);
+        setIsZoomSupported(zoomSupported);
+        await applyTrackZoom(activeStream, zoomSupported ? zoomLevelRef.current : 1);
         if (cancelled) {
           activeStream.getTracks().forEach((track) => track.stop());
           return;
@@ -205,5 +241,12 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
     };
   }, [paused, facingMode, stopStream]);
 
-  return { videoRef, streamRef, error, isReady, stopStream };
+  useEffect(() => {
+    const stream = streamRef.current;
+    if (paused || !stream) return;
+
+    void applyTrackZoom(stream, isZoomSupported ? zoomLevel : 1);
+  }, [isZoomSupported, paused, zoomLevel]);
+
+  return { videoRef, streamRef, error, isReady, isZoomSupported, stopStream };
 };
