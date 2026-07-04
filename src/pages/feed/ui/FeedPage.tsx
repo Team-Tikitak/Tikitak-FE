@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
-import { flushSync } from 'react-dom';
 import { Link, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
@@ -21,6 +20,7 @@ import type { FeedItem } from '../model/types';
 const FEED_LIST_EAGER_COUNT = 6;
 const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
 const STORED_HERO_CLEAR_DELAY_MS = 900;
+const STORED_HERO_MAX_LIFETIME_MS = 5000;
 
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
   `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
@@ -33,7 +33,8 @@ export const FeedPage = () => {
   const [viewMode, setViewMode] = useState<FeedViewMode>('grid');
   const [viewModeTeamId, setViewModeTeamId] = useState(teamId);
   const [storedFeedHero, setStoredFeedHero] = useState(readStoredFeedHero);
-  if (teamId !== viewModeTeamId && viewModeTeamId !== null) {
+  const shouldResetTeamScopedState = teamId !== viewModeTeamId && viewModeTeamId !== null;
+  if (shouldResetTeamScopedState) {
     setViewModeTeamId(teamId);
     setViewMode('grid');
     setStoredFeedHero(null);
@@ -68,21 +69,32 @@ export const FeedPage = () => {
     : true;
 
   useEffect(() => {
+    if (!shouldResetTeamScopedState) return;
+    clearStoredFeedHero();
+  }, [shouldResetTeamScopedState]);
+
+  useEffect(() => {
     if (!storedFeedHero) return;
 
-    if (scrollRestored && isStoredHeroFeedLoaded) {
-      const id = window.setTimeout(() => {
-        clearStoredFeedHero();
-        setStoredFeedHero(null);
-      }, STORED_HERO_CLEAR_DELAY_MS);
-      return () => window.clearTimeout(id);
-    }
-
     const maxTimeoutId = window.setTimeout(() => {
-      clearStoredFeedHero();
       setStoredFeedHero(null);
-    }, 3000);
+    }, STORED_HERO_MAX_LIFETIME_MS);
     return () => window.clearTimeout(maxTimeoutId);
+  }, [storedFeedHero]);
+
+  useEffect(() => {
+    if (!storedFeedHero) return;
+
+    clearStoredFeedHero();
+  }, [storedFeedHero]);
+
+  useEffect(() => {
+    if (!storedFeedHero || !scrollRestored || !isStoredHeroFeedLoaded) return;
+
+    const id = window.setTimeout(() => {
+      setStoredFeedHero(null);
+    }, STORED_HERO_CLEAR_DELAY_MS);
+    return () => window.clearTimeout(id);
   }, [isStoredHeroFeedLoaded, scrollRestored, storedFeedHero]);
 
   const captureFeedHero = useCallback(
@@ -93,9 +105,7 @@ export const FeedPage = () => {
       const localRect = frameRect
         ? new DOMRect(rect.left - frameRect.left, rect.top - frameRect.top, rect.width, rect.height)
         : rect;
-      flushSync(() => {
-        setStoredFeedHero(storeFeedHero(item, localRect));
-      });
+      storeFeedHero(item, localRect);
     },
     [scrollRef],
   );

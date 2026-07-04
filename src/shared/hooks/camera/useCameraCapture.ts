@@ -75,11 +75,18 @@ export const useCameraCapture = ({
     context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
     canvas.toBlob(
-      (blob) => {
+      async (blob) => {
         if (!blob || !isMountedRef.current) return;
+        const previewBlob = await cropImageBlobToAspectRatio(
+          blob,
+          FEED_IMAGE_WIDTH,
+          FEED_IMAGE_HEIGHT,
+        ).catch(() => blob);
+        if (!isMountedRef.current) return;
+
         setPending({
-          rawBlob: blob,
-          previewUrl: URL.createObjectURL(blob),
+          rawBlob: previewBlob,
+          previewUrl: URL.createObjectURL(previewBlob),
           stickers: [],
         });
         stopStream();

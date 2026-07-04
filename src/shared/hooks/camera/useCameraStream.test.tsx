@@ -1,14 +1,19 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useCameraStream } from './useCameraStream';
+import { useCameraStream, type CameraZoomLevel } from './useCameraStream';
 
-const Harness = () => {
-  const { videoRef, isReady, stopStream } = useCameraStream(false);
+const Harness = ({ zoomLevel = 1 }: { zoomLevel?: CameraZoomLevel }) => {
+  const { videoRef, isReady, isZoomSupported, stopStream } = useCameraStream(
+    false,
+    'environment',
+    zoomLevel,
+  );
 
   return (
     <>
       <video ref={videoRef} />
       <span data-testid="ready">{String(isReady)}</span>
+      <span data-testid="zoom-supported">{String(isZoomSupported)}</span>
       <button type="button" onClick={stopStream}>
         stop
       </button>
@@ -126,9 +131,9 @@ describe('useCameraStream', () => {
     expect(initialTrack.stop).toHaveBeenCalled();
   });
 
-  it('resets supported camera zoom to the minimum value', async () => {
+  it('keeps supported camera zoom at 1x even when the lens exposes a 0.5x minimum', async () => {
     const track = {
-      getCapabilities: vi.fn(() => ({ zoom: { min: 1 } })),
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
       applyConstraints: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn(),
     };
@@ -141,6 +146,24 @@ describe('useCameraStream', () => {
         advanced: [{ zoom: 1 }],
       });
     });
+  });
+
+  it('applies 2x zoom when the selected level is supported', async () => {
+    const track = {
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      applyConstraints: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+    };
+    getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
+
+    render(<Harness zoomLevel={2} />);
+
+    await waitFor(() => {
+      expect(track.applyConstraints).toHaveBeenCalledWith({
+        advanced: [{ zoom: 2 }],
+      });
+    });
+    expect(screen.getByTestId('zoom-supported')).toHaveTextContent('true');
   });
 
   it('does not mark the stream ready after stopStream cancels a pending ready frame', async () => {

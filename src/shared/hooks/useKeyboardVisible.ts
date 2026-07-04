@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const KEYBOARD_MIN_HEIGHT = 120;
+const KEYBOARD_HIDE_SETTLE_MS = 280;
 
 const isEditableElement = (element: Element | null): boolean => {
   if (!(element instanceof HTMLElement)) return false;
@@ -21,12 +22,34 @@ export const useKeyboardVisible = (): boolean => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    let hideTimer: number | null = null;
+
+    const clearHideTimer = () => {
+      if (hideTimer === null) return;
+      window.clearTimeout(hideTimer);
+      hideTimer = null;
+    };
+
+    const updateVisible = (nextVisible: boolean) => {
+      clearHideTimer();
+
+      if (nextVisible) {
+        setVisible(true);
+        return;
+      }
+
+      hideTimer = window.setTimeout(() => {
+        setVisible(false);
+        hideTimer = null;
+      }, KEYBOARD_HIDE_SETTLE_MS);
+    };
+
     const syncFromViewport = () => {
-      setVisible(isEditableElement(document.activeElement) || hasVisualKeyboardOverlap());
+      updateVisible(isEditableElement(document.activeElement) || hasVisualKeyboardOverlap());
     };
 
     const handleFocusIn = (event: FocusEvent) => {
-      setVisible(isEditableElement(event.target instanceof Element ? event.target : null));
+      updateVisible(isEditableElement(event.target instanceof Element ? event.target : null));
     };
 
     const handleFocusOut = () => {
@@ -44,6 +67,7 @@ export const useKeyboardVisible = (): boolean => {
       document.removeEventListener('focusout', handleFocusOut);
       window.visualViewport?.removeEventListener('resize', syncFromViewport);
       window.visualViewport?.removeEventListener('scroll', syncFromViewport);
+      clearHideTimer();
     };
   }, []);
 

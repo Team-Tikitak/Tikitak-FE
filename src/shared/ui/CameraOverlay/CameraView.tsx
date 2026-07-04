@@ -1,7 +1,8 @@
-﻿import { type RefObject, useEffect, useRef } from 'react';
+﻿import { type RefObject } from 'react';
 import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { type CameraError } from '@/shared/hooks/camera/useCamera';
+import { type CameraZoomLevel } from '@/shared/hooks/camera/useCameraStream';
 import { cn } from '@/shared/lib';
 import { CameraButton } from './CameraButton';
 
@@ -19,6 +20,9 @@ interface CameraViewProps {
   onClose: () => void;
   onToggleFacingMode: () => void;
   mirrored?: boolean;
+  zoomLevel?: CameraZoomLevel;
+  zoomSupported?: boolean;
+  onZoomChange?: (zoomLevel: CameraZoomLevel) => void;
 }
 
 export const CameraView = ({
@@ -29,34 +33,12 @@ export const CameraView = ({
   onClose,
   onToggleFacingMode,
   mirrored = false,
+  zoomLevel = 1,
+  zoomSupported = false,
+  onZoomChange,
 }: CameraViewProps) => {
-  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const backgroundVideo = backgroundVideoRef.current;
-    const previewVideo = videoRef.current;
-    if (!backgroundVideo || !previewVideo) return;
-
-    backgroundVideo.srcObject = previewVideo.srcObject;
-    if (previewVideo.srcObject) {
-      void backgroundVideo.play().catch(() => undefined);
-    }
-  }, [isReady, videoRef]);
-
   return (
     <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
-      <video
-        ref={backgroundVideoRef}
-        autoPlay
-        playsInline
-        muted
-        aria-hidden="true"
-        className={cn(
-          'pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl transition-opacity duration-150',
-          mirrored && '-scale-x-100',
-          isReady ? 'opacity-60' : 'opacity-0',
-        )}
-      />
       <video
         ref={videoRef}
         data-testid="camera-preview"
@@ -64,7 +46,7 @@ export const CameraView = ({
         playsInline
         muted
         className={cn(
-          'absolute inset-0 h-full w-full object-contain transition-opacity duration-150',
+          'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
           mirrored && '-scale-x-100',
           isReady ? 'opacity-100' : 'opacity-0',
         )}
@@ -87,6 +69,28 @@ export const CameraView = ({
 
       {isReady && !error && (
         <>
+          {zoomSupported && (
+            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+132px)] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/35 p-1 backdrop-blur-md">
+              {([1, 2] as const).map((level) => {
+                const selected = zoomLevel === level;
+                return (
+                  <button
+                    key={level}
+                    type="button"
+                    aria-label={`${level}배 줌`}
+                    aria-pressed={selected}
+                    onClick={() => onZoomChange?.(level)}
+                    className={cn(
+                      'press-feedback flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-colors',
+                      selected && 'text-main-001 bg-[rgba(30,31,31,0.72)]',
+                    )}
+                  >
+                    {level}x
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <CameraButton
             className="absolute bottom-[calc(env(safe-area-inset-bottom)+40px)] z-10"
             onClick={onCapture}

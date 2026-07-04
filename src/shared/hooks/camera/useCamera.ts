@@ -3,7 +3,12 @@ import { getFilterCss, type PhotoFilterId } from '@/shared/lib/image/photoFilter
 import type { CapturedPhoto } from '@/shared/types/photo';
 import type { PendingState, PlacedSticker } from '@/shared/types/sticker';
 import { useCameraCapture } from './useCameraCapture';
-import { useCameraStream, type CameraError, type CameraFacingMode } from './useCameraStream';
+import {
+  useCameraStream,
+  type CameraError,
+  type CameraFacingMode,
+  type CameraZoomLevel,
+} from './useCameraStream';
 import { usePendingSticker } from './usePendingSticker';
 
 export type { CameraError };
@@ -18,13 +23,14 @@ interface UseCameraOptions {
 export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
   const [pending, setPending] = useState<PendingState | null>(null);
   const [facingMode, setFacingMode] = useState<CameraFacingMode>('environment');
+  const [zoomLevel, setZoomLevel] = useState<CameraZoomLevel>(1);
   const [activeFilterId, setActiveFilterId] = useState<PhotoFilterId>('none');
-  const stream = useCameraStream(!open || pending !== null, facingMode);
+  const stream = useCameraStream(!open || pending !== null, facingMode, zoomLevel);
 
-  const handleToggleFacingMode = useCallback(
-    () => setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user')),
-    [],
-  );
+  const handleToggleFacingMode = useCallback(() => {
+    setZoomLevel(1);
+    setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
+  }, []);
 
   const capture = useCameraCapture({
     videoRef: stream.videoRef,
@@ -73,6 +79,9 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     handleClose,
     handleToggleFacingMode,
     facingMode,
+    zoomLevel,
+    isZoomSupported: stream.isZoomSupported,
+    handleSelectZoomLevel: setZoomLevel,
     activeFilterId,
     handleSelectFilter: setActiveFilterId,
   };
