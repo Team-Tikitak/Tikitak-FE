@@ -33,9 +33,10 @@ export const FeedPage = () => {
   const [viewMode, setViewMode] = useState<FeedViewMode>('grid');
   const [viewModeTeamId, setViewModeTeamId] = useState(teamId);
   const [storedFeedHero, setStoredFeedHero] = useState(readStoredFeedHero);
-  if (teamId !== viewModeTeamId) {
+  if (teamId !== viewModeTeamId && viewModeTeamId !== null) {
     setViewModeTeamId(teamId);
     setViewMode('grid');
+    setStoredFeedHero(null);
   }
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -68,13 +69,20 @@ export const FeedPage = () => {
 
   useEffect(() => {
     if (!storedFeedHero) return;
-    if (!scrollRestored || !isStoredHeroFeedLoaded) return;
 
-    const id = window.setTimeout(() => {
+    if (scrollRestored && isStoredHeroFeedLoaded) {
+      const id = window.setTimeout(() => {
+        clearStoredFeedHero();
+        setStoredFeedHero(null);
+      }, STORED_HERO_CLEAR_DELAY_MS);
+      return () => window.clearTimeout(id);
+    }
+
+    const maxTimeoutId = window.setTimeout(() => {
       clearStoredFeedHero();
       setStoredFeedHero(null);
-    }, STORED_HERO_CLEAR_DELAY_MS);
-    return () => window.clearTimeout(id);
+    }, 3000);
+    return () => window.clearTimeout(maxTimeoutId);
   }, [isStoredHeroFeedLoaded, scrollRestored, storedFeedHero]);
 
   const captureFeedHero = useCallback(

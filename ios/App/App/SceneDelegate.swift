@@ -41,4 +41,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
     }
 
+    deinit {}
+
 }

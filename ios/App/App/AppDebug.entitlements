@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>tikitak://app.tikitak.domain</string>
+		<string>applinks:app.tikitak.space</string>
 	</array>
 </dict>
 </plist>

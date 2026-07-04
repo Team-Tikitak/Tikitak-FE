@@ -23,14 +23,20 @@ export const useOAuthDeepLink = (): void => {
       const loginCode = parseLoginCode(url);
       if (!loginCode || handledLoginCodeRef.current === loginCode) return;
 
-      handledLoginCodeRef.current = loginCode;
       void Browser.close().catch(() => undefined);
-      mutate(loginCode);
+      handledLoginCodeRef.current = loginCode;
+      mutate(loginCode, {
+        onError: () => {
+          handledLoginCodeRef.current = null;
+        },
+      });
     };
 
-    void App.getLaunchUrl().then((launch) => {
-      if (launch?.url) exchangeLoginCode(launch.url);
-    });
+    void App.getLaunchUrl()
+      .then((launch) => {
+        if (launch?.url) exchangeLoginCode(launch.url);
+      })
+      .catch(() => undefined);
 
     const listener = App.addListener('appUrlOpen', ({ url }) => exchangeLoginCode(url));
 

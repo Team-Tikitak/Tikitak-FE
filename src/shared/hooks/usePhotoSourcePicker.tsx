@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { useRef } from 'react';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { openOverlay } from '@/shared/lib';
 import { createId } from '@/shared/lib/createId';
@@ -30,6 +31,8 @@ export const usePhotoSourcePicker = ({
   source = 'all',
   onAdd,
 }: UsePhotoSourcePickerOptions) => {
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const isAcceptedType = (blob: Blob) => {
     if (!acceptedMimeTypes) return true;
     if (acceptedMimeTypes.includes(blob.type)) return true;
@@ -95,6 +98,10 @@ export const usePhotoSourcePicker = ({
 
   const pick = async () => {
     if (remaining <= 0) return;
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     if (!Capacitor.isNativePlatform()) {
       openPicker();
       return;
@@ -114,12 +121,20 @@ export const usePhotoSourcePicker = ({
     });
     if (index === 0) {
       await waitForNativeActionSheetDismiss();
-      openCamera();
+      if (!controller.signal.aborted) {
+        openCamera();
+      }
     } else if (index === 1) {
       await waitForNativeActionSheetDismiss();
-      await openGallery();
+      if (!controller.signal.aborted) {
+        await openGallery();
+      }
     }
   };
 
-  return { pick, inputProps };
+  const cancel = () => {
+    abortControllerRef.current?.abort();
+  };
+
+  return { pick, inputProps, cancel };
 };

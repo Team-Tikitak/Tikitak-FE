@@ -54,6 +54,9 @@ export const storeFeedHero = (item: FeedItem, rect: DOMRect): StoredFeedHero => 
     width: rect.width,
     height: rect.height,
   };
+  if (!thumbnailUrl && !heroPreviewUrl) {
+    return payload;
+  }
   safeSessionSet(FEED_HERO_STORAGE_KEY, JSON.stringify(payload));
   return payload;
 };
