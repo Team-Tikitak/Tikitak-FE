@@ -16,6 +16,13 @@ interface UsePhotoSourcePickerOptions {
   onAdd: (photo: CapturedPhoto) => void;
 }
 
+const NATIVE_ACTION_SHEET_DISMISS_DELAY_MS = 180;
+
+const waitForNativeActionSheetDismiss = () =>
+  new Promise<void>((resolve) => {
+    window.setTimeout(resolve, NATIVE_ACTION_SHEET_DISMISS_DELAY_MS);
+  });
+
 export const usePhotoSourcePicker = ({
   remaining,
   maxFileSizeBytes,
@@ -105,8 +112,13 @@ export const usePhotoSourcePicker = ({
         { title: '취소', style: ActionSheetButtonStyle.Cancel },
       ],
     });
-    if (index === 0) openCamera();
-    else if (index === 1) await openGallery();
+    if (index === 0) {
+      await waitForNativeActionSheetDismiss();
+      openCamera();
+    } else if (index === 1) {
+      await waitForNativeActionSheetDismiss();
+      await openGallery();
+    }
   };
 
   return { pick, inputProps };
