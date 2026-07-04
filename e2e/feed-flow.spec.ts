@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { blockThirdParty, json, mockApi, seedFeedListView, skipSplash, wrap } from './fixtures/api';
+import { blockThirdParty, json, mockApi, skipSplash, wrap } from './fixtures/api';
 
 const MOCK_TEAM = {
   teamId: 100,
@@ -19,7 +19,6 @@ test.describe('피드 흐름', () => {
   test.beforeEach(async ({ page }) => {
     await skipSplash(page);
     await blockThirdParty(page);
-    await seedFeedListView(page);
     await mockApi(page, {
       me: { hasTeam: true, activeTeamId: 100 },
       teams: [MOCK_TEAM],
@@ -74,6 +73,7 @@ test.describe('피드 흐름', () => {
 
   test('피드 페이지에 피드 1개와 목록 카운트가 표시된다', async ({ page }) => {
     await page.goto('/feed');
+    await page.getByRole('button', { name: '리스트 보기' }).click();
 
     await expect(page.getByText('E2E 첫 피드')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText('카페 마루')).toBeVisible();
@@ -109,6 +109,7 @@ test.describe('피드 흐름', () => {
     });
 
     await page.goto('/feed');
+    await page.getByRole('button', { name: '리스트 보기' }).click();
 
     await page.getByText('E2E 첫 피드').click();
 

@@ -112,12 +112,6 @@ export const seedAccessToken = async (page: Page): Promise<void> => {
   });
 };
 
-export const seedFeedListView = async (page: Page): Promise<void> => {
-  await page.context().addInitScript(() => {
-    window.sessionStorage.setItem('tikitak:feed-view-mode', 'list');
-  });
-};
-
 // 첫 방문 롱프레스 힌트 오버레이를 본 것으로 시드 (클릭 가로채기 방지)
 export const seedHintSeen = async (page: Page): Promise<void> => {
   await page.context().addInitScript(() => {
