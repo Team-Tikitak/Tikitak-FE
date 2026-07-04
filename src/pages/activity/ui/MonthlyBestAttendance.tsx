@@ -1,5 +1,6 @@
 import { useHomeBestAttendance } from '@/shared/api/home/queries';
 import type { HomeBestAttendanceMember } from '@/shared/api/home/types';
+import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
 import { cn, normalizeImageUrl } from '@/shared/lib';
 
 interface MonthlyBestAttendanceProps {
@@ -28,16 +29,37 @@ const CrownIcon = ({ className }: { className?: string }) => (
 );
 
 export const MonthlyBestAttendance = ({ teamId }: MonthlyBestAttendanceProps) => {
-  const { data } = useHomeBestAttendance(teamId);
+  const { data, isPending } = useHomeBestAttendance(teamId);
   const top3 = (data?.members ?? []).filter((m) => m.rank >= 1 && m.rank <= 3);
+
+  if (!isPending && top3.length === 0) {
+    return (
+      <section className="flex w-full flex-col gap-[18px]">
+        <h2 className="body-2 text-black">이달의 Best 출석</h2>
+        <div className="flex h-[235px] w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 px-6">
+          <TakBuilder className="w-[72px]" aria-hidden="true" />
+          <p className="body-10 text-center text-gray-600">
+            아직 이달의 출석 기록이 없어요.
+            <br />+ 버튼을 눌러 모임에 참여해주세요.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex w-full flex-col gap-[18px]">
       <h2 className="body-2 text-black">이달의 Best 출석</h2>
       <div className="flex h-[235px] w-full items-end justify-center gap-0">
-        {top3.map((member) => (
-          <PodiumColumn key={member.teamMemberId} member={member} />
-        ))}
+        {isPending ? (
+          <div className="flex w-full gap-3">
+            <div className="h-[115px] w-[76px] animate-pulse rounded bg-gray-200" />
+            <div className="h-[68px] w-[76px] animate-pulse rounded bg-gray-200" />
+            <div className="h-[48px] w-[76px] animate-pulse rounded bg-gray-200" />
+          </div>
+        ) : (
+          top3.map((member) => <PodiumColumn key={member.teamMemberId} member={member} />)
+        )}
       </div>
     </section>
   );

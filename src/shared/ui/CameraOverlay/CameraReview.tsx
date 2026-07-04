@@ -78,9 +78,16 @@ export const CameraReview = ({
       >
         <img
           src={imageUrl}
+          alt=""
+          aria-hidden="true"
+          style={{ filter: getFilterCss(activeFilterId) }}
+          className="no-native-image pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+        />
+        <img
+          src={imageUrl}
           alt="촬영된 사진"
           style={{ filter: getFilterCss(activeFilterId) }}
-          className="no-native-image h-full w-full object-cover"
+          className="no-native-image relative h-full w-full object-contain"
         />
         {stickers.map((sticker) => (
           <PlacedStickerView

@@ -3,13 +3,18 @@ import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { shouldShowDailyQuestion } from '@/shared/api/dailyQuestion/selectors';
-import { useHomeBestAttendance } from '@/shared/api/home/queries';
+import {
+  useHomeBestAttendance,
+  useHomeEveryonePick,
+  useHomeRegions,
+} from '@/shared/api/home/queries';
 import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
+import type { ReactNode } from 'react';
 
 export const ActivityPage = () => {
   const navigate = useNavigate();
@@ -23,6 +28,9 @@ export const ActivityPage = () => {
     isPending: isBestAttendancePending,
     isFetching: isBestAttendanceFetching,
   } = useHomeBestAttendance(activeTeam?.teamId);
+  const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(activeTeam?.teamId);
+  const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(activeTeam?.teamId);
+
   const dailyQuestion = question?.content;
   const showDailyQuestion = shouldShowDailyQuestion(question);
   const hasActiveTeam = Boolean(activeTeam?.teamId);
@@ -30,18 +38,43 @@ export const ActivityPage = () => {
   const isLoading =
     isMePending ||
     isTeamsPending ||
-    (hasActiveTeam && (isQuestionPending || isBestAttendancePending));
+    (hasActiveTeam &&
+      (isQuestionPending || isBestAttendancePending || isPickPending || isRegionsPending));
   const isHeaderLoading = isMePending || isTeamsPending;
-  const isEmpty =
+
+  const hasNoAttendance =
     !isBestAttendanceFetching &&
     bestAttendance !== undefined &&
     (bestAttendance.members ?? []).length === 0;
+  const hasNoPicks =
+    !isPickPending && pickData !== undefined && (pickData.picks ?? []).length === 0;
+  const hasNoRegions =
+    !isRegionsPending && regionsData !== undefined && (regionsData.regions ?? []).length === 0;
+  const isEmpty = hasNoAttendance && hasNoPicks && hasNoRegions;
 
   if (!isLoading && !hasActiveTeam) {
     return (
       <PageShell contentClassName="flex flex-1 flex-col">
         <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
       </PageShell>
+    );
+  }
+
+  let content: ReactNode;
+  if (isLoading) {
+    content = <ActivitySkeleton />;
+  } else if (isEmpty) {
+    content = (
+      <div className="flex flex-1 items-center justify-center pb-3.5">
+        <EmptyActiveView />
+      </div>
+    );
+  } else {
+    content = (
+      <div className="flex flex-col gap-9 px-5">
+        <MonthlyBestAttendance teamId={activeTeam?.teamId} />
+        <MonthlyMemories teamId={activeTeam?.teamId} />
+      </div>
     );
   }
 
@@ -63,18 +96,7 @@ export const ActivityPage = () => {
           onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
         />
       ) : null}
-      {isLoading ? (
-        <ActivitySkeleton />
-      ) : isEmpty ? (
-        <div className="flex flex-1 items-center justify-center pb-3.5">
-          <EmptyActiveView />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-9 px-5">
-          <MonthlyBestAttendance teamId={activeTeam?.teamId} />
-          <MonthlyMemories teamId={activeTeam?.teamId} />
-        </div>
-      )}
+      {content}
     </PageShell>
   );
 };

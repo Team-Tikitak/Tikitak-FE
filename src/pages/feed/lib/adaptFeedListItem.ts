@@ -4,14 +4,16 @@ import { normalizeImageUrl, toSafeImageUrl } from '@/shared/lib/image/normalizeI
 import type { FeedItem } from '../model/types';
 
 export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
+  const thumbnailUrl = toSafeImageUrl(item.thumbnailImageUrl);
+
   return {
     id: String(item.feedId),
     location:
       item.type === 'DAILY_QUESTION' ? (item.question?.content ?? '') : (item.place?.name ?? ''),
     title: item.content ?? '',
     date: formatYmd(item.createdAt),
-    thumbnailUrl: toSafeImageUrl(item.thumbnailImageUrl),
-    heroPreviewUrl: toSafeImageUrl(item.heroPreviewUrl),
+    thumbnailUrl,
+    heroPreviewUrl: normalizeImageUrl(item.heroPreviewUrl) ?? thumbnailUrl,
     photoCount: item.imageCount,
     participantAvatarUrls: (item.taggedMembers ?? [])
       .map((member) => normalizeImageUrl(member.profileImageUrl))

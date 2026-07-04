@@ -1,7 +1,7 @@
-import { type UIEvent, useEffect, useRef } from 'react';
+import { type UIEvent, useEffect, useRef, useState } from 'react';
 import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
-const MAX_RESTORE_ATTEMPTS = 8;
+const MAX_RESTORE_ATTEMPTS = 30;
 
 const readScrollTop = (key: string) => {
   const value = safeSessionGet(key);
@@ -28,6 +28,7 @@ export const useScrollRestore = (
   const pendingFrameRef = useRef<number | null>(null);
   const pendingKeyRef = useRef<string | null>(null);
   const latestTopRef = useRef(0);
+  const [restoredKey, setRestoredKey] = useState<string | null>(null);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!key) return;
@@ -60,8 +61,11 @@ export const useScrollRestore = (
 
     const savedScrollTop = readScrollTop(key);
     if (savedScrollTop <= 0) {
-      restoredKeyRef.current = key;
-      return;
+      const frame = window.requestAnimationFrame(() => {
+        restoredKeyRef.current = key;
+        setRestoredKey(key);
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
 
     let frame = 0;
@@ -75,6 +79,7 @@ export const useScrollRestore = (
       if (maxScrollTop >= savedScrollTop || attempts >= MAX_RESTORE_ATTEMPTS) {
         container.scrollTop = Math.min(savedScrollTop, maxScrollTop);
         restoredKeyRef.current = key;
+        setRestoredKey(key);
         return;
       }
 
@@ -87,5 +92,5 @@ export const useScrollRestore = (
     return () => window.cancelAnimationFrame(frame);
   }, [key, ready, contentSignal]);
 
-  return { scrollRef, handleScroll };
+  return { scrollRef, handleScroll, restored: !key || restoredKey === key };
 };

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
 const EDGE_WIDTH_PX = 24;
-const TRIGGER_DISTANCE_PX = 60;
+const TRIGGER_DISTANCE_PX = 88;
 
 // iOS 왼쪽 가장자리 스와이프 → 뒤로가기 (감지 후 ssgoi 전환 재생, 손가락 추적은 아님)
 export const useEdgeSwipeBack = (onBack?: () => void) => {

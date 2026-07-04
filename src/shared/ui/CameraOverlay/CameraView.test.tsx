@@ -12,16 +12,16 @@ const baseProps = {
 
 describe('CameraView', () => {
   it('keeps camera controls hidden until the stream is ready', () => {
-    const { container } = render(<CameraView {...baseProps} isReady={false} />);
+    render(<CameraView {...baseProps} isReady={false} />);
 
-    expect(container.querySelector('video')).toHaveClass('opacity-0');
+    expect(screen.getByTestId('camera-preview')).toHaveClass('opacity-0');
     expect(screen.queryByRole('button', { name: '카메라 전환' })).not.toBeInTheDocument();
   });
 
   it('shows the video and camera controls after the stream is ready', () => {
-    const { container } = render(<CameraView {...baseProps} isReady />);
+    render(<CameraView {...baseProps} isReady />);
 
-    expect(container.querySelector('video')).toHaveClass('opacity-100');
+    expect(screen.getByTestId('camera-preview')).toHaveClass('opacity-100', 'object-contain');
     expect(screen.getByRole('button', { name: '카메라 전환' })).toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(3);
   });

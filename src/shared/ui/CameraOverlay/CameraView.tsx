@@ -1,4 +1,4 @@
-﻿import { type RefObject } from 'react';
+﻿import { type RefObject, useEffect, useRef } from 'react';
 import ChangeIcon from '@/shared/assets/Icon/Change.svg?react';
 import CloseIcon3 from '@/shared/assets/Icon/CloseIcon3.svg?react';
 import { type CameraError } from '@/shared/hooks/camera/useCamera';
@@ -30,16 +30,42 @@ export const CameraView = ({
   onToggleFacingMode,
   mirrored = false,
 }: CameraViewProps) => {
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const backgroundVideo = backgroundVideoRef.current;
+    const previewVideo = videoRef.current;
+    if (!backgroundVideo || !previewVideo) return;
+
+    backgroundVideo.srcObject = previewVideo.srcObject;
+    if (previewVideo.srcObject) {
+      void backgroundVideo.play().catch(() => undefined);
+    }
+  }, [isReady, videoRef]);
+
   return (
     <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
       <video
+        ref={backgroundVideoRef}
+        autoPlay
+        playsInline
+        muted
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl transition-opacity duration-150',
+          mirrored && '-scale-x-100',
+          isReady ? 'opacity-60' : 'opacity-0',
+        )}
+      />
+      <video
         ref={videoRef}
+        data-testid="camera-preview"
         autoPlay
         playsInline
         muted
         className={cn(
-          'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
-          mirrored ? '-scale-x-[1.01] scale-y-[1.01]' : 'scale-[1.01]',
+          'absolute inset-0 h-full w-full object-contain transition-opacity duration-150',
+          mirrored && '-scale-x-100',
           isReady ? 'opacity-100' : 'opacity-0',
         )}
       />

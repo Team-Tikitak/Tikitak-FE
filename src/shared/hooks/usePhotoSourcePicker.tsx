@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { useRef } from 'react';
 import { useImageFileInput } from '@/shared/hooks/useImageFileInput';
 import { openOverlay } from '@/shared/lib';
 import { createId } from '@/shared/lib/createId';
@@ -16,6 +17,13 @@ interface UsePhotoSourcePickerOptions {
   onAdd: (photo: CapturedPhoto) => void;
 }
 
+const NATIVE_ACTION_SHEET_DISMISS_DELAY_MS = 180;
+
+const waitForNativeActionSheetDismiss = () =>
+  new Promise<void>((resolve) => {
+    window.setTimeout(resolve, NATIVE_ACTION_SHEET_DISMISS_DELAY_MS);
+  });
+
 export const usePhotoSourcePicker = ({
   remaining,
   maxFileSizeBytes,
@@ -23,6 +31,8 @@ export const usePhotoSourcePicker = ({
   source = 'all',
   onAdd,
 }: UsePhotoSourcePickerOptions) => {
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const isAcceptedType = (blob: Blob) => {
     if (!acceptedMimeTypes) return true;
     if (acceptedMimeTypes.includes(blob.type)) return true;
@@ -88,6 +98,10 @@ export const usePhotoSourcePicker = ({
 
   const pick = async () => {
     if (remaining <= 0) return;
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     if (!Capacitor.isNativePlatform()) {
       openPicker();
       return;
@@ -105,9 +119,22 @@ export const usePhotoSourcePicker = ({
         { title: '취소', style: ActionSheetButtonStyle.Cancel },
       ],
     });
-    if (index === 0) openCamera();
-    else if (index === 1) await openGallery();
+    if (index === 0) {
+      await waitForNativeActionSheetDismiss();
+      if (!controller.signal.aborted) {
+        openCamera();
+      }
+    } else if (index === 1) {
+      await waitForNativeActionSheetDismiss();
+      if (!controller.signal.aborted) {
+        await openGallery();
+      }
+    }
   };
 
-  return { pick, inputProps };
+  const cancel = () => {
+    abortControllerRef.current?.abort();
+  };
+
+  return { pick, inputProps, cancel };
 };

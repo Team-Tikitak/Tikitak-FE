@@ -7,15 +7,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  CAMERA_REVIEW_IMAGE_HEIGHT,
-  CAMERA_REVIEW_IMAGE_WIDTH,
-  FEED_IMAGE_HEIGHT,
-  FEED_IMAGE_WIDTH,
-} from '@/shared/constants';
+import { FEED_IMAGE_HEIGHT, FEED_IMAGE_WIDTH } from '@/shared/constants';
 import { createId } from '@/shared/lib/createId';
 import { composePhotoWithStickers } from '@/shared/lib/image/composePhoto';
-import { computeCaptureRect } from '@/shared/lib/image/computeCaptureRect';
 import { cropImageBlobToAspectRatio } from '@/shared/lib/image/cropImageBlob';
 import { applyFilterToBlob } from '@/shared/lib/image/photoFilter';
 import type { CapturedPhoto } from '@/shared/types/photo';
@@ -63,39 +57,22 @@ export const useCameraCapture = ({
   const handleCapture = useCallback(() => {
     const video = videoRef.current;
     if (!video || !streamRef.current) return;
-
-    const rect = computeCaptureRect(
-      video.videoWidth,
-      video.videoHeight,
-      CAMERA_REVIEW_IMAGE_WIDTH,
-      CAMERA_REVIEW_IMAGE_HEIGHT,
-    );
-    if (!rect) return;
+    if (video.videoWidth === 0 || video.videoHeight === 0) return;
 
     const canvas = document.createElement('canvas');
-    canvas.width = rect.sourceWidth;
-    canvas.height = rect.sourceHeight;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const context = canvas.getContext('2d');
     if (!context) return;
 
     context.imageSmoothingQuality = 'high';
 
     if (mirror) {
-      context.translate(rect.sourceWidth, 0);
+      context.translate(video.videoWidth, 0);
       context.scale(-1, 1);
     }
 
-    context.drawImage(
-      video,
-      rect.sourceX,
-      rect.sourceY,
-      rect.sourceWidth,
-      rect.sourceHeight,
-      0,
-      0,
-      rect.sourceWidth,
-      rect.sourceHeight,
-    );
+    context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
     canvas.toBlob(
       (blob) => {

@@ -2,45 +2,25 @@ import { type ComponentPropsWithRef, type MouseEvent, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
+import { preloadFeedHeroAssets, preloadImage } from '../lib/feedHeroAssets';
 import type { FeedItem } from '../model/types';
 
 const GRID_EAGER_COUNT = 9;
-const HERO_PRELOAD_TIMEOUT_MS = 180;
-const IMAGE_PRELOAD_CACHE_LIMIT = 150;
-const imagePreloadCache = new Map<string, Promise<void>>();
 
 interface FeedGridProps extends Omit<ComponentPropsWithRef<'ul'>, 'children'> {
   items: FeedItem[];
+  suppressedHeroId?: string | null;
+  onHeroCapture?: (item: FeedItem, source: HTMLElement) => void;
 }
 
-const preloadImage = (url: string): Promise<void> => {
-  if (!url) return Promise.resolve();
-  const cached = imagePreloadCache.get(url);
-  if (cached) return cached;
-
-  const preload = new Promise<void>((resolve) => {
-    const image = new Image();
-    image.onload = () => resolve();
-    image.onerror = () => resolve();
-    image.src = url;
-  });
-  imagePreloadCache.set(url, preload);
-  if (imagePreloadCache.size > IMAGE_PRELOAD_CACHE_LIMIT) {
-    const oldestKey = imagePreloadCache.keys().next().value;
-    if (oldestKey) imagePreloadCache.delete(oldestKey);
-  }
-  return preload;
-};
-
-const preloadHeroAssets = (item: FeedItem) =>
-  Promise.race([
-    Promise.all([preloadImage(item.thumbnailUrl), preloadImage(item.heroPreviewUrl)]).then(
-      () => undefined,
-    ),
-    new Promise<void>((resolve) => window.setTimeout(resolve, HERO_PRELOAD_TIMEOUT_MS)),
-  ]);
-
-export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => {
+export const FeedGrid = ({
+  items,
+  suppressedHeroId,
+  onHeroCapture,
+  className,
+  ref,
+  ...props
+}: FeedGridProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,7 +45,7 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
   }, [items]);
 
   const warmHeroAssets = (item: FeedItem) => {
-    void preloadHeroAssets(item);
+    void preloadFeedHeroAssets(item);
   };
 
   const handleFeedClick = async (event: MouseEvent<HTMLAnchorElement>, item: FeedItem) => {
@@ -81,7 +61,9 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
     }
 
     event.preventDefault();
-    await preloadHeroAssets(item);
+    const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+    if (source) onHeroCapture?.(item, source);
+    await preloadFeedHeroAssets(item);
     navigate(toFeedDetail(item.id), {
       state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
     });
@@ -98,19 +80,31 @@ export const FeedGrid = ({ items, className, ref, ...props }: FeedGridProps) => 
               state={{ thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl }}
               aria-label={`${item.title || item.location || '피드'} 상세 보기`}
               className="block aspect-square size-full"
-              onPointerDown={() => warmHeroAssets(item)}
-              onFocus={() => warmHeroAssets(item)}
+              onPointerDown={(event) => {
+                const source =
+                  event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+                if (source) onHeroCapture?.(item, source);
+                warmHeroAssets(item);
+              }}
+              onFocus={() => {
+                warmHeroAssets(item);
+              }}
               onMouseEnter={() => warmHeroAssets(item)}
               onClick={(event) => void handleFeedClick(event, item)}
             >
               <img
-                data-hero-exit-key={`pin-${item.id}`}
+                {...(suppressedHeroId === item.id
+                  ? {}
+                  : { 'data-hero-exit-key': `pin-${item.id}` })}
                 src={item.thumbnailUrl}
                 alt=""
                 loading={isAboveFold ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
                 decoding="async"
-                className="no-native-image size-full object-cover"
+                className={cn(
+                  'no-native-image size-full object-cover',
+                  suppressedHeroId === item.id && 'opacity-0',
+                )}
               />
             </Link>
           </li>

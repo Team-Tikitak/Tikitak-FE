@@ -1,13 +1,105 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CAMERA_REVIEW_IMAGE_HEIGHT, CAMERA_REVIEW_IMAGE_WIDTH } from '@/shared/constants';
-
 export type CameraError = 'permission' | 'unsupported' | 'unknown';
 export type CameraFacingMode = 'user' | 'environment';
 
-const CAMERA_PREVIEW_ASPECT_RATIO = CAMERA_REVIEW_IMAGE_WIDTH / CAMERA_REVIEW_IMAGE_HEIGHT;
+const CAMERA_STREAM_WIDTH = 1920;
+const CAMERA_STREAM_HEIGHT = 1080;
+const CAMERA_STREAM_ASPECT_RATIO = 16 / 9;
 
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
+
+type ZoomableMediaTrackCapabilities = MediaTrackCapabilities & {
+  zoom?: {
+    min?: number;
+  };
+};
+
+type ZoomableMediaTrackConstraintSet = MediaTrackConstraintSet & {
+  zoom?: number;
+};
+
+type CameraMediaTrackConstraintSet = MediaTrackConstraintSet & {
+  resizeMode?: 'none';
+  zoom?: number;
+};
+
+type CameraVideoConstraints = MediaTrackConstraints & {
+  resizeMode?: 'none';
+};
+
+const buildVideoConstraints = (
+  facingMode: CameraFacingMode,
+  deviceId?: string,
+): CameraVideoConstraints => ({
+  ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: facingMode } }),
+  width: { ideal: CAMERA_STREAM_WIDTH },
+  height: { ideal: CAMERA_STREAM_HEIGHT },
+  aspectRatio: { ideal: CAMERA_STREAM_ASPECT_RATIO },
+  resizeMode: 'none',
+  advanced: [{ zoom: 1 } as CameraMediaTrackConstraintSet],
+});
+
+const includesAny = (value: string, keywords: string[]) =>
+  keywords.some((keyword) => value.includes(keyword));
+
+const getDeviceScore = (device: MediaDeviceInfo, facingMode: CameraFacingMode) => {
+  const label = device.label.toLowerCase();
+  const isFront = includesAny(label, ['front', 'user', '전면']);
+  const isBack = includesAny(label, ['back', 'rear', 'environment', '후면']);
+  const isTelephoto = includesAny(label, ['tele', 'telephoto', '망원']);
+  const isUltraWide = includesAny(label, ['ultra', 'ultrawide', 'ultra-wide', '초광각']);
+  const isWide = includesAny(label, ['wide', '광각']);
+
+  if (facingMode === 'user') {
+    if (isFront) return 40;
+    if (isBack) return -10;
+    return 0;
+  }
+
+  if (isFront) return -20;
+  if (isTelephoto) return -10;
+  if (isBack && isWide && !isUltraWide) return 50;
+  if (isBack && !isUltraWide) return 40;
+  if (isBack) return 20;
+  if (isWide && !isUltraWide) return 10;
+  return 0;
+};
+
+const selectPreferredDeviceId = async (stream: MediaStream, facingMode: CameraFacingMode) => {
+  if (!navigator.mediaDevices?.enumerateDevices) return null;
+
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const videoDevices = devices.filter((device) => device.kind === 'videoinput' && device.deviceId);
+  if (videoDevices.length === 0) return null;
+
+  const currentDeviceId = stream.getVideoTracks()[0]?.getSettings?.().deviceId;
+  const [preferred] = videoDevices
+    .map((device, index) => ({ device, index, score: getDeviceScore(device, facingMode) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+
+  if (!preferred || preferred.score <= 0 || preferred.device.deviceId === currentDeviceId) {
+    return null;
+  }
+  return preferred.device.deviceId;
+};
+
+const resetTrackZoom = async (stream: MediaStream) => {
+  const [track] = stream.getVideoTracks();
+  if (!track?.getCapabilities || !track.applyConstraints) return;
+
+  const capabilities = track.getCapabilities() as ZoomableMediaTrackCapabilities;
+  const minZoom = capabilities.zoom?.min;
+  if (typeof minZoom !== 'number') return;
+
+  try {
+    await track.applyConstraints({
+      advanced: [{ zoom: minZoom } as ZoomableMediaTrackConstraintSet],
+    });
+  } catch {
+    // Some WebViews expose zoom capabilities but reject applying them.
+  }
+};
 
 export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 'environment') => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -40,25 +132,43 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
 
     navigator.mediaDevices
       .getUserMedia({
-        video: {
-          facingMode,
-          width: { ideal: 1440 },
-          height: { ideal: 2560 },
-          aspectRatio: { ideal: CAMERA_PREVIEW_ASPECT_RATIO },
-        },
+        video: buildVideoConstraints(facingMode),
         audio: false,
       })
-      .then((stream) => {
+      .then(async (stream) => {
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
-        streamRef.current = stream;
+        let activeStream = stream;
+        try {
+          const preferredDeviceId = await selectPreferredDeviceId(activeStream, facingMode);
+          if (preferredDeviceId) {
+            const nextStream = await navigator.mediaDevices.getUserMedia({
+              video: buildVideoConstraints(facingMode, preferredDeviceId),
+              audio: false,
+            });
+            activeStream.getTracks().forEach((track) => track.stop());
+            activeStream = nextStream;
+          }
+        } catch {
+          activeStream = stream;
+        }
+        if (cancelled) {
+          activeStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        await resetTrackZoom(activeStream);
+        if (cancelled) {
+          activeStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        streamRef.current = activeStream;
         setError(null);
         const video = videoRef.current;
         if (!video) return;
 
-        video.srcObject = stream;
+        video.srcObject = activeStream;
 
         let readyMarked = false;
         const markReady = () => {
@@ -66,7 +176,7 @@ export const useCameraStream = (paused: boolean, facingMode: CameraFacingMode = 
           readyMarked = true;
           readyFrameRef.current = requestAnimationFrame(() => {
             readyFrameRef.current = null;
-            if (!cancelled && streamRef.current === stream) setIsReady(true);
+            if (!cancelled && streamRef.current === activeStream) setIsReady(true);
           });
         };
 

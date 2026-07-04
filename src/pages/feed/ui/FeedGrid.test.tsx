@@ -71,6 +71,35 @@ describe('FeedGrid', () => {
     });
   });
 
+  it('captures the clicked image as a hero source before navigation', async () => {
+    const onHeroCapture = vi.fn();
+    render(<FeedGrid items={[makeFeed('77')]} onHeroCapture={onHeroCapture} />);
+    const link = screen.getByRole('link');
+    const image = link.querySelector('[data-hero-exit-key]');
+
+    fireEvent.click(link);
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/feed/77', {
+        state: { thumbnailUrl: '/thumb-77.jpg', heroPreviewUrl: '/preview-77.jpg' },
+      });
+    });
+    expect(onHeroCapture).toHaveBeenCalledWith(expect.objectContaining({ id: '77' }), image);
+  });
+
+  it('hides the matching grid image while a stored hero source is active', () => {
+    const { container } = render(
+      <FeedGrid items={[makeFeed('77'), makeFeed('88')]} suppressedHeroId="77" />,
+    );
+
+    const images = container.querySelectorAll('img');
+
+    expect(images[0]).toHaveClass('opacity-0');
+    expect(images[0]).not.toHaveAttribute('data-hero-exit-key');
+    expect(images[1]).not.toHaveClass('opacity-0');
+    expect(images[1]).toHaveAttribute('data-hero-exit-key', 'pin-88');
+  });
+
   it('reuses preloaded image promises for repeated pointer and click warming', async () => {
     render(<FeedGrid items={[makeFeed('99')]} />);
     const link = screen.getByRole('link');
