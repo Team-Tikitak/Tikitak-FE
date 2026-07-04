@@ -20,7 +20,7 @@ import type { FeedItem } from '../model/types';
 const FEED_LIST_EAGER_COUNT = 6;
 const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
 const STORED_HERO_CLEAR_DELAY_MS = 900;
-const STORED_HERO_MAX_LIFETIME_MS = 1500;
+const STORED_HERO_MAX_LIFETIME_MS = 5000;
 
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
   `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
@@ -33,10 +33,10 @@ export const FeedPage = () => {
   const [viewMode, setViewMode] = useState<FeedViewMode>('grid');
   const [viewModeTeamId, setViewModeTeamId] = useState(teamId);
   const [storedFeedHero, setStoredFeedHero] = useState(readStoredFeedHero);
-  if (teamId !== viewModeTeamId && viewModeTeamId !== null) {
+  const shouldResetTeamScopedState = teamId !== viewModeTeamId && viewModeTeamId !== null;
+  if (shouldResetTeamScopedState) {
     setViewModeTeamId(teamId);
     setViewMode('grid');
-    clearStoredFeedHero();
     setStoredFeedHero(null);
   }
 
@@ -67,6 +67,11 @@ export const FeedPage = () => {
   const isStoredHeroFeedLoaded = storedFeedHero
     ? feeds.some((feed) => feed.id === storedFeedHero.feedId)
     : true;
+
+  useEffect(() => {
+    if (!shouldResetTeamScopedState) return;
+    clearStoredFeedHero();
+  }, [shouldResetTeamScopedState]);
 
   useEffect(() => {
     if (!storedFeedHero) return;
