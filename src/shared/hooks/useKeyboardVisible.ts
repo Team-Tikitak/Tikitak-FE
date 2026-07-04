@@ -22,7 +22,7 @@ export const useKeyboardVisible = (): boolean => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let hideTimer: ReturnType<typeof window.setTimeout> | null = null;
+    let hideTimer: number | null = null;
 
     const clearHideTimer = () => {
       if (hideTimer === null) return;
