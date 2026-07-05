@@ -46,6 +46,7 @@ export const NotificationItem = ({
       className={cn('flex w-full items-center gap-3', unread && 'bg-main-000', className)}
       {...props}
     >
+      {unread && <span className="sr-only">안 읽은 알림</span>}
       <img
         src={toSafeImageUrl(avatarUrl) || TakBuilder}
         alt=""
