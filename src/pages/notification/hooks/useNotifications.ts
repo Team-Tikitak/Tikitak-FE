@@ -1,51 +1,42 @@
-import type { NotificationType } from '../ui/NotificationItem';
+import { useInfiniteNotifications } from '@/shared/api/notification/queries';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 
 export interface NotificationListItem {
   id: number;
-  type: NotificationType;
-  actorName: string;
-  targetName?: string;
+  body: string;
   feedId: number;
-  avatarUrl?: string | null;
+  avatarUrl: string | null;
+  thumbnailUrl: string | null;
+  heroPreviewUrl: string | null;
   createdAt: string;
-  thumbnailUrl?: string | null;
+  read: boolean;
 }
 
-const minutesAgo = (n: number) => new Date(Date.now() - n * 60 * 1000).toISOString();
-
-// TODO: 알림 목록 조회 API(GET) 확정 시 useQuery로 교체. 현재는 UI 확인용 목업.
-const MOCK_NOTIFICATIONS: NotificationListItem[] = [
-  {
-    id: 1,
-    type: 'comment',
-    actorName: '정수',
-    targetName: '보규',
-    feedId: 1,
-    createdAt: minutesAgo(30),
-    thumbnailUrl: 'https://picsum.photos/seed/tikitak1/200/200',
-  },
-  {
-    id: 2,
-    type: 'dailyFeed',
-    actorName: '보규',
-    feedId: 2,
-    createdAt: minutesAgo(60 * 3),
-    thumbnailUrl: 'https://picsum.photos/seed/tikitak2/200/200',
-  },
-  {
-    id: 3,
-    type: 'dailyFeed',
-    actorName: '민지',
-    feedId: 3,
-    createdAt: minutesAgo(60 * 24),
-  },
-];
-
 export const useNotifications = () => {
-  // TODO: 실제 쿼리 연결 시 isLoading/isError를 쿼리 상태로 대체
+  const teamId = useActiveTeamId();
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteNotifications({ teamId });
+
+  const notifications: NotificationListItem[] =
+    data?.pages.flatMap((page) =>
+      page.items.map((item) => ({
+        id: item.notificationId,
+        body: item.body,
+        feedId: item.feedId,
+        avatarUrl: item.profileImageUrl,
+        thumbnailUrl: item.thumbnailImageUrl,
+        heroPreviewUrl: item.heroPreviewUrl,
+        createdAt: item.createdAt,
+        read: item.isRead,
+      })),
+    ) ?? [];
+
   return {
-    notifications: MOCK_NOTIFICATIONS,
-    isLoading: false,
-    isError: false,
+    notifications,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   };
 };
