@@ -1,4 +1,4 @@
-import type { LegalDocType } from '@/pages/terms/constants/legalDocuments';
+import type { LegalDocType } from '@/pages/termsDetail/constants/legalDocuments';
 
 export const PATHS = {
   ROOT: '/',

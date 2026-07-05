@@ -21,7 +21,10 @@ export const router = createBrowserRouter([
           { path: PATHS.LOGIN, element: <LoginPage /> },
           {
             path: PATHS.TERMS_DETAIL,
-            lazy: () => import('@/pages/terms/ui').then((m) => ({ Component: m.TermsDetailPage })),
+            lazy: () =>
+              import('@/pages/termsDetail/ui/TermsDetailPage').then((m) => ({
+                Component: m.TermsDetailPage,
+              })),
           },
           {
             path: PATHS.INVITE_ACCEPT,
