@@ -225,7 +225,7 @@
 .splash-login-logo-frame {
   width: 206px;
   height: 57px;
-  overflow: visible;
+  overflow: hidden;
   transform: translateZ(0);
 }
 
