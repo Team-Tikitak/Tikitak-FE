@@ -1,17 +1,23 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import SettingIcon from '@/shared/assets/Icon/SettingIcon.svg?react';
+import { useEdgeSwipeBack, useInfiniteScroll } from '@/shared/hooks';
 import { Header } from '@/shared/ui';
 import { EmptyNotificationView } from './EmptyNotificationView';
 import { NotificationItem } from './NotificationItem';
 import { NotificationSkeleton } from './NotificationSkeleton';
+import { useNotificationClick } from '../hooks/useNotificationClick';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotificationSettingsSheet } from '../hooks/useNotificationSettingsSheet';
 
 export const NotificationPage = () => {
   const navigate = useNavigate();
-  const { notifications, isLoading, isError } = useNotifications();
+  const { notifications, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useNotifications();
   const { openSheet } = useNotificationSettingsSheet();
+  const { observerRef } = useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage });
+  const { handleNotificationClick, preloadNotification } = useNotificationClick();
+  useEdgeSwipeBack();
 
   const renderContent = () => {
     if (isLoading) {
@@ -35,22 +41,29 @@ export const NotificationPage = () => {
     }
 
     return (
-      <ul className="flex flex-col p-5">
-        {notifications.map((notification) => (
-          <li key={notification.id}>
-            <NotificationItem
-              type={notification.type}
-              actorName={notification.actorName}
-              targetName={notification.targetName}
-              feedId={notification.feedId}
-              avatarUrl={notification.avatarUrl}
-              createdAt={notification.createdAt}
-              thumbnailUrl={notification.thumbnailUrl}
-              className="py-4"
-            />
-          </li>
-        ))}
-      </ul>
+      <>
+        <ul className="flex flex-col py-5">
+          {notifications.map((notification) => (
+            <li key={notification.id}>
+              <NotificationItem
+                body={notification.body}
+                feedId={notification.feedId}
+                avatarUrl={notification.avatarUrl}
+                thumbnailUrl={notification.thumbnailUrl}
+                heroPreviewUrl={notification.heroPreviewUrl}
+                createdAt={notification.createdAt}
+                unread={!notification.read}
+                onPointerDown={() => preloadNotification(notification)}
+                onMouseEnter={() => preloadNotification(notification)}
+                onFocus={() => preloadNotification(notification)}
+                onClick={(event) => void handleNotificationClick(event, notification)}
+                className="px-5 py-4"
+              />
+            </li>
+          ))}
+        </ul>
+        <div ref={observerRef} aria-hidden />
+      </>
     );
   };
 

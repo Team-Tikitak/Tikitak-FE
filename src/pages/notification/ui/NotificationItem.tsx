@@ -1,65 +1,54 @@
-import { type ComponentPropsWithRef, type ReactNode } from 'react';
+import { type ComponentPropsWithRef } from 'react';
 import { Link } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
+import TakBuilder from '@/shared/assets/Character/TakBuilder.svg';
 import { cn } from '@/shared/lib';
 import { formatRelativeTime } from '@/shared/lib/date';
 import { toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
-
-export type NotificationType = 'comment' | 'dailyFeed';
+import { emphasizeNames } from '../lib/emphasizeNames';
 
 export interface NotificationItemProps extends Omit<
   ComponentPropsWithRef<typeof Link>,
-  'to' | 'state'
+  'to' | 'state' | 'title'
 > {
-  type: NotificationType;
-  actorName: string;
-  targetName?: string;
+  body: string;
   feedId: number;
   avatarUrl?: string | null;
   createdAt: string;
   thumbnailUrl?: string | null;
+  heroPreviewUrl?: string | null;
+  unread?: boolean;
 }
 
-const buildTitle = (type: NotificationType, actorName: string, targetName?: string): ReactNode => {
-  if (type === 'comment') {
-    return (
-      <>
-        <b>{actorName}</b>님이 <b>{targetName}</b>님께 댓글을 달았어요
-      </>
-    );
-  }
-  return (
-    <>
-      <b>{actorName}</b>님이 오늘의 게시물을 올렸어요
-    </>
-  );
-};
-
 export const NotificationItem = ({
-  type,
-  actorName,
-  targetName,
+  body,
   feedId,
   avatarUrl,
   createdAt,
   thumbnailUrl,
+  heroPreviewUrl,
+  unread = false,
   className,
   ref,
   ...props
 }: NotificationItemProps) => {
   const hasThumbnail = thumbnailUrl != null && thumbnailUrl !== '';
-  const title = buildTitle(type, actorName, targetName);
+  const emphasizedBody = emphasizeNames(body);
 
   return (
     <Link
       ref={ref}
       to={toFeedDetail(String(feedId))}
-      state={{ thumbnailUrl: thumbnailUrl ?? undefined }}
-      className={cn('flex w-full items-center gap-3', className)}
+      state={{
+        thumbnailUrl: thumbnailUrl ?? undefined,
+        heroPreviewUrl: heroPreviewUrl ?? undefined,
+      }}
+      className={cn('flex w-full items-center gap-3', unread && 'bg-main-000', className)}
       {...props}
     >
+      {unread && <span className="sr-only">안 읽은 알림</span>}
       <img
-        src={toSafeImageUrl(avatarUrl)}
+        src={toSafeImageUrl(avatarUrl) || TakBuilder}
         alt=""
         loading="lazy"
         decoding="async"
@@ -68,7 +57,7 @@ export const NotificationItem = ({
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="font-pretendard line-clamp-2 text-[14px] leading-[1.4] font-medium tracking-[0.004em] break-keep text-black [&_b]:font-bold">
-          {title}
+          {emphasizedBody}
         </p>
         <span className="body-10 text-gray-500">{formatRelativeTime(createdAt)}</span>
       </div>
