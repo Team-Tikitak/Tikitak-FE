@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
               urlPattern: ({ sameOrigin, url }) => sameOrigin && url.pathname.endsWith('.woff2'),
               handler: 'CacheFirst',
               options: {
-                cacheName: 'font-assets',
+                cacheName: 'font-assets-v1',
                 expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 365 },
               },
             },
