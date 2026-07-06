@@ -1,11 +1,10 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
-import { cn } from '@/shared/lib';
+import { type BottomSheetSnapPoint, cn } from '@/shared/lib';
 import { setKeyboardResizeMode } from '@/shared/lib/native/keyboardResize';
 import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
 
-type BottomSheetSnapPoint = number | string;
 type BottomSheetOverlayChildren =
   | ReactNode
   | ((state: { activeSnapPoint: BottomSheetSnapPoint | null }) => ReactNode);
