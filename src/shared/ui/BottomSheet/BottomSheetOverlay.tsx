@@ -124,6 +124,10 @@ export function BottomSheetOverlay({
           <Drawer.Description className="sr-only">{ariaDescription}</Drawer.Description>
         ) : null}
         {typeof children === 'function' ? children({ activeSnapPoint }) : children}
+        {snapPoints ? (
+          // 스냅 사이를 드래그하는 동안 시트 아래 영역이 비어 보이지 않게 흰색으로 채움
+          <div aria-hidden="true" className="min-h-0 flex-1 bg-white" />
+        ) : null}
       </Drawer.Content>
     </Drawer.Portal>
   );

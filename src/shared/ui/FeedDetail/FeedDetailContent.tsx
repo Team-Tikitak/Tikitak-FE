@@ -154,16 +154,25 @@ export const FeedDetailContent = ({
           fadeFromIndex={0}
           avoidKeyboard
         >
-          <CommentSheet
-            inputVariant="commentup"
-            comments={commentsForOpenPin}
-            fitHeight
-            onSubmitComment={submitComment}
-            onDeleteRequest={(item) => {
-              item.onDelete?.();
-              closeSheet();
-            }}
-          />
+          {({ activeSnapPoint }) => (
+            <CommentSheet
+              inputVariant="commentup"
+              comments={commentsForOpenPin}
+              fitHeight
+              className="shrink-0 transition-[height] duration-300 ease-out"
+              style={{
+                height:
+                  typeof activeSnapPoint === 'number'
+                    ? `${activeSnapPoint * 100}%`
+                    : (activeSnapPoint ?? undefined),
+              }}
+              onSubmitComment={submitComment}
+              onDeleteRequest={(item) => {
+                item.onDelete?.();
+                closeSheet();
+              }}
+            />
+          )}
         </BottomSheetOverlay>
       )}
     </>
