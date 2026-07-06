@@ -3,10 +3,14 @@ import { redirect, type LoaderFunctionArgs } from 'react-router';
 import { queryClient } from '@/app/providers/queryClient';
 import { postRefreshToken } from '@/shared/api/auth/api';
 import { authKeys } from '@/shared/api/auth/keys';
+import { getFeeds } from '@/shared/api/feed/api';
+import { feedKeys } from '@/shared/api/feed/keys';
+import { feedDetailQueryOptions } from '@/shared/api/feed/queries';
 import { getAccessToken, setAccessToken } from '@/shared/api/instance';
 import { getInvitationPreview } from '@/shared/api/invitation/api';
 import { invitationKeys } from '@/shared/api/invitation/keys';
 import { unwrap } from '@/shared/api/request';
+import { teamDetailQueryOptions } from '@/shared/api/team/queries';
 import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { PATHS } from './paths';
@@ -47,6 +51,50 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
 
 export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
 
+const parsePositiveIntegerParam = (value: string | undefined) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const ensureMe = () =>
+  queryClient.ensureQueryData({
+    queryKey: userKeys.me(),
+    queryFn: () => unwrap(() => getMe()),
+    staleTime: 5 * 60 * 1000,
+  });
+
+const ensureSessionAccessToken = () =>
+  queryClient.ensureQueryData({
+    queryKey: authKeys.session(),
+    queryFn: async () => {
+      const { accessToken } = await unwrap(() => postRefreshToken());
+      setAccessToken(accessToken);
+      return accessToken;
+    },
+  });
+
+const getHttpStatus = (error: unknown) =>
+  axios.isAxiosError(error) ? error.response?.status : undefined;
+
+const ensureAuthenticatedForLoader = async () => {
+  if (getAccessToken()) return;
+
+  try {
+    await ensureSessionAccessToken();
+  } catch (error) {
+    const status = getHttpStatus(error);
+    if (status !== undefined && status >= 400 && status < 500) {
+      throw redirect(PATHS.LOGIN);
+    }
+    throw error;
+  }
+};
+
+const ensureActiveTeamId = async () => {
+  const me = await ensureMe();
+  return me.activeTeamId;
+};
+
 export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
   const token = new URL(request.url).pathname.split('/invite/')[1];
 
@@ -56,14 +104,7 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
 
   try {
     if (!getAccessToken()) {
-      await queryClient.fetchQuery({
-        queryKey: authKeys.session(),
-        queryFn: async () => {
-          const { accessToken } = await unwrap(() => postRefreshToken());
-          setAccessToken(accessToken);
-          return accessToken;
-        },
-      });
+      await ensureSessionAccessToken();
     }
 
     const [preview, teams, me, agreements] = await Promise.all([
@@ -110,17 +151,10 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
 export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
   if (!getAccessToken()) {
     try {
-      await queryClient.fetchQuery({
-        queryKey: authKeys.session(),
-        queryFn: async () => {
-          const { accessToken } = await unwrap(() => postRefreshToken());
-          setAccessToken(accessToken);
-          return accessToken;
-        },
-      });
+      await ensureSessionAccessToken();
     } catch (error) {
       // 4xx(세션 없음·무효: 400/401/403 등) → 로그인, 5xx·네트워크는 에러 바운더리로
-      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const status = getHttpStatus(error);
       if (status !== undefined && status >= 400 && status < 500) {
         return redirect(PATHS.LOGIN);
       }
@@ -158,5 +192,49 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
     return redirect(PATHS.HOME);
   }
 
+  return null;
+};
+
+export const feedDetailLoader = async ({ params }: LoaderFunctionArgs) => {
+  const feedId = parsePositiveIntegerParam(params.feedId);
+  if (!feedId) return redirect(PATHS.FEED);
+
+  await ensureAuthenticatedForLoader();
+  const activeTeamId = await ensureActiveTeamId();
+  if (!activeTeamId) return redirect(PATHS.HOME);
+
+  await queryClient.ensureQueryData(feedDetailQueryOptions(activeTeamId, feedId));
+  return null;
+};
+
+export const teamDetailLoader = async ({ params }: LoaderFunctionArgs) => {
+  const teamId = parsePositiveIntegerParam(params.teamId);
+  if (!teamId) return redirect(PATHS.HOME);
+
+  await ensureAuthenticatedForLoader();
+  await queryClient.ensureQueryData(teamDetailQueryOptions(teamId));
+  return null;
+};
+
+export const placeFeedsLoader = async ({ params }: LoaderFunctionArgs) => {
+  const placeId = params.placeId;
+  if (!placeId) return redirect(PATHS.HOME);
+
+  await ensureAuthenticatedForLoader();
+  const activeTeamId = await ensureActiveTeamId();
+  if (!activeTeamId) return redirect(PATHS.HOME);
+
+  const feedParams = { placeId };
+  try {
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: feedKeys.infiniteListFiltered(activeTeamId, feedParams),
+      queryFn: ({ pageParam }) =>
+        unwrap(() => getFeeds(activeTeamId, { ...feedParams, cursor: pageParam })),
+      initialPageParam: undefined as string | undefined,
+      staleTime: 30 * 1000,
+    });
+  } catch {
+    // 프리페치 실패는 치명적이지 않으므로 무시
+  }
   return null;
 };

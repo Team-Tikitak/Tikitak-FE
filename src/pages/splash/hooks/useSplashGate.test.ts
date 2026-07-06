@@ -37,7 +37,7 @@ describe('useSplashGate', () => {
     expect(navigateMock).toHaveBeenCalledWith(PATHS.LOGIN, { replace: true });
   });
 
-  it('세션 복원 실패 시 타이머 종료 후 fromSplash state 와 view transition 옵션으로 LOGIN 한다', async () => {
+  it('세션 복원 실패 시 타이머 종료 후 fromSplash state 로 LOGIN 한다', async () => {
     restoreSessionMock.mockResolvedValue(false);
 
     const { result } = renderHook(() => useSplashGate({ animationStarted: true }));
@@ -53,7 +53,6 @@ describe('useSplashGate', () => {
     expect(navigateMock).toHaveBeenCalledWith(PATHS.LOGIN, {
       replace: true,
       state: { fromSplash: true },
-      viewTransition: true,
     });
   });
 

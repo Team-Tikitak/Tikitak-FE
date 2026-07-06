@@ -1,13 +1,18 @@
 import { OverlayProvider } from 'overlay-kit';
+import { lazy, Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { useInviteDeepLink } from '@/app/lib/useInviteDeepLink';
 import { useOAuthDeepLink } from '@/app/lib/useOAuthDeepLink';
-import { usePushNotificationDeepLink } from '@/app/lib/usePushNotificationDeepLink';
 import { PATHS } from '@/app/routes/paths';
-import { usePushNotificationSync } from '@/shared/hooks/usePushNotificationSync';
-import { cn } from '@/shared/lib';
+import { cn } from '@/shared/lib/cn';
 import { GlobalBottomNavigation } from './GlobalBottomNavigation';
 import { TransitionProvider } from '../providers/TransitionProvider';
+
+const PushNotificationBridge = lazy(() =>
+  import('./PushNotificationBridge').then((module) => ({
+    default: module.PushNotificationBridge,
+  })),
+);
 
 interface RootLayoutProps {
   className?: string;
@@ -23,8 +28,6 @@ const getRouteKey = (pathname: string): string => {
 export const RootLayout = ({ className }: RootLayoutProps) => {
   useOAuthDeepLink();
   useInviteDeepLink();
-  usePushNotificationSync();
-  usePushNotificationDeepLink();
   const location = useLocation();
 
   return (
@@ -54,6 +57,9 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
           <GlobalBottomNavigation />
         </div>
       </TransitionProvider>
+      <Suspense fallback={null}>
+        <PushNotificationBridge />
+      </Suspense>
     </div>
   );
 };

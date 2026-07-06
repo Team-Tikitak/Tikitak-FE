@@ -166,6 +166,35 @@ describe('useCameraStream', () => {
     expect(screen.getByTestId('zoom-supported')).toHaveTextContent('true');
   });
 
+  it('starts zoom-out animation gently when returning from 2x to 1x', async () => {
+    const track = {
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      applyConstraints: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+    };
+    getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
+
+    const { rerender } = render(<Harness zoomLevel={2} />);
+
+    await waitFor(() => {
+      expect(track.applyConstraints).toHaveBeenCalledWith({
+        advanced: [{ zoom: 2 }],
+      });
+    });
+
+    rerender(<Harness zoomLevel={1} />);
+
+    act(() => {
+      rafCallback?.(0);
+      rafCallback?.(16);
+    });
+
+    const lastCall = track.applyConstraints.mock.calls.at(-1)?.[0] as {
+      advanced: Array<{ zoom: number }>;
+    };
+    expect(lastCall.advanced[0]?.zoom).toBeGreaterThan(1.98);
+  });
+
   it('does not mark the stream ready after stopStream cancels a pending ready frame', async () => {
     const track = { stop: vi.fn() };
     getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });

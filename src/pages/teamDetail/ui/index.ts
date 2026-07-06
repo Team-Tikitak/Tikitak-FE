@@ -6,3 +6,4 @@ export * from './MemberCard';
 export * from './MyProfileCard';
 export * from './TeamDetailPage';
 export * from './TeamDetailSkeleton';
+export * from './memberEmail';

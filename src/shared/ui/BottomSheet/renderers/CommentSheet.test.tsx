@@ -44,6 +44,20 @@ describe('CommentSheet', () => {
     expect(input).toBeInTheDocument();
   });
 
+  it('renders commentup input in a fixed bottom layer', () => {
+    const { container } = render(
+      <CommentSheet comments={mockComments} inputVariant="commentup" onSubmitComment={vi.fn()} />,
+    );
+
+    expect(screen.getByTestId('fixed-comment-input')).toHaveClass(
+      'fixed',
+      'bottom-(--keyboard-height)',
+    );
+    expect(container.querySelector('.no-scrollbar')).toHaveClass(
+      'pb-[calc(88px+env(safe-area-inset-bottom))]',
+    );
+  });
+
   it('should not exceed max comment length', async () => {
     const user = userEvent.setup();
     const MAX_COMMENT_LENGTH = 500; // 실제 값은 constants에서 가져옴

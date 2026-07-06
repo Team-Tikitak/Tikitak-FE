@@ -1,10 +1,16 @@
 import { createBrowserRouter } from 'react-router';
-import { RootLayout } from '@/app/layout';
+import { RootLayout } from '@/app/layout/RootLayout';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
-import { LoginPage } from '@/pages/login/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { SplashPage } from '@/pages/splash/ui';
-import { authCallbackLoader, inviteAcceptLoader, setupFlowLoader } from './loaders';
+import {
+  authCallbackLoader,
+  feedDetailLoader,
+  inviteAcceptLoader,
+  placeFeedsLoader,
+  setupFlowLoader,
+  teamDetailLoader,
+} from './loaders';
 import { PATHS } from './paths';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -18,7 +24,11 @@ export const router = createBrowserRouter([
         errorElement: <RootErrorBoundary />,
         children: [
           { index: true, element: <SplashPage /> },
-          { path: PATHS.LOGIN, element: <LoginPage /> },
+          {
+            path: PATHS.LOGIN,
+            lazy: () =>
+              import('@/pages/login/ui/LoginPage').then((m) => ({ Component: m.LoginPage })),
+          },
           {
             path: PATHS.TERMS_DETAIL,
             lazy: () =>
@@ -79,6 +89,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: PATHS.TEAM_DETAIL,
+                loader: teamDetailLoader,
                 lazy: () =>
                   import('@/pages/teamDetail/ui').then((m) => ({ Component: m.TeamDetailPage })),
               },
@@ -106,6 +117,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: PATHS.FEED_DETAIL,
+                loader: feedDetailLoader,
                 lazy: () =>
                   import('@/pages/feedDetail/ui/FeedDetailPage').then((m) => ({
                     Component: m.FeedDetailPage,
@@ -120,6 +132,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: PATHS.PLACE_FEEDS,
+                loader: placeFeedsLoader,
                 lazy: () =>
                   import('@/pages/placeDetail/ui/PlaceDetailPage').then((m) => ({
                     Component: m.PlaceDetailPage,

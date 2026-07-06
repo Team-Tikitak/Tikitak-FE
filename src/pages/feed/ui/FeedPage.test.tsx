@@ -1,6 +1,72 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { FeedPage } from './FeedPage';
 import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
 import type { FeedItem } from '../model/types';
+
+vi.mock('@/shared/api/user/queries', () => ({
+  useMe: vi.fn(() => ({ data: { activeTeamId: 1 }, isPending: false })),
+}));
+
+vi.mock('@/shared/api/feed/queries', () => ({
+  useInfiniteFeeds: vi.fn(() => ({
+    data: {
+      pages: [
+        {
+          items: [
+            {
+              feedId: 1,
+              type: 'GENERAL',
+              content: '테스트 게시물',
+              thumbnailImageUrl: 'https://example.com/thumb.jpg',
+              heroPreviewUrl: 'https://example.com/hero.jpg',
+              imageCount: 1,
+              author: {
+                teamMemberId: 1,
+                nickname: '작성자',
+                profileImageUrl: '',
+                anonymous: false,
+                isAnonymous: false,
+              },
+              place: {
+                placeId: 'place-1',
+                name: '서울',
+                latitude: 0,
+                longitude: 0,
+                address: '서울',
+              },
+              question: null,
+              commentCount: 0,
+              createdAt: '2026-07-06T00:00:00Z',
+              updatedAt: '2026-07-06T00:00:00Z',
+              taggedMembers: [],
+            },
+          ],
+          pageInfo: { totalCount: 1, hasNext: false, nextCursor: null, size: 1 },
+        },
+      ],
+    },
+    isLoading: false,
+    isError: false,
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isFetchingNextPage: false,
+  })),
+}));
+
+vi.mock('@/shared/hooks', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@/shared/hooks');
+  return {
+    ...actual,
+    useInfiniteScroll: vi.fn(() => ({ observerRef: { current: null } })),
+    useScrollRestore: vi.fn(() => ({
+      scrollRef: { current: null },
+      handleScroll: vi.fn(),
+      restored: true,
+    })),
+  };
+});
 
 // 히어로 저장/읽기 로직 테스트
 describe('FeedPage - Hero Management', () => {
@@ -139,5 +205,35 @@ describe('FeedPage - Hero Management', () => {
     expect(stored).toHaveProperty('top');
     expect(stored).toHaveProperty('width');
     expect(stored).toHaveProperty('height');
+  });
+
+  it('clears stored grid hero when switching to list view', () => {
+    const feedItem: FeedItem = {
+      id: '1',
+      title: '테스트 게시물',
+      location: '서울',
+      thumbnailUrl: 'https://example.com/thumb.jpg',
+      heroPreviewUrl: 'https://example.com/hero.jpg',
+      participantAvatarUrls: [],
+      date: '2026.07.06',
+      photoCount: 1,
+    };
+    storeFeedHero(feedItem, new DOMRect(10, 20, 90, 90));
+
+    const { container } = render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '리스트 보기' }));
+
+    expect(readStoredFeedHero()).toBeNull();
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+    const listHeroImage = container.querySelector('article [data-hero-exit-key="pin-1"]');
+    expect(listHeroImage).toBeInTheDocument();
+    expect(listHeroImage).not.toHaveClass('opacity-0');
   });
 });

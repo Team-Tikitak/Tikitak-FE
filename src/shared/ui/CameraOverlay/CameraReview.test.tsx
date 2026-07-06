@@ -40,4 +40,23 @@ describe('CameraReview', () => {
       'pb-[calc(112px+env(safe-area-inset-bottom))]',
     );
   });
+
+  it('uses a quicker close motion for the filter tray', () => {
+    render(<CameraReview {...baseProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '필터' }));
+
+    expect(screen.getByTestId('camera-filter-tray')).toHaveClass(
+      'duration-240',
+      'ease-[cubic-bezier(0.16,1,0.3,1)]',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '필터' }));
+
+    expect(screen.getByTestId('camera-filter-tray')).toHaveClass(
+      'duration-180',
+      'ease-[cubic-bezier(0.4,0,1,1)]',
+      'translate-y-4',
+    );
+  });
 });

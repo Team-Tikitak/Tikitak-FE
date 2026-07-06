@@ -24,7 +24,9 @@ export const SplashPage = () => {
     <div
       className={`flex flex-1 flex-col items-center pt-[31dvh] ${animationStarted ? 'splash-animate' : ''}`}
     >
-      <TikiTakSplashLogo className="view-transition-logo" aria-label="tiki-tak!" />
+      <div className="splash-login-logo-frame" role="img" aria-label="tiki-tak!">
+        <TikiTakSplashLogo className="splash-login-logo-mark" aria-hidden="true" />
+      </div>
     </div>
   );
 };
