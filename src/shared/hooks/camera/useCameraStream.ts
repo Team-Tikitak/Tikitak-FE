@@ -6,7 +6,8 @@ export type CameraZoomLevel = 1 | 2;
 const CAMERA_STREAM_WIDTH = 1920;
 const CAMERA_STREAM_HEIGHT = 1080;
 const CAMERA_STREAM_ASPECT_RATIO = 16 / 9;
-const CAMERA_ZOOM_ANIMATION_MS = 220;
+const CAMERA_ZOOM_IN_ANIMATION_MS = 220;
+const CAMERA_ZOOM_OUT_ANIMATION_MS = 320;
 
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
@@ -133,6 +134,10 @@ const getZoomSupport = (stream: MediaStream) => {
 
   return isTwoStepZoomSupported(track.getCapabilities() as ZoomableMediaTrackCapabilities);
 };
+
+const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3);
+const easeInOutCubic = (progress: number) =>
+  progress < 0.5 ? 4 * progress ** 3 : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
 export const useCameraStream = (
   paused: boolean,
@@ -282,10 +287,14 @@ export const useCameraStream = (
     }
 
     let startTime: number | null = null;
+    const isZoomingOut = delta < 0;
+    const duration = isZoomingOut ? CAMERA_ZOOM_OUT_ANIMATION_MS : CAMERA_ZOOM_IN_ANIMATION_MS;
+    const easeProgress = isZoomingOut ? easeInOutCubic : easeOutCubic;
+
     const step = (timestamp: number) => {
       if (startTime === null) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / CAMERA_ZOOM_ANIMATION_MS, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const easedProgress = easeProgress(progress);
       const nextZoom = startZoom + delta * easedProgress;
       currentZoomRef.current = nextZoom;
       void applyTrackZoom(stream, nextZoom);
@@ -295,6 +304,7 @@ export const useCameraStream = (
         return;
       }
       currentZoomRef.current = targetZoom;
+      void applyTrackZoom(stream, targetZoom);
       zoomFrameRef.current = null;
     };
 
