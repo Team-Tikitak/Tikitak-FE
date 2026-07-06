@@ -60,6 +60,7 @@ const topSheetTransition = (direction: 'enter' | 'exit') => ({
   },
   animation: ({ from, to }: { from: HTMLElement; to: HTMLElement }) => {
     const sheetPage = direction === 'enter' ? to : from;
+    const backgroundPage = direction === 'enter' ? from : to;
     // enter: 화면 위(-100%)에서 내려옴, exit: 다시 위로 올라가며 사라짐
     const style =
       direction === 'enter'
@@ -74,6 +75,10 @@ const topSheetTransition = (direction: 'enter' | 'exit') => ({
         sheetPage.style.willChange = 'auto';
         sheetPage.style.backfaceVisibility = '';
         sheetPage.style.contain = '';
+        sheetPage.style.pointerEvents = '';
+        sheetPage.style.zIndex = '';
+        backgroundPage.style.pointerEvents = '';
+        backgroundPage.style.zIndex = '';
       },
     });
     return new MultiAnimation([sheet], { mode: 'parallel' });
