@@ -4,7 +4,7 @@
 <dict>
 
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:app.tikitak.space</string>
