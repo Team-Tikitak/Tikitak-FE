@@ -74,7 +74,7 @@ test.describe('반응형 캔버스', () => {
     await context.addInitScript(() => {
       window.sessionStorage.setItem('splash-seen', '1');
     });
-    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await page.goto('/login', { waitUntil: 'networkidle' });
 
     const root = page.locator('#root > div').first();
     const box = await root.boundingBox();

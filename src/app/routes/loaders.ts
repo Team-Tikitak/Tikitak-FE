@@ -225,12 +225,16 @@ export const placeFeedsLoader = async ({ params }: LoaderFunctionArgs) => {
   if (!activeTeamId) return redirect(PATHS.HOME);
 
   const feedParams = { placeId };
-  await queryClient.prefetchInfiniteQuery({
-    queryKey: feedKeys.infiniteListFiltered(activeTeamId, feedParams),
-    queryFn: ({ pageParam }) =>
-      unwrap(() => getFeeds(activeTeamId, { ...feedParams, cursor: pageParam })),
-    initialPageParam: undefined as string | undefined,
-    staleTime: 30 * 1000,
-  });
+  try {
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: feedKeys.infiniteListFiltered(activeTeamId, feedParams),
+      queryFn: ({ pageParam }) =>
+        unwrap(() => getFeeds(activeTeamId, { ...feedParams, cursor: pageParam })),
+      initialPageParam: undefined as string | undefined,
+      staleTime: 30 * 1000,
+    });
+  } catch {
+    // 프리페치 실패는 치명적이지 않으므로 무시
+  }
   return null;
 };
