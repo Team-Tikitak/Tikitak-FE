@@ -67,7 +67,7 @@ export const CameraReview = ({
   return (
     <div
       className={cn(
-        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white',
+        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white transition-[padding-bottom] duration-200 ease-out motion-reduce:transition-none',
         shouldShowUploadButton && 'pb-[calc(112px+env(safe-area-inset-bottom))]',
       )}
     >
@@ -114,12 +114,13 @@ export const CameraReview = ({
       </div>
 
       <div
+        data-testid="camera-filter-tray"
         aria-hidden={!isFilterOpen}
         className={cn(
-          'grid transition-[grid-template-rows,opacity,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+          'grid transition-[grid-template-rows,opacity,transform] will-change-[grid-template-rows,opacity,transform] motion-reduce:transition-none',
           isFilterOpen
-            ? 'translate-y-0 grid-rows-[1fr] opacity-100'
-            : 'pointer-events-none -translate-y-3 grid-rows-[0fr] opacity-0',
+            ? 'translate-y-0 grid-rows-[1fr] opacity-100 duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]'
+            : 'pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 duration-180 ease-[cubic-bezier(0.4,0,1,1)]',
         )}
       >
         <div className="min-h-0 overflow-hidden">
@@ -163,8 +164,11 @@ export const CameraReview = ({
 
       <div
         className={cn(
-          'flex items-center justify-center gap-8 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+          'flex items-center justify-center gap-8 transition-transform motion-reduce:transition-none',
           isFilterOpen && 'translate-y-1',
+          isFilterOpen
+            ? 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]'
+            : 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]',
         )}
       >
         <button

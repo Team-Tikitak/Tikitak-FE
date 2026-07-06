@@ -5,8 +5,8 @@ import { LOGIN_CODE_EXCHANGE_MUTATION_KEY } from '@/shared/api/auth/keys';
 import AppleIcon from '@/shared/assets/Icon/AppleIcon.svg?react';
 import GoogleIcon from '@/shared/assets/Icon/GoogleIcon.svg?react';
 import KakaoIcon from '@/shared/assets/Icon/KakaoIcon.svg?react';
-import TikiTakLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
-import { cn } from '@/shared/lib';
+import TikiTakSplashLogo from '@/shared/assets/Logo/tiki-tak_Logo_splash.svg?react';
+import { cn } from '@/shared/lib/cn';
 import { LoadingState } from '@/shared/ui/LoadingState/LoadingState';
 import { SocialLoginButton } from './SocialLoginButton';
 
@@ -37,8 +37,18 @@ export const LoginPage = () => {
 
   return (
     <div className="flex flex-1 flex-col items-center px-[25px] pt-[31dvh]">
-      <TikiTakLogo className="view-transition-logo" />
-      <p className={cn('title-0 mt-4 text-black', fromSplash && 'login-stagger-slogan')}>
+      <div className="splash-login-logo-frame" role="img" aria-label="tiki-tak!">
+        <TikiTakSplashLogo
+          className="splash-login-logo-mark splash-logo-settled"
+          aria-hidden="true"
+        />
+      </div>
+      <p
+        className={cn(
+          'title-0 mt-4 w-full text-center text-black',
+          fromSplash && 'login-stagger-slogan',
+        )}
+      >
         우리의 순간을 함께 남기는 공간
       </p>
       <div className="mt-[60px] flex w-full flex-col gap-3">

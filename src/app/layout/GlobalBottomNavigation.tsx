@@ -2,9 +2,9 @@ import { useLocation } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useMe } from '@/shared/api/user/queries';
 import { useNativeKeyboardVisible } from '@/shared/hooks/useNativeKeyboardVisible';
-import { cn } from '@/shared/lib';
+import { cn } from '@/shared/lib/cn';
 import { useAuthStore } from '@/shared/stores/authStore';
-import { BottomNavigation, type BottomNavigationTab } from '@/shared/ui';
+import { BottomNavigation, type BottomNavigationTab } from '@/shared/ui/BottomNavigation';
 
 const TAB_PATHS = [PATHS.HOME, PATHS.FEED, PATHS.ACTIVITY, PATHS.MY_PAGE] as const;
 type TabPath = (typeof TAB_PATHS)[number];

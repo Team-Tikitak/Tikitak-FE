@@ -17,6 +17,7 @@ import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 type FeedListCacheData = FeedListResponse | InfiniteData<FeedListResponse>;
 
 const FEED_LIST_STALE_TIME_MS = 15 * 1000;
+const FEED_DETAIL_STALE_TIME_MS = 30 * 1000;
 
 const removeFeedFromPage = (page: FeedListResponse, feedId: number): FeedListResponse => ({
   ...page,
@@ -139,10 +140,14 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
   });
 };
 
+export const feedDetailQueryOptions = (teamId: number, feedId: number) => ({
+  queryKey: feedKeys.detail(teamId, feedId),
+  queryFn: () => getFeedDetail(teamId, feedId).then((res) => res.data.data),
+  staleTime: FEED_DETAIL_STALE_TIME_MS,
+});
+
 export const useGetFeedDetail = (teamId: number, feedId: number) =>
   useQuery({
-    queryKey: feedKeys.detail(teamId, feedId),
-    queryFn: () => getFeedDetail(teamId, feedId).then((res) => res.data.data),
+    ...feedDetailQueryOptions(teamId, feedId),
     enabled: teamId > 0 && Boolean(feedId),
-    staleTime: 30 * 1000,
   });

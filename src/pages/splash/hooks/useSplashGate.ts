@@ -42,7 +42,6 @@ export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams 
           navigate(PATHS.LOGIN, {
             replace: true,
             state: { fromSplash: true },
-            viewTransition: true,
           });
         }
       });

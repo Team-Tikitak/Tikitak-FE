@@ -78,7 +78,7 @@ export const FeedPage = () => {
     ready: !showFeedLoading && !isError,
     contentSignal: feeds.length,
   });
-  const suppressedHeroId = storedFeedHero?.feedId ?? null;
+  const suppressedHeroId = viewMode === 'grid' ? (storedFeedHero?.feedId ?? null) : null;
   const isStoredHeroFeedLoaded = storedFeedHero
     ? feeds.some((feed) => feed.id === storedFeedHero.feedId)
     : true;
@@ -126,6 +126,10 @@ export const FeedPage = () => {
 
   const handleViewModeChange = useCallback(
     (mode: FeedViewMode) => {
+      if (mode === 'list' && storedFeedHero) {
+        clearStoredFeedHero();
+        setStoredFeedHero(null);
+      }
       setViewMode(mode);
       navigate('.', {
         replace: true,
@@ -133,7 +137,7 @@ export const FeedPage = () => {
         preventScrollReset: true,
       });
     },
-    [location.state, navigate],
+    [location.state, navigate, storedFeedHero],
   );
 
   const handleFeedScroll = useCallback(
@@ -182,7 +186,7 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {storedFeedHero && <StoredFeedHero storedFeedHero={storedFeedHero} />}
+      {viewMode === 'grid' && storedFeedHero && <StoredFeedHero storedFeedHero={storedFeedHero} />}
       <div
         ref={scrollRef}
         className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"

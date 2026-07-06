@@ -1,6 +1,6 @@
 ﻿import { getSticker } from '@/shared/assets/Sticker/catalog';
-import { loadImage } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
+import { loadImage } from './loadImage';
 
 const STICKER_SIZE_RATIO = 0.18; // 합성 시 스티커 폭이 사진 폭의 18%
 

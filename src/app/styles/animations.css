@@ -222,18 +222,25 @@
   animation-delay: 0.64s;
 }
 
-.view-transition-logo {
-  view-transition-name: tikitak-logo;
+.splash-login-logo-frame {
+  width: 206px;
+  height: 57px;
+  overflow: visible;
+  transform: translateZ(0);
 }
 
-::view-transition-image-pair(tikitak-logo) {
-  isolation: auto;
+.splash-login-logo-mark {
+  display: block;
+  width: 206px;
+  height: 57px;
+  overflow: visible;
 }
-::view-transition-old(tikitak-logo),
-::view-transition-new(tikitak-logo) {
-  animation: none;
+
+.splash-logo-settled .splash-letter,
+.splash-logo-settled .splash-bang {
   opacity: 1;
-  mix-blend-mode: normal;
+  transform: none;
+  animation: none;
 }
 
 @keyframes page-fade-in {
