@@ -1,7 +1,9 @@
 import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { tv } from 'tailwind-variants';
 import MoreIcon from '@/shared/assets/Icon/More_Icon.svg?react';
 import { MAX_COMMENT_LENGTH } from '@/shared/constants/comment';
+import { cn } from '@/shared/lib';
 import { ActiveMenu } from '../../ActiveMenu/ActiveMenu';
 import { Avatar } from '../../Avatar';
 import { CommentInputField } from '../../CommentInputField';
@@ -73,74 +75,96 @@ export function CommentSheet({
     onSubmitComment?.(text);
   };
 
+  const commentUpInput =
+    inputVariant === 'commentup' ? (
+      <CommentInputField
+        variant="commentup"
+        className="gap-0"
+        inputProps={{
+          value,
+          maxLength: MAX_COMMENT_LENGTH,
+          onChange: (event) => setValue(event.target.value.slice(0, MAX_COMMENT_LENGTH)),
+          onKeyDown: (event) => {
+            if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              submit();
+            }
+          },
+          ...inputProps,
+        }}
+        submitButtonProps={{
+          onClick: submit,
+          ...submitButtonProps,
+          style: {
+            ...submitButtonProps?.style,
+            width: hasValue ? '40px' : '0',
+            marginLeft: hasValue ? '12px' : '0',
+            opacity: hasValue ? 1 : 0,
+            overflow: 'hidden',
+            transition:
+              'width 240ms cubic-bezier(0.34, 1.56, 0.64, 1), margin-left 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 180ms ease-out',
+            pointerEvents: hasValue ? 'auto' : 'none',
+          },
+        }}
+      />
+    ) : null;
+
   return (
-    <BottomSheet
-      title={COMMENT_TITLE}
-      className={commentSheetVariants({ fitHeight, className })}
-      contentClassName="flex min-h-0 flex-1 flex-col"
-      {...props}
-    >
-      <div className="no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-5 overflow-y-auto">
-        {comments.map((comment) => (
-          <article key={comment.id} className="flex w-full items-center gap-3">
-            <Avatar
-              src={comment.avatarSrc}
-              alt={comment.avatarAlt ?? ''}
-              size="lg"
-              className="size-10 border-gray-100 p-0"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="body-7 truncate text-black">{comment.authorName}</div>
-              <p className="body-1 truncate text-gray-600">{comment.text}</p>
-            </div>
-            {comment.isMine && (
-              <ActiveMenu
-                icon={<MoreIcon className="size-5" />}
-                buttonClassName="size-5 text-[#666]"
-                menuClassName="!w-[100px] !min-w-0 !items-center !justify-center !gap-2 !rounded-[8px] !py-3 !pr-3 !pl-2"
-                deleteItemClassName="!w-auto shrink-0 !gap-1.5"
-                deleteIconClassName="!size-5 !w-5 shrink-0"
-                renderMenuInPortal
-                onDelete={() => onDeleteRequest?.(comment)}
+    <>
+      <BottomSheet
+        title={COMMENT_TITLE}
+        className={commentSheetVariants({ fitHeight, className })}
+        contentClassName="flex min-h-0 flex-1 flex-col"
+        {...props}
+      >
+        <div
+          className={cn(
+            'no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-5 overflow-y-auto',
+            inputVariant === 'commentup' && 'pb-[calc(88px+env(safe-area-inset-bottom))]',
+          )}
+        >
+          {comments.map((comment) => (
+            <article key={comment.id} className="flex w-full items-center gap-3">
+              <Avatar
+                src={comment.avatarSrc}
+                alt={comment.avatarAlt ?? ''}
+                size="lg"
+                className="size-10 border-gray-100 p-0"
               />
-            )}
-          </article>
-        ))}
-      </div>
-      {inputVariant === 'commentup' ? (
-        <CommentInputField
-          variant="commentup"
-          className="mt-6 mb-4 shrink-0 gap-0"
-          inputProps={{
-            value,
-            maxLength: MAX_COMMENT_LENGTH,
-            onChange: (event) => setValue(event.target.value.slice(0, MAX_COMMENT_LENGTH)),
-            onKeyDown: (event) => {
-              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
-                event.preventDefault();
-                submit();
-              }
-            },
-            ...inputProps,
-          }}
-          submitButtonProps={{
-            onClick: submit,
-            ...submitButtonProps,
-            style: {
-              ...submitButtonProps?.style,
-              width: hasValue ? '40px' : '0',
-              marginLeft: hasValue ? '12px' : '0',
-              opacity: hasValue ? 1 : 0,
-              overflow: 'hidden',
-              transition:
-                'width 240ms cubic-bezier(0.34, 1.56, 0.64, 1), margin-left 240ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 180ms ease-out',
-              pointerEvents: hasValue ? 'auto' : 'none',
-            },
-          }}
-        />
-      ) : (
-        <CommentInputField className="mt-6 mb-4 shrink-0" {...inputProps} />
-      )}
-    </BottomSheet>
+              <div className="min-w-0 flex-1">
+                <div className="body-7 truncate text-black">{comment.authorName}</div>
+                <p className="body-1 truncate text-gray-600">{comment.text}</p>
+              </div>
+              {comment.isMine && (
+                <ActiveMenu
+                  icon={<MoreIcon className="size-5" />}
+                  buttonClassName="size-5 text-[#666]"
+                  menuClassName="!w-[100px] !min-w-0 !items-center !justify-center !gap-2 !rounded-[8px] !py-3 !pr-3 !pl-2"
+                  deleteItemClassName="!w-auto shrink-0 !gap-1.5"
+                  deleteIconClassName="!size-5 !w-5 shrink-0"
+                  renderMenuInPortal
+                  onDelete={() => onDeleteRequest?.(comment)}
+                />
+              )}
+            </article>
+          ))}
+        </div>
+        {inputVariant === 'comment' && (
+          <CommentInputField className="mt-6 mb-4 shrink-0" {...inputProps} />
+        )}
+      </BottomSheet>
+      {commentUpInput &&
+        createPortal(
+          <div
+            data-testid="fixed-comment-input"
+            className="pointer-events-none fixed inset-x-0 bottom-(--keyboard-height) z-60 mx-auto w-full sm:max-w-[393px]"
+          >
+            <div className="pointer-events-auto bg-white px-5 pt-3 pb-[calc(16px+env(safe-area-inset-bottom))]">
+              {commentUpInput}
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
