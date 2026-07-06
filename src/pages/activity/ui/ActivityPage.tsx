@@ -88,7 +88,7 @@ export const ActivityPage = () => {
           onBellClick={toNotificationPage}
         />
       }
-      contentClassName="flex flex-col gap-9 bg-white pb-28"
+      contentClassName="flex flex-col gap-9 bg-white pb-40"
     >
       {showDailyQuestion ? (
         <DailyQuestion

@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useFeedData } from '@/shared/hooks/feed/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
-import { normalizeImageUrl } from '@/shared/lib';
+import { normalizeImageUrl, snapPointToHeight } from '@/shared/lib';
 import { FeedDetail } from './FeedDetail';
 import {
   BottomSheetOverlay,
@@ -154,16 +154,20 @@ export const FeedDetailContent = ({
           fadeFromIndex={0}
           avoidKeyboard
         >
-          <CommentSheet
-            inputVariant="commentup"
-            comments={commentsForOpenPin}
-            fitHeight
-            onSubmitComment={submitComment}
-            onDeleteRequest={(item) => {
-              item.onDelete?.();
-              closeSheet();
-            }}
-          />
+          {({ activeSnapPoint }) => (
+            <CommentSheet
+              inputVariant="commentup"
+              comments={commentsForOpenPin}
+              fitHeight
+              className="shrink-0 transition-[height] duration-300 ease-out"
+              style={{ height: snapPointToHeight(activeSnapPoint) }}
+              onSubmitComment={submitComment}
+              onDeleteRequest={(item) => {
+                item.onDelete?.();
+                closeSheet();
+              }}
+            />
+          )}
         </BottomSheetOverlay>
       )}
     </>

@@ -1,11 +1,10 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
-import { cn } from '@/shared/lib';
+import { type BottomSheetSnapPoint, cn } from '@/shared/lib';
 import { setKeyboardResizeMode } from '@/shared/lib/native/keyboardResize';
 import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
 
-type BottomSheetSnapPoint = number | string;
 type BottomSheetOverlayChildren =
   | ReactNode
   | ((state: { activeSnapPoint: BottomSheetSnapPoint | null }) => ReactNode);
@@ -124,6 +123,10 @@ export function BottomSheetOverlay({
           <Drawer.Description className="sr-only">{ariaDescription}</Drawer.Description>
         ) : null}
         {typeof children === 'function' ? children({ activeSnapPoint }) : children}
+        {snapPoints ? (
+          // 스냅 사이를 드래그하는 동안 시트 아래 영역이 비어 보이지 않게 흰색으로 채움
+          <div aria-hidden="true" className="min-h-0 flex-1 bg-white" />
+        ) : null}
       </Drawer.Content>
     </Drawer.Portal>
   );
