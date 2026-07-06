@@ -23,7 +23,7 @@ const meta = {
   ],
   args: {
     avatarUrl: TakBuilder,
-    actorName: '정수',
+    body: '정수님이 보규님께 댓글을 달았어요',
     feedId: 1,
     createdAt: minutesAgo(30),
   },
@@ -34,38 +34,46 @@ type Story = StoryObj<typeof meta>;
 
 export const Comment: Story = {
   args: {
-    type: 'comment',
-    targetName: '보규',
     thumbnailUrl: SAMPLE_THUMBNAIL,
   },
 };
 
 export const DailyFeed: Story = {
   args: {
-    type: 'dailyFeed',
+    body: '보규님이 오늘의 게시물을 올렸어요',
+    thumbnailUrl: SAMPLE_THUMBNAIL,
+  },
+};
+
+export const Replied: Story = {
+  args: {
+    body: 'ㅎㅇ님이 회원님의 댓글에 답글을 남겼어요.',
+    thumbnailUrl: SAMPLE_THUMBNAIL,
+  },
+};
+
+export const Unread: Story = {
+  args: {
+    unread: true,
     thumbnailUrl: SAMPLE_THUMBNAIL,
   },
 };
 
 export const NoThumbnail: Story = {
   args: {
-    type: 'dailyFeed',
+    body: '보규님이 오늘의 게시물을 올렸어요',
   },
 };
 
 export const LongName: Story = {
   args: {
-    type: 'comment',
-    actorName: '아주기다란닉네임을가진사람',
-    targetName: '또다른기다란닉네임유저',
+    body: '아주기다란닉네임을가진사람님이 또다른기다란닉네임유저님께 댓글을 달았어요',
     thumbnailUrl: SAMPLE_THUMBNAIL,
   },
 };
 
 export const RelativeTimes: Story = {
   args: {
-    type: 'comment',
-    targetName: '보규',
     thumbnailUrl: SAMPLE_THUMBNAIL,
   },
   render: (args) => (

@@ -43,6 +43,8 @@ const ssgoiConfig: SsgoiConfig = {
 
     ...hero({ paths: [PATHS.FEED, '/feed/*'], type: 'static' }),
 
+    ...hero({ paths: [PATHS.NOTIFICATION, '/feed/*'], type: 'static' }),
+
     ...slide({ paths: [PATHS.ACTIVITY, '/feed/*'] }),
 
     ...fade({ paths: ['*'] }),

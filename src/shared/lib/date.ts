@@ -5,15 +5,25 @@ const KST_DATE_FORMATTER = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
-/** ISO 문자열을 "YYYY.MM.DD"로 변환 */
-export const formatYmd = (iso: string) => iso.slice(0, 10).replaceAll('-', '.');
+const TIMEZONE_SUFFIX_RE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
 
-/**
- * ISO 문자열을 상대시간으로 변환.
- * "방금 전 / N분 전 / N시간 전 / N일 전" 으로, 7일 이상이면 "YYYY.MM.DD".
- */
+/** 서버 날짜 문자열을 Date로 파싱. 타임존 표기 없는 값은 UTC로 해석(로컬 해석 시 9시간 어긋남) */
+export const parseServerDate = (value: string): Date => {
+  const truncated = value.replace(/(\.\d{3})\d+/, '$1');
+  return new Date(TIMEZONE_SUFFIX_RE.test(truncated) ? truncated : `${truncated}Z`);
+};
+
+/** 서버 날짜 문자열을 KST 기준 "YYYY.MM.DD"로 변환. 날짜만 있는 값은 그대로 표기 */
+export const formatYmd = (iso: string): string => {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso.replaceAll('-', '.');
+  const parsed = parseServerDate(iso);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return KST_DATE_FORMATTER.format(parsed).replaceAll('-', '.');
+};
+
+/** 상대시간("방금 전/N분 전/N시간 전/N일 전")으로 변환, 7일 이상이면 KST 기준 "YYYY.MM.DD" */
 export const formatRelativeTime = (iso: string, now: Date = new Date()): string => {
-  const target = new Date(iso);
+  const target = parseServerDate(iso);
   if (Number.isNaN(target.getTime())) return '';
 
   const diffSec = Math.floor((now.getTime() - target.getTime()) / 1000);
@@ -28,7 +38,7 @@ export const formatRelativeTime = (iso: string, now: Date = new Date()): string 
   const diffDay = Math.floor(diffHour / 24);
   if (diffDay < 7) return `${diffDay}일 전`;
 
-  return formatYmd(iso);
+  return KST_DATE_FORMATTER.format(target).replaceAll('-', '.');
 };
 
 /** KST 기준 오늘 날짜를 "YYYY-MM-DD"로 반환 */
