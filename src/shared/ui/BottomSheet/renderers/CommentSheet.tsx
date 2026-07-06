@@ -1,4 +1,9 @@
-import { type ComponentPropsWithRef, type ComponentPropsWithoutRef, useState } from 'react';
+import {
+  type ComponentPropsWithRef,
+  type ComponentPropsWithoutRef,
+  useEffect,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { tv } from 'tailwind-variants';
 import MoreIcon from '@/shared/assets/Icon/More_Icon.svg?react';
@@ -52,6 +57,8 @@ export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
     onSubmitComment?: (text: string) => void;
     onDeleteRequest?: (item: CommentSheetItem) => void;
     fitHeight?: boolean;
+    open?: boolean;
+    closeOffset?: string;
   };
 
 export function CommentSheet({
@@ -62,11 +69,28 @@ export function CommentSheet({
   onSubmitComment,
   onDeleteRequest,
   fitHeight = false,
+  open = true,
+  closeOffset,
   className,
   ...props
 }: CommentSheetProps) {
   const [value, setValue] = useState('');
   const hasValue = value.trim().length > 0;
+
+  const [exitOffset, setExitOffset] = useState(closeOffset ?? '100%');
+  if (open && exitOffset !== (closeOffset ?? '100%')) {
+    setExitOffset(closeOffset ?? '100%');
+  }
+
+  const [inputAtRest, setInputAtRest] = useState(false);
+  if (!open && inputAtRest) {
+    setInputAtRest(false);
+  }
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => setInputAtRest(true));
+    return () => cancelAnimationFrame(raf);
+  }, [open]);
 
   const submit = () => {
     const text = value.trim();
@@ -159,7 +183,11 @@ export function CommentSheet({
             data-testid="fixed-comment-input"
             className="pointer-events-none fixed inset-x-0 bottom-(--keyboard-height) z-60 mx-auto w-full sm:max-w-[393px]"
           >
-            <div className="pointer-events-auto bg-white px-5 pt-3 pb-[calc(16px+env(safe-area-inset-bottom))]">
+            {/* vaul Drawer 개폐(500ms, 동일 커브)와 같은 거리를 이동해 시트와 한 덩어리로 움직임 */}
+            <div
+              className="pointer-events-auto bg-white px-5 pt-3 pb-[calc(16px+env(safe-area-inset-bottom))] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+              style={inputAtRest ? undefined : { transform: `translateY(${exitOffset})` }}
+            >
               {commentUpInput}
             </div>
           </div>,
