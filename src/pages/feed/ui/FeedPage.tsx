@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useCallback, useEffect, useMemo, useState, type MouseEvent, type UIEvent } from 'react';
+import { flushSync } from 'react-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { useInfiniteFeeds } from '@/shared/api/feed/queries';
@@ -25,19 +26,33 @@ const STORED_HERO_MAX_LIFETIME_MS = 5000;
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
   `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
 
+interface FeedLocationState {
+  feedViewMode?: FeedViewMode;
+}
+
+const getFeedViewModeFromState = (state: unknown): FeedViewMode => {
+  const value = (state as FeedLocationState | null)?.feedViewMode;
+  return value === 'list' || value === 'grid' ? value : 'grid';
+};
+
 export const FeedPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
 
-  const [viewMode, setViewMode] = useState<FeedViewMode>('grid');
+  const [viewMode, setViewMode] = useState<FeedViewMode>(() =>
+    getFeedViewModeFromState(location.state),
+  );
   const [viewModeTeamId, setViewModeTeamId] = useState(teamId);
   const [storedFeedHero, setStoredFeedHero] = useState(readStoredFeedHero);
-  const shouldResetTeamScopedState = teamId !== viewModeTeamId && viewModeTeamId !== null;
-  if (shouldResetTeamScopedState) {
+  const isTeamSwitch = teamId !== viewModeTeamId && viewModeTeamId !== null;
+  if (teamId !== viewModeTeamId) {
     setViewModeTeamId(teamId);
-    setViewMode('grid');
-    setStoredFeedHero(null);
+    setViewMode(isTeamSwitch ? 'grid' : getFeedViewModeFromState(location.state));
+    if (isTeamSwitch) {
+      setStoredFeedHero(null);
+    }
   }
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -57,7 +72,7 @@ export const FeedPage = () => {
   });
   const {
     scrollRef,
-    handleScroll,
+    handleScroll: handleRestoreScroll,
     restored: scrollRestored,
   } = useScrollRestore(scrollKey, {
     ready: !showFeedLoading && !isError,
@@ -69,29 +84,25 @@ export const FeedPage = () => {
     : true;
 
   useEffect(() => {
-    if (!shouldResetTeamScopedState) return;
+    if (!isTeamSwitch) return;
     clearStoredFeedHero();
-  }, [shouldResetTeamScopedState]);
+  }, [isTeamSwitch]);
 
   useEffect(() => {
     if (!storedFeedHero) return;
 
     const maxTimeoutId = window.setTimeout(() => {
+      clearStoredFeedHero();
       setStoredFeedHero(null);
     }, STORED_HERO_MAX_LIFETIME_MS);
     return () => window.clearTimeout(maxTimeoutId);
   }, [storedFeedHero]);
 
   useEffect(() => {
-    if (!storedFeedHero) return;
-
-    clearStoredFeedHero();
-  }, [storedFeedHero]);
-
-  useEffect(() => {
     if (!storedFeedHero || !scrollRestored || !isStoredHeroFeedLoaded) return;
 
     const id = window.setTimeout(() => {
+      clearStoredFeedHero();
       setStoredFeedHero(null);
     }, STORED_HERO_CLEAR_DELAY_MS);
     return () => window.clearTimeout(id);
@@ -105,9 +116,34 @@ export const FeedPage = () => {
       const localRect = frameRect
         ? new DOMRect(rect.left - frameRect.left, rect.top - frameRect.top, rect.width, rect.height)
         : rect;
-      storeFeedHero(item, localRect);
+      const nextStoredFeedHero = storeFeedHero(item, localRect);
+      flushSync(() => {
+        setStoredFeedHero(nextStoredFeedHero);
+      });
     },
     [scrollRef],
+  );
+
+  const handleViewModeChange = useCallback(
+    (mode: FeedViewMode) => {
+      setViewMode(mode);
+      navigate('.', {
+        replace: true,
+        state: { ...(location.state as FeedLocationState | null), feedViewMode: mode },
+        preventScrollReset: true,
+      });
+    },
+    [location.state, navigate],
+  );
+
+  const handleFeedScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      handleRestoreScroll(event);
+      if (!storedFeedHero || !scrollRestored) return;
+      clearStoredFeedHero();
+      setStoredFeedHero(null);
+    },
+    [handleRestoreScroll, scrollRestored, storedFeedHero],
   );
 
   const handleListFeedClick = async (event: MouseEvent<HTMLAnchorElement>, feed: FeedItem) => {
@@ -150,13 +186,13 @@ export const FeedPage = () => {
       <div
         ref={scrollRef}
         className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
-        onScroll={handleScroll}
+        onScroll={handleFeedScroll}
       >
         <FeedCountToolbar
           count={totalCount}
           loading={showFeedLoading}
           viewMode={viewMode}
-          onViewModeChange={setViewMode}
+          onViewModeChange={handleViewModeChange}
           className="mb-6"
         />
         {showFeedLoading ? (
@@ -187,10 +223,7 @@ export const FeedPage = () => {
                     if (source) captureFeedHero(feed, source);
                     void preloadFeedHeroAssets(feed);
                   }}
-                  onFocus={(event) => {
-                    const source =
-                      event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                    if (source) captureFeedHero(feed, source);
+                  onFocus={() => {
                     void preloadFeedHeroAssets(feed);
                   }}
                   onMouseEnter={() => void preloadFeedHeroAssets(feed)}

@@ -113,44 +113,60 @@ export const CameraReview = ({
         </div>
       </div>
 
-      {isFilterOpen && (
-        <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5">
-          {PHOTO_FILTERS.map((filter) => (
-            <button
-              key={filter.id}
-              type="button"
-              aria-label={`${filter.label} 필터`}
-              aria-pressed={activeFilterId === filter.id}
-              onClick={() => onSelectFilter(filter.id)}
-              className="flex shrink-0 flex-col items-center gap-1"
-            >
-              <span
-                className={cn(
-                  'size-14 overflow-hidden rounded-lg border-2',
-                  activeFilterId === filter.id ? 'border-main-001' : 'border-transparent',
-                )}
+      <div
+        aria-hidden={!isFilterOpen}
+        className={cn(
+          'grid transition-[grid-template-rows,opacity,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+          isFilterOpen
+            ? 'translate-y-0 grid-rows-[1fr] opacity-100'
+            : 'pointer-events-none -translate-y-3 grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
+            {PHOTO_FILTERS.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                aria-label={`${filter.label} 필터`}
+                aria-pressed={activeFilterId === filter.id}
+                tabIndex={isFilterOpen ? 0 : -1}
+                onClick={() => onSelectFilter(filter.id)}
+                className="flex shrink-0 flex-col items-center gap-1"
               >
-                <img
-                  src={imageUrl}
-                  alt=""
-                  style={{ filter: filter.css }}
-                  className="size-full object-cover"
-                />
-              </span>
-              <span
-                className={cn(
-                  'text-xs',
-                  activeFilterId === filter.id ? 'text-main-001' : 'text-gray-700',
-                )}
-              >
-                {filter.label}
-              </span>
-            </button>
-          ))}
+                <span
+                  className={cn(
+                    'size-14 overflow-hidden rounded-lg border-2',
+                    activeFilterId === filter.id ? 'border-main-001' : 'border-transparent',
+                  )}
+                >
+                  <img
+                    src={imageUrl}
+                    alt=""
+                    style={{ filter: filter.css }}
+                    className="size-full object-cover"
+                  />
+                </span>
+                <span
+                  className={cn(
+                    'text-xs',
+                    activeFilterId === filter.id ? 'text-main-001' : 'text-gray-700',
+                  )}
+                >
+                  {filter.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
 
-      <div className="flex items-center justify-center gap-8">
+      <div
+        className={cn(
+          'flex items-center justify-center gap-8 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+          isFilterOpen && 'translate-y-1',
+        )}
+      >
         <button
           type="button"
           aria-label="스티커 추가"

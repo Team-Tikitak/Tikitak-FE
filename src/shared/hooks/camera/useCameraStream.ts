@@ -6,6 +6,7 @@ export type CameraZoomLevel = 1 | 2;
 const CAMERA_STREAM_WIDTH = 1920;
 const CAMERA_STREAM_HEIGHT = 1080;
 const CAMERA_STREAM_ASPECT_RATIO = 16 / 9;
+const CAMERA_ZOOM_ANIMATION_MS = 220;
 
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
@@ -86,7 +87,7 @@ const selectPreferredDeviceId = async (stream: MediaStream, facingMode: CameraFa
   return preferred.device.deviceId;
 };
 
-const getTrackZoom = (capabilities: ZoomableMediaTrackCapabilities, zoomLevel: CameraZoomLevel) => {
+const getTrackZoom = (capabilities: ZoomableMediaTrackCapabilities, zoomLevel: number) => {
   const minZoom = capabilities.zoom?.min;
   const maxZoom = capabilities.zoom?.max;
   if (typeof minZoom !== 'number') return null;
@@ -100,20 +101,29 @@ const isTwoStepZoomSupported = (capabilities: ZoomableMediaTrackCapabilities) =>
   return typeof maxZoom === 'number' && maxZoom >= 2;
 };
 
-const applyTrackZoom = async (stream: MediaStream, zoomLevel: CameraZoomLevel) => {
+const getStreamZoom = (stream: MediaStream, zoomLevel: number) => {
   const [track] = stream.getVideoTracks();
-  if (!track?.getCapabilities || !track.applyConstraints) return;
+  if (!track?.getCapabilities) return null;
 
   const capabilities = track.getCapabilities() as ZoomableMediaTrackCapabilities;
-  const zoom = getTrackZoom(capabilities, zoomLevel);
-  if (zoom === null) return;
+  return getTrackZoom(capabilities, zoomLevel);
+};
+
+const applyTrackZoom = async (stream: MediaStream, zoomLevel: number) => {
+  const [track] = stream.getVideoTracks();
+  if (!track?.getCapabilities || !track.applyConstraints) return null;
+
+  const zoom = getStreamZoom(stream, zoomLevel);
+  if (zoom === null) return null;
 
   try {
     await track.applyConstraints({
       advanced: [{ zoom } as ZoomableMediaTrackConstraintSet],
     });
+    return zoom;
   } catch {
     // Some WebViews expose zoom capabilities but reject applying them.
+    return null;
   }
 };
 
@@ -132,6 +142,8 @@ export const useCameraStream = (
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const readyFrameRef = useRef<number | null>(null);
+  const zoomFrameRef = useRef<number | null>(null);
+  const currentZoomRef = useRef<number>(zoomLevel);
   const zoomLevelRef = useRef(zoomLevel);
   const [error, setError] = useState<CameraError | null>(() =>
     isCameraSupported() ? null : 'unsupported',
@@ -143,6 +155,10 @@ export const useCameraStream = (
     if (readyFrameRef.current !== null) {
       cancelAnimationFrame(readyFrameRef.current);
       readyFrameRef.current = null;
+    }
+    if (zoomFrameRef.current !== null) {
+      cancelAnimationFrame(zoomFrameRef.current);
+      zoomFrameRef.current = null;
     }
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
@@ -194,7 +210,11 @@ export const useCameraStream = (
         }
         const zoomSupported = facingMode === 'environment' && getZoomSupport(activeStream);
         setIsZoomSupported(zoomSupported);
-        await applyTrackZoom(activeStream, zoomSupported ? zoomLevelRef.current : 1);
+        const appliedZoom = await applyTrackZoom(
+          activeStream,
+          zoomSupported ? zoomLevelRef.current : 1,
+        );
+        currentZoomRef.current = appliedZoom ?? 1;
         if (cancelled) {
           activeStream.getTracks().forEach((track) => track.stop());
           return;
@@ -245,7 +265,46 @@ export const useCameraStream = (
     const stream = streamRef.current;
     if (paused || !stream) return;
 
-    void applyTrackZoom(stream, isZoomSupported ? zoomLevel : 1);
+    const targetZoom = getStreamZoom(stream, isZoomSupported ? zoomLevel : 1);
+    if (targetZoom === null) return;
+
+    if (zoomFrameRef.current !== null) {
+      cancelAnimationFrame(zoomFrameRef.current);
+      zoomFrameRef.current = null;
+    }
+
+    const startZoom = currentZoomRef.current;
+    const delta = targetZoom - startZoom;
+    if (Math.abs(delta) < 0.01) {
+      void applyTrackZoom(stream, targetZoom);
+      currentZoomRef.current = targetZoom;
+      return;
+    }
+
+    let startTime: number | null = null;
+    const step = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / CAMERA_ZOOM_ANIMATION_MS, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const nextZoom = startZoom + delta * easedProgress;
+      currentZoomRef.current = nextZoom;
+      void applyTrackZoom(stream, nextZoom);
+
+      if (progress < 1) {
+        zoomFrameRef.current = requestAnimationFrame(step);
+        return;
+      }
+      currentZoomRef.current = targetZoom;
+      zoomFrameRef.current = null;
+    };
+
+    zoomFrameRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (zoomFrameRef.current === null) return;
+      cancelAnimationFrame(zoomFrameRef.current);
+      zoomFrameRef.current = null;
+    };
   }, [isZoomSupported, paused, zoomLevel]);
 
   return { videoRef, streamRef, error, isReady, isZoomSupported, stopStream };
