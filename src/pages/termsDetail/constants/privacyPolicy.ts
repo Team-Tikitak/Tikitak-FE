@@ -4,7 +4,7 @@ export const PRIVACY_POLICY: LegalDoc = {
   title: '개인정보처리방침',
   intro:
     '티키탁(이하 "회사")은 이용자의 개인정보를 소중히 여기며, 「개인정보 보호법」 및 관련 법령을 준수합니다. 본 방침은 회사가 운영하는 팀 아카이브 서비스 티키탁(Tikitak)에 적용됩니다.',
-  meta: ['시행일:', '최종 수정일:', '버전: v1.0'],
+  meta: ['시행일: 2026.07.06', '최종 수정일: 2026.07.06', '버전: v1.0'],
   sections: [
     {
       id: 'privacy-1',
@@ -245,7 +245,11 @@ export const PRIVACY_POLICY: LegalDoc = {
         },
         {
           type: 'list',
-          items: ['담당: 티키탁 개인정보 보호팀', '이메일:', '처리 기간: 영업일 기준 3일 이내'],
+          items: [
+            '담당: 티키탁 개인정보 보호팀',
+            '이메일: hyuuunjin16@gmail.com',
+            '처리 기간: 영업일 기준 3일 이내',
+          ],
         },
         {
           type: 'paragraph',

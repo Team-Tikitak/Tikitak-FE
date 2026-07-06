@@ -4,7 +4,7 @@ export const TERMS_OF_SERVICE: LegalDoc = {
   title: '서비스 이용약관',
   intro:
     '본 약관은 티키탁(tikitak)(이하 "회사")이 제공하는 팀 아카이브 서비스의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임 사항을 규정합니다. 서비스 가입 또는 이용 시 본 약관에 동의한 것으로 간주합니다.',
-  meta: ['시행일:', '최종 수정일:', '버전: v1.0'],
+  meta: ['시행일: 2026.07.06', '최종 수정일: 2026.07.06', '버전: v1.0'],
   sections: [
     {
       id: 'service-1',
@@ -344,8 +344,11 @@ export const TERMS_OF_SERVICE: LegalDoc = {
           type: 'list',
           items: [
             '서비스명: Tikitak (티키탁)',
-            // 고객센터 오픈채팅 (myPage의 EXTERNAL_LINKS.CUSTOMER_SUPPORT와 동일)
-            { text: '고객센터', url: 'https://open.kakao.com/o/syl9qRvi' },
+            {
+              text: '고객센터',
+              url: 'https://open.kakao.com/o/syl9qRvi',
+              urlLabel: '카카오톡 오픈채팅',
+            },
             '답변 기간: 영업일 기준 3일 이내',
           ],
         },
