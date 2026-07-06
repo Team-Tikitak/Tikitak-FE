@@ -1,5 +1,5 @@
 import type { FeedComment } from '@/shared/api/feedComment/types';
-import type { Pin } from '@/shared/ui';
+import type { Pin } from '@/shared/ui/FeedDetail/FeedImageDetail';
 import { toSafeImageUrl } from './image/normalizeImageUrl';
 
 export const makeSlot = (feedId: number, imageIndex: number) => `${feedId}-${imageIndex}`;

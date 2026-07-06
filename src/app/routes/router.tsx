@@ -1,7 +1,6 @@
 import { createBrowserRouter } from 'react-router';
-import { RootLayout } from '@/app/layout';
+import { RootLayout } from '@/app/layout/RootLayout';
 import { RootErrorBoundary } from '@/pages/error/ErrorBoundary';
-import { LoginPage } from '@/pages/login/ui';
 import { NotFoundPage } from '@/pages/notFound/NotFoundPage';
 import { SplashPage } from '@/pages/splash/ui';
 import { authCallbackLoader, inviteAcceptLoader, setupFlowLoader } from './loaders';
@@ -18,7 +17,11 @@ export const router = createBrowserRouter([
         errorElement: <RootErrorBoundary />,
         children: [
           { index: true, element: <SplashPage /> },
-          { path: PATHS.LOGIN, element: <LoginPage /> },
+          {
+            path: PATHS.LOGIN,
+            lazy: () =>
+              import('@/pages/login/ui/LoginPage').then((m) => ({ Component: m.LoginPage })),
+          },
           {
             path: PATHS.TERMS_DETAIL,
             lazy: () =>

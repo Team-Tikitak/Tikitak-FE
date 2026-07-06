@@ -56,9 +56,17 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
           cleanupOutdatedCaches: true,
           runtimeCaching: [
+            {
+              urlPattern: ({ sameOrigin, url }) => sameOrigin && url.pathname.endsWith('.woff2'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'font-assets',
+                expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
             {
               urlPattern: ({ url }) => url.hostname === 'dapi.kakao.com',
               handler: 'CacheFirst',

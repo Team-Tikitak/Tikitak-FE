@@ -6,7 +6,7 @@ import AppleIcon from '@/shared/assets/Icon/AppleIcon.svg?react';
 import GoogleIcon from '@/shared/assets/Icon/GoogleIcon.svg?react';
 import KakaoIcon from '@/shared/assets/Icon/KakaoIcon.svg?react';
 import TikiTakLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
-import { cn } from '@/shared/lib';
+import { cn } from '@/shared/lib/cn';
 import { LoadingState } from '@/shared/ui/LoadingState/LoadingState';
 import { SocialLoginButton } from './SocialLoginButton';
 
