@@ -88,15 +88,17 @@ export const ActivityPage = () => {
           onBellClick={toNotificationPage}
         />
       }
-      contentClassName="flex flex-col gap-9 bg-white pb-40"
+      contentClassName="flex flex-col overflow-hidden bg-white"
     >
-      {showDailyQuestion ? (
-        <DailyQuestion
-          question={dailyQuestion ?? ''}
-          onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
-        />
-      ) : null}
-      {content}
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto pb-40">
+        {showDailyQuestion ? (
+          <DailyQuestion
+            question={dailyQuestion ?? ''}
+            onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+          />
+        ) : null}
+        {content}
+      </div>
     </PageShell>
   );
 };
