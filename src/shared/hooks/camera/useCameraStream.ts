@@ -13,6 +13,19 @@ const CAMERA_ZOOM_CONSTRAINT_INTERVAL_MS = 80;
 const isCameraSupported = () =>
   typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
 
+const getCoverPreviewZoomLevel = (zoomLevel: number) => {
+  if (typeof window === 'undefined') return zoomLevel;
+
+  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  if (!viewportWidth || !viewportHeight) return zoomLevel;
+
+  const viewportAspectRatio = viewportWidth / viewportHeight;
+  if (viewportAspectRatio >= CAMERA_STREAM_ASPECT_RATIO) return zoomLevel;
+
+  return zoomLevel * (viewportAspectRatio / CAMERA_STREAM_ASPECT_RATIO);
+};
+
 type ZoomableMediaTrackCapabilities = MediaTrackCapabilities & {
   zoom?: {
     min?: number;
@@ -92,7 +105,7 @@ const getTrackZoom = (capabilities: ZoomableMediaTrackCapabilities, zoomLevel: n
   const maxZoom = capabilities.zoom?.max;
   if (typeof minZoom !== 'number') return null;
 
-  const targetZoom = Math.max(zoomLevel, minZoom);
+  const targetZoom = Math.max(getCoverPreviewZoomLevel(zoomLevel), minZoom);
   return typeof maxZoom === 'number' ? Math.min(targetZoom, maxZoom) : targetZoom;
 };
 
@@ -222,12 +235,20 @@ export const useCameraStream = (
         const zoomSupported = facingMode === 'environment' && getZoomSupport(activeStream);
         setIsZoomSupported(zoomSupported);
         const baseZoom = getStreamCurrentZoom(activeStream);
-        baseZoomRef.current = baseZoom;
-        if (zoomSupported && zoomLevelRef.current !== 1) {
-          const appliedZoom = await applyTrackZoom(activeStream, zoomLevelRef.current);
-          currentZoomRef.current = appliedZoom ?? baseZoom;
+        if (zoomSupported) {
+          const initialDisplayZoom = zoomLevelRef.current;
+          const initialTrackZoom = getStreamZoom(activeStream, initialDisplayZoom);
+          const shouldApplyInitialZoom =
+            initialTrackZoom !== null && Math.abs(initialTrackZoom - baseZoom) >= 0.01;
+          const appliedZoom = shouldApplyInitialZoom
+            ? await applyTrackZoom(activeStream, initialDisplayZoom)
+            : baseZoom;
+          const normalizedZoom = appliedZoom ?? baseZoom;
+          currentZoomRef.current = normalizedZoom;
+          baseZoomRef.current = zoomLevelRef.current === 1 ? normalizedZoom : baseZoom;
         } else {
           currentZoomRef.current = baseZoom;
+          baseZoomRef.current = baseZoom;
         }
         if (cancelled) {
           activeStream.getTracks().forEach((track) => track.stop());
