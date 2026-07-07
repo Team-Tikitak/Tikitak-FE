@@ -53,10 +53,11 @@ export const usePutAgreements = () => {
   });
 };
 
-export const useGetTeams = () =>
+export const useGetTeams = ({ enabled = true }: UseMeOptions = {}) =>
   useQuery({
     queryKey: userKeys.teams(),
     queryFn: async () => (await unwrap(() => getTeams())).teams ?? [],
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 

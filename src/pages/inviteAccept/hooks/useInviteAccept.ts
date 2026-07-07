@@ -4,6 +4,7 @@ import { REDIRECT_AFTER_LOGIN_KEY } from '@/app/routes/loaders';
 import { PATHS, toInviteAppLink } from '@/app/routes/paths';
 import { getAccessToken } from '@/shared/api/instance';
 import { useInvitationPreview } from '@/shared/api/invitation/queries';
+import { useGetTeams } from '@/shared/api/user/queries';
 
 export const useInviteAccept = () => {
   const navigate = useNavigate();
@@ -15,11 +16,17 @@ export const useInviteAccept = () => {
   const isLoggedIn = Boolean(getAccessToken());
 
   const teamName = data?.teamName ?? '';
+  const { data: teams } = useGetTeams({ enabled: isLoggedIn });
+  const isAlreadyMember = teams?.some((team) => team.teamId === data?.teamId) ?? false;
 
   const handleConfirm = () => {
     if (!isLoggedIn) {
       sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, `/invite/${token}`);
       navigate(PATHS.LOGIN);
+      return;
+    }
+    if (isAlreadyMember) {
+      navigate(PATHS.HOME);
       return;
     }
     navigate(PATHS.TEAM_PROFILE_SETUP, {
