@@ -24,6 +24,8 @@ const ssgoiConfig: SsgoiConfig = {
     ...sheet({ enter: PATHS.TEAM_CREATE, exit: PATHS.MY_PAGE }),
 
     // Auth flow
+    ...slide({ paths: [PATHS.INVITE_ACCEPT, PATHS.LOGIN] }),
+    ...slide({ paths: [PATHS.INVITE_ACCEPT, PATHS.HOME] }),
     ...slide({ paths: [PATHS.LOGIN, PATHS.TERMS] }),
     ...slide({ paths: [PATHS.TERMS, '/terms/*'] }),
     ...slide({ paths: [PATHS.TERMS, PATHS.ONBOARDING] }),
@@ -33,6 +35,7 @@ const ssgoiConfig: SsgoiConfig = {
     ...slide({ paths: [PATHS.AUTH_CALLBACK, PATHS.HOME] }),
 
     // Team flow
+    ...slide({ paths: [PATHS.INVITE_ACCEPT, PATHS.TEAM_PROFILE_SETUP] }),
     ...slide({ paths: [PATHS.TEAM_CREATE, PATHS.TEAM_PROFILE_SETUP] }),
     ...slide({ paths: [PATHS.HOME, '/teams/*'] }),
     ...slide({ paths: [PATHS.MY_PAGE, '/teams/*'] }),

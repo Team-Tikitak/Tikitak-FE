@@ -7,6 +7,7 @@ import {
   readStoredDeviceToken,
 } from '@/shared/lib/native/deviceTokenStorage';
 import { getDeviceTokenIfGranted } from '@/shared/lib/native/getDeviceToken';
+import { consumeRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys, LOGIN_CODE_EXCHANGE_MUTATION_KEY } from './keys';
 import { sessionQueryOptions } from './sessionQuery';
@@ -28,7 +29,7 @@ export const useLoginCodeExchange = () => {
       setAccessToken(data.accessToken);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
       queryClient.invalidateQueries({ queryKey: userKeys.all });
-      navigate(PATHS.HOME, { replace: true });
+      navigate(consumeRedirectAfterLogin() ?? PATHS.HOME, { replace: true });
     },
   });
 };

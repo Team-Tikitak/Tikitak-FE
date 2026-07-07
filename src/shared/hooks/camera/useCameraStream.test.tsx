@@ -61,7 +61,7 @@ describe('useCameraStream', () => {
     vi.restoreAllMocks();
   });
 
-  it('requests a wide camera stream without forcing a portrait crop', async () => {
+  it('requests a portrait feed-ratio camera stream to reduce 1x preview crop', async () => {
     const track = { stop: vi.fn() };
     getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
 
@@ -71,11 +71,10 @@ describe('useCameraStream', () => {
       expect(getUserMediaMock).toHaveBeenCalledWith({
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          aspectRatio: { ideal: 16 / 9 },
+          width: { ideal: 1440 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 3 / 4 },
           resizeMode: 'none',
-          advanced: [{ zoom: 1 }],
         },
         audio: false,
       });
@@ -121,9 +120,9 @@ describe('useCameraStream', () => {
       expect(getUserMediaMock).toHaveBeenLastCalledWith({
         video: expect.objectContaining({
           deviceId: { exact: 'wide-camera' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          aspectRatio: { ideal: 16 / 9 },
+          width: { ideal: 1440 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 3 / 4 },
         }),
         audio: false,
       });
@@ -131,9 +130,10 @@ describe('useCameraStream', () => {
     expect(initialTrack.stop).toHaveBeenCalled();
   });
 
-  it('keeps supported camera zoom at 1x even when the lens exposes a 0.5x minimum', async () => {
+  it('does not force zoom constraints for the initial 1x preview', async () => {
     const track = {
       getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      getSettings: vi.fn(() => ({ zoom: 1.2 })),
       applyConstraints: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn(),
     };
@@ -142,10 +142,9 @@ describe('useCameraStream', () => {
     render(<Harness />);
 
     await waitFor(() => {
-      expect(track.applyConstraints).toHaveBeenCalledWith({
-        advanced: [{ zoom: 1 }],
-      });
+      expect(screen.getByTestId('zoom-supported')).toHaveTextContent('true');
     });
+    expect(track.applyConstraints).not.toHaveBeenCalled();
   });
 
   it('applies 2x zoom when the selected level is supported', async () => {
@@ -193,6 +192,42 @@ describe('useCameraStream', () => {
       advanced: Array<{ zoom: number }>;
     };
     expect(lastCall.advanced[0]?.zoom).toBeGreaterThan(1.98);
+  });
+
+  it('throttles zoom animation constraints to avoid preview frame drops', async () => {
+    const track = {
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      applyConstraints: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+    };
+    getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
+
+    const { rerender } = render(<Harness zoomLevel={2} />);
+
+    await waitFor(() => {
+      expect(track.applyConstraints).toHaveBeenCalledWith({
+        advanced: [{ zoom: 2 }],
+      });
+    });
+    const initialApplyCount = track.applyConstraints.mock.calls.length;
+
+    rerender(<Harness zoomLevel={1} />);
+
+    act(() => {
+      rafCallback?.(0);
+      rafCallback?.(16);
+      rafCallback?.(32);
+      rafCallback?.(48);
+      rafCallback?.(64);
+    });
+
+    expect(track.applyConstraints).toHaveBeenCalledTimes(initialApplyCount + 1);
+
+    act(() => {
+      rafCallback?.(80);
+    });
+
+    expect(track.applyConstraints).toHaveBeenCalledTimes(initialApplyCount + 2);
   });
 
   it('does not mark the stream ready after stopStream cancels a pending ready frame', async () => {
