@@ -56,7 +56,7 @@ export const CharacterPreviewStep = ({ onStart }: CharacterPreviewStepProps) => 
             className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
             style={marqueeRowStyle}
           >
-            <div className="animate-marquee-left flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
+            <div className="animate-marquee-left flex w-max gap-2 [animation-delay:1000ms] motion-reduce:animate-none">
               {[...TOP_ROW_CHARACTERS, ...TOP_ROW_CHARACTERS].map((char, index) =>
                 renderCircle(char, `top-${char.id}-${index}`),
               )}
@@ -67,7 +67,7 @@ export const CharacterPreviewStep = ({ onStart }: CharacterPreviewStepProps) => 
             className="animate-marquee-row-enter overflow-hidden [animation-delay:800ms] motion-reduce:animate-none"
             style={marqueeRowStyle}
           >
-            <div className="animate-marquee-right flex w-max gap-2 [animation-delay:1300ms] motion-reduce:animate-none">
+            <div className="animate-marquee-right flex w-max gap-2 [animation-delay:1000ms] motion-reduce:animate-none">
               {[...BOTTOM_ROW_CHARACTERS, ...BOTTOM_ROW_CHARACTERS].map((char, index) =>
                 renderCircle(char, `bottom-${char.id}-${index}`),
               )}
