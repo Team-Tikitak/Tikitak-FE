@@ -77,19 +77,24 @@ export const usePushNotificationToggle = () => {
 
   const toggle = async () => {
     if (!supported || enabled === null || pending) return;
+    const next = !enabled;
+    // 낙관적 반영 — 권한/토큰/서버 처리를 기다리지 않고 즉시 뒤집고, 실패 시 롤백
+    setEnabled(next);
     setPending(true);
 
     try {
-      const next = !enabled;
       const ok = next ? await enable() : await disable();
       if (ok) {
         await storePushEnabled(next);
-        setEnabled(next);
+      } else {
+        setEnabled(!next);
       }
+    } catch {
+      setEnabled(!next);
     } finally {
       setPending(false);
     }
   };
 
-  return { supported, enabled, pending, toggle };
+  return { supported, enabled, toggle };
 };
