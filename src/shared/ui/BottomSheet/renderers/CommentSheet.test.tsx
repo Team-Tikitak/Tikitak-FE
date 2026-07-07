@@ -44,34 +44,13 @@ describe('CommentSheet', () => {
     expect(input).toBeInTheDocument();
   });
 
-  it('renders commentup input in a fixed bottom layer', () => {
+  it('renders commentup input inside the sheet', () => {
     const { container } = render(
       <CommentSheet comments={mockComments} inputVariant="commentup" onSubmitComment={vi.fn()} />,
     );
 
-    expect(screen.getByTestId('fixed-comment-input')).toHaveClass(
-      'fixed',
-      'bottom-(--keyboard-height)',
-    );
-    expect(container.querySelector('.no-scrollbar')).toHaveClass(
-      'pb-[calc(88px+env(safe-area-inset-bottom))]',
-    );
-  });
-
-  it('slides the fixed input out by the sheet height when open is false', () => {
-    render(
-      <CommentSheet
-        comments={mockComments}
-        inputVariant="commentup"
-        open={false}
-        closeOffset="294px"
-        onSubmitComment={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByTestId('fixed-comment-input').firstElementChild).toHaveStyle({
-      transform: 'translateY(294px)',
-    });
+    const input = screen.getByRole('textbox');
+    expect(container.contains(input)).toBe(true);
   });
 
   it('should not exceed max comment length', async () => {

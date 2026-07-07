@@ -20,11 +20,15 @@
 }
 
 @utility comment-bottom-sheet-base {
-  height: calc(294px + env(safe-area-inset-bottom));
+  /* --comment-sheet-height: 열릴 때 JS가 측정한 전체 높이(피드 이미지 세로 중간~뷰포트 바닥) */
+  height: var(--comment-sheet-height, calc(294px + env(safe-area-inset-bottom)));
   padding-bottom: env(safe-area-inset-bottom);
 
   [data-keyboard-visible='true'] & {
-    height: 294px;
+    height: calc(
+      var(--comment-sheet-height, calc(294px + env(safe-area-inset-bottom))) -
+        env(safe-area-inset-bottom)
+    );
     padding-bottom: 0;
   }
 }
