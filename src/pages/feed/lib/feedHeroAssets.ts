@@ -1,6 +1,6 @@
 import type { FeedItem } from '../model/types';
 
-const HERO_PRELOAD_TIMEOUT_MS = 180;
+const HERO_PRELOAD_TIMEOUT_MS = 300;
 const IMAGE_PRELOAD_CACHE_LIMIT = 150;
 const imagePreloadCache = new Map<string, Promise<void>>();
 
@@ -11,7 +11,13 @@ export const preloadImage = (url: string): Promise<void> => {
 
   const preload = new Promise<void>((resolve) => {
     const image = new Image();
-    image.onload = () => resolve();
+    image.onload = () => {
+      if (typeof image.decode !== 'function') {
+        resolve();
+        return;
+      }
+      void image.decode().then(resolve).catch(resolve);
+    };
     image.onerror = () => resolve();
     image.src = url;
   });

@@ -55,7 +55,7 @@ describe('feedHeroAssets', () => {
 
     it('should resolve within timeout', async () => {
       const promise = preloadFeedHeroAssets(mockFeedItem);
-      vi.advanceTimersByTime(200);
+      vi.advanceTimersByTime(300);
 
       await expect(promise).resolves.toBeUndefined();
     });
