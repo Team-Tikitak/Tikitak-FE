@@ -20,41 +20,40 @@ export const InviteAcceptPage = () => {
     <div className="relative isolate flex flex-1 flex-col">
       <InviteBackground />
 
-      <PageShell
-        className="bg-transparent"
-        contentClassName="flex flex-col gap-4 pt-25 items-center px-4"
-      >
-        <div className="flex flex-col items-center justify-center gap-2.5">
-          <div className="flex items-center gap-2.5">
-            <TikiTackLogo className="w-[91px]" />
-            <span className="title-1 text-black">초대장</span>
+      <PageShell className="bg-transparent" contentClassName="flex px-4">
+        <div className="flex min-h-full w-full flex-col items-center justify-center py-12">
+          <div className="flex flex-col items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <TikiTackLogo className="w-[91px]" />
+              <span className="title-1 text-black">초대장</span>
+            </div>
+            <p className="body-2 text-gray-600">
+              <span className="text-main-001">{teamName}</span>팀으로 초대합니다!
+            </p>
           </div>
-          <p className="body-2 text-gray-600">
-            <span className="text-main-001">{teamName}</span>팀으로 초대합니다!
-          </p>
-        </div>
 
-        <div className="mt-[53px] flex flex-col items-center gap-[23px]">
-          <TakLeader className="w-full max-w-[169px]" />
-        </div>
+          <div className="mt-[53px] flex flex-col items-center gap-[23px]">
+            <TakLeader className="w-full max-w-[169px]" />
+          </div>
 
-        <div className="mt-25 flex w-full flex-col items-center justify-center gap-3">
-          {isApp ? (
-            <Button variant="secondary" onClick={handleConfirm}>
-              참여하기
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="secondary"
-                buttonIcon={<TikiTackIcon className="size-[22px]" />}
-                onClick={openInApp}
-              >
-                티키탁에서 초대장 확인하기
+          <div className="mt-20 flex w-full flex-col items-center justify-center gap-3">
+            {isApp ? (
+              <Button variant="secondary" onClick={handleConfirm}>
+                참여하기
               </Button>
-              <Button variant="secondary">설치하기</Button>
-            </>
-          )}
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  buttonIcon={<TikiTackIcon className="size-[22px]" />}
+                  onClick={openInApp}
+                >
+                  티키탁에서 초대장 확인하기
+                </Button>
+                <Button variant="secondary">설치하기</Button>
+              </>
+            )}
+          </div>
         </div>
       </PageShell>
     </div>
