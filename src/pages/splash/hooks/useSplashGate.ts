@@ -2,9 +2,9 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getInviteAcceptPathFromUrl } from '@/app/lib/inviteDeepLink';
 import { PATHS } from '@/app/routes/paths';
 import { restoreSession } from '@/shared/api/auth/restoreSession';
+import { getInviteAcceptPathFromUrl } from '@/shared/lib/routing/inviteDeepLink';
 import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
 const SPLASH_SEEN_KEY = 'splash-seen';

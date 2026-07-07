@@ -91,6 +91,23 @@ describe('useSplashGate', () => {
     expect(navigateMock).toHaveBeenCalledWith('/invite/invite-token', { replace: true });
   });
 
+  it('네이티브 콜드스타트 URL 이 초대 링크가 아니면 스플래시 체크를 종료한다', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    getLaunchUrlMock.mockResolvedValue({ url: 'tikitak://home' });
+
+    const { result } = renderHook(() => useSplashGate({ animationStarted: false }));
+
+    expect(result.current.isCheckingLaunchInvite).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.isCheckingLaunchInvite).toBe(false);
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(restoreSessionMock).not.toHaveBeenCalled();
+  });
+
   it('세션 복원 성공 시 타이머 종료 후 HOME 으로 navigate 한다', async () => {
     restoreSessionMock.mockResolvedValue(true);
 

@@ -11,6 +11,7 @@ let previewResult: { data: { teamId: number; teamName: string } | undefined; isE
   isError: false,
 };
 let teamsResult: Array<{ teamId: number }> | undefined;
+let teamsPending = false;
 
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
@@ -23,10 +24,10 @@ vi.mock('@/shared/api/invitation/queries', () => ({
   useInvitationPreview: () => previewResult,
 }));
 vi.mock('@/shared/api/user/queries', () => ({
-  useGetTeams: ({ enabled = true } = {}) => ({ data: enabled ? teamsResult : undefined }),
-}));
-vi.mock('@/app/routes/loaders', () => ({
-  REDIRECT_AFTER_LOGIN_KEY: 'redirectAfterLogin',
+  useGetTeams: ({ enabled = true } = {}) => ({
+    data: enabled ? teamsResult : undefined,
+    isPending: enabled ? teamsPending : false,
+  }),
 }));
 
 describe('useInviteAccept', () => {
@@ -36,6 +37,7 @@ describe('useInviteAccept', () => {
     accessToken = null;
     previewResult = { data: { teamId: 1, teamName: '티키탁 팀' }, isError: false };
     teamsResult = undefined;
+    teamsPending = false;
     sessionStorage.clear();
   });
 
@@ -77,6 +79,20 @@ describe('useInviteAccept', () => {
 
     expect(sessionStorage.getItem('redirectAfterLogin')).toBeNull();
     expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME);
+  });
+
+  it('팀 목록 로딩 중이면 참여 처리를 보류한다', () => {
+    accessToken = 'access-token';
+    teamsPending = true;
+    teamsResult = undefined;
+    const { result } = renderHook(() => useInviteAccept());
+
+    act(() => {
+      result.current.handleConfirm();
+    });
+
+    expect(result.current.isCheckingMembership).toBe(true);
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 
   it('preview 에러는 isInvalidInvite 로 노출하고 teamName 은 빈 문자열이다', () => {

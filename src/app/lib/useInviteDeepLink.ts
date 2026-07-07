@@ -2,7 +2,7 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { getInviteAcceptPathFromUrl } from './inviteDeepLink';
+import { getInviteAcceptPathFromUrl } from '@/shared/lib/routing/inviteDeepLink';
 
 export const useInviteDeepLink = (): void => {
   const navigate = useNavigate();

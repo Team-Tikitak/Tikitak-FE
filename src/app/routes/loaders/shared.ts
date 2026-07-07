@@ -29,6 +29,7 @@ export const ensureSessionAccessToken = () =>
       setAccessToken(accessToken);
       return accessToken;
     },
+    retry: false,
   });
 
 export const getHttpStatus = (error: unknown) =>

@@ -9,7 +9,8 @@ import { InviteBackground } from './InviteBackground';
 import { useInviteAccept } from '../hooks/useInviteAccept';
 
 export const InviteAcceptPage = () => {
-  const { teamName, isInvalidInvite, handleConfirm, openInApp } = useInviteAccept();
+  const { teamName, isInvalidInvite, isCheckingMembership, handleConfirm, openInApp } =
+    useInviteAccept();
   const isApp = Capacitor.isNativePlatform();
 
   if (isInvalidInvite) {
@@ -38,7 +39,7 @@ export const InviteAcceptPage = () => {
 
           <div className="mt-20 flex w-full flex-col items-center justify-center gap-3">
             {isApp ? (
-              <Button variant="secondary" onClick={handleConfirm}>
+              <Button variant="secondary" onClick={handleConfirm} disabled={isCheckingMembership}>
                 참여하기
               </Button>
             ) : (
@@ -47,6 +48,7 @@ export const InviteAcceptPage = () => {
                   variant="secondary"
                   buttonIcon={<TikiTackIcon className="size-[22px]" />}
                   onClick={openInApp}
+                  disabled={isCheckingMembership}
                 >
                   티키탁에서 초대장 확인하기
                 </Button>

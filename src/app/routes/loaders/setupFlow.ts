@@ -6,17 +6,17 @@ import { invitationKeys } from '@/shared/api/invitation/keys';
 import { unwrap } from '@/shared/api/request';
 import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
+import { safeSessionRemove, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 import { PATHS } from '../paths';
 import { ensureSessionAccessToken, getHttpStatus } from './shared';
 
 export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
 
-export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
-  const token = new URL(request.url).pathname.split('/invite/')[1];
+export const inviteAcceptLoader = async ({ params }: LoaderFunctionArgs) => {
+  const token = params.token;
+  if (!token) return null;
 
-  if (token && typeof window !== 'undefined') {
-    sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
-  }
+  safeSessionSet(PENDING_INVITE_TOKEN_KEY, token);
 
   try {
     if (!getAccessToken()) {
@@ -45,7 +45,7 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
 
     const isAlreadyMember = teams.some((team) => team.teamId === preview.teamId);
     if (isAlreadyMember) {
-      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
+      safeSessionRemove(PENDING_INVITE_TOKEN_KEY);
       if (!agreements.termsAgreed || !agreements.privacyAgreed) {
         return redirect(PATHS.TERMS);
       }
@@ -58,8 +58,12 @@ export const inviteAcceptLoader = async ({ request }: LoaderFunctionArgs) => {
     if (!me.onboardingCompleted) {
       return redirect(PATHS.ONBOARDING);
     }
-  } catch {
+  } catch (error) {
     // 비로그인 사용자는 정상 흐름
+    const status = getHttpStatus(error);
+    if (status === undefined || status >= 500) {
+      throw error;
+    }
   }
   return null;
 };

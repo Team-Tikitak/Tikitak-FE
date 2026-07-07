@@ -16,10 +16,13 @@ export const useInviteAccept = () => {
   const isLoggedIn = Boolean(getAccessToken());
 
   const teamName = data?.teamName ?? '';
-  const { data: teams } = useGetTeams({ enabled: isLoggedIn });
+  const { data: teams, isPending: isTeamsPending } = useGetTeams({ enabled: isLoggedIn });
+  const isCheckingMembership = isLoggedIn && isTeamsPending;
   const isAlreadyMember = teams?.some((team) => team.teamId === data?.teamId) ?? false;
 
   const handleConfirm = () => {
+    if (isCheckingMembership) return;
+
     if (!isLoggedIn) {
       saveRedirectAfterLogin(`/invite/${token}`);
       navigate(PATHS.LOGIN);
@@ -55,5 +58,5 @@ export const useInviteAccept = () => {
     window.location.assign(toInviteAppLink(token));
   };
 
-  return { teamName, isInvalidInvite, handleConfirm, openInApp };
+  return { teamName, isInvalidInvite, isCheckingMembership, handleConfirm, openInApp };
 };
