@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { useReadNotification } from '@/shared/api/notification/queries';
 import { preloadNotificationHeroAssets } from '../lib/heroAssets';
+import { notificationHeroKey } from '../lib/notificationHeroKey';
 import type { NotificationListItem } from './useNotifications';
 import type { MouseEvent } from 'react';
 
@@ -36,6 +37,7 @@ export const useNotificationClick = () => {
       state: {
         thumbnailUrl: notification.thumbnailUrl ?? undefined,
         heroPreviewUrl: notification.heroPreviewUrl ?? undefined,
+        heroKey: notificationHeroKey(notification.feedId, notification.id),
       },
     });
   };

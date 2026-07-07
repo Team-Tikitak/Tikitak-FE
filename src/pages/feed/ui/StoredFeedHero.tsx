@@ -8,6 +8,7 @@ export const StoredFeedHero = ({ storedFeedHero }: StoredFeedHeroProps) => {
   return (
     <img
       data-hero-exit-key={`pin-${storedFeedHero.feedId}`}
+      data-hero-radius="4"
       src={storedFeedHero.thumbnailUrl}
       alt=""
       aria-hidden="true"

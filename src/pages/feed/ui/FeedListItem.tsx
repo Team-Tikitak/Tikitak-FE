@@ -41,7 +41,9 @@ export const FeedListItem = ({
       </div>
       <div className="relative size-[92px] shrink-0 overflow-hidden rounded-sm">
         <img
-          {...(suppressHeroImage ? {} : { 'data-hero-exit-key': `pin-${item.id}` })}
+          {...(suppressHeroImage
+            ? {}
+            : { 'data-hero-exit-key': `pin-${item.id}`, 'data-hero-radius': '4' })}
           src={item.thumbnailUrl}
           alt=""
           loading={eager ? 'eager' : 'lazy'}
