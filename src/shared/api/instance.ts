@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { PATHS } from '@/app/routes/paths';
 import { invalidateDeviceToken } from '@/shared/lib/native/getDeviceToken';
+import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { useAuthStore } from '../stores/authStore';
 import { AUTH_ENDPOINTS } from './auth/endpoints';
 
@@ -71,6 +72,9 @@ const processQueue = (error: unknown, token?: string) => {
   pendingQueue = [];
 };
 
+const isSessionExpiredRefreshStatus = (status: number | undefined) =>
+  status === 400 || status === 401 || status === 403;
+
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -122,15 +126,18 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        // 401/403만 로그아웃, 5xx는 세션 유지
+        // 400/401/403은 세션 없음·만료로 보고 로그인으로 정리, 5xx는 세션 유지
         const refreshStatus = axios.isAxiosError(refreshError)
           ? refreshError.response?.status
           : undefined;
-        if (refreshStatus === 401 || refreshStatus === 403) {
+        if (isSessionExpiredRefreshStatus(refreshStatus)) {
           clearAccessToken();
           await invalidateDeviceToken();
 
           if (window.location.pathname !== PATHS.LOGIN) {
+            if (window.location.pathname !== PATHS.ROOT) {
+              saveRedirectAfterLogin(`${window.location.pathname}${window.location.search}`);
+            }
             window.location.replace(PATHS.LOGIN);
           }
         }

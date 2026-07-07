@@ -1,20 +1,12 @@
 import { redirect, type LoaderFunctionArgs } from 'react-router';
 import { setAccessToken } from '@/shared/api/instance';
+import {
+  consumeRedirectAfterLogin,
+  REDIRECT_AFTER_LOGIN_KEY,
+} from '@/shared/lib/routing/redirectAfterLogin';
 import { PATHS } from '../paths';
 
-const isSafeInternalPath = (path: string): boolean => {
-  if (typeof path !== 'string' || !path.startsWith('/')) return false;
-  if (path.startsWith('//') || path.startsWith('/\\')) return false;
-  if ([...path].some((ch) => ch.charCodeAt(0) <= 0x1f || ch.charCodeAt(0) === 0x7f)) return false;
-  try {
-    const url = new URL(path, 'https://placeholder.invalid');
-    return url.origin === 'https://placeholder.invalid';
-  } catch {
-    return false;
-  }
-};
-
-export const REDIRECT_AFTER_LOGIN_KEY = 'redirectAfterLogin';
+export { REDIRECT_AFTER_LOGIN_KEY };
 
 export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -26,10 +18,8 @@ export const authCallbackLoader = ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  const redirectTo = sessionStorage.getItem(REDIRECT_AFTER_LOGIN_KEY);
-  sessionStorage.removeItem(REDIRECT_AFTER_LOGIN_KEY);
-
-  if (redirectTo && isSafeInternalPath(redirectTo)) {
+  const redirectTo = consumeRedirectAfterLogin();
+  if (redirectTo) {
     return redirect(redirectTo);
   }
 

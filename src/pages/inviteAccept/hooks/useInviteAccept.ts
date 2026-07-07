@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { REDIRECT_AFTER_LOGIN_KEY } from '@/app/routes/loaders';
 import { PATHS, toInviteAppLink } from '@/app/routes/paths';
 import { getAccessToken } from '@/shared/api/instance';
 import { useInvitationPreview } from '@/shared/api/invitation/queries';
 import { useGetTeams } from '@/shared/api/user/queries';
+import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 
 export const useInviteAccept = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export const useInviteAccept = () => {
 
   const handleConfirm = () => {
     if (!isLoggedIn) {
-      sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, `/invite/${token}`);
+      saveRedirectAfterLogin(`/invite/${token}`);
       navigate(PATHS.LOGIN);
       return;
     }
