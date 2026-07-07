@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib';
 import { formatRelativeTime } from '@/shared/lib/date';
 import { toSafeImageUrl } from '@/shared/lib/image/normalizeImageUrl';
 import { emphasizeNames } from '../lib/emphasizeNames';
+import { notificationHeroKey } from '../lib/notificationHeroKey';
 
 export interface NotificationItemProps extends Omit<
   ComponentPropsWithRef<typeof Link>,
@@ -13,6 +14,7 @@ export interface NotificationItemProps extends Omit<
 > {
   body: string;
   feedId: number;
+  notificationId: number;
   avatarUrl?: string | null;
   createdAt: string;
   thumbnailUrl?: string | null;
@@ -23,6 +25,7 @@ export interface NotificationItemProps extends Omit<
 export const NotificationItem = ({
   body,
   feedId,
+  notificationId,
   avatarUrl,
   createdAt,
   thumbnailUrl,
@@ -34,6 +37,7 @@ export const NotificationItem = ({
 }: NotificationItemProps) => {
   const hasThumbnail = thumbnailUrl != null && thumbnailUrl !== '';
   const emphasizedBody = emphasizeNames(body);
+  const heroKey = notificationHeroKey(feedId, notificationId);
 
   return (
     <Link
@@ -42,6 +46,7 @@ export const NotificationItem = ({
       state={{
         thumbnailUrl: thumbnailUrl ?? undefined,
         heroPreviewUrl: heroPreviewUrl ?? undefined,
+        heroKey,
       }}
       className={cn('flex w-full items-center gap-3', unread && 'bg-main-000', className)}
       {...props}
@@ -66,7 +71,8 @@ export const NotificationItem = ({
         <div className="relative shrink-0">
           <div className="size-13 overflow-hidden rounded-sm">
             <img
-              data-hero-exit-key={`pin-${feedId}`}
+              data-hero-exit-key={heroKey}
+              data-hero-radius="4"
               src={toSafeImageUrl(thumbnailUrl)}
               alt=""
               loading="lazy"

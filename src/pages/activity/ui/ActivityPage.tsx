@@ -9,6 +9,7 @@ import {
   useHomeRegions,
 } from '@/shared/api/home/queries';
 import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
+import { cn } from '@/shared/lib/cn';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
@@ -65,7 +66,7 @@ export const ActivityPage = () => {
     content = <ActivitySkeleton />;
   } else if (isEmpty) {
     content = (
-      <div className="flex flex-1 items-center justify-center pb-3.5">
+      <div className="mt-17 flex flex-1 items-center justify-center">
         <EmptyActiveView />
       </div>
     );
@@ -81,22 +82,29 @@ export const ActivityPage = () => {
   return (
     <PageShell
       header={
-        <AppHeader
-          teamName={activeTeam?.teamName ?? ''}
-          teamNameLoading={isHeaderLoading}
-          onTeamSelect={openTeamSheet}
-          onBellClick={toNotificationPage}
-        />
+        <>
+          <AppHeader
+            teamName={activeTeam?.teamName ?? ''}
+            teamNameLoading={isHeaderLoading}
+            onTeamSelect={openTeamSheet}
+            onBellClick={toNotificationPage}
+          />
+          {showDailyQuestion ? (
+            <DailyQuestion
+              question={dailyQuestion ?? ''}
+              onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+            />
+          ) : null}
+        </>
       }
       contentClassName="flex flex-col overflow-hidden bg-white"
     >
-      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto">
-        {showDailyQuestion ? (
-          <DailyQuestion
-            question={dailyQuestion ?? ''}
-            onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
-          />
-        ) : null}
+      <div
+        className={cn(
+          'no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto',
+          showDailyQuestion && 'pt-9',
+        )}
+      >
         {content}
         {/* iOS(WebKit)는 스크롤 컨테이너 자신의 padding-bottom을 스크롤 범위에 안 넣어서 자식 스페이서로 하단 여백 확보 */}
         <div className="h-40 shrink-0" aria-hidden="true" />

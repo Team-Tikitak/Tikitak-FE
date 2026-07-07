@@ -5,6 +5,5 @@
 export * from './EmptyNotificationView';
 export * from './NotificationItem';
 export * from './NotificationPage';
-export * from './NotificationSettingsSheet';
 export * from './NotificationSettingsSheetContainer';
 export * from './NotificationSkeleton';

@@ -95,7 +95,7 @@ export const FeedGrid = ({
               <img
                 {...(suppressedHeroId === item.id
                   ? {}
-                  : { 'data-hero-exit-key': `pin-${item.id}` })}
+                  : { 'data-hero-exit-key': `pin-${item.id}`, 'data-hero-radius': '4' })}
                 src={item.thumbnailUrl}
                 alt=""
                 loading={isAboveFold ? 'eager' : 'lazy'}

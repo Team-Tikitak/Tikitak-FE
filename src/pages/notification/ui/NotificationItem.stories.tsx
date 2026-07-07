@@ -25,6 +25,7 @@ const meta = {
     avatarUrl: TakBuilder,
     body: '정수님이 보규님께 댓글을 달았어요',
     feedId: 1,
+    notificationId: 1,
     createdAt: minutesAgo(30),
   },
 } satisfies Meta<typeof NotificationItem>;

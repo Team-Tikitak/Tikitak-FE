@@ -1,6 +1,6 @@
 import { cn } from '@/shared/lib';
-import { type BottomSheetProps, BottomSheet } from '@/shared/ui/BottomSheet';
-import { Switch } from '@/shared/ui/Switch';
+import { Switch } from '../../Switch';
+import { type BottomSheetProps, BottomSheet } from '../BottomSheet';
 
 export interface NotificationSettingsSheetProps extends Omit<
   BottomSheetProps,
@@ -8,14 +8,12 @@ export interface NotificationSettingsSheetProps extends Omit<
 > {
   supported: boolean;
   enabled: boolean | null;
-  pending: boolean;
   onToggle: () => void;
 }
 
 export function NotificationSettingsSheet({
   supported,
   enabled,
-  pending,
   onToggle,
   contentClassName,
   ...props
@@ -37,7 +35,7 @@ export function NotificationSettingsSheet({
         </div>
         <Switch
           checked={supported ? (enabled ?? false) : false}
-          disabled={!supported || enabled === null || pending}
+          disabled={!supported || enabled === null}
           onCheckedChange={onToggle}
           aria-label="푸시 알림"
         />

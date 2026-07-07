@@ -48,6 +48,7 @@ export const NotificationPage = () => {
               <NotificationItem
                 body={notification.body}
                 feedId={notification.feedId}
+                notificationId={notification.id}
                 avatarUrl={notification.avatarUrl}
                 thumbnailUrl={notification.thumbnailUrl}
                 heroPreviewUrl={notification.heroPreviewUrl}
