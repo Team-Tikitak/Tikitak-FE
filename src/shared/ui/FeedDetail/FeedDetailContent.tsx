@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useFeedData } from '@/shared/hooks/feed/useFeedData';
 import { usePinComments } from '@/shared/hooks/usePinComments';
@@ -15,23 +15,6 @@ import { LongPressHint } from './LongPressHint';
 const COMMENT_SHEET_TITLE = '\uB313\uAE00';
 const COMMENT_SHEET_DESCRIPTION = '\uD540 \uC704\uCE58\uC5D0 \uB0A8\uAE34 \uB313\uAE00';
 const PARTICIPANTS_SHEET_TITLE = '\uCC38\uC5EC\uD55C \uC778\uC6D0';
-const COMMENT_SHEET_MIN_HEIGHT = 294;
-const FEED_IMAGE_FRAME_SELECTOR = '[data-feed-detail-image-frame]';
-
-/** 댓글 시트가 피드 이미지 세로 중간까지 오도록 높이 측정 (실패 시 CSS 기본값 사용) */
-const measureCommentSheetHeight = (): string | undefined => {
-  const imageFrame = document.querySelector<HTMLElement>(FEED_IMAGE_FRAME_SELECTOR);
-  if (!imageFrame) return undefined;
-
-  const rect = imageFrame.getBoundingClientRect();
-  const imageMiddle = rect.top + rect.height / 2;
-  const height = Math.min(
-    window.innerHeight,
-    Math.max(COMMENT_SHEET_MIN_HEIGHT, Math.round(window.innerHeight - imageMiddle)),
-  );
-
-  return `${height}px`;
-};
 
 interface FeedDetailLocationState {
   thumbnailUrl?: string;
@@ -94,14 +77,6 @@ export const FeedDetailContent = ({
   const [participantsSheetState, setParticipantsSheetState] = useState<
     'closed' | 'open' | 'exiting'
   >('closed');
-  const [commentSheetHeight, setCommentSheetHeight] = useState<string>();
-  const [measuredPinKey, setMeasuredPinKey] = useState<typeof displayPinKey>(null);
-
-  if (displayPinKey !== measuredPinKey) {
-    setMeasuredPinKey(displayPinKey);
-    if (displayPinKey) setCommentSheetHeight(measureCommentSheetHeight());
-  }
-
   const participantItems: ParticipantsSheetItem[] = (participants ?? []).map((participant) => ({
     id: String(participant.id),
     name: participant.name,
@@ -153,11 +128,6 @@ export const FeedDetailContent = ({
           <CommentSheet
             inputVariant="commentup"
             comments={commentsForOpenPin}
-            style={
-              commentSheetHeight
-                ? ({ '--comment-sheet-height': commentSheetHeight } as CSSProperties)
-                : undefined
-            }
             onSubmitComment={submitComment}
             onDeleteRequest={(item) => {
               item.onDelete?.();
