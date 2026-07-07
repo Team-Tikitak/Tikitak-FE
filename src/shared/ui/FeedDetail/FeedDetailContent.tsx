@@ -158,6 +158,8 @@ export const FeedDetailContent = ({
             <CommentSheet
               inputVariant="commentup"
               comments={commentsForOpenPin}
+              open={openPinKey === displayPinKey}
+              closeOffset={snapPointToHeight(activeSnapPoint)}
               fitHeight
               className="shrink-0 transition-[height] duration-300 ease-out"
               style={{ height: snapPointToHeight(activeSnapPoint) }}

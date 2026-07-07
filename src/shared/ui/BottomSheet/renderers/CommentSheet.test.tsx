@@ -58,6 +58,22 @@ describe('CommentSheet', () => {
     );
   });
 
+  it('slides the fixed input out by the sheet height when open is false', () => {
+    render(
+      <CommentSheet
+        comments={mockComments}
+        inputVariant="commentup"
+        open={false}
+        closeOffset="294px"
+        onSubmitComment={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('fixed-comment-input').firstElementChild).toHaveStyle({
+      transform: 'translateY(294px)',
+    });
+  });
+
   it('should not exceed max comment length', async () => {
     const user = userEvent.setup();
     const MAX_COMMENT_LENGTH = 500; // 실제 값은 constants에서 가져옴

@@ -90,7 +90,7 @@ export const ActivityPage = () => {
       }
       contentClassName="flex flex-col overflow-hidden bg-white"
     >
-      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto pb-40">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto">
         {showDailyQuestion ? (
           <DailyQuestion
             question={dailyQuestion ?? ''}
@@ -98,6 +98,8 @@ export const ActivityPage = () => {
           />
         ) : null}
         {content}
+        {/* iOS(WebKit)는 스크롤 컨테이너 자신의 padding-bottom을 스크롤 범위에 안 넣어서 자식 스페이서로 하단 여백 확보 */}
+        <div className="h-40 shrink-0" aria-hidden="true" />
       </div>
     </PageShell>
   );
