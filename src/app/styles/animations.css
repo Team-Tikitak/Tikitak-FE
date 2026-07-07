@@ -223,9 +223,12 @@
 }
 
 .splash-login-logo-frame {
-  width: 206px;
-  height: 57px;
-  overflow: hidden;
+  width: 240px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
   transform: translateZ(0);
 }
 
