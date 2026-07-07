@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { PATHS, toInviteAppLink } from '@/app/routes/paths';
 import { getAccessToken } from '@/shared/api/instance';
 import { useInvitationPreview } from '@/shared/api/invitation/queries';
-import { useGetTeams } from '@/shared/api/user/queries';
+import { useGetTeams, usePatchActiveTeam } from '@/shared/api/user/queries';
 import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 
 export const useInviteAccept = () => {
@@ -17,19 +17,22 @@ export const useInviteAccept = () => {
 
   const teamName = data?.teamName ?? '';
   const { data: teams, isPending: isTeamsPending } = useGetTeams({ enabled: isLoggedIn });
-  const isCheckingMembership = isLoggedIn && isTeamsPending;
+  const { mutateAsync: patchActiveTeam, isPending: isPatchingActiveTeam } = usePatchActiveTeam();
+  const isCheckingMembership = isLoggedIn && (isTeamsPending || isPatchingActiveTeam);
   const isAlreadyMember = teams?.some((team) => team.teamId === data?.teamId) ?? false;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (isCheckingMembership) return;
+    if (!token) return;
 
     if (!isLoggedIn) {
       saveRedirectAfterLogin(`/invite/${token}`);
       navigate(PATHS.LOGIN);
       return;
     }
-    if (isAlreadyMember) {
-      navigate(PATHS.HOME);
+    if (isAlreadyMember && data?.teamId) {
+      await patchActiveTeam(data.teamId);
+      navigate(PATHS.HOME, { replace: true });
       return;
     }
     navigate(PATHS.TEAM_PROFILE_SETUP, {

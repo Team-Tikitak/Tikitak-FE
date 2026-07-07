@@ -11,6 +11,7 @@ import {
 import { invitationKeys } from './keys';
 import { unwrap } from '../request';
 import { invalidateTeamMembershipQueries } from '../team/invalidateTeamMembership';
+import { patchActiveTeam as patchActiveTeamApi } from '../user/api';
 
 export const useInvitationLink = (teamId: number) =>
   useQuery({
@@ -42,10 +43,11 @@ export const useAcceptInvitation = () => {
   return useMutation({
     // 강퇴당한 팀 재참여 불가 등 서버가 구체적 사유를 내려주므로 서버 메시지를 우선 노출
     meta: { errorMessage: '팀 참여에 실패했어요', useServerMessage: true },
-    mutationFn: postAcceptInvitation,
-    onSuccess: () => {
+    mutationFn: (variables) => unwrap(() => postAcceptInvitation(variables)),
+    onSuccess: async (data) => {
+      await patchActiveTeamApi({ teamId: data.teamId });
       invalidateTeamMembershipQueries(queryClient);
-      navigate(PATHS.HOME, { replace: false });
+      navigate(PATHS.HOME, { replace: true });
     },
   });
 };
