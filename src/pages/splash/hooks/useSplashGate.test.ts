@@ -4,10 +4,24 @@ import { PATHS } from '@/app/routes/paths';
 import { useSplashGate } from './useSplashGate';
 
 const navigateMock = vi.fn();
-const { restoreSessionMock } = vi.hoisted(() => ({
+const { getLaunchUrlMock, isNativePlatformMock, restoreSessionMock } = vi.hoisted(() => ({
+  getLaunchUrlMock: vi.fn<() => Promise<{ url: string } | undefined>>(() =>
+    Promise.resolve(undefined),
+  ),
+  isNativePlatformMock: vi.fn(() => false),
   restoreSessionMock: vi.fn(() => Promise.resolve(false)),
 }));
 
+vi.mock('@capacitor/app', () => ({
+  App: {
+    getLaunchUrl: getLaunchUrlMock,
+  },
+}));
+vi.mock('@capacitor/core', () => ({
+  Capacitor: {
+    isNativePlatform: isNativePlatformMock,
+  },
+}));
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
 }));
@@ -20,6 +34,10 @@ describe('useSplashGate', () => {
     vi.useFakeTimers();
     sessionStorage.clear();
     navigateMock.mockClear();
+    getLaunchUrlMock.mockReset();
+    getLaunchUrlMock.mockResolvedValue(undefined);
+    isNativePlatformMock.mockReset();
+    isNativePlatformMock.mockReturnValue(false);
     restoreSessionMock.mockReset();
     restoreSessionMock.mockResolvedValue(false);
   });
@@ -54,6 +72,40 @@ describe('useSplashGate', () => {
       replace: true,
       state: { fromSplash: true },
     });
+  });
+
+  it('앱 초대 딥링크 콜드스타트이면 스플래시 없이 초대장으로 replace 한다', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    getLaunchUrlMock.mockResolvedValue({ url: 'tikitak://invite/invite-token' });
+
+    const { result } = renderHook(() => useSplashGate({ animationStarted: false }));
+
+    expect(result.current.isCheckingLaunchInvite).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(sessionStorage.getItem('splash-seen')).toBe('1');
+    expect(restoreSessionMock).not.toHaveBeenCalled();
+    expect(navigateMock).toHaveBeenCalledWith('/invite/invite-token', { replace: true });
+  });
+
+  it('네이티브 콜드스타트 URL 이 초대 링크가 아니면 스플래시 체크를 종료한다', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    getLaunchUrlMock.mockResolvedValue({ url: 'tikitak://home' });
+
+    const { result } = renderHook(() => useSplashGate({ animationStarted: false }));
+
+    expect(result.current.isCheckingLaunchInvite).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.isCheckingLaunchInvite).toBe(false);
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(restoreSessionMock).not.toHaveBeenCalled();
   });
 
   it('세션 복원 성공 시 타이머 종료 후 HOME 으로 navigate 한다', async () => {

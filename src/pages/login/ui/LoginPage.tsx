@@ -37,7 +37,11 @@ export const LoginPage = () => {
 
   return (
     <div className="flex flex-1 flex-col items-center px-[25px] pt-[31dvh]">
-      <div className="splash-login-logo-frame" role="img" aria-label="tiki-tak!">
+      <div
+        className={cn('splash-login-logo-frame', fromSplash && 'splash-logo-motion-frame')}
+        role="img"
+        aria-label="tiki-tak!"
+      >
         <TikiTakSplashLogo
           className="splash-login-logo-mark splash-logo-settled"
           aria-hidden="true"

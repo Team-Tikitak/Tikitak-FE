@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { REDIRECT_AFTER_LOGIN_KEY } from '@/app/routes/loaders';
 import { PATHS, toInviteAppLink } from '@/app/routes/paths';
 import { getAccessToken } from '@/shared/api/instance';
 import { useInvitationPreview } from '@/shared/api/invitation/queries';
+import { useGetTeams } from '@/shared/api/user/queries';
+import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 
 export const useInviteAccept = () => {
   const navigate = useNavigate();
@@ -15,11 +16,20 @@ export const useInviteAccept = () => {
   const isLoggedIn = Boolean(getAccessToken());
 
   const teamName = data?.teamName ?? '';
+  const { data: teams, isPending: isTeamsPending } = useGetTeams({ enabled: isLoggedIn });
+  const isCheckingMembership = isLoggedIn && isTeamsPending;
+  const isAlreadyMember = teams?.some((team) => team.teamId === data?.teamId) ?? false;
 
   const handleConfirm = () => {
+    if (isCheckingMembership) return;
+
     if (!isLoggedIn) {
-      sessionStorage.setItem(REDIRECT_AFTER_LOGIN_KEY, `/invite/${token}`);
+      saveRedirectAfterLogin(`/invite/${token}`);
       navigate(PATHS.LOGIN);
+      return;
+    }
+    if (isAlreadyMember) {
+      navigate(PATHS.HOME);
       return;
     }
     navigate(PATHS.TEAM_PROFILE_SETUP, {
@@ -48,5 +58,5 @@ export const useInviteAccept = () => {
     window.location.assign(toInviteAppLink(token));
   };
 
-  return { teamName, isInvalidInvite, handleConfirm, openInApp };
+  return { teamName, isInvalidInvite, isCheckingMembership, handleConfirm, openInApp };
 };

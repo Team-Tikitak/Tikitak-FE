@@ -4,10 +4,10 @@ import { useSplashGate } from '../hooks/useSplashGate';
 
 export const SplashPage = () => {
   const [animationStarted, setAnimationStarted] = useState(false);
-  const { alreadySeen } = useSplashGate({ animationStarted });
+  const { alreadySeen, isCheckingLaunchInvite } = useSplashGate({ animationStarted });
 
   useEffect(() => {
-    if (alreadySeen) {
+    if (alreadySeen || isCheckingLaunchInvite) {
       return;
     }
 
@@ -16,15 +16,19 @@ export const SplashPage = () => {
     });
 
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [alreadySeen]);
+  }, [alreadySeen, isCheckingLaunchInvite]);
 
-  if (alreadySeen) return null;
+  if (alreadySeen || isCheckingLaunchInvite) return null;
 
   return (
     <div
-      className={`flex flex-1 flex-col items-center pt-[31dvh] ${animationStarted ? 'splash-animate' : ''}`}
+      className={`flex flex-1 flex-col items-center px-[25px] pt-[31dvh] ${animationStarted ? 'splash-animate' : ''}`}
     >
-      <div className="splash-login-logo-frame" role="img" aria-label="tiki-tak!">
+      <div
+        className="splash-login-logo-frame splash-logo-motion-frame"
+        role="img"
+        aria-label="tiki-tak!"
+      >
         <TikiTakSplashLogo className="splash-login-logo-mark" aria-hidden="true" />
       </div>
     </div>

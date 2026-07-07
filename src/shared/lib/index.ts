@@ -11,6 +11,7 @@ export * from './kakaoSdk';
 export * from './native';
 export * from './openOverlay';
 export * from './pinUtils';
+export * from './routing';
 export * from './snapPoint';
 export * from './storage';
 export * from './toQueryString';

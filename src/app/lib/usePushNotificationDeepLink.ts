@@ -1,13 +1,20 @@
 import { Capacitor } from '@capacitor/core';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
+import { restoreSession } from '@/shared/api/auth/restoreSession';
 import { useReadNotification } from '@/shared/api/notification/queries';
 import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
+import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { useAuthStore } from '@/shared/stores/authStore';
 
-type PushData = Record<string, string | undefined>;
+interface PushNotificationData {
+  type?: string;
+  feedId?: string;
+  teamId?: string;
+  notificationId?: string;
+}
 
 const FEED_DETAIL_TYPES = new Set([
   'FEED_COMMENT',
@@ -15,10 +22,27 @@ const FEED_DETAIL_TYPES = new Set([
   'DAILY_QUESTION_UPLOADED',
 ]);
 
-let pendingPushData: PushData | null = null;
+let pendingPushData: PushNotificationData | null = null;
 
 const isReadyForDeepLink = () =>
   Boolean(useAuthStore.getState().accessToken) && window.location.pathname !== PATHS.ROOT;
+
+const parsePositiveInteger = (value: string | undefined): number | null => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const getNotificationId = (data: PushNotificationData) => parsePositiveInteger(data.notificationId);
+
+const getTargetTeamId = (data: PushNotificationData) => parsePositiveInteger(data.teamId);
+
+export const getPushNotificationTargetPath = (data: PushNotificationData): string | null => {
+  if (!data.type || !FEED_DETAIL_TYPES.has(data.type) || !data.feedId) {
+    return null;
+  }
+
+  return toFeedDetail(data.feedId);
+};
 
 export const usePushNotificationDeepLink = () => {
   const navigate = useNavigate();
@@ -28,34 +52,48 @@ export const usePushNotificationDeepLink = () => {
   const { mutate: patchActiveTeam } = usePatchActiveTeam({ silent: true });
   const { mutate: readNotification } = useReadNotification();
 
-  const handleRef = useRef<(data: PushData) => void>(() => {});
+  const handleRef = useRef<(data: PushNotificationData) => void>(() => {});
   handleRef.current = (data) => {
-    const notificationId = Number(data.notificationId);
-    if (Number.isInteger(notificationId) && notificationId > 0) {
-      readNotification(notificationId);
-    }
+    const targetPath = getPushNotificationTargetPath(data);
+    const notificationId = getNotificationId(data);
+    const targetTeamId = getTargetTeamId(data);
 
-    if (data.type && FEED_DETAIL_TYPES.has(data.type)) {
-      const { feedId, teamId } = data;
-      if (!feedId) return;
-      const goToFeed = () => navigate(toFeedDetail(feedId));
+    if (notificationId) readNotification(notificationId);
+    if (!targetPath) return;
 
-      const targetTeamId = teamId != null ? Number(teamId) : null;
-      if (targetTeamId && targetTeamId !== activeTeamId) {
-        patchActiveTeam(targetTeamId, { onSuccess: goToFeed, onError: goToFeed });
-      } else {
-        goToFeed();
-      }
+    const navigateToTarget = () => navigate(targetPath);
+    if (targetTeamId && targetTeamId !== activeTeamId) {
+      patchActiveTeam(targetTeamId, {
+        onSuccess: navigateToTarget,
+        onError: navigateToTarget,
+      });
+    } else {
+      navigateToTarget();
     }
   };
 
+  const redirectToLoginForPush = useCallback(
+    (data: PushNotificationData) => {
+      const targetPath = getPushNotificationTargetPath(data);
+      if (targetPath) {
+        saveRedirectAfterLogin(targetPath);
+      }
+      navigate(PATHS.LOGIN, { replace: true });
+    },
+    [navigate],
+  );
+
   // 콜드스타트: 인증 복구·스플래시 종료 후 보류해둔 딥링크를 처리
   useEffect(() => {
-    if (!pendingPushData || !accessToken || location.pathname === PATHS.ROOT) return;
+    if (!pendingPushData || location.pathname === PATHS.ROOT) return;
     const data = pendingPushData;
     pendingPushData = null;
-    handleRef.current(data);
-  }, [accessToken, location.pathname]);
+    if (accessToken) {
+      handleRef.current(data);
+    } else {
+      redirectToLoginForPush(data);
+    }
+  }, [accessToken, location.pathname, redirectToLoginForPush]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -66,13 +104,22 @@ export const usePushNotificationDeepLink = () => {
     void (async () => {
       const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
       const handle = await FirebaseMessaging.addListener('notificationActionPerformed', (event) => {
-        const data = event.notification?.data as PushData | undefined;
+        const data = event.notification?.data as PushNotificationData | undefined;
         if (!data) return;
         if (isReadyForDeepLink()) {
           handleRef.current(data);
-        } else {
-          pendingPushData = data;
+          return;
         }
+
+        if (window.location.pathname === PATHS.ROOT) {
+          pendingPushData = data;
+          return;
+        }
+
+        void restoreSession().then((authed) => {
+          if (authed) handleRef.current(data);
+          else redirectToLoginForPush(data);
+        });
       });
 
       if (cancelled) {
@@ -86,5 +133,5 @@ export const usePushNotificationDeepLink = () => {
       cancelled = true;
       removeListener?.();
     };
-  }, []);
+  }, [redirectToLoginForPush]);
 };
