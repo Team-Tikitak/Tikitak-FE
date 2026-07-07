@@ -46,8 +46,7 @@ const renderPage = () =>
     </MemoryRouter>,
   );
 
-const getScrollContainer = (container: HTMLElement) =>
-  container.querySelector('.overflow-y-auto');
+const getScrollContainer = (container: HTMLElement) => container.querySelector('.overflow-y-auto');
 
 describe('ActivityPage - DailyQuestion 헤더 고정 레이아웃', () => {
   beforeAll(() => {
