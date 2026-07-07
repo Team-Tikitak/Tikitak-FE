@@ -16,4 +16,15 @@ describe('inviteDeepLink', () => {
       '/invite/invite-token',
     );
   });
+
+  it('허용된 https 초대 링크에서 초대 경로를 만든다', () => {
+    expect(getInviteAcceptPathFromUrl('https://app.tikitak.space/invite/invite-token')).toBe(
+      '/invite/invite-token',
+    );
+  });
+
+  it('잘못된 URL 문자열은 초대 토큰으로 처리하지 않는다', () => {
+    expect(parseInviteToken('not a url')).toBeNull();
+    expect(getInviteAcceptPathFromUrl('not a url')).toBeNull();
+  });
 });
