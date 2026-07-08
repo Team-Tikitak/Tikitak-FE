@@ -13,8 +13,8 @@ import { Button } from '@/shared/ui';
 import { PlacedStickerView } from './PlacedStickerView';
 import { StickerPicker } from './StickerPicker';
 
-const FILTER_OPEN_MOTION_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
-const FILTER_CLOSE_MOTION_CLASS = 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]';
+const MOTION_ENTER_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
+const MOTION_EXIT_CLASS = 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]';
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -67,16 +67,15 @@ export const CameraReview = ({
 
   const isToolButtonsCollapsed = isPickerOpen || Boolean(draggingId);
   const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !draggingId;
-  const filterMotionClass = isFilterOpen ? FILTER_OPEN_MOTION_CLASS : FILTER_CLOSE_MOTION_CLASS;
-  const toolButtonsMotionClass = isToolButtonsCollapsed
-    ? 'duration-220 ease-[cubic-bezier(0.16,1,0.3,1)]'
-    : FILTER_CLOSE_MOTION_CLASS;
+  const filterMotionClass = isFilterOpen ? MOTION_ENTER_CLASS : MOTION_EXIT_CLASS;
+  const uploadMotionClass = shouldShowUploadButton ? MOTION_ENTER_CLASS : MOTION_EXIT_CLASS;
+  const toolButtonsMotionClass = isToolButtonsCollapsed ? MOTION_EXIT_CLASS : MOTION_ENTER_CLASS;
 
   return (
     <div
       className={cn(
         'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white transition-[padding-bottom] motion-reduce:transition-none',
-        filterMotionClass,
+        uploadMotionClass,
         shouldShowUploadButton && 'pb-[calc(112px+env(safe-area-inset-bottom))]',
       )}
     >
@@ -137,8 +136,8 @@ export const CameraReview = ({
         className={cn(
           'grid transition-[grid-template-rows,opacity,transform] will-change-[grid-template-rows,opacity,transform] motion-reduce:transition-none',
           isFilterOpen
-            ? `translate-y-0 grid-rows-[1fr] opacity-100 ${FILTER_OPEN_MOTION_CLASS}`
-            : `pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 ${FILTER_CLOSE_MOTION_CLASS}`,
+            ? `translate-y-0 grid-rows-[1fr] opacity-100 ${filterMotionClass}`
+            : `pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 ${filterMotionClass}`,
         )}
       >
         <div className="min-h-0 overflow-hidden">
@@ -225,7 +224,7 @@ export const CameraReview = ({
           shouldShowUploadButton
             ? 'translate-y-0 opacity-100'
             : 'pointer-events-none translate-y-3 opacity-0',
-          filterMotionClass,
+          uploadMotionClass,
         )}
       >
         <Button
