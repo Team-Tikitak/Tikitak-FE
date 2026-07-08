@@ -241,6 +241,7 @@ describe('FeedPage - Hero Management', () => {
     expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeInTheDocument();
     expect(container.querySelector('article [data-hero-exit-key="pin-1"]')).toBeNull();
     expect(container.querySelector('article img')).toHaveClass('opacity-0');
+    expect(container.querySelector('article span.absolute')).toHaveClass('opacity-0');
   });
 
   it('quickly hands off the stored list hero back to the real list image', () => {
