@@ -99,10 +99,6 @@ export const FeedPage = () => {
   }, [isTeamSwitch]);
 
   useEffect(() => {
-    setStoredHeroVisible(Boolean(storedFeedHero));
-  }, [storedFeedHero]);
-
-  useEffect(() => {
     if (!storedFeedHero) return;
 
     const maxTimeoutId = window.setTimeout(() => {
