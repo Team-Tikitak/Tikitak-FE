@@ -50,7 +50,12 @@ export const FeedListItem = ({
           decoding="async"
           className={cn('no-native-image size-full object-cover', suppressHeroImage && 'opacity-0')}
         />
-        <span className="font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white">
+        <span
+          className={cn(
+            'font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white',
+            suppressHeroImage && 'opacity-0',
+          )}
+        >
           {item.photoCount}
         </span>
       </div>

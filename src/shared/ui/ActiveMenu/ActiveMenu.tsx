@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import ReportIcon from '@/shared/assets/Icon/alert-triangle.svg?react';
 import PencilIcon from '@/shared/assets/Icon/Pencil_Icon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/Trash_Icon.svg?react';
 import { cn } from '@/shared/lib';
@@ -15,11 +16,13 @@ import { cn } from '@/shared/lib';
 const MORE_LABEL = '\uB354\uBCF4\uAE30';
 const EDIT_LABEL = '\uC218\uC815\uD558\uAE30';
 const DELETE_LABEL = '\uC0AD\uC81C\uD558\uAE30';
+const REPORT_LABEL = '\uC2E0\uACE0\uD558\uAE30';
 
 interface ActiveMenuProps {
   icon: ReactNode;
-  onDelete: () => void;
+  onDelete?: () => void;
   onEdit?: () => void;
+  onReport?: () => void;
   className?: string;
   buttonClassName?: string;
   menuClassName?: string;
@@ -27,6 +30,8 @@ interface ActiveMenuProps {
   deleteIconClassName?: string;
   editItemClassName?: string;
   editIconClassName?: string;
+  reportItemClassName?: string;
+  reportIconClassName?: string;
   renderMenuInPortal?: boolean;
   portalContainer?: HTMLElement | null;
 }
@@ -35,6 +40,7 @@ export const ActiveMenu = ({
   icon,
   onDelete,
   onEdit,
+  onReport,
   className,
   buttonClassName,
   menuClassName,
@@ -42,6 +48,8 @@ export const ActiveMenu = ({
   deleteIconClassName,
   editItemClassName,
   editIconClassName,
+  reportItemClassName,
+  reportIconClassName,
   renderMenuInPortal = false,
   portalContainer,
 }: ActiveMenuProps) => {
@@ -123,12 +131,15 @@ export const ActiveMenu = ({
               ref={menuRef}
               onDelete={onDelete}
               onEdit={onEdit}
+              onReport={onReport}
               setIsOpen={setIsOpen}
               className={menuClassName}
               deleteItemClassName={deleteItemClassName}
               deleteIconClassName={deleteIconClassName}
               editItemClassName={editItemClassName}
               editIconClassName={editIconClassName}
+              reportItemClassName={reportItemClassName}
+              reportIconClassName={reportIconClassName}
               style={portalStyle}
               isPortal
               isPortalRelative={Boolean(portalContainer)}
@@ -140,12 +151,15 @@ export const ActiveMenu = ({
             ref={menuRef}
             onDelete={onDelete}
             onEdit={onEdit}
+            onReport={onReport}
             setIsOpen={setIsOpen}
             className={menuClassName}
             deleteItemClassName={deleteItemClassName}
             deleteIconClassName={deleteIconClassName}
             editItemClassName={editItemClassName}
             editIconClassName={editIconClassName}
+            reportItemClassName={reportItemClassName}
+            reportIconClassName={reportIconClassName}
           />
         ))}
     </div>
@@ -153,14 +167,17 @@ export const ActiveMenu = ({
 };
 
 interface MenuContentProps {
-  onDelete: () => void;
+  onDelete?: () => void;
   onEdit?: () => void;
+  onReport?: () => void;
   setIsOpen: (isOpen: boolean) => void;
   className?: string;
   deleteItemClassName?: string;
   deleteIconClassName?: string;
   editItemClassName?: string;
   editIconClassName?: string;
+  reportItemClassName?: string;
+  reportIconClassName?: string;
   style?: CSSProperties;
   isPortal?: boolean;
   isPortalRelative?: boolean;
@@ -170,12 +187,15 @@ interface MenuContentProps {
 const MenuContent = ({
   onDelete,
   onEdit,
+  onReport,
   setIsOpen,
   className,
   deleteItemClassName,
   deleteIconClassName,
   editItemClassName,
   editIconClassName,
+  reportItemClassName,
+  reportIconClassName,
   style,
   isPortal = false,
   isPortalRelative = false,
@@ -194,23 +214,25 @@ const MenuContent = ({
       className,
     )}
   >
-    <button
-      type="button"
-      onClick={() => {
-        onDelete();
-        setIsOpen(false);
-      }}
-      className={cn(
-        'body-6 flex w-full items-center gap-[7px] whitespace-nowrap text-black',
-        deleteItemClassName,
-      )}
-    >
-      <TrashIcon
-        className={cn('aspect-square size-6 shrink-0', deleteIconClassName)}
-        aria-hidden="true"
-      />
-      {DELETE_LABEL}
-    </button>
+    {onDelete && (
+      <button
+        type="button"
+        onClick={() => {
+          onDelete();
+          setIsOpen(false);
+        }}
+        className={cn(
+          'body-6 flex w-full items-center gap-[7px] whitespace-nowrap text-black',
+          deleteItemClassName,
+        )}
+      >
+        <TrashIcon
+          className={cn('aspect-square size-6 shrink-0', deleteIconClassName)}
+          aria-hidden="true"
+        />
+        {DELETE_LABEL}
+      </button>
+    )}
     {onEdit && (
       <button
         type="button"
@@ -228,6 +250,25 @@ const MenuContent = ({
           aria-hidden="true"
         />
         {EDIT_LABEL}
+      </button>
+    )}
+    {onReport && (
+      <button
+        type="button"
+        onClick={() => {
+          onReport();
+          setIsOpen(false);
+        }}
+        className={cn(
+          'body-6 flex w-full items-center gap-[7px] whitespace-nowrap text-[#ff383c]',
+          reportItemClassName,
+        )}
+      >
+        <ReportIcon
+          className={cn('aspect-square size-6 shrink-0', reportIconClassName)}
+          aria-hidden="true"
+        />
+        {REPORT_LABEL}
       </button>
     )}
   </div>

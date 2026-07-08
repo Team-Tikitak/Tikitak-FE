@@ -19,7 +19,14 @@ const {
 vi.mock('@capacitor/core', () => ({
   Capacitor: {
     isNativePlatform: isNativePlatformMock,
+    getPlatform: vi.fn(() => 'web'),
   },
+  registerPlugin: vi.fn(() => ({
+    startPreview: vi.fn(),
+    setZoom: vi.fn(),
+    capture: vi.fn(),
+    stopPreview: vi.fn(),
+  })),
 }));
 
 vi.mock('@capacitor/camera', () => ({

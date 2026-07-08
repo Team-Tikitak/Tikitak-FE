@@ -49,6 +49,7 @@ export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
     comments: CommentSheetItem[];
     onSubmitComment?: (text: string) => void;
     onDeleteRequest?: (item: CommentSheetItem) => void;
+    onReportRequest?: (item: CommentSheetItem) => void;
     fitHeight?: boolean;
   };
 
@@ -59,6 +60,7 @@ export function CommentSheet({
   submitButtonProps,
   onSubmitComment,
   onDeleteRequest,
+  onReportRequest,
   fitHeight = false,
   className,
   ...props

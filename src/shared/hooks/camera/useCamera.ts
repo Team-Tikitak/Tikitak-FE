@@ -1,5 +1,6 @@
 ﻿import { useCallback, useState } from 'react';
 import { getFilterCss, type PhotoFilterId } from '@/shared/lib/image/photoFilter';
+import { isNativeCameraPlatform } from '@/shared/lib/native/nativeCamera';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import type { PendingState, PlacedSticker } from '@/shared/types/sticker';
 import { useCameraCapture } from './useCameraCapture';
@@ -9,6 +10,7 @@ import {
   type CameraFacingMode,
   type CameraZoomLevel,
 } from './useCameraStream';
+import { useNativeCamera } from './useNativeCamera';
 import { usePendingSticker } from './usePendingSticker';
 
 export type { CameraError };
@@ -25,7 +27,22 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
   const [facingMode, setFacingMode] = useState<CameraFacingMode>('environment');
   const [zoomLevel, setZoomLevel] = useState<CameraZoomLevel>(1);
   const [activeFilterId, setActiveFilterId] = useState<PhotoFilterId>('none');
-  const stream = useCameraStream(!open || pending !== null, facingMode, zoomLevel);
+  const useNativePreview = isNativeCameraPlatform();
+  const filterCss = getFilterCss(activeFilterId);
+  const stream = useCameraStream(
+    useNativePreview || !open || pending !== null,
+    facingMode,
+    zoomLevel,
+  );
+  const nativeCamera = useNativeCamera({
+    paused: !useNativePreview || !open || pending !== null,
+    pending,
+    setPending,
+    onCapture,
+    facingMode,
+    zoomLevel,
+    filterCss,
+  });
 
   const handleToggleFacingMode = useCallback(() => {
     setZoomLevel(1);
@@ -40,7 +57,7 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     pending,
     setPending,
     onCapture,
-    filterCss: getFilterCss(activeFilterId),
+    filterCss,
   });
 
   const stickers = usePendingSticker(
@@ -56,18 +73,24 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
       URL.revokeObjectURL(pending.previewUrl);
     }
     stream.stopStream();
+    nativeCamera.stopPreview();
     onClose();
-  }, [pending, stream, onClose]);
+  }, [nativeCamera, pending, stream, onClose]);
 
   return {
     videoRef: stream.videoRef,
+    previewMode: useNativePreview ? 'native' : 'web',
     pendingPreview: pending,
-    error: stream.error,
-    isReady: stream.isReady,
-    isConfirming: capture.isConfirming,
-    handleCapture: capture.handleCapture,
+    error: useNativePreview ? nativeCamera.error : stream.error,
+    isReady: useNativePreview ? nativeCamera.isReady : stream.isReady,
+    isConfirming: useNativePreview ? nativeCamera.isConfirming : capture.isConfirming,
+    handleCapture: useNativePreview ? nativeCamera.handleCapture : capture.handleCapture,
     handleRetake: () => {
       setActiveFilterId('none');
+      if (useNativePreview) {
+        nativeCamera.handleRetake();
+        return;
+      }
       capture.handleRetake();
     },
     handleAddSticker: stickers.handleAddSticker,
@@ -75,12 +98,12 @@ export const useCamera = ({ open, onCapture, onClose }: UseCameraOptions) => {
     handleScaleSticker: stickers.handleScaleSticker,
     handleRotateSticker: stickers.handleRotateSticker,
     handleRemoveSticker: stickers.handleRemoveSticker,
-    handleConfirm: capture.handleConfirm,
+    handleConfirm: useNativePreview ? nativeCamera.handleConfirm : capture.handleConfirm,
     handleClose,
     handleToggleFacingMode,
     facingMode,
     zoomLevel,
-    isZoomSupported: stream.isZoomSupported,
+    isZoomSupported: useNativePreview ? nativeCamera.isZoomSupported : stream.isZoomSupported,
     handleSelectZoomLevel: setZoomLevel,
     activeFilterId,
     handleSelectFilter: setActiveFilterId,

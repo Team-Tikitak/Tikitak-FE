@@ -1,8 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { isNativeCameraPlatform } from '@/shared/lib/native/nativeCamera';
 import { useCamera } from './useCamera';
 import { useCameraCapture } from './useCameraCapture';
 import { useCameraStream } from './useCameraStream';
+import { useNativeCamera } from './useNativeCamera';
 import { usePendingSticker } from './usePendingSticker';
 
 vi.mock('./useCameraCapture', () => ({
@@ -13,13 +15,23 @@ vi.mock('./useCameraStream', () => ({
   useCameraStream: vi.fn(),
 }));
 
+vi.mock('./useNativeCamera', () => ({
+  useNativeCamera: vi.fn(),
+}));
+
 vi.mock('./usePendingSticker', () => ({
   usePendingSticker: vi.fn(),
+}));
+
+vi.mock('@/shared/lib/native/nativeCamera', () => ({
+  isNativeCameraPlatform: vi.fn(),
 }));
 
 describe('useCamera', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    vi.mocked(isNativeCameraPlatform).mockReturnValue(false);
 
     vi.mocked(useCameraStream).mockReturnValue({
       videoRef: { current: null },
@@ -35,6 +47,17 @@ describe('useCamera', () => {
       handleCapture: vi.fn(),
       handleRetake: vi.fn(),
       handleConfirm: vi.fn(),
+    });
+
+    vi.mocked(useNativeCamera).mockReturnValue({
+      error: null,
+      isReady: false,
+      isZoomSupported: false,
+      isConfirming: false,
+      handleCapture: vi.fn(),
+      handleRetake: vi.fn(),
+      handleConfirm: vi.fn(),
+      stopPreview: vi.fn(),
     });
 
     vi.mocked(usePendingSticker).mockReturnValue({
@@ -71,5 +94,44 @@ describe('useCamera', () => {
     expect(result.current.facingMode).toBe('user');
     expect(result.current.zoomLevel).toBe(1);
     expect(useCameraStream).toHaveBeenLastCalledWith(false, 'user', 1);
+  });
+
+  it('uses the native camera path on iOS while keeping the web stream paused', () => {
+    const nativeHandleCapture = vi.fn();
+    const nativeHandleRetake = vi.fn();
+    const nativeHandleConfirm = vi.fn();
+
+    vi.mocked(isNativeCameraPlatform).mockReturnValue(true);
+    vi.mocked(useNativeCamera).mockReturnValue({
+      error: null,
+      isReady: true,
+      isZoomSupported: true,
+      isConfirming: false,
+      handleCapture: nativeHandleCapture,
+      handleRetake: nativeHandleRetake,
+      handleConfirm: nativeHandleConfirm,
+      stopPreview: vi.fn(),
+    });
+
+    const { result } = renderHook(() =>
+      useCamera({
+        open: true,
+        onCapture: vi.fn(),
+        onClose: vi.fn(),
+      }),
+    );
+
+    expect(useCameraStream).toHaveBeenLastCalledWith(true, 'environment', 1);
+    expect(result.current.previewMode).toBe('native');
+
+    act(() => {
+      result.current.handleCapture();
+      result.current.handleRetake();
+      result.current.handleConfirm();
+    });
+
+    expect(nativeHandleCapture).toHaveBeenCalledTimes(1);
+    expect(nativeHandleRetake).toHaveBeenCalledTimes(1);
+    expect(nativeHandleConfirm).toHaveBeenCalledTimes(1);
   });
 });
