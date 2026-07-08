@@ -20,7 +20,8 @@ import type { FeedItem } from '../model/types';
 
 const FEED_LIST_EAGER_COUNT = 6;
 const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
-const STORED_HERO_CLEAR_DELAY_MS = 900;
+const STORED_HERO_FADE_DELAY_MS = 120;
+const STORED_HERO_CLEAR_DELAY_MS = 260;
 const STORED_HERO_MAX_LIFETIME_MS = 5000;
 
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
@@ -46,12 +47,21 @@ export const FeedPage = () => {
   );
   const [viewModeTeamId, setViewModeTeamId] = useState(teamId);
   const [storedFeedHero, setStoredFeedHero] = useState(readStoredFeedHero);
+  const [storedHeroVisible, setStoredHeroVisible] = useState(Boolean(storedFeedHero));
+  const hideStoredHero = useCallback(() => {
+    setStoredHeroVisible(false);
+    setStoredFeedHero(null);
+  }, []);
+  const dismissStoredHero = useCallback(() => {
+    clearStoredFeedHero();
+    hideStoredHero();
+  }, [hideStoredHero]);
   const isTeamSwitch = teamId !== viewModeTeamId && viewModeTeamId !== null;
   if (teamId !== viewModeTeamId) {
     setViewModeTeamId(teamId);
     setViewMode(isTeamSwitch ? 'grid' : getFeedViewModeFromState(location.state));
     if (isTeamSwitch) {
-      setStoredFeedHero(null);
+      hideStoredHero();
     }
   }
 
@@ -78,7 +88,7 @@ export const FeedPage = () => {
     ready: !showFeedLoading && !isError,
     contentSignal: feeds.length,
   });
-  const suppressedHeroId = viewMode === 'grid' ? (storedFeedHero?.feedId ?? null) : null;
+  const suppressedHeroId = storedHeroVisible ? (storedFeedHero?.feedId ?? null) : null;
   const isStoredHeroFeedLoaded = storedFeedHero
     ? feeds.some((feed) => feed.id === storedFeedHero.feedId)
     : true;
@@ -89,24 +99,32 @@ export const FeedPage = () => {
   }, [isTeamSwitch]);
 
   useEffect(() => {
+    setStoredHeroVisible(Boolean(storedFeedHero));
+  }, [storedFeedHero]);
+
+  useEffect(() => {
     if (!storedFeedHero) return;
 
     const maxTimeoutId = window.setTimeout(() => {
-      clearStoredFeedHero();
-      setStoredFeedHero(null);
+      dismissStoredHero();
     }, STORED_HERO_MAX_LIFETIME_MS);
     return () => window.clearTimeout(maxTimeoutId);
-  }, [storedFeedHero]);
+  }, [dismissStoredHero, storedFeedHero]);
 
   useEffect(() => {
     if (!storedFeedHero || !scrollRestored || !isStoredHeroFeedLoaded) return;
 
-    const id = window.setTimeout(() => {
-      clearStoredFeedHero();
-      setStoredFeedHero(null);
+    const fadeTimeoutId = window.setTimeout(() => {
+      setStoredHeroVisible(false);
+    }, STORED_HERO_FADE_DELAY_MS);
+    const clearTimeoutId = window.setTimeout(() => {
+      dismissStoredHero();
     }, STORED_HERO_CLEAR_DELAY_MS);
-    return () => window.clearTimeout(id);
-  }, [isStoredHeroFeedLoaded, scrollRestored, storedFeedHero]);
+    return () => {
+      window.clearTimeout(fadeTimeoutId);
+      window.clearTimeout(clearTimeoutId);
+    };
+  }, [dismissStoredHero, isStoredHeroFeedLoaded, scrollRestored, storedFeedHero]);
 
   const captureFeedHero = useCallback(
     (item: FeedItem, source: HTMLElement) => {
@@ -118,6 +136,7 @@ export const FeedPage = () => {
         : rect;
       const nextStoredFeedHero = storeFeedHero(item, localRect);
       flushSync(() => {
+        setStoredHeroVisible(true);
         setStoredFeedHero(nextStoredFeedHero);
       });
     },
@@ -127,8 +146,7 @@ export const FeedPage = () => {
   const handleViewModeChange = useCallback(
     (mode: FeedViewMode) => {
       if (mode === 'list' && storedFeedHero) {
-        clearStoredFeedHero();
-        setStoredFeedHero(null);
+        dismissStoredHero();
       }
       setViewMode(mode);
       navigate('.', {
@@ -137,17 +155,16 @@ export const FeedPage = () => {
         preventScrollReset: true,
       });
     },
-    [location.state, navigate, storedFeedHero],
+    [dismissStoredHero, location.state, navigate, storedFeedHero],
   );
 
   const handleFeedScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       handleRestoreScroll(event);
       if (!storedFeedHero || !scrollRestored) return;
-      clearStoredFeedHero();
-      setStoredFeedHero(null);
+      dismissStoredHero();
     },
-    [handleRestoreScroll, scrollRestored, storedFeedHero],
+    [dismissStoredHero, handleRestoreScroll, scrollRestored, storedFeedHero],
   );
 
   const handleListFeedClick = async (event: MouseEvent<HTMLAnchorElement>, feed: FeedItem) => {
@@ -186,7 +203,9 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {viewMode === 'grid' && storedFeedHero && <StoredFeedHero storedFeedHero={storedFeedHero} />}
+      {storedFeedHero && (
+        <StoredFeedHero storedFeedHero={storedFeedHero} visible={storedHeroVisible} />
+      )}
       <div
         ref={scrollRef}
         className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
