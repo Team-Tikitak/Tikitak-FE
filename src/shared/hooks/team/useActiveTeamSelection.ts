@@ -18,12 +18,21 @@ export const useActiveTeamSelection = () => {
   const activeTeam = teamItems.find((team) => team.teamId === activeTeamId) ?? teamItems[0];
 
   useEffect(() => {
-    if (isMePending || isTeamsPending || !teams || teams.length === 0) return;
+    if (isMePending || isTeamsPending || isMeFetching || isTeamsFetching) return;
+    if (!teams || teams.length === 0) return;
     const isActiveValid = teams.some((team) => team.teamId === me?.activeTeamId);
     if (!isActiveValid) {
       healActiveTeam(teams[0].teamId);
     }
-  }, [me?.activeTeamId, teams, isMePending, isTeamsPending, healActiveTeam]);
+  }, [
+    me?.activeTeamId,
+    teams,
+    isMePending,
+    isTeamsPending,
+    isMeFetching,
+    isTeamsFetching,
+    healActiveTeam,
+  ]);
 
   const { openSheet: openTeamSheet } = useTeamPickerSheet({
     teams: teamItems,
