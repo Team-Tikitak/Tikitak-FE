@@ -49,6 +49,7 @@ export type CommentSheetProps = Omit<BottomSheetProps, 'children' | 'title'> &
     comments: CommentSheetItem[];
     onSubmitComment?: (text: string) => void;
     onDeleteRequest?: (item: CommentSheetItem) => void;
+    onReportRequest?: (item: CommentSheetItem) => void;
     fitHeight?: boolean;
   };
 
@@ -59,6 +60,7 @@ export function CommentSheet({
   submitButtonProps,
   onSubmitComment,
   onDeleteRequest,
+  onReportRequest,
   fitHeight = false,
   className,
   ...props
@@ -127,17 +129,18 @@ export function CommentSheet({
               <div className="body-7 truncate text-black">{comment.authorName}</div>
               <p className="body-1 truncate text-gray-600">{comment.text}</p>
             </div>
-            {comment.isMine && (
-              <ActiveMenu
-                icon={<MoreIcon className="size-5" />}
-                buttonClassName="size-5 text-[#666]"
-                menuClassName="!w-[100px] !min-w-0 !items-center !justify-center !gap-2 !rounded-[8px] !py-3 !pr-3 !pl-2"
-                deleteItemClassName="!w-auto shrink-0 !gap-1.5"
-                deleteIconClassName="!size-5 !w-5 shrink-0"
-                renderMenuInPortal
-                onDelete={() => onDeleteRequest?.(comment)}
-              />
-            )}
+            <ActiveMenu
+              icon={<MoreIcon className="size-5" />}
+              buttonClassName="size-5 text-[#666]"
+              menuClassName="!w-[100px] !min-w-0 !items-center !justify-center !gap-2 !rounded-[8px] !py-3 !pr-3 !pl-2"
+              deleteItemClassName="!w-auto shrink-0 !gap-1.5"
+              deleteIconClassName="!size-5 !w-5 shrink-0"
+              reportItemClassName="!w-auto shrink-0 !gap-1.5"
+              reportIconClassName="!size-5 !w-5 shrink-0"
+              renderMenuInPortal
+              onDelete={comment.isMine ? () => onDeleteRequest?.(comment) : undefined}
+              onReport={comment.isMine ? undefined : () => onReportRequest?.(comment)}
+            />
           </article>
         ))}
       </div>

@@ -44,6 +44,19 @@ export const FeedDetailPage = () => {
     navigate(feedType === 'DAILY_QUESTION' ? toDailyFeedEdit(feedIdNum) : toFeedEdit(feedIdNum));
   };
 
+  const handleReportClick = () => {
+    openConfirmDialog({
+      title: '정말 신고하시나요?',
+      description: '신고 접수 후 검토를 거쳐 처리돼요.',
+      confirmLabel: '신고하기',
+      destructive: true,
+      onConfirm: () => {
+        // TODO: 신고 API 연동 필요 — 백엔드 엔드포인트 미정
+      },
+      overlayClassName: 'z-50',
+    });
+  };
+
   const canEdit = feedType !== 'DAILY_QUESTION';
 
   return (
@@ -66,13 +79,12 @@ export const FeedDetailPage = () => {
         showHint={!seen}
         onHintDismiss={markSeen}
         actionSlot={
-          isMine ? (
-            <ActiveMenu
-              icon={<MoreIcon className="size-6 rotate-90 text-[#666]" />}
-              onDelete={handleDeleteClick}
-              onEdit={canEdit ? handleEditClick : undefined}
-            />
-          ) : undefined
+          <ActiveMenu
+            icon={<MoreIcon className="size-6 rotate-90 text-[#666]" />}
+            onDelete={isMine ? handleDeleteClick : undefined}
+            onEdit={isMine && canEdit ? handleEditClick : undefined}
+            onReport={isMine ? undefined : handleReportClick}
+          />
         }
       />
     </PageShell>
