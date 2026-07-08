@@ -84,13 +84,13 @@ jobs:
             const labelMatch = branchName.match(/(?:^\d+-)?(\w+)\//);
             if (labelMatch) {
               const labelMap = {
-                'feat': '✨Feature',
-                'fix': '🐛BugFix',
-                'hotfix': '🚨Hotfix',
-                'refactor': '♻️Refactor',
-                'test': '✅Test',
-                'docs': '📝Docs',
-                'chore': '🔧Chore'
+                'feat': '✨ Feature',
+                'fix': '🐛 BugFix',
+                'hotfix': '🚨 Hotfix',
+                'refactor': '♻️ Refactor',
+                'test': '✅ Test',
+                'docs': '📝 Docs',
+                'chore': '🔧 Chore'
               };
               const labelToAdd = labelMap[labelMatch[1].toLowerCase()];
 
