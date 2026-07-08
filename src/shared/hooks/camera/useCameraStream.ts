@@ -300,10 +300,8 @@ export const useCameraStream = (
     const stream = streamRef.current;
     if (paused || !stream) return;
 
-    const targetZoom = getStreamZoom(
-      stream,
-      isZoomSupported && zoomLevel !== 1 ? zoomLevel : baseZoomRef.current,
-    );
+    const targetZoom =
+      isZoomSupported && zoomLevel === 1 ? baseZoomRef.current : getStreamZoom(stream, zoomLevel);
     if (targetZoom === null) return;
 
     if (zoomFrameRef.current !== null) {

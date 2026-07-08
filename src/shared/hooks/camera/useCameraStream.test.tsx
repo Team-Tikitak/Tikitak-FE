@@ -199,7 +199,8 @@ describe('useCameraStream', () => {
       expect(track.applyConstraints).toHaveBeenCalled();
     });
 
-    const zoom = track.applyConstraints.mock.calls[0]?.[0].advanced?.[0]?.zoom;
+    expect(track.applyConstraints).toHaveBeenCalledTimes(1);
+    const zoom = track.applyConstraints.mock.calls.at(-1)?.[0].advanced?.[0]?.zoom;
     expect(zoom).toBeGreaterThan(0.61);
     expect(zoom).toBeLessThan(0.62);
   });
