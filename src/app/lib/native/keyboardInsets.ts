@@ -1,4 +1,6 @@
 const ANDROID_KEYBOARD_BOTTOM_INSET_FALLBACK = 24;
+const KEYBOARD_VISUAL_OVERLAP_MIN_HEIGHT = 120;
+const KEYBOARD_VISUAL_OVERLAP_FALLBACK_THRESHOLD = 24;
 
 const setKeyboardHeight = (height: number) => {
   document.documentElement.style.setProperty('--keyboard-height', `${Math.max(0, height)}px`);
@@ -11,29 +13,92 @@ const getCssPixelValue = (name: string) => {
   return Number.isFinite(numericValue) ? numericValue : 0;
 };
 
-const getAndroidKeyboardOffset = (reportedHeight: number) => {
+const getVisualViewportKeyboardOverlap = () => {
   const viewport = window.visualViewport;
+  if (!viewport) return 0;
+
+  const overlap = window.innerHeight - viewport.height - viewport.offsetTop;
+
+  return overlap > KEYBOARD_VISUAL_OVERLAP_MIN_HEIGHT ? overlap : 0;
+};
+
+const getAndroidKeyboardOffset = (reportedHeight: number) => {
   const bottomInset =
     getCssPixelValue('--safe-area-inset-bottom') || ANDROID_KEYBOARD_BOTTOM_INSET_FALLBACK;
-  if (!viewport) return Math.max(0, reportedHeight - bottomInset);
-
-  const visualOverlap = window.innerHeight - viewport.height - viewport.offsetTop;
-  const keyboardOffset = visualOverlap > 0 ? visualOverlap : reportedHeight;
+  const visualOverlap = getVisualViewportKeyboardOverlap();
+  const keyboardOffset =
+    reportedHeight > 0 &&
+    visualOverlap <= reportedHeight + KEYBOARD_VISUAL_OVERLAP_FALLBACK_THRESHOLD
+      ? reportedHeight
+      : Math.max(reportedHeight, visualOverlap);
 
   return Math.max(0, keyboardOffset - bottomInset);
+};
+
+const getKeyboardOffset = (platform: string, reportedHeight: number) => {
+  if (platform === 'android') return getAndroidKeyboardOffset(reportedHeight);
+
+  const visualOverlap = getVisualViewportKeyboardOverlap();
+
+  if (
+    reportedHeight > 0 &&
+    visualOverlap <= reportedHeight + KEYBOARD_VISUAL_OVERLAP_FALLBACK_THRESHOLD
+  ) {
+    return reportedHeight;
+  }
+
+  return Math.max(reportedHeight, visualOverlap);
+};
+
+const isEditableElement = (element: Element | null) => {
+  if (!(element instanceof HTMLElement)) return false;
+
+  return Boolean(element.closest('input, textarea, [contenteditable="true"]'));
 };
 
 export const setupKeyboardInsets = async (platform: string): Promise<void> => {
   const { Keyboard } = await import('@capacitor/keyboard');
 
-  const onShow = ({ keyboardHeight }: { keyboardHeight: number }) =>
-    setKeyboardHeight(
-      platform === 'android' ? getAndroidKeyboardOffset(keyboardHeight) : keyboardHeight,
-    );
-  const onHide = () => setKeyboardHeight(0);
+  let lastReportedHeight = 0;
+  let keyboardVisible = false;
+
+  const syncFromViewport = () => {
+    if (!keyboardVisible && !isEditableElement(document.activeElement)) return;
+
+    const keyboardOffset = getKeyboardOffset(platform, lastReportedHeight);
+    if (keyboardOffset <= 0) return;
+
+    setKeyboardHeight(keyboardOffset);
+  };
+
+  const onShow = ({ keyboardHeight }: { keyboardHeight: number }) => {
+    lastReportedHeight = keyboardHeight;
+    keyboardVisible = true;
+    setKeyboardHeight(getKeyboardOffset(platform, keyboardHeight));
+    window.requestAnimationFrame(syncFromViewport);
+  };
+  const onHide = () => {
+    lastReportedHeight = 0;
+    keyboardVisible = false;
+    setKeyboardHeight(0);
+  };
+  const onFocusOut = () => {
+    window.setTimeout(() => {
+      if (isEditableElement(document.activeElement) || getVisualViewportKeyboardOverlap() > 0) {
+        return;
+      }
+
+      onHide();
+    }, 0);
+  };
 
   Keyboard.addListener('keyboardWillShow', onShow);
   Keyboard.addListener('keyboardDidShow', onShow);
   Keyboard.addListener('keyboardWillHide', onHide);
   Keyboard.addListener('keyboardDidHide', onHide);
+
+  window.visualViewport?.addEventListener('resize', syncFromViewport);
+  window.visualViewport?.addEventListener('scroll', syncFromViewport);
+  document.addEventListener('focusin', syncFromViewport);
+  document.addEventListener('focusout', onFocusOut);
 };
