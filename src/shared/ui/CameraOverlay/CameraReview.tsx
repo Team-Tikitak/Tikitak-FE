@@ -13,6 +13,9 @@ import { Button } from '@/shared/ui';
 import { PlacedStickerView } from './PlacedStickerView';
 import { StickerPicker } from './StickerPicker';
 
+const FILTER_OPEN_MOTION_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
+const FILTER_CLOSE_MOTION_CLASS = 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]';
+
 interface CameraReviewProps {
   imageUrl: string;
   stickers: PlacedSticker[];
@@ -62,18 +65,31 @@ export const CameraReview = ({
     setIsPickerOpen(false);
   };
 
+  const isToolButtonsCollapsed = isPickerOpen || Boolean(draggingId);
   const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !draggingId;
+  const filterMotionClass = isFilterOpen ? FILTER_OPEN_MOTION_CLASS : FILTER_CLOSE_MOTION_CLASS;
+  const toolButtonsMotionClass = isToolButtonsCollapsed
+    ? 'duration-220 ease-[cubic-bezier(0.16,1,0.3,1)]'
+    : FILTER_CLOSE_MOTION_CLASS;
 
   return (
     <div
       className={cn(
-        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white transition-[padding-bottom] duration-200 ease-out motion-reduce:transition-none',
+        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white transition-[padding-bottom] motion-reduce:transition-none',
+        filterMotionClass,
         shouldShowUploadButton && 'pb-[calc(112px+env(safe-area-inset-bottom))]',
       )}
     >
       <div
         ref={photoRef}
         {...stickerGestureProps}
+        onClick={(event) => {
+          stickerGestureProps.onClick?.(event);
+          if (!isPickerOpen || event.defaultPrevented) return;
+          const target = event.target;
+          if (target instanceof Element && target.closest('[data-sticker-control]')) return;
+          setIsPickerOpen(false);
+        }}
         className="relative mt-(--safe-top) aspect-3/4 w-full shrink-0 touch-none overflow-hidden rounded-[20px] bg-black"
       >
         <img
@@ -119,12 +135,12 @@ export const CameraReview = ({
         className={cn(
           'grid transition-[grid-template-rows,opacity,transform] will-change-[grid-template-rows,opacity,transform] motion-reduce:transition-none',
           isFilterOpen
-            ? 'translate-y-0 grid-rows-[1fr] opacity-100 duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]'
-            : 'pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 duration-180 ease-[cubic-bezier(0.4,0,1,1)]',
+            ? `translate-y-0 grid-rows-[1fr] opacity-100 ${FILTER_OPEN_MOTION_CLASS}`
+            : `pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 ${FILTER_CLOSE_MOTION_CLASS}`,
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
+          <div className="no-scrollbar -mx-1 flex touch-pan-x snap-x snap-mandatory scroll-px-4 gap-5 overflow-x-auto px-4 pt-1 pb-2">
             {PHOTO_FILTERS.map((filter) => (
               <button
                 key={filter.id}
@@ -133,11 +149,11 @@ export const CameraReview = ({
                 aria-pressed={activeFilterId === filter.id}
                 tabIndex={isFilterOpen ? 0 : -1}
                 onClick={() => onSelectFilter(filter.id)}
-                className="flex shrink-0 flex-col items-center gap-1"
+                className="press-feedback flex w-[78px] shrink-0 snap-start flex-col items-center gap-2"
               >
                 <span
                   className={cn(
-                    'size-14 overflow-hidden rounded-lg border-2',
+                    'size-[72px] overflow-hidden rounded-xl border-2 transition-[border-color,transform] duration-160 ease-out',
                     activeFilterId === filter.id ? 'border-main-001' : 'border-transparent',
                   )}
                 >
@@ -150,7 +166,7 @@ export const CameraReview = ({
                 </span>
                 <span
                   className={cn(
-                    'text-xs',
+                    'text-[14px] leading-[1.2] whitespace-nowrap',
                     activeFilterId === filter.id ? 'text-main-001' : 'text-gray-700',
                   )}
                 >
@@ -164,11 +180,9 @@ export const CameraReview = ({
 
       <div
         className={cn(
-          'flex items-center justify-center gap-8 transition-transform motion-reduce:transition-none',
-          isFilterOpen && 'translate-y-1',
-          isFilterOpen
-            ? 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]'
-            : 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]',
+          'flex items-center justify-center gap-8 transition-[opacity,transform] motion-reduce:transition-none',
+          isToolButtonsCollapsed ? 'pointer-events-none translate-y-2 opacity-0' : 'opacity-100',
+          toolButtonsMotionClass,
         )}
       >
         <button
@@ -201,13 +215,26 @@ export const CameraReview = ({
         </button>
       </div>
 
-      {shouldShowUploadButton && (
-        <div className="absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10">
-          <Button variant="primary" disabled={isConfirming} onClick={onConfirm}>
-            업로드
-          </Button>
-        </div>
-      )}
+      <div
+        data-testid="camera-upload-action"
+        aria-hidden={!shouldShowUploadButton}
+        className={cn(
+          'absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10 transition-[opacity,transform] motion-reduce:transition-none',
+          shouldShowUploadButton
+            ? 'translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-3 opacity-0',
+          filterMotionClass,
+        )}
+      >
+        <Button
+          variant="primary"
+          disabled={isConfirming}
+          tabIndex={shouldShowUploadButton ? 0 : -1}
+          onClick={onConfirm}
+        >
+          업로드
+        </Button>
+      </div>
 
       <StickerPicker
         open={isPickerOpen}

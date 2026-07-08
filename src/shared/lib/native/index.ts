@@ -5,6 +5,7 @@
 export * from './deviceTokenStorage';
 export * from './getDeviceToken';
 export * from './keyboardResize';
+export * from './nativeCamera';
 export * from './nativeDialog';
 export * from './openAppSettings';
 export * from './requestAppPermissions';

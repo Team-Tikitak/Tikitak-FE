@@ -1,4 +1,5 @@
-﻿import { type CapturedPhoto, useCamera } from '@/shared/hooks/camera/useCamera';
+﻿import { createPortal } from 'react-dom';
+import { type CapturedPhoto, useCamera } from '@/shared/hooks/camera/useCamera';
 import { CameraReview } from './CameraReview';
 import { CameraView } from './CameraView';
 
@@ -17,6 +18,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
     isReady,
     isConfirming,
     handleCapture,
+    previewMode,
     handleRetake,
     handleAddSticker,
     handleMoveSticker,
@@ -46,7 +48,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
 
   if (!open) return null;
 
-  return (
+  const overlay = (
     <div className="fixed inset-0 z-60 flex items-stretch justify-center" data-no-swipe-back>
       <div className="relative h-full w-full sm:max-w-[393px]">
         {pendingPreview ? (
@@ -67,6 +69,7 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
         ) : (
           <CameraView
             videoRef={videoRef}
+            nativePreview={previewMode === 'native'}
             error={error}
             isReady={isReady}
             onCapture={handleCapture}
@@ -81,4 +84,6 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
       </div>
     </div>
   );
+
+  return createPortal(overlay, document.body);
 };

@@ -35,10 +35,33 @@ describe('CameraReview', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '필터' }));
 
-    expect(screen.queryByRole('button', { name: '업로드' })).not.toBeInTheDocument();
+    const uploadAction = screen.getByTestId('camera-upload-action');
+    const uploadButton = uploadAction.querySelector('button');
+    if (!uploadButton) throw new Error('업로드 버튼을 찾을 수 없습니다.');
+
+    expect(uploadButton).not.toBeDisabled();
+    expect(uploadButton).toHaveAttribute('tabindex', '-1');
+    expect(uploadAction).toHaveClass(
+      'opacity-0',
+      'duration-240',
+      'ease-[cubic-bezier(0.16,1,0.3,1)]',
+    );
+    expect(screen.getByRole('button', { name: '필터' })).toBeInTheDocument();
     expect(container.firstElementChild).not.toHaveClass(
       'pb-[calc(112px+env(safe-area-inset-bottom))]',
     );
+  });
+
+  it('closes the sticker picker when tapping the photo area', () => {
+    render(<CameraReview {...baseProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '스티커 추가' }));
+
+    expect(screen.getByTestId('sticker-picker')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByAltText('촬영된 사진'));
+
+    expect(screen.queryByTestId('sticker-picker')).not.toBeInTheDocument();
   });
 
   it('uses a quicker close motion for the filter tray', () => {

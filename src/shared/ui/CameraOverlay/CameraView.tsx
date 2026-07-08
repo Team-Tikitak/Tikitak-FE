@@ -20,6 +20,7 @@ interface CameraViewProps {
   onClose: () => void;
   onToggleFacingMode: () => void;
   mirrored?: boolean;
+  nativePreview?: boolean;
   zoomLevel?: CameraZoomLevel;
   zoomSupported?: boolean;
   onZoomChange?: (zoomLevel: CameraZoomLevel) => void;
@@ -33,24 +34,40 @@ export const CameraView = ({
   onClose,
   onToggleFacingMode,
   mirrored = false,
+  nativePreview = false,
   zoomLevel = 1,
   zoomSupported = false,
   onZoomChange,
 }: CameraViewProps) => {
   return (
-    <div className="relative flex h-full w-full justify-center overflow-hidden bg-black">
-      <video
-        ref={videoRef}
-        data-testid="camera-preview"
-        autoPlay
-        playsInline
-        muted
-        className={cn(
-          'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
-          mirrored && '-scale-x-100',
-          isReady ? 'opacity-100' : 'opacity-0',
-        )}
-      />
+    <div
+      className={cn(
+        'relative flex h-full w-full justify-center overflow-hidden',
+        nativePreview ? 'bg-transparent' : 'bg-black',
+      )}
+    >
+      {nativePreview ? (
+        <div
+          data-testid="camera-preview"
+          className={cn(
+            'absolute inset-0 h-full w-full transition-opacity duration-150',
+            isReady ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          data-testid="camera-preview"
+          autoPlay
+          playsInline
+          muted
+          className={cn(
+            'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
+            mirrored && '-scale-x-100',
+            isReady ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      )}
 
       <button
         type="button"
