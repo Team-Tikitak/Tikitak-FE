@@ -66,7 +66,7 @@ export const ActivityPage = () => {
     content = <ActivitySkeleton />;
   } else if (isEmpty) {
     content = (
-      <div className="mt-17 flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
         <EmptyActiveView />
       </div>
     );

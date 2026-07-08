@@ -82,13 +82,13 @@ jobs:
           BRANCH_TYPE="${{ steps.extract.outputs.branch_type }}"
 
           case "$BRANCH_TYPE" in
-            "feat")     LABEL="✨Feature" ;;
-            "fix")      LABEL="🐛BugFix" ;;
-            "hotfix")   LABEL="🚨Hotfix" ;;
-            "refactor") LABEL="♻️Refactor" ;;
-            "test")     LABEL="✅Test" ;;
-            "docs")     LABEL="📝Docs" ;;
-            "chore")    LABEL="🔧Chore" ;;
+            "feat")     LABEL="✨ Feature" ;;
+            "fix")      LABEL="🐛 BugFix" ;;
+            "hotfix")   LABEL="🚨 Hotfix" ;;
+            "refactor") LABEL="♻️ Refactor" ;;
+            "test")     LABEL="✅ Test" ;;
+            "docs")     LABEL="📝 Docs" ;;
+            "chore")    LABEL="🔧 Chore" ;;
             *)          LABEL="$BRANCH_TYPE" ;;
           esac
 

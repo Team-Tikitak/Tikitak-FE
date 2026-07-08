@@ -83,11 +83,14 @@ export const CameraReview = ({
       <div
         ref={photoRef}
         {...stickerGestureProps}
-        onClick={(event) => {
-          if (!isPickerOpen || event.defaultPrevented) return;
-          const target = event.target;
-          if (target instanceof Element && target.closest('[data-sticker-control]')) return;
-          setIsPickerOpen(false);
+        onPointerDown={(event) => {
+          if (isPickerOpen) {
+            const target = event.target;
+            if (!(target instanceof Element) || !target.closest('[data-sticker-control]')) {
+              setIsPickerOpen(false);
+            }
+          }
+          stickerGestureProps.onPointerDown(event);
         }}
         className="relative mt-(--safe-top) aspect-3/4 w-full shrink-0 touch-none overflow-hidden rounded-[20px] bg-black"
       >

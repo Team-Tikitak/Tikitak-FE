@@ -48,7 +48,12 @@ export function BottomNavigationItem({
             selected && '[&_.icon-filled]:inline [&_.icon-outline]:hidden',
           )}
         />
-        <span>{label}</span>
+        <span className="relative inline-grid">
+          <span aria-hidden="true" className="invisible font-semibold">
+            {label}
+          </span>
+          <span className="absolute inset-0">{label}</span>
+        </span>
       </button>
     </li>
   );
