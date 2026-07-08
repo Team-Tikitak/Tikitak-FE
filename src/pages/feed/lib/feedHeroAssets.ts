@@ -16,7 +16,10 @@ export const preloadImage = (url: string): Promise<void> => {
         resolve();
         return;
       }
-      void image.decode().then(resolve).catch(resolve);
+      void image
+        .decode()
+        .then(resolve)
+        .catch(() => resolve());
     };
     image.onerror = () => resolve();
     image.src = url;
