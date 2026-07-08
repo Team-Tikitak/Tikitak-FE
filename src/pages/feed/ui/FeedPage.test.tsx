@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FeedPage } from './FeedPage';
 import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
 import type { FeedItem } from '../model/types';
@@ -68,6 +68,18 @@ vi.mock('@/shared/hooks', async () => {
   };
 });
 
+const createFeedItem = (overrides: Partial<FeedItem> = {}): FeedItem => ({
+  id: '1',
+  title: '테스트 게시물',
+  location: '서울',
+  thumbnailUrl: 'https://example.com/thumb.jpg',
+  heroPreviewUrl: 'https://example.com/hero.jpg',
+  participantAvatarUrls: [],
+  date: '2026.07.06',
+  photoCount: 1,
+  ...overrides,
+});
+
 // 히어로 저장/읽기 로직 테스트
 describe('FeedPage - Hero Management', () => {
   beforeEach(() => {
@@ -75,17 +87,18 @@ describe('FeedPage - Hero Management', () => {
     sessionStorage.clear();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should store and retrieve feed hero', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-1',
       title: 'Test Feed',
       location: 'Seoul',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-      heroPreviewUrl: 'https://example.com/hero.jpg',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
       photoCount: 3,
-    };
+    });
 
     const rect = new DOMRect(10, 20, 100, 150);
     storeFeedHero(feedItem, rect);
@@ -99,16 +112,15 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('should not store hero with empty URLs', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-2',
       title: 'Empty Feed',
       location: 'Seoul',
       thumbnailUrl: '',
       heroPreviewUrl: '',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
       photoCount: 0,
-    };
+    });
 
     const rect = new DOMRect(0, 0, 100, 100);
     storeFeedHero(feedItem, rect);
@@ -119,16 +131,13 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('should clear stored hero', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-3',
       title: 'Test Feed',
       location: 'Seoul',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-      heroPreviewUrl: 'https://example.com/hero.jpg',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
       photoCount: 3,
-    };
+    });
 
     const rect = new DOMRect(0, 0, 100, 100);
     storeFeedHero(feedItem, rect);
@@ -140,16 +149,13 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('should use fallback thumbnail when hero preview URL is missing', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-4',
       title: 'Test Feed',
       location: 'Seoul',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
       heroPreviewUrl: '',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
-      photoCount: 1,
-    };
+    });
 
     const rect = new DOMRect(0, 0, 100, 100);
     const stored = storeFeedHero(feedItem, rect);
@@ -159,16 +165,13 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('should handle multiple rect coordinate formats', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-5',
       title: 'Test Feed',
       location: 'Seoul',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-      heroPreviewUrl: 'https://example.com/hero.jpg',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
       photoCount: 2,
-    };
+    });
 
     // 음수 좌표
     const negativeRect = new DOMRect(-10, -20, 100, 150);
@@ -184,16 +187,13 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('should validate stored hero structure', () => {
-    const feedItem: FeedItem = {
+    const feedItem = createFeedItem({
       id: 'feed-6',
       title: 'Test Feed',
       location: 'Seoul',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-      heroPreviewUrl: 'https://example.com/hero.jpg',
-      participantAvatarUrls: [],
       date: new Date().toISOString(),
       photoCount: 4,
-    };
+    });
 
     const rect = new DOMRect(10, 20, 100, 150);
     const stored = storeFeedHero(feedItem, rect);
@@ -208,16 +208,7 @@ describe('FeedPage - Hero Management', () => {
   });
 
   it('clears stored grid hero when switching to list view', () => {
-    const feedItem: FeedItem = {
-      id: '1',
-      title: '테스트 게시물',
-      location: '서울',
-      thumbnailUrl: 'https://example.com/thumb.jpg',
-      heroPreviewUrl: 'https://example.com/hero.jpg',
-      participantAvatarUrls: [],
-      date: '2026.07.06',
-      photoCount: 1,
-    };
+    const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 90, 90));
 
     const { container } = render(
@@ -235,5 +226,51 @@ describe('FeedPage - Hero Management', () => {
     const listHeroImage = container.querySelector('article [data-hero-exit-key="pin-1"]');
     expect(listHeroImage).toBeInTheDocument();
     expect(listHeroImage).not.toHaveClass('opacity-0');
+  });
+
+  it('keeps a stored hero target in list view while hiding the matching list image', () => {
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = render(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeInTheDocument();
+    expect(container.querySelector('article [data-hero-exit-key="pin-1"]')).toBeNull();
+    expect(container.querySelector('article img')).toHaveClass('opacity-0');
+  });
+
+  it('quickly hands off the stored list hero back to the real list image', () => {
+    vi.useFakeTimers();
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = render(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const storedHero = container.querySelector('img.absolute[data-hero-exit-key="pin-1"]');
+    const listImage = container.querySelector('article img');
+    expect(storedHero).toHaveClass('opacity-100');
+    expect(listImage).toHaveClass('opacity-0');
+
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+
+    expect(storedHero).toHaveClass('opacity-0');
+    expect(listImage).not.toHaveClass('opacity-0');
+
+    act(() => {
+      vi.advanceTimersByTime(140);
+    });
+
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+    expect(readStoredFeedHero()).toBeNull();
   });
 });

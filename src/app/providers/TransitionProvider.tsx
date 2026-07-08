@@ -33,6 +33,7 @@ const ssgoiConfig: SsgoiConfig = {
     ...slide({ paths: [PATHS.AUTH_CALLBACK, PATHS.TERMS] }),
     ...slide({ paths: [PATHS.AUTH_CALLBACK, PATHS.ONBOARDING] }),
     ...slide({ paths: [PATHS.AUTH_CALLBACK, PATHS.HOME] }),
+    ...slide({ paths: [PATHS.MY_PAGE, PATHS.LOGIN] }),
 
     // Team flow
     ...slide({ paths: [PATHS.INVITE_ACCEPT, PATHS.TEAM_PROFILE_SETUP] }),
