@@ -84,7 +84,6 @@ export const CameraReview = ({
         ref={photoRef}
         {...stickerGestureProps}
         onClick={(event) => {
-          stickerGestureProps.onClick?.(event);
           if (!isPickerOpen || event.defaultPrevented) return;
           const target = event.target;
           if (target instanceof Element && target.closest('[data-sticker-control]')) return;
