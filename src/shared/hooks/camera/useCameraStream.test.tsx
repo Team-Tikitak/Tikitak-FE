@@ -25,6 +25,9 @@ describe('useCameraStream', () => {
   const originalNavigator = globalThis.navigator;
   const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
   const originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
+  const originalInnerWidth = window.innerWidth;
+  const originalInnerHeight = window.innerHeight;
+  const originalVisualViewport = window.visualViewport;
   let getUserMediaMock: ReturnType<typeof vi.fn>;
   let enumerateDevicesMock: ReturnType<typeof vi.fn>;
   let playSpy: ReturnType<typeof vi.spyOn>;
@@ -58,6 +61,15 @@ describe('useCameraStream', () => {
     vi.stubGlobal('navigator', originalNavigator);
     vi.stubGlobal('requestAnimationFrame', originalRequestAnimationFrame);
     vi.stubGlobal('cancelAnimationFrame', originalCancelAnimationFrame);
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth });
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: originalInnerHeight,
+    });
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: originalVisualViewport,
+    });
     vi.restoreAllMocks();
   });
 
@@ -130,7 +142,7 @@ describe('useCameraStream', () => {
     expect(initialTrack.stop).toHaveBeenCalled();
   });
 
-  it('does not force zoom constraints for the initial 1x preview', async () => {
+  it('normalizes the initial 1x preview when the WebView starts above 1x', async () => {
     const track = {
       getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
       getSettings: vi.fn(() => ({ zoom: 1.2 })),
@@ -144,7 +156,53 @@ describe('useCameraStream', () => {
     await waitFor(() => {
       expect(screen.getByTestId('zoom-supported')).toHaveTextContent('true');
     });
+    expect(track.applyConstraints).toHaveBeenCalledWith({
+      advanced: [{ zoom: 1 }],
+    });
+  });
+
+  it('does not force zoom constraints when the initial 1x preview is already at 1x', async () => {
+    const track = {
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      getSettings: vi.fn(() => ({ zoom: 1 })),
+      applyConstraints: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+    };
+    getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('zoom-supported')).toHaveTextContent('true');
+    });
     expect(track.applyConstraints).not.toHaveBeenCalled();
+  });
+
+  it('compensates 1x zoom for a full-cover portrait preview when the track supports wide zoom', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 393 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 852 });
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: { width: 393, height: 852 },
+    });
+    const track = {
+      getCapabilities: vi.fn(() => ({ zoom: { min: 0.5, max: 10 } })),
+      getSettings: vi.fn(() => ({ zoom: 1 })),
+      applyConstraints: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+    };
+    getUserMediaMock.mockResolvedValue({ getTracks: () => [track], getVideoTracks: () => [track] });
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(track.applyConstraints).toHaveBeenCalled();
+    });
+
+    expect(track.applyConstraints).toHaveBeenCalledTimes(1);
+    const zoom = track.applyConstraints.mock.calls.at(-1)?.[0].advanced?.[0]?.zoom;
+    expect(zoom).toBeGreaterThan(0.61);
+    expect(zoom).toBeLessThan(0.62);
   });
 
   it('applies 2x zoom when the selected level is supported', async () => {

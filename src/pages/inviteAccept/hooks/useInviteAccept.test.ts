@@ -12,6 +12,8 @@ let previewResult: { data: { teamId: number; teamName: string } | undefined; isE
 };
 let teamsResult: Array<{ teamId: number }> | undefined;
 let teamsPending = false;
+let patchActiveTeamPending = false;
+const patchActiveTeamMock = vi.fn();
 
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
@@ -28,38 +30,45 @@ vi.mock('@/shared/api/user/queries', () => ({
     data: enabled ? teamsResult : undefined,
     isPending: enabled ? teamsPending : false,
   }),
+  usePatchActiveTeam: () => ({
+    mutateAsync: patchActiveTeamMock,
+    isPending: patchActiveTeamPending,
+  }),
 }));
 
 describe('useInviteAccept', () => {
   beforeEach(() => {
     navigateMock.mockClear();
+    patchActiveTeamMock.mockReset();
     tokenParam = 'invite-token';
     accessToken = null;
     previewResult = { data: { teamId: 1, teamName: '티키탁 팀' }, isError: false };
     teamsResult = undefined;
     teamsPending = false;
+    patchActiveTeamPending = false;
+    patchActiveTeamMock.mockResolvedValue(undefined);
     sessionStorage.clear();
   });
 
-  it('미로그인 상태에서 확인 시 복귀 경로를 저장하고 로그인으로 이동한다', () => {
+  it('미로그인 상태에서 확인 시 복귀 경로를 저장하고 로그인으로 이동한다', async () => {
     accessToken = null;
     const { result } = renderHook(() => useInviteAccept());
 
-    act(() => {
-      result.current.handleConfirm();
+    await act(async () => {
+      await result.current.handleConfirm();
     });
 
     expect(sessionStorage.getItem('redirectAfterLogin')).toBe('/invite/invite-token');
     expect(navigateMock).toHaveBeenCalledWith(PATHS.LOGIN);
   });
 
-  it('로그인 상태에서 확인 시 복귀 경로 저장 없이 프로필 설정으로 join 상태와 이동한다', () => {
+  it('로그인 상태에서 확인 시 복귀 경로 저장 없이 프로필 설정으로 join 상태와 이동한다', async () => {
     accessToken = 'access-token';
     teamsResult = [{ teamId: 2 }];
     const { result } = renderHook(() => useInviteAccept());
 
-    act(() => {
-      result.current.handleConfirm();
+    await act(async () => {
+      await result.current.handleConfirm();
     });
 
     expect(sessionStorage.getItem('redirectAfterLogin')).toBeNull();
@@ -68,27 +77,44 @@ describe('useInviteAccept', () => {
     });
   });
 
-  it('로그인 상태에서 이미 초대 팀에 속해 있으면 홈으로 이동한다', () => {
+  it('로그인 상태에서 이미 초대 팀에 속해 있으면 활성 팀을 변경하고 홈으로 이동한다', async () => {
     accessToken = 'access-token';
     teamsResult = [{ teamId: 1 }];
     const { result } = renderHook(() => useInviteAccept());
 
-    act(() => {
-      result.current.handleConfirm();
+    await act(async () => {
+      await result.current.handleConfirm();
     });
 
     expect(sessionStorage.getItem('redirectAfterLogin')).toBeNull();
-    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME);
+    expect(patchActiveTeamMock).toHaveBeenCalledWith(1);
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
   });
 
-  it('팀 목록 로딩 중이면 참여 처리를 보류한다', () => {
+  it('이미 속한 팀 활성화가 실패해도 홈으로 이동한다', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    accessToken = 'access-token';
+    teamsResult = [{ teamId: 1 }];
+    patchActiveTeamMock.mockRejectedValue(new Error('active team failed'));
+    const { result } = renderHook(() => useInviteAccept());
+
+    await act(async () => {
+      await result.current.handleConfirm();
+    });
+
+    expect(patchActiveTeamMock).toHaveBeenCalledWith(1);
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
+    expect(errorSpy).toHaveBeenCalledWith('초대 팀 활성화 실패', expect.any(Error));
+  });
+
+  it('팀 목록 로딩 중이면 참여 처리를 보류한다', async () => {
     accessToken = 'access-token';
     teamsPending = true;
     teamsResult = undefined;
     const { result } = renderHook(() => useInviteAccept());
 
-    act(() => {
-      result.current.handleConfirm();
+    await act(async () => {
+      await result.current.handleConfirm();
     });
 
     expect(result.current.isCheckingMembership).toBe(true);

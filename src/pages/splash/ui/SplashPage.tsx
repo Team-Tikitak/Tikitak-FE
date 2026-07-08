@@ -24,11 +24,7 @@ export const SplashPage = () => {
     <div
       className={`flex flex-1 flex-col items-center px-[25px] pt-[31dvh] ${animationStarted ? 'splash-animate' : ''}`}
     >
-      <div
-        className="splash-login-logo-frame splash-logo-motion-frame"
-        role="img"
-        aria-label="tiki-tak!"
-      >
+      <div className="splash-logo-motion-frame" role="img" aria-label="tiki-tak!">
         <TikiTakSplashLogo className="splash-login-logo-mark" aria-hidden="true" />
       </div>
     </div>
