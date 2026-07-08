@@ -6,8 +6,8 @@
         "appIDs": ["2W4CGB3683.app.tikitak.space"],
         "components": [
           {
-            "/": "/invite/*",
-            "comment": "팀 초대 링크는 앱에서 연다"
+            "/": "/*",
+            "comment": "app.tikitak.space는 앱 전용 도메인이라 전체 경로를 앱에서 연다"
           }
         ]
       }
