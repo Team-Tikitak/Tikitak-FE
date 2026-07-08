@@ -91,6 +91,22 @@ describe('useInviteAccept', () => {
     expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
   });
 
+  it('이미 속한 팀 활성화가 실패해도 홈으로 이동한다', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    accessToken = 'access-token';
+    teamsResult = [{ teamId: 1 }];
+    patchActiveTeamMock.mockRejectedValue(new Error('active team failed'));
+    const { result } = renderHook(() => useInviteAccept());
+
+    await act(async () => {
+      await result.current.handleConfirm();
+    });
+
+    expect(patchActiveTeamMock).toHaveBeenCalledWith(1);
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
+    expect(errorSpy).toHaveBeenCalledWith('초대 팀 활성화 실패', expect.any(Error));
+  });
+
   it('팀 목록 로딩 중이면 참여 처리를 보류한다', async () => {
     accessToken = 'access-token';
     teamsPending = true;

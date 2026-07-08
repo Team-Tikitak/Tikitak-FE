@@ -46,7 +46,11 @@ export const useAcceptInvitation = () => {
     meta: { errorMessage: '팀 참여에 실패했어요', useServerMessage: true },
     mutationFn: (variables) => unwrap(() => postAcceptInvitation(variables)),
     onSuccess: async (data) => {
-      await patchActiveTeamApi({ teamId: data.teamId });
+      try {
+        await patchActiveTeamApi({ teamId: data.teamId });
+      } catch (error) {
+        console.error('초대 수락 후 활성 팀 변경 실패', error);
+      }
       invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME, { replace: true });
     },

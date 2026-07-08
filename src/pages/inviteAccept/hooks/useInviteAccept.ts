@@ -31,7 +31,11 @@ export const useInviteAccept = () => {
       return;
     }
     if (isAlreadyMember && data?.teamId) {
-      await patchActiveTeam(data.teamId);
+      try {
+        await patchActiveTeam(data.teamId);
+      } catch (error) {
+        console.error('초대 팀 활성화 실패', error);
+      }
       navigate(PATHS.HOME, { replace: true });
       return;
     }
@@ -52,7 +56,9 @@ export const useInviteAccept = () => {
     if (!token) return;
 
     window.clearTimeout(fallbackTimerRef.current);
-    fallbackTimerRef.current = window.setTimeout(handleConfirm, 1500);
+    fallbackTimerRef.current = window.setTimeout(() => {
+      void handleConfirm();
+    }, 1500);
     const cancelFallbackIfHidden = () => {
       if (document.hidden) window.clearTimeout(fallbackTimerRef.current);
     };

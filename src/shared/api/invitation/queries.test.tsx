@@ -83,4 +83,31 @@ describe('useAcceptInvitation', () => {
       navigateMock.mock.invocationCallOrder[0],
     );
   });
+
+  it('활성 팀 변경이 실패해도 초대 수락 후 홈으로 이동한다', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(patchActiveTeam).mockRejectedValue(new Error('active team failed'));
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useAcceptInvitation(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        token: 'invite-token',
+        body: { nickname: '닉네임' },
+      });
+    });
+
+    expect(patchActiveTeam).toHaveBeenCalledWith({ teamId: 7 });
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
+    expect(errorSpy).toHaveBeenCalledWith('초대 수락 후 활성 팀 변경 실패', expect.any(Error));
+  });
 });
