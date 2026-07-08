@@ -59,7 +59,7 @@ describe('CameraReview', () => {
 
     expect(screen.getByTestId('sticker-picker')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByAltText('촬영된 사진'));
+    fireEvent.pointerDown(screen.getByAltText('촬영된 사진'));
 
     expect(screen.queryByTestId('sticker-picker')).not.toBeInTheDocument();
   });
