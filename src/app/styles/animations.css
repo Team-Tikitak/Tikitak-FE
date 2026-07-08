@@ -229,13 +229,25 @@
   transform: translateZ(0);
 }
 
+.splash-logo-layout-frame {
+  position: relative;
+  width: 206px;
+  height: 57px;
+  overflow: visible;
+  transform: translateZ(0);
+}
+
 .splash-logo-motion-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 280px;
   height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
+  transform: translate(-50%, -50%);
 }
 
 .splash-login-logo-mark {
