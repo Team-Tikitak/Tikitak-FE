@@ -58,7 +58,7 @@ export const FeedListItem = ({
         />
         <span
           className={cn(
-            'font-pretendard absolute top-1 right-1 z-40 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white transition-opacity duration-[400ms]',
+            'font-pretendard absolute top-1 right-1 z-40 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white transition-opacity duration-400',
             suppressHeroImage && 'opacity-0 duration-200 ease-out',
           )}
         >
@@ -69,13 +69,13 @@ export const FeedListItem = ({
             <div
               aria-hidden
               className={cn(
-                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-300',
                 suppressHeroImage && 'opacity-0 duration-100 ease-out',
               )}
             />
             <TodayTikitakChip
               className={cn(
-                'absolute right-0 bottom-0 z-40 transition-opacity duration-[300ms]',
+                'absolute right-0 bottom-0 z-40 transition-opacity duration-300',
                 suppressHeroImage && 'opacity-0 duration-100 ease-out',
               )}
             />
