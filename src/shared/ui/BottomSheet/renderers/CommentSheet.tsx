@@ -118,16 +118,18 @@ export function CommentSheet({
     >
       <div className="no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-5 overflow-y-auto">
         {comments.map((comment) => (
-          <article key={comment.id} className="flex w-full items-center gap-3">
+          <article key={comment.id} className="flex w-full items-start gap-3">
             <Avatar
               src={comment.avatarSrc}
               alt={comment.avatarAlt ?? ''}
               size="lg"
-              className="size-10 border-gray-100 p-0"
+              className="size-10 shrink-0 border-gray-100 p-0"
             />
             <div className="min-w-0 flex-1">
               <div className="body-7 truncate text-black">{comment.authorName}</div>
-              <p className="body-1 truncate text-gray-600">{comment.text}</p>
+              <p className="body-1 wrap-break-word whitespace-pre-wrap text-gray-600">
+                {comment.text}
+              </p>
             </div>
             {comment.isMine && (
               <ActiveMenu
