@@ -177,4 +177,24 @@ describe('usePinComments', () => {
     const pins = result.current.decoratePins(42, 0, undefined);
     expect(pins).toHaveLength(1);
   });
+
+  it('시트가 닫혀있으면 폴링하지 않고, 열리면 4초 간격으로 폴링한다', () => {
+    const { result } = renderHook(() => usePinComments(defaultParams));
+
+    expect(vi.mocked(useGetFeedComments)).toHaveBeenLastCalledWith(1, 42, undefined, {
+      refetchInterval: false,
+    });
+
+    act(() => result.current.addPinAt(42, 0, 30, 40));
+
+    expect(vi.mocked(useGetFeedComments)).toHaveBeenLastCalledWith(1, 42, undefined, {
+      refetchInterval: 4000,
+    });
+
+    act(() => result.current.closeSheet());
+
+    expect(vi.mocked(useGetFeedComments)).toHaveBeenLastCalledWith(1, 42, undefined, {
+      refetchInterval: false,
+    });
+  });
 });
