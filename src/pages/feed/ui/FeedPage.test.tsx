@@ -4,8 +4,13 @@ import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FeedPage } from './FeedPage';
 import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 import type { ReactElement } from 'react';
+
+vi.mock('../lib/warmFeedDetail', () => ({
+  warmFeedDetail: vi.fn(),
+}));
 
 const renderFeedPage = (ui: ReactElement) => {
   const queryClient = new QueryClient();
@@ -292,5 +297,20 @@ describe('FeedPage - Hero Management', () => {
 
     expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
     expect(readStoredFeedHero()).toBeNull();
+  });
+
+  it('리스트 뷰에서 pointerDown 시 상세 데이터를 미리 캐시한다', () => {
+    const { container } = renderFeedPage(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const link = container.querySelector('a[href="/feed/1"]');
+    expect(link).toBeInTheDocument();
+
+    fireEvent.pointerDown(link!);
+
+    expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 1, '1');
   });
 });

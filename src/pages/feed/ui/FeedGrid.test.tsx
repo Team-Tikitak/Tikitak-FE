@@ -2,8 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FeedGrid } from './FeedGrid';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 import type { ReactElement } from 'react';
+
+vi.mock('../lib/warmFeedDetail', () => ({
+  warmFeedDetail: vi.fn(),
+}));
 
 const renderGrid = (ui: ReactElement) => {
   const queryClient = new QueryClient();
@@ -153,5 +158,13 @@ describe('FeedGrid', () => {
     });
     expect(imageSources.filter((source) => source === '/thumb-99.jpg')).toHaveLength(1);
     expect(imageSources.filter((source) => source === '/preview-99.jpg')).toHaveLength(1);
+  });
+
+  it('pointerDown 시 상세 데이터를 미리 캐시한다', () => {
+    renderGrid(<FeedGrid items={[makeFeed('42')]} teamId={7} />);
+
+    fireEvent.pointerDown(screen.getByRole('link'));
+
+    expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 7, '42');
   });
 });
