@@ -2,7 +2,10 @@ import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
-import { shouldShowDailyQuestion } from '@/shared/api/dailyQuestion/selectors';
+import {
+  isDailyQuestionAnswered,
+  shouldShowDailyQuestion,
+} from '@/shared/api/dailyQuestion/selectors';
 import {
   useHomeBestAttendance,
   useHomeEveryonePick,
@@ -34,6 +37,7 @@ export const ActivityPage = () => {
 
   const dailyQuestion = question?.content;
   const showDailyQuestion = shouldShowDailyQuestion(question);
+  const dailyQuestionAnswered = isDailyQuestionAnswered(question);
   const hasActiveTeam = Boolean(activeTeam?.teamId);
 
   const isLoading =
@@ -92,7 +96,7 @@ export const ActivityPage = () => {
           {showDailyQuestion ? (
             <DailyQuestion
               question={dailyQuestion ?? ''}
-              onClick={() => navigate(PATHS.DAILY_FEED_CREATE)}
+              onClick={dailyQuestionAnswered ? undefined : () => navigate(PATHS.DAILY_FEED_CREATE)}
             />
           ) : null}
         </>
@@ -107,7 +111,10 @@ export const ActivityPage = () => {
       >
         {content}
         {/* iOS(WebKit)는 스크롤 컨테이너 자신의 padding-bottom을 스크롤 범위에 안 넣어서 자식 스페이서로 하단 여백 확보 */}
-        <div className="h-[calc(60px+env(safe-area-inset-bottom))] shrink-0" aria-hidden="true" />
+        <div
+          className="h-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))] shrink-0"
+          aria-hidden="true"
+        />
       </div>
     </PageShell>
   );
