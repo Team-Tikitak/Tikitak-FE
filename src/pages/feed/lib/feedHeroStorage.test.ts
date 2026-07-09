@@ -57,6 +57,17 @@ describe('feedHeroStorage', () => {
     expect(readStoredFeedHero()).toBeNull();
   });
 
+  it('does not restore heroes stored before a reload (new js runtime)', async () => {
+    storeFeedHero(makeFeed(), makeRect());
+    expect(readStoredFeedHero()).not.toBeNull();
+
+    // 새로고침/콜드 스타트 시뮬레이션: sessionStorage는 남고 모듈 상태만 초기화된다
+    vi.resetModules();
+    const freshRuntime = await import('./feedHeroStorage');
+
+    expect(freshRuntime.readStoredFeedHero()).toBeNull();
+  });
+
   it('drops stale hero sources instead of replaying old coordinates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-07-04T10:00:00Z'));

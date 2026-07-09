@@ -9,6 +9,9 @@ import type { FeedItem } from '../model/types';
 const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
 const FEED_HERO_MAX_AGE_MS = 10 * 60 * 1000;
 
+// 같은 런타임에서 저장된 히어로만 복원해, 리로드 후 예전 히어로가 맥락 없이 재생되는 것을 막는다.
+let storedInThisRuntime = false;
+
 export interface StoredFeedHero {
   feedId: string;
   thumbnailUrl: string;
@@ -33,6 +36,10 @@ const isStoredFeedHero = (value: Partial<StoredFeedHero>): value is StoredFeedHe
 export const readStoredFeedHero = (): StoredFeedHero | null => {
   const raw = safeSessionGet(FEED_HERO_STORAGE_KEY);
   if (!raw) return null;
+  if (!storedInThisRuntime) {
+    clearStoredFeedHero();
+    return null;
+  }
   try {
     const parsed = JSON.parse(raw) as Partial<StoredFeedHero>;
     if (!isStoredFeedHero(parsed)) {
@@ -72,6 +79,7 @@ export const storeFeedHero = (item: FeedItem, rect: DOMRect): StoredFeedHero => 
   if (!thumbnailUrl && !heroPreviewUrl) {
     return payload;
   }
+  storedInThisRuntime = true;
   safeSessionSet(FEED_HERO_STORAGE_KEY, JSON.stringify(payload));
   return payload;
 };
