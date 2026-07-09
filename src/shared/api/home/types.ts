@@ -3,6 +3,7 @@ import type { FeedListItem } from '../feed/types';
 export interface HomeRegion {
   region: string;
   feedCount: number;
+  feedId: number;
   thumbnailImageUrl: string;
 }
 
