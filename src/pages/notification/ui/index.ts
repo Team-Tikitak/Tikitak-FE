@@ -7,3 +7,4 @@ export * from './NotificationItem';
 export * from './NotificationPage';
 export * from './NotificationSettingsSheetContainer';
 export * from './NotificationSkeleton';
+export * from './StoredNotificationHero';
