@@ -84,12 +84,14 @@ describe('ActivityPage - DailyQuestion 헤더 고정 레이아웃', () => {
     expect(getScrollContainer(container)).not.toHaveClass('pt-9');
   });
 
-  it('이미 답변한 질문이면 배너가 없고 상단 여백도 없다', () => {
+  it('이미 답변한 질문이면 배너는 유지되지만 이동은 막힌다', () => {
     setDailyQuestion({ content: '오늘의 질문입니다', answerFeedId: 42 });
     const { container } = renderPage();
 
-    expect(screen.queryByText('오늘의 질문입니다')).toBeNull();
-    expect(getScrollContainer(container)).not.toHaveClass('pt-9');
+    const banner = screen.getByText('오늘의 질문입니다');
+    expect(banner.closest('header')).not.toBeNull();
+    expect(getScrollContainer(container)).toHaveClass('pt-9');
+    expect(banner.closest('button')).toBeDisabled();
   });
 
   it('배너 유무와 관계없이 콘텐츠는 스크롤 컨테이너 안에 렌더된다', () => {

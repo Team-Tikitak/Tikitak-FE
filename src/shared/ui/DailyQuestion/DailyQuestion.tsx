@@ -43,8 +43,9 @@ export const DailyQuestion = ({
       type="button"
       ref={ref}
       onClick={onClick}
+      disabled={!onClick}
       className={cn(
-        'flex h-9 w-full shrink-0 items-center gap-[10px] bg-[#43b0e0] px-5 text-white',
+        'flex h-9 w-full shrink-0 items-center gap-[10px] bg-[#43b0e0] px-5 text-white disabled:cursor-default',
         className,
       )}
       {...props}

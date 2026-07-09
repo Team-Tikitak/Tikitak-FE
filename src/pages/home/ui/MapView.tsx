@@ -19,7 +19,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { dailyQuestion, showDailyQuestion, pins } = useMapView(teamId);
+  const { dailyQuestion, showDailyQuestion, dailyQuestionAnswered, pins } = useMapView(teamId);
   const { center, located } = useUserLocation();
 
   const handlePinClick = useCallback(
@@ -60,7 +60,10 @@ export const MapView = ({ teamId }: MapViewProps) => {
           className="pointer-events-auto absolute inset-x-0 top-0 z-10"
           data-daily-question-banner
         >
-          <DailyQuestion question={dailyQuestion ?? ''} onClick={handleQuestionClick} />
+          <DailyQuestion
+            question={dailyQuestion ?? ''}
+            onClick={dailyQuestionAnswered ? undefined : handleQuestionClick}
+          />
         </div>
       )}
     </div>
