@@ -6,6 +6,7 @@ import TikiTackIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
 import { Button } from '@/shared/ui';
 import { InvalidInvite } from './InvalidInvite';
 import { InviteBackground } from './InviteBackground';
+import { EXTERNAL_LINKS } from '../constants/externalLinks';
 import { useInviteAccept } from '../hooks/useInviteAccept';
 
 export const InviteAcceptPage = () => {
@@ -52,7 +53,14 @@ export const InviteAcceptPage = () => {
                 >
                   티키탁에서 초대장 확인하기
                 </Button>
-                <Button variant="secondary">설치하기</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    window.open(EXTERNAL_LINKS.APP_STORE, '_blank', 'noopener,noreferrer')
+                  }
+                >
+                  설치하기
+                </Button>
               </>
             )}
           </div>
