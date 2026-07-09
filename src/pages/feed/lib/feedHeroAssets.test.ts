@@ -95,7 +95,9 @@ describe('feedHeroAssets', () => {
     const mockFeedItem: FeedItem = {
       id: 'feed-1',
       title: 'Test',
-      location: 'Seoul',
+      type: 'GENERAL',
+      place: 'Seoul',
+      question: '',
       thumbnailUrl: 'https://example.com/thumb.jpg',
       heroPreviewUrl: 'https://example.com/hero.jpg',
       participantAvatarUrls: [],

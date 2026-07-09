@@ -2,6 +2,7 @@ import { type ComponentPropsWithRef, type MouseEvent, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
+import { TodayTikitakChip } from './TodayTikitakChip';
 import { preloadFeedHeroAssets, preloadImage } from '../lib/feedHeroAssets';
 import type { FeedItem } from '../model/types';
 
@@ -74,11 +75,11 @@ export const FeedGrid = ({
       {items.map((item, index) => {
         const isAboveFold = index < GRID_EAGER_COUNT;
         return (
-          <li key={item.id} className="overflow-hidden rounded-sm">
+          <li key={item.id} className="relative overflow-hidden rounded-sm">
             <Link
               to={toFeedDetail(item.id)}
               state={{ thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl }}
-              aria-label={`${item.title || item.location || '피드'} 상세 보기`}
+              aria-label={`${item.title || (item.type === 'DAILY_QUESTION' ? item.question : item.place) || '피드'} 상세 보기`}
               className="block aspect-square size-full"
               onPointerDown={(event) => {
                 const source =
@@ -104,8 +105,17 @@ export const FeedGrid = ({
                 className={cn(
                   'no-native-image size-full object-cover',
                   suppressedHeroId === item.id && 'opacity-0',
+                  item.type === 'DAILY_QUESTION' && 'border-main-001 relative rounded-sm border-2',
                 )}
               />
+              {item.type === 'DAILY_QUESTION' && (
+                <TodayTikitakChip
+                  className={cn(
+                    'absolute top-0 left-0',
+                    suppressedHeroId === item.id && 'opacity-0',
+                  )}
+                />
+              )}
             </Link>
           </li>
         );

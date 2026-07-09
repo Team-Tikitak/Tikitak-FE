@@ -4,7 +4,9 @@ import type { FeedItem } from '../model/types';
 
 const makeFeed = (overrides: Partial<FeedItem> = {}): FeedItem => ({
   id: '42',
-  location: '사무실',
+  type: 'GENERAL',
+  place: '사무실',
+  question: '',
   title: '오늘의 피드',
   participantAvatarUrls: [],
   date: '2026.07.04',

@@ -1,6 +1,7 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
 import { AvatarGroup } from '@/shared/ui/AvatarGroup/AvatarGroup';
+import { TodayTikitakChip } from './TodayTikitakChip';
 import type { FeedItem } from '../model/types';
 
 const MAX_VISIBLE_AVATARS = 4;
@@ -24,8 +25,13 @@ export const FeedListItem = ({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-2">
           <div className="flex w-full flex-col gap-1">
-            <p className="font-pretendard line-clamp-2 w-full text-[14px] tracking-[-0.004em] break-keep text-gray-700">
-              {item.location}
+            <p
+              className={cn(
+                'font-pretendard body-1 line-clamp-2 w-full break-keep',
+                item.type === 'DAILY_QUESTION' ? 'text-main-001' : 'text-gray-700',
+              )}
+            >
+              {item.type === 'DAILY_QUESTION' ? item.question : item.place}
             </p>
             <p className="body-9 w-full truncate text-black">{item.title}</p>
           </div>
@@ -48,7 +54,11 @@ export const FeedListItem = ({
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
-          className={cn('no-native-image size-full object-cover', suppressHeroImage && 'opacity-0')}
+          className={cn(
+            'no-native-image size-full object-cover',
+            suppressHeroImage && 'opacity-0',
+            item.type === 'DAILY_QUESTION' && 'border-main-001 rounded-sm border-2',
+          )}
         />
         <span
           className={cn(
@@ -58,6 +68,11 @@ export const FeedListItem = ({
         >
           {item.photoCount}
         </span>
+        {item.type === 'DAILY_QUESTION' && (
+          <TodayTikitakChip
+            className={cn('absolute right-0 bottom-0', suppressHeroImage && 'opacity-0')}
+          />
+        )}
       </div>
     </article>
   );
