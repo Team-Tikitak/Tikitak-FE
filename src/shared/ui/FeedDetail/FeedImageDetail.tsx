@@ -167,7 +167,7 @@ export function FeedImageDetail({
           aria-hidden
           onLoad={(event) => captureNatural(event.currentTarget)}
           className={cn(
-            'no-native-image absolute inset-0 h-full w-full blur-md transition-opacity duration-[160ms]',
+            'no-native-image absolute inset-0 h-full w-full blur-md transition-opacity duration-160',
             fitClassName,
             loaded && !previewOnly && 'opacity-0',
           )}
@@ -189,7 +189,7 @@ export function FeedImageDetail({
           className={cn(
             'no-native-image h-full w-full',
             fitClassName,
-            heroPreviewUrl && 'absolute inset-0 transition-opacity duration-[160ms] ease-out',
+            heroPreviewUrl && 'absolute inset-0 transition-opacity duration-160 ease-out',
             heroPreviewUrl && !loaded && 'opacity-0',
           )}
           draggable={false}
