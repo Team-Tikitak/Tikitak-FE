@@ -59,7 +59,7 @@ export function LocationSearchSheet({
       {trimmed && results.length === 0 && emptyMessage && (
         <p className="body-3 mt-5 w-full text-center text-gray-500">{emptyMessage}</p>
       )}
-      <ul className="no-scrollbar mt-5 flex max-h-[117px] w-full flex-col gap-4 overflow-y-auto">
+      <ul className="no-scrollbar mt-5 flex max-h-[192px] w-full flex-col gap-4 overflow-y-auto">
         {results.map((location, index) => (
           <li key={location.id} className="flex flex-col gap-4">
             <button

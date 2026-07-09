@@ -20,11 +20,11 @@
 }
 
 @utility comment-bottom-sheet-base {
-  height: calc(46dvh + env(safe-area-inset-bottom));
+  height: calc(45dvh + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
 
   [data-keyboard-visible='true'] & {
-    height: 46dvh;
+    height: 45dvh;
     padding-bottom: 0;
   }
 }
