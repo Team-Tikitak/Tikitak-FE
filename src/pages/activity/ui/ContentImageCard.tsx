@@ -4,6 +4,7 @@ interface ContentImageCardProps {
   title: string;
   description: string;
   imageUrl?: string;
+  heroKey?: string;
   onClick?: () => void;
   className?: string;
 }
@@ -12,6 +13,7 @@ export const ContentImageCard = ({
   title,
   description,
   imageUrl,
+  heroKey,
   onClick,
   className,
 }: ContentImageCardProps) => {
@@ -30,6 +32,7 @@ export const ContentImageCard = ({
     >
       {imageUrl && (
         <img
+          {...(heroKey ? { 'data-hero-exit-key': heroKey, 'data-hero-radius': '8' } : {})}
           src={imageUrl}
           alt=""
           loading="lazy"
