@@ -47,6 +47,14 @@ export const getPushNotificationTargetPath = (data: PushNotificationData): strin
   return toFeedDetail(data.feedId);
 };
 
+// 이미 같은 피드 상세를 보고 있으면 navigate가 무효 동작이라 별도로 무효화해야 새 댓글이 반영된다
+export const shouldInvalidateFeedQueries = (
+  data: PushNotificationData,
+  currentPathname: string,
+  targetPath: string | null,
+): boolean =>
+  Boolean(targetPath) && FEED_DETAIL_TYPES.has(data.type ?? '') && currentPathname === targetPath;
+
 export const usePushNotificationDeepLink = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,8 +73,7 @@ export const usePushNotificationDeepLink = () => {
     if (notificationId) readNotification(notificationId);
     if (!targetPath) return;
 
-    // 이미 같은 피드 상세를 보고 있으면 navigate가 무효 동작이라 별도로 무효화해야 새 댓글이 반영된다
-    if (FEED_DETAIL_TYPES.has(data.type ?? '') && location.pathname === targetPath) {
+    if (shouldInvalidateFeedQueries(data, location.pathname, targetPath)) {
       void queryClient.invalidateQueries({ queryKey: feedCommentKeys.all });
       void queryClient.invalidateQueries({ queryKey: feedKeys.all });
     }
