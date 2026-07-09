@@ -1,25 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { type ComponentPropsWithRef, type MouseEvent, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import { TodayTikitakChip } from './TodayTikitakChip';
-import {
-  preloadFeedHeroAssets,
-  preloadImage,
-  waitForQuestionDecorFade,
-} from '../lib/feedHeroAssets';
+import { preloadFeedHeroAssets, preloadImage, runFeedHeroTransition } from '../lib/feedHeroAssets';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 
 const GRID_EAGER_COUNT = 9;
 
 interface FeedGridProps extends Omit<ComponentPropsWithRef<'ul'>, 'children'> {
   items: FeedItem[];
+  teamId: number | null;
   suppressedHeroId?: string | null;
   onHeroCapture?: (item: FeedItem, source: HTMLElement) => void;
 }
 
 export const FeedGrid = ({
   items,
+  teamId,
   suppressedHeroId,
   onHeroCapture,
   className,
@@ -27,6 +27,7 @@ export const FeedGrid = ({
   ...props
 }: FeedGridProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const urls = items
@@ -67,8 +68,7 @@ export const FeedGrid = ({
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-    if (source) onHeroCapture?.(item, source);
-    await Promise.all([preloadFeedHeroAssets(item), waitForQuestionDecorFade(item)]);
+    await runFeedHeroTransition(item, source, (i, s) => onHeroCapture?.(i, s));
     navigate(toFeedDetail(item.id), {
       state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
     });
@@ -90,6 +90,7 @@ export const FeedGrid = ({
                   event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
                 if (source) onHeroCapture?.(item, source);
                 warmHeroAssets(item);
+                warmFeedDetail(queryClient, teamId, item.id);
               }}
               onFocus={() => {
                 warmHeroAssets(item);
@@ -116,13 +117,13 @@ export const FeedGrid = ({
                   <div
                     aria-hidden
                     className={cn(
-                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-300',
                       suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
                     )}
                   />
                   <TodayTikitakChip
                     className={cn(
-                      'absolute top-0 left-0 z-40 transition-opacity duration-[300ms]',
+                      'absolute top-0 left-0 z-40 transition-opacity duration-300',
                       suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
                     )}
                   />

@@ -74,8 +74,7 @@ export const CameraReview = ({
   return (
     <div
       className={cn(
-        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white transition-[padding-bottom] motion-reduce:transition-none',
-        uploadMotionClass,
+        'relative flex h-full w-full flex-col gap-6 overflow-hidden bg-white',
         shouldShowUploadButton && 'pb-[calc(112px+env(safe-area-inset-bottom))]',
       )}
     >
@@ -134,10 +133,10 @@ export const CameraReview = ({
         data-testid="camera-filter-tray"
         aria-hidden={!isFilterOpen}
         className={cn(
-          'grid transition-[grid-template-rows,opacity,transform] will-change-[grid-template-rows,opacity,transform] motion-reduce:transition-none',
+          'grid transition-[grid-template-rows,opacity] will-change-[grid-template-rows,opacity] motion-reduce:transition-none',
           isFilterOpen
-            ? `translate-y-0 grid-rows-[1fr] opacity-100 ${filterMotionClass}`
-            : `pointer-events-none translate-y-4 grid-rows-[0fr] opacity-0 ${filterMotionClass}`,
+            ? `grid-rows-[1fr] opacity-100 ${filterMotionClass}`
+            : `pointer-events-none grid-rows-[0fr] opacity-0 ${filterMotionClass}`,
         )}
       >
         <div className="min-h-0 overflow-hidden">

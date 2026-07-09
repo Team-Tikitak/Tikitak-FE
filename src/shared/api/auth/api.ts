@@ -19,6 +19,3 @@ export const postLoginCodeExchange = (body: LoginCodeExchangeRequest) =>
   instance.post<ApiResponse<LoginResponse>>(AUTH_ENDPOINTS.OAUTH_LOGIN_CODE_EXCHANGE, body);
 
 export const postLogout = () => instance.post(AUTH_ENDPOINTS.LOGOUT);
-
-export const postRefreshToken = () =>
-  instance.post<ApiResponse<{ accessToken: string }>>(AUTH_ENDPOINTS.TOKEN_REFRESH);
