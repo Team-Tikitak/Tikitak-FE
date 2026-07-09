@@ -110,13 +110,6 @@ const buildPixelTransform = (filterCss: string): PixelTransform | null => {
   return (rgb) => ops.reduce((acc, op) => op(acc), rgb);
 };
 
-const supportsCanvasFilter = (context: CanvasRenderingContext2D): boolean => {
-  context.filter = 'blur(1px)';
-  const supported = context.filter === 'blur(1px)';
-  context.filter = 'none';
-  return supported;
-};
-
 const applyPixelTransform = (
   context: CanvasRenderingContext2D,
   width: number,
@@ -147,15 +140,11 @@ export const applyFilterToBlob = async (blob: Blob, filterCss: string): Promise<
     if (!context) return blob;
 
     context.imageSmoothingQuality = 'high';
+    context.drawImage(image, 0, 0);
 
-    if (supportsCanvasFilter(context)) {
-      context.filter = filterCss;
-      context.drawImage(image, 0, 0);
-    } else {
-      context.drawImage(image, 0, 0);
-      const transform = buildPixelTransform(filterCss);
-      if (transform) applyPixelTransform(context, canvas.width, canvas.height, transform);
-    }
+    // ctx.filter는 일부 WebKit에서 지원한다고 응답하고도 실제로는 적용하지 않아 픽셀 연산으로 직접 처리
+    const transform = buildPixelTransform(filterCss);
+    if (transform) applyPixelTransform(context, canvas.width, canvas.height, transform);
 
     return await new Promise<Blob>((resolve) => {
       canvas.toBlob((result) => resolve(result ?? blob), 'image/jpeg', 0.95);
