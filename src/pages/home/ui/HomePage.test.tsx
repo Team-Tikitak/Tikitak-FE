@@ -20,6 +20,10 @@ vi.mock('@/shared/hooks/team/useActiveTeamSelection', () => ({
   useActiveTeamSelection: useActiveTeamSelectionMock,
 }));
 
+vi.mock('@/shared/api/notification/queries', () => ({
+  useUnreadNotificationCount: () => ({ data: undefined }),
+}));
+
 vi.mock('@/shared/ui/AppHeader', () => ({
   AppHeader: () => <header data-testid="app-header" />,
 }));

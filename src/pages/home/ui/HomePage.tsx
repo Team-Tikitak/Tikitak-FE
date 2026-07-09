@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
+import { useUnreadNotificationCount } from '@/shared/api/notification/queries';
 import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
 import { AppHeader } from '@/shared/ui/AppHeader';
 import { EmptyTeamView } from '@/shared/ui/EmptyTeamView';
@@ -20,6 +21,8 @@ export const HomePage = () => {
 
   const hasTeams = me?.hasTeam ?? false;
   const hasActiveTeam = hasTeams && selectedTeam !== undefined;
+  const { data: unreadData } = useUnreadNotificationCount({ teamId: selectedTeam?.teamId ?? 0 });
+  const hasUnreadNotifications = (unreadData?.unreadCount ?? 0) > 0;
 
   // 재요청 중 빈 캐시로 EmptyState 깜빡임 방지
   if (isPending || (isFetching && !hasActiveTeam)) {
@@ -49,6 +52,7 @@ export const HomePage = () => {
         header={
           <AppHeader
             teamName={selectedTeam?.teamName ?? ''}
+            showNotificationDot={hasUnreadNotifications}
             onTeamSelect={openTeamSheet}
             onBellClick={toNotificationPage}
           />
