@@ -3,11 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import { TodayTikitakChip } from './TodayTikitakChip';
-import {
-  preloadFeedHeroAssets,
-  preloadImage,
-  waitForQuestionDecorFade,
-} from '../lib/feedHeroAssets';
+import { preloadFeedHeroAssets, preloadImage, runFeedHeroTransition } from '../lib/feedHeroAssets';
 import type { FeedItem } from '../model/types';
 
 const GRID_EAGER_COUNT = 9;
@@ -67,10 +63,7 @@ export const FeedGrid = ({
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-    // 뱃지 fade와 히어로 비행이 붙어 보이도록, 프리로드가 끝난 뒤에야 fade를 시작한다
-    await preloadFeedHeroAssets(item);
-    if (source) onHeroCapture?.(item, source);
-    await waitForQuestionDecorFade(item);
+    await runFeedHeroTransition(item, source, (i, s) => onHeroCapture?.(i, s));
     navigate(toFeedDetail(item.id), {
       state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
     });

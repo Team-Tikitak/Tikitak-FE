@@ -22,7 +22,7 @@ import { FeedListItem } from './FeedListItem';
 import { FeedSkeleton } from './FeedSkeleton';
 import { StoredFeedHero } from './StoredFeedHero';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
-import { preloadFeedHeroAssets, waitForQuestionDecorFade } from '../lib/feedHeroAssets';
+import { preloadFeedHeroAssets, runFeedHeroTransition } from '../lib/feedHeroAssets';
 import { clearStoredFeedHero, readStoredFeedHero, storeFeedHero } from '../lib/feedHeroStorage';
 import type { FeedItem } from '../model/types';
 
@@ -246,10 +246,7 @@ export const FeedPage = () => {
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-    // 뱃지 fade와 히어로 비행이 붙어 보이도록, 프리로드가 끝난 뒤에야 fade를 시작한다
-    await preloadFeedHeroAssets(feed);
-    if (source) captureFeedHero(feed, source);
-    await waitForQuestionDecorFade(feed);
+    await runFeedHeroTransition(feed, source, captureFeedHero);
     navigate(toFeedDetail(feed.id), {
       state: { thumbnailUrl: feed.thumbnailUrl, heroPreviewUrl: feed.heroPreviewUrl },
     });
