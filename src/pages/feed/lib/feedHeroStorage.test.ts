@@ -63,7 +63,7 @@ describe('feedHeroStorage', () => {
 
     storeFeedHero(makeFeed(), makeRect());
 
-    vi.setSystemTime(new Date('2026-07-04T10:00:06Z'));
+    vi.setSystemTime(new Date('2026-07-04T10:11:00Z'));
 
     expect(readStoredFeedHero()).toBeNull();
   });

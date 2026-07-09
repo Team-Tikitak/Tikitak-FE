@@ -3,7 +3,11 @@ import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
 import { TodayTikitakChip } from './TodayTikitakChip';
-import { preloadFeedHeroAssets, preloadImage } from '../lib/feedHeroAssets';
+import {
+  preloadFeedHeroAssets,
+  preloadImage,
+  waitForQuestionDecorFade,
+} from '../lib/feedHeroAssets';
 import type { FeedItem } from '../model/types';
 
 const GRID_EAGER_COUNT = 9;
@@ -64,7 +68,7 @@ export const FeedGrid = ({
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
     if (source) onHeroCapture?.(item, source);
-    await preloadFeedHeroAssets(item);
+    await Promise.all([preloadFeedHeroAssets(item), waitForQuestionDecorFade(item)]);
     navigate(toFeedDetail(item.id), {
       state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
     });
@@ -105,16 +109,24 @@ export const FeedGrid = ({
                 className={cn(
                   'no-native-image size-full object-cover',
                   suppressedHeroId === item.id && 'opacity-0',
-                  item.type === 'DAILY_QUESTION' && 'border-main-001 relative rounded-sm border-2',
                 )}
               />
               {item.type === 'DAILY_QUESTION' && (
-                <TodayTikitakChip
-                  className={cn(
-                    'absolute top-0 left-0',
-                    suppressedHeroId === item.id && 'opacity-0',
-                  )}
-                />
+                <>
+                  <div
+                    aria-hidden
+                    className={cn(
+                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                    )}
+                  />
+                  <TodayTikitakChip
+                    className={cn(
+                      'absolute top-0 left-0 z-40 transition-opacity duration-[300ms]',
+                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                    )}
+                  />
+                </>
               )}
             </Link>
           </li>

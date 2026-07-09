@@ -54,24 +54,32 @@ export const FeedListItem = ({
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
-          className={cn(
-            'no-native-image size-full object-cover',
-            suppressHeroImage && 'opacity-0',
-            item.type === 'DAILY_QUESTION' && 'border-main-001 rounded-sm border-2',
-          )}
+          className={cn('no-native-image size-full object-cover', suppressHeroImage && 'opacity-0')}
         />
         <span
           className={cn(
-            'font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white',
-            suppressHeroImage && 'opacity-0',
+            'font-pretendard absolute top-1 right-1 z-40 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white transition-opacity duration-[400ms]',
+            suppressHeroImage && 'opacity-0 duration-200 ease-out',
           )}
         >
           {item.photoCount}
         </span>
         {item.type === 'DAILY_QUESTION' && (
-          <TodayTikitakChip
-            className={cn('absolute right-0 bottom-0', suppressHeroImage && 'opacity-0')}
-          />
+          <>
+            <div
+              aria-hidden
+              className={cn(
+                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+              )}
+            />
+            <TodayTikitakChip
+              className={cn(
+                'absolute right-0 bottom-0 z-40 transition-opacity duration-[300ms]',
+                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+              )}
+            />
+          </>
         )}
       </div>
     </article>

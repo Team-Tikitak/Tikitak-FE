@@ -262,6 +262,12 @@ describe('FeedPage - Hero Management', () => {
     expect(storedHero).toHaveClass('opacity-100');
     expect(listImage).toHaveClass('opacity-0');
 
+    // 히어로 비행 시작 대기(그레이스) 경과 후 핸드오프 시작
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(storedHero).toHaveClass('opacity-100');
+
     act(() => {
       vi.advanceTimersByTime(120);
     });

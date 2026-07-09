@@ -9,13 +9,14 @@ interface StoredFeedHeroProps {
 export const StoredFeedHero = ({ storedFeedHero, visible = true }: StoredFeedHeroProps) => {
   return (
     <img
+      data-stored-feed-hero
       data-hero-exit-key={`pin-${storedFeedHero.feedId}`}
       data-hero-radius="4"
       src={storedFeedHero.thumbnailUrl}
       alt=""
       aria-hidden="true"
       className={cn(
-        'no-native-image pointer-events-none absolute z-30 rounded-sm object-cover transition-opacity duration-100 ease-out',
+        'no-native-image pointer-events-none absolute z-30 rounded-sm object-cover',
         visible ? 'opacity-100' : 'opacity-0',
       )}
       style={{

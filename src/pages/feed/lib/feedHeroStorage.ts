@@ -7,7 +7,7 @@ import {
 import type { FeedItem } from '../model/types';
 
 const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
-const FEED_HERO_MAX_AGE_MS = 5000;
+const FEED_HERO_MAX_AGE_MS = 10 * 60 * 1000;
 
 export interface StoredFeedHero {
   feedId: string;
