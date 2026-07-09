@@ -63,7 +63,8 @@ export const NotificationPage = () => {
             </li>
           ))}
         </ul>
-        <div ref={observerRef} aria-hidden />
+        {isFetchingNextPage && <NotificationSkeleton count={3} className="py-0" />}
+        <div ref={observerRef} className="h-8 shrink-0" aria-hidden />
       </>
     );
   };
