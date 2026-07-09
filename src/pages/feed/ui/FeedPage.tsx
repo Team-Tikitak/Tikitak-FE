@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState, type MouseEvent, type UIEvent } from 'react';
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
@@ -15,6 +16,7 @@ import { StoredFeedHero } from './StoredFeedHero';
 import { useFeedHeroHandoff } from '../hooks/useFeedHeroHandoff';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { preloadFeedHeroAssets, runFeedHeroTransition } from '../lib/feedHeroAssets';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 
 const FEED_LIST_EAGER_COUNT = 6;
@@ -36,6 +38,7 @@ export const FeedPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navigationType = useNavigationType();
+  const queryClient = useQueryClient();
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
 
@@ -177,6 +180,7 @@ export const FeedPage = () => {
         ) : viewMode === 'grid' ? (
           <FeedGrid
             items={feeds}
+            teamId={teamId}
             suppressedHeroId={suppressedHeroId}
             onHeroCapture={captureFeedHero}
           />
@@ -193,11 +197,14 @@ export const FeedPage = () => {
                       event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
                     if (source) captureFeedHero(feed, source);
                     void preloadFeedHeroAssets(feed);
+                    warmFeedDetail(queryClient, teamId, feed.id);
                   }}
                   onFocus={() => {
                     void preloadFeedHeroAssets(feed);
                   }}
-                  onMouseEnter={() => void preloadFeedHeroAssets(feed)}
+                  onMouseEnter={() => {
+                    void preloadFeedHeroAssets(feed);
+                  }}
                   onClick={(event) => void handleListFeedClick(event, feed)}
                 >
                   <FeedListItem

@@ -1,15 +1,26 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FeedPage } from './FeedPage';
 import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
 import type { FeedItem } from '../model/types';
+import type { ReactElement } from 'react';
+
+const renderFeedPage = (ui: ReactElement) => {
+  const queryClient = new QueryClient();
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 vi.mock('@/shared/api/user/queries', () => ({
   useMe: vi.fn(() => ({ data: { activeTeamId: 1 }, isPending: false })),
 }));
 
 vi.mock('@/shared/api/feed/queries', () => ({
+  feedDetailQueryOptions: vi.fn(() => ({
+    queryKey: ['feed', 'detail', 'mock'],
+    queryFn: () => Promise.resolve(null),
+  })),
   useInfiniteFeeds: vi.fn(() => ({
     data: {
       pages: [
@@ -213,7 +224,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 90, 90));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter>
         <FeedPage />
       </MemoryRouter>,
@@ -234,7 +245,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
         <FeedPage />
       </MemoryRouter>,
@@ -251,7 +262,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
         <FeedPage />
       </MemoryRouter>,
