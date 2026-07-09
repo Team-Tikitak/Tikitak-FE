@@ -47,3 +47,15 @@ export const preloadFeedHeroAssets = (item: FeedItem) =>
     ),
     new Promise<void>((resolve) => window.setTimeout(resolve, HERO_PRELOAD_TIMEOUT_MS)),
   ]);
+
+// 뱃지 fade와 히어로 비행이 붙어 보이도록, 프리로드가 끝난 뒤에야 fade를 시작한다.
+// FeedGrid/FeedPage가 각자 구현하면 순서가 어긋날 수 있어 공용 헬퍼로 강제한다.
+export const runFeedHeroTransition = async (
+  item: FeedItem,
+  source: HTMLElement | null,
+  capture: (item: FeedItem, source: HTMLElement) => void,
+): Promise<void> => {
+  await preloadFeedHeroAssets(item);
+  if (source) capture(item, source);
+  await waitForQuestionDecorFade(item);
+};

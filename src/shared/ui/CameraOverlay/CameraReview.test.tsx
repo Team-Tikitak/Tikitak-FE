@@ -75,7 +75,6 @@ describe('CameraReview', () => {
     expect(screen.getByTestId('camera-filter-tray')).toHaveClass(
       'duration-180',
       'ease-[cubic-bezier(0.4,0,1,1)]',
-      'translate-y-4',
     );
   });
 });

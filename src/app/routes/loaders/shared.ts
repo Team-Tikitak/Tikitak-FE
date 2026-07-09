@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { redirect } from 'react-router';
 import { queryClient } from '@/app/providers/queryClient';
-import { postRefreshToken } from '@/shared/api/auth/api';
 import { authKeys } from '@/shared/api/auth/keys';
-import { getAccessToken, setAccessToken } from '@/shared/api/instance';
+import { getAccessToken, refreshAccessToken } from '@/shared/api/instance';
 import { unwrap } from '@/shared/api/request';
 import { getMe } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
@@ -24,11 +23,7 @@ export const ensureMe = () =>
 export const ensureSessionAccessToken = () =>
   queryClient.ensureQueryData({
     queryKey: authKeys.session(),
-    queryFn: async () => {
-      const { accessToken } = await unwrap(() => postRefreshToken());
-      setAccessToken(accessToken);
-      return accessToken;
-    },
+    queryFn: () => refreshAccessToken(),
     retry: false,
   });
 

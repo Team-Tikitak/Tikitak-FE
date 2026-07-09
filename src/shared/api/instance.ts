@@ -72,6 +72,41 @@ const processQueue = (error: unknown, token?: string) => {
   pendingQueue = [];
 };
 
+// 세션 복구(restoreSession)와 라우트 로더(ensureAuthenticatedForLoader)도 이 함수를 거쳐야
+// 인터셉터의 401 재시도와 동시에 refresh를 쏘지 않는다. 별도 refresh 호출이 남아있으면
+// 백엔드가 refresh token을 1회용으로 회전시킬 때 한쪽이 소진시킨 토큰으로 다른 쪽이 실패해
+// 강제 로그아웃/로더 에러로 이어질 수 있다.
+export const refreshAccessToken = (): Promise<string> => {
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      pendingQueue.push({ resolve, reject });
+    });
+  }
+
+  isRefreshing = true;
+  return (async () => {
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${AUTH_ENDPOINTS.TOKEN_REFRESH}`,
+        null,
+        { withCredentials: true },
+      );
+
+      const newAccessToken = data.data?.accessToken;
+      if (!newAccessToken) throw new Error('Access token not found');
+
+      setAccessToken(newAccessToken);
+      processQueue(null, newAccessToken);
+      return newAccessToken;
+    } catch (error) {
+      processQueue(error);
+      throw error;
+    } finally {
+      isRefreshing = false;
+    }
+  })();
+};
+
 const isSessionExpiredRefreshStatus = (status: number | undefined) =>
   status === 400 || status === 401 || status === 403;
 
@@ -93,39 +128,11 @@ instance.interceptors.response.use(
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          pendingQueue.push({
-            resolve: (token) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(instance(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
-      isRefreshing = true;
-
       try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}${AUTH_ENDPOINTS.TOKEN_REFRESH}`,
-          null,
-          { withCredentials: true },
-        );
-
-        const newAccessToken = data.data?.accessToken;
-
-        if (!newAccessToken) throw new Error('Access token not found');
-
-        setAccessToken(newAccessToken);
-        processQueue(null, newAccessToken);
-
+        const newAccessToken = await refreshAccessToken();
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
         return instance(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError);
         // 400/401/403은 세션 없음·만료로 보고 로그인으로 정리, 5xx는 세션 유지
         const refreshStatus = axios.isAxiosError(refreshError)
           ? refreshError.response?.status
@@ -143,8 +150,6 @@ instance.interceptors.response.use(
         }
 
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 
