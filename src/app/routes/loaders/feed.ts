@@ -19,7 +19,12 @@ export const feedDetailLoader = async ({ params }: LoaderFunctionArgs) => {
   const activeTeamId = await ensureActiveTeamId();
   if (!activeTeamId) return redirect(PATHS.HOME);
 
-  await queryClient.ensureQueryData(feedDetailQueryOptions(activeTeamId, feedId));
+  try {
+    await queryClient.ensureQueryData(feedDetailQueryOptions(activeTeamId, feedId));
+  } catch {
+    // 세션 레이스 등으로 상세 조회가 실패해도 에러 화면 대신 목록으로 돌려보낸다
+    return redirect(PATHS.FEED);
+  }
   return null;
 };
 
