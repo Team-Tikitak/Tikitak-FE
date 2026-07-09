@@ -18,6 +18,7 @@ export * from './DailyQuestion';
 export * from './Divider';
 export * from './EmptyTeamView';
 export * from './FeedDetail';
+export * from './FeedDetailList';
 export * from './FeedForm';
 export * from './FeedList';
 export * from './FloatingButton';
