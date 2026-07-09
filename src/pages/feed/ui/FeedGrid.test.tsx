@@ -105,7 +105,10 @@ describe('FeedGrid', () => {
   it('shows the today tikitak chip only on daily question tiles', () => {
     render(
       <FeedGrid
-        items={[makeFeed('1'), { ...makeFeed('2'), type: 'DAILY_QUESTION', question: '오늘의 질문' }]}
+        items={[
+          makeFeed('1'),
+          { ...makeFeed('2'), type: 'DAILY_QUESTION', question: '오늘의 질문' },
+        ]}
       />,
     );
 

@@ -51,7 +51,8 @@ export const FeedPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navigationType = useNavigationType();
-  const mountedAtRef = useRef(Date.now());
+  // 현재 마운트에서 캡처된 출발용 히어로인지 여부 — 복귀 시 sessionStorage에서 복원된 히어로와 구분
+  const departureHeroRef = useRef(false);
   const { data: me, isPending: isMePending } = useMe();
   const teamId = me?.activeTeamId ?? null;
 
@@ -73,6 +74,7 @@ export const FeedPage = () => {
     setStoredFeedHero(null);
   }, []);
   const dismissStoredHero = useCallback(() => {
+    departureHeroRef.current = false;
     clearStoredFeedHero();
     hideStoredHero();
   }, [hideStoredHero]);
@@ -162,7 +164,7 @@ export const FeedPage = () => {
       schedule(finish, HERO_FLIGHT_MAX_WAIT_MS);
     };
 
-    if (storedFeedHero.createdAt > mountedAtRef.current) {
+    if (departureHeroRef.current) {
       // 출발용 히어로(이 페이지에서 방금 캡처)는 핸드오프하지 않고, 탭이 취소된 경우만 늦게 복구.
       schedule(finish, STORED_HERO_DEPARTURE_RECOVERY_MS);
     } else if (!copy) {
@@ -197,6 +199,7 @@ export const FeedPage = () => {
         ? new DOMRect(rect.left - frameRect.left, rect.top - frameRect.top, rect.width, rect.height)
         : rect;
       const nextStoredFeedHero = storeFeedHero(item, localRect);
+      departureHeroRef.current = true;
       flushSync(() => {
         setStoredHeroVisible(true);
         setStoredFeedHero(nextStoredFeedHero);
