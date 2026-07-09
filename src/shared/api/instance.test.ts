@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { refreshAccessToken } from './instance';
+import { instance, refreshAccessToken } from './instance';
 import { useAuthStore } from '../stores/authStore';
 
 afterEach(() => {
@@ -15,8 +14,8 @@ describe('refreshAccessToken', () => {
       resolvePost = resolve;
     });
     const postSpy = vi
-      .spyOn(axios, 'post')
-      .mockReturnValue(postPromise as ReturnType<typeof axios.post>);
+      .spyOn(instance, 'post')
+      .mockReturnValue(postPromise as ReturnType<typeof instance.post>);
 
     const call1 = refreshAccessToken();
     const call2 = refreshAccessToken();
@@ -36,7 +35,7 @@ describe('refreshAccessToken', () => {
 
   it('실패하면 대기 중인 모든 호출자가 같은 에러로 reject되고, 이후 재호출은 새 요청을 보낸다', async () => {
     const error = new Error('refresh failed');
-    const postSpy = vi.spyOn(axios, 'post').mockRejectedValueOnce(error);
+    const postSpy = vi.spyOn(instance, 'post').mockRejectedValueOnce(error);
 
     const call1 = refreshAccessToken();
     const call2 = refreshAccessToken();
@@ -47,7 +46,7 @@ describe('refreshAccessToken', () => {
 
     postSpy.mockResolvedValueOnce({
       data: { data: { accessToken: 'retry-token' } },
-    } as Awaited<ReturnType<typeof axios.post>>);
+    } as Awaited<ReturnType<typeof instance.post>>);
 
     const retryToken = await refreshAccessToken();
 
