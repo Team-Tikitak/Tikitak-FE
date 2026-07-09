@@ -1,16 +1,26 @@
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
-import { deleteDeviceToken, getNotifications, patchNotificationRead, postDeviceToken } from './api';
+import {
+  deleteDeviceToken,
+  getNotifications,
+  getUnreadNotificationCount,
+  patchNotificationRead,
+  patchNotificationReadAll,
+  postDeviceToken,
+} from './api';
 import { notificationKeys } from './keys';
 import { unwrap } from '../request';
 import type {
   DeleteDeviceTokenRequest,
   NotificationListParams,
   NotificationListResponse,
+  NotificationTeamParams,
+  NotificationUnreadCountResponse,
   RegisterDeviceTokenRequest,
 } from './types';
 
@@ -31,6 +41,22 @@ const markNotificationRead = (
       items: page.items.map((item) =>
         item.notificationId === notificationId ? { ...item, read: true, isRead: true } : item,
       ),
+    })),
+  };
+};
+
+const markAllNotificationsRead = (
+  old: InfiniteData<NotificationListResponse> | undefined,
+): InfiniteData<NotificationListResponse> | undefined => {
+  if (!old) {
+    return old;
+  }
+
+  return {
+    ...old,
+    pages: old.pages.map((page) => ({
+      ...page,
+      items: page.items.map((item) => ({ ...item, read: true, isRead: true })),
     })),
   };
 };
@@ -76,6 +102,35 @@ export const useReadNotification = () => {
         { queryKey: notificationKeys.list() },
         (old) => markNotificationRead(old, notificationId),
       );
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+    },
+  });
+};
+
+export const useUnreadNotificationCount = (params: NotificationTeamParams = {}) =>
+  useQuery({
+    queryKey: notificationKeys.unreadCountFiltered(params),
+    queryFn: () => unwrap(() => getUnreadNotificationCount(params)),
+    enabled: params.teamId === undefined || params.teamId > 0,
+    staleTime: NOTIFICATION_LIST_STALE_TIME_MS,
+  });
+
+export const useReadAllNotifications = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: NotificationTeamParams = {}) =>
+      unwrap(() => patchNotificationReadAll(params)),
+    onSuccess: () => {
+      queryClient.setQueriesData<InfiniteData<NotificationListResponse>>(
+        { queryKey: notificationKeys.list() },
+        markAllNotificationsRead,
+      );
+      queryClient.setQueriesData<NotificationUnreadCountResponse>(
+        { queryKey: notificationKeys.unreadCount() },
+        (old) => (old ? { ...old, unreadCount: 0 } : old),
+      );
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
     },
   });
 };
