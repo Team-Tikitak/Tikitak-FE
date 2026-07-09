@@ -146,6 +146,20 @@ export const router = createBrowserRouter([
                   })),
               },
               {
+                path: PATHS.ACTIVITY_EVERYONE_PICK,
+                lazy: () =>
+                  import('@/pages/everyonePickFeed/ui/EveryonePickFeedPage').then((m) => ({
+                    Component: m.EveryonePickFeedPage,
+                  })),
+              },
+              {
+                path: PATHS.ACTIVITY_REGION_FEEDS,
+                lazy: () =>
+                  import('@/pages/regionFeed/ui/RegionFeedPage').then((m) => ({
+                    Component: m.RegionFeedPage,
+                  })),
+              },
+              {
                 path: PATHS.NOTIFICATION,
                 lazy: () =>
                   import('@/pages/notification/ui/NotificationPage').then((m) => ({

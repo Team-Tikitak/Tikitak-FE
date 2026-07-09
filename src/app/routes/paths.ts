@@ -8,6 +8,8 @@ export const PATHS = {
   HOME: '/home',
   FEED: '/feed',
   ACTIVITY: '/activity',
+  ACTIVITY_EVERYONE_PICK: '/activity/everyone-pick',
+  ACTIVITY_REGION_FEEDS: '/activity/region',
   FEED_CREATE: '/feed/new',
   DAILY_FEED_CREATE: '/feed/new/daily',
   ONBOARDING: '/onboarding',
