@@ -21,13 +21,13 @@ export const FeedListItem = ({
   ...props
 }: FeedListItemProps) => {
   return (
-    <article ref={ref} className={cn('flex w-full items-start gap-4', className)} {...props}>
+    <article ref={ref} className={cn('flex w-full items-start gap-5', className)} {...props}>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-2">
           <div className="flex w-full flex-col gap-1">
             <p
               className={cn(
-                'font-pretendard body-1 line-clamp-2 w-full break-keep',
+                'font-pretendard body-1 w-full truncate',
                 item.type === 'DAILY_QUESTION' ? 'text-main-001' : 'text-gray-700',
               )}
             >
