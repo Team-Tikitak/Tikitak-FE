@@ -32,14 +32,6 @@ export const preloadImage = (url: string): Promise<void> => {
   return preload;
 };
 
-// 질문 장식(테두리·칩) 페이드아웃 중 네비게이션을 잡아주는 시간.
-const QUESTION_DECOR_FADE_OUT_MS = 100;
-
-export const waitForQuestionDecorFade = (item: FeedItem): Promise<void> =>
-  item.type === 'DAILY_QUESTION'
-    ? new Promise<void>((resolve) => window.setTimeout(resolve, QUESTION_DECOR_FADE_OUT_MS))
-    : Promise.resolve();
-
 export const preloadFeedHeroAssets = (item: FeedItem) =>
   Promise.race([
     Promise.all([preloadImage(item.thumbnailUrl), preloadImage(item.heroPreviewUrl)]).then(
@@ -48,8 +40,10 @@ export const preloadFeedHeroAssets = (item: FeedItem) =>
     new Promise<void>((resolve) => window.setTimeout(resolve, HERO_PRELOAD_TIMEOUT_MS)),
   ]);
 
-// 뱃지 fade와 히어로 비행이 붙어 보이도록, 프리로드가 끝난 뒤에야 fade를 시작한다.
-// FeedGrid/FeedPage가 각자 구현하면 순서가 어긋날 수 있어 공용 헬퍼로 강제한다.
+// 뱃지 fade 완료를 기다리지 않고 캡처 직후 바로 navigate로 이어지도록 한다. ssgoi가 전환 중
+// 이전 페이지 DOM을 유지하므로, fade는 navigate와 동시에 트리거돼도 CSS transition이 화면에
+// 그려질 시간은 충분하다 — 여기서 인위적으로 기다리면 "뱃지 사라짐"과 "히어로 시작" 사이에
+// 체감 공백만 늘어난다.
 export const runFeedHeroTransition = async (
   item: FeedItem,
   source: HTMLElement | null,
@@ -57,5 +51,4 @@ export const runFeedHeroTransition = async (
 ): Promise<void> => {
   await preloadFeedHeroAssets(item);
   if (source) capture(item, source);
-  await waitForQuestionDecorFade(item);
 };

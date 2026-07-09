@@ -37,7 +37,7 @@ export const HomePage = () => {
       >
         <LoadingState
           variant="fullscreen"
-          className="pb-[calc(60px+env(safe-area-inset-bottom))]"
+          className="pb-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))]"
         />
       </PageShell>
     );

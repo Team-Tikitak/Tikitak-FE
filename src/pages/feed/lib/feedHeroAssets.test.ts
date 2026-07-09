@@ -144,7 +144,7 @@ describe('feedHeroAssets', () => {
       await Promise.resolve();
     };
 
-    it('프리로드가 끝나야 capture가 호출되고, decor fade가 끝나야 완료된다 (질문 피드)', async () => {
+    it('프리로드가 끝나야 capture가 호출되고, capture 직후 바로 완료된다 (질문 피드)', async () => {
       const item: FeedItem = {
         id: 'feed-order-question',
         title: 'Test',
@@ -160,28 +160,20 @@ describe('feedHeroAssets', () => {
       const images = stubImage();
       const capture = vi.fn();
       const source = document.createElement('div');
-      let settled = false;
 
-      const promise = runFeedHeroTransition(item, source, capture).then(() => {
-        settled = true;
-      });
+      const promise = runFeedHeroTransition(item, source, capture);
 
       // 이미지 로드가 끝나기 전에는 capture가 호출되면 안 된다
       expect(capture).not.toHaveBeenCalled();
 
       await resolveAllImages(images);
 
-      // 프리로드가 끝난 직후 capture는 호출되지만, decor fade(100ms)가 끝나기 전이라 아직 완료되지 않는다
+      // decor fade를 기다리지 않고 capture 직후 바로 완료된다 — navigate를 인위적으로 늦추지 않기 위함
+      await expect(promise).resolves.toBeUndefined();
       expect(capture).toHaveBeenCalledWith(item, source);
-      expect(settled).toBe(false);
-
-      await vi.advanceTimersByTimeAsync(100);
-
-      expect(settled).toBe(true);
-      await promise;
     });
 
-    it('질문 피드가 아니면 decor fade 없이 프리로드 직후 완료된다', async () => {
+    it('질문 피드가 아니어도 동일하게 프리로드 직후 완료된다', async () => {
       const item: FeedItem = {
         id: 'feed-order-general',
         title: 'Test',

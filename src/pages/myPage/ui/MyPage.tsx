@@ -56,7 +56,7 @@ export const MyPage = () => {
     >
       {/* min-h 100%+1px: 콘텐츠가 화면보다 짧아도 항상 넘치게 해 iOS 바운스 스크롤 유지 */}
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-[calc(100%+1px)] flex-col gap-8 px-5 pt-7 pb-[calc(60px+env(safe-area-inset-bottom))]">
+        <div className="flex min-h-[calc(100%+1px)] flex-col gap-8 px-5 pt-7 pb-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))]">
           {isTeamsPending ? (
             <MyPageSkeleton />
           ) : (
