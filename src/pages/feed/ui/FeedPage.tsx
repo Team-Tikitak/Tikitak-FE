@@ -246,8 +246,10 @@ export const FeedPage = () => {
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+    // 뱃지 fade와 히어로 비행이 붙어 보이도록, 프리로드가 끝난 뒤에야 fade를 시작한다
+    await preloadFeedHeroAssets(feed);
     if (source) captureFeedHero(feed, source);
-    await Promise.all([preloadFeedHeroAssets(feed), waitForQuestionDecorFade(feed)]);
+    await waitForQuestionDecorFade(feed);
     navigate(toFeedDetail(feed.id), {
       state: { thumbnailUrl: feed.thumbnailUrl, heroPreviewUrl: feed.heroPreviewUrl },
     });
