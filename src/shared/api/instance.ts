@@ -4,6 +4,7 @@ import { invalidateDeviceToken } from '@/shared/lib/native/getDeviceToken';
 import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { useAuthStore } from '../stores/authStore';
 import { AUTH_ENDPOINTS } from './auth/endpoints';
+import type { ApiResponse } from './type';
 
 export const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -86,10 +87,8 @@ export const refreshAccessToken = (): Promise<string> => {
   isRefreshing = true;
   return (async () => {
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${AUTH_ENDPOINTS.TOKEN_REFRESH}`,
-        null,
-        { withCredentials: true },
+      const { data } = await instance.post<ApiResponse<{ accessToken: string }>>(
+        AUTH_ENDPOINTS.TOKEN_REFRESH,
       );
 
       const newAccessToken = data.data?.accessToken;
