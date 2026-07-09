@@ -31,7 +31,10 @@ export const usePinComments = ({ teamId, feedId, feedImageIds }: UsePinCommentsP
   const { data: teams } = useGetTeams();
   const myProfileImageUrl = toSafeImageUrl(teams?.find((t) => t.isActive)?.profileImgUrl);
 
-  const { data: commentsData } = useGetFeedComments(teamId, feedId);
+  // 댓글 시트가 열려있는 동안은 다른 사람이 단 댓글도 반영되도록 짧게 폴링한다
+  const { data: commentsData } = useGetFeedComments(teamId, feedId, undefined, {
+    refetchInterval: openPinKey ? 4000 : false,
+  });
   const { mutate: postComment } = usePostFeedComment(teamId, feedId);
   const { mutate: deleteComment } = useDeleteFeedComment(teamId, feedId);
 

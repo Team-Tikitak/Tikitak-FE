@@ -1,8 +1,11 @@
 import { Capacitor } from '@capacitor/core';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { restoreSession } from '@/shared/api/auth/restoreSession';
+import { feedKeys } from '@/shared/api/feed/keys';
+import { feedCommentKeys } from '@/shared/api/feedComment/keys';
 import { useReadNotification } from '@/shared/api/notification/queries';
 import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
@@ -44,6 +47,14 @@ export const getPushNotificationTargetPath = (data: PushNotificationData): strin
   return toFeedDetail(data.feedId);
 };
 
+// 이미 같은 피드 상세를 보고 있으면 navigate가 무효 동작이라 별도로 무효화해야 새 댓글이 반영된다
+export const shouldInvalidateFeedQueries = (
+  data: PushNotificationData,
+  currentPathname: string,
+  targetPath: string | null,
+): boolean =>
+  Boolean(targetPath) && FEED_DETAIL_TYPES.has(data.type ?? '') && currentPathname === targetPath;
+
 export const usePushNotificationDeepLink = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,6 +62,7 @@ export const usePushNotificationDeepLink = () => {
   const activeTeamId = useActiveTeamId();
   const { mutate: patchActiveTeam } = usePatchActiveTeam({ silent: true });
   const { mutate: readNotification } = useReadNotification();
+  const queryClient = useQueryClient();
 
   const handleRef = useRef<(data: PushNotificationData) => void>(() => {});
   handleRef.current = (data) => {
@@ -60,6 +72,11 @@ export const usePushNotificationDeepLink = () => {
 
     if (notificationId) readNotification(notificationId);
     if (!targetPath) return;
+
+    if (shouldInvalidateFeedQueries(data, location.pathname, targetPath)) {
+      void queryClient.invalidateQueries({ queryKey: feedCommentKeys.all });
+      void queryClient.invalidateQueries({ queryKey: feedKeys.all });
+    }
 
     const navigateToTarget = () => navigate(targetPath);
     if (targetTeamId && targetTeamId !== activeTeamId) {

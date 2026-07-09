@@ -94,4 +94,22 @@ describe('useActiveTeamSelection', () => {
 
     expect(result.current.isFetching).toBe(false);
   });
+
+  it('activeTeamId가 아직 teams에 없어도 백그라운드 리페치 중이면 patch하지 않는다', () => {
+    // 새 팀 참여 직후 me는 갱신됐지만 teams 목록이 아직 리페치 중인 race 상황을 재현
+    useMeMock.mockReturnValue({
+      data: { activeTeamId: 999 } as MeResponse,
+      isPending: false,
+      isFetching: false,
+    });
+    useGetTeamsMock.mockReturnValue({
+      data: [makeTeam(1)],
+      isPending: false,
+      isFetching: true,
+    });
+
+    renderHook(() => useActiveTeamSelection());
+
+    expect(patchActiveTeamMock).not.toHaveBeenCalled();
+  });
 });

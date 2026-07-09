@@ -27,6 +27,10 @@ export const composePhotoWithStickers = async (
         const entry = getSticker(placed.stickerId);
         const image = await loadImage(entry.url);
         const size = baseStickerSize * placed.scale;
+        // drawImage는 SVG preserveAspectRatio를 무시하므로 비율을 직접 유지한다
+        const aspect = image.naturalWidth / image.naturalHeight;
+        const drawWidth = aspect >= 1 ? size : size * aspect;
+        const drawHeight = aspect >= 1 ? size / aspect : size;
         const x = placed.xRatio * photo.naturalWidth;
         const y = placed.yRatio * photo.naturalHeight;
         const rotation = ((placed.rotation ?? 0) * Math.PI) / 180;
@@ -34,7 +38,7 @@ export const composePhotoWithStickers = async (
         context.save();
         context.translate(x, y);
         context.rotate(rotation);
-        context.drawImage(image, -size / 2, -size / 2, size, size);
+        context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
         context.restore();
       }),
     );

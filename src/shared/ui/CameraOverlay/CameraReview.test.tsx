@@ -41,11 +41,7 @@ describe('CameraReview', () => {
 
     expect(uploadButton).not.toBeDisabled();
     expect(uploadButton).toHaveAttribute('tabindex', '-1');
-    expect(uploadAction).toHaveClass(
-      'opacity-0',
-      'duration-240',
-      'ease-[cubic-bezier(0.16,1,0.3,1)]',
-    );
+    expect(uploadAction).toHaveClass('opacity-0', 'duration-180', 'ease-[cubic-bezier(0.4,0,1,1)]');
     expect(screen.getByRole('button', { name: '필터' })).toBeInTheDocument();
     expect(container.firstElementChild).not.toHaveClass(
       'pb-[calc(112px+env(safe-area-inset-bottom))]',

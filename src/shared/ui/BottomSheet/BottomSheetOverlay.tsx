@@ -123,7 +123,7 @@ export function BottomSheetOverlay({
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full flex-col outline-none sm:max-w-[393px]',
           shouldAvoidKeyboard &&
-            'bottom-(--keyboard-height) transition-[bottom] duration-200 ease-out',
+            'bottom-(--keyboard-height) transition-[bottom] duration-250 ease-[cubic-bezier(0.17,0.59,0.28,1)]',
           snapPoints && 'h-full',
           className,
         )}

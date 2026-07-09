@@ -11,7 +11,7 @@ import {
 import { invitationKeys } from './keys';
 import { unwrap } from '../request';
 import { invalidateTeamMembershipQueries } from '../team/invalidateTeamMembership';
-import { patchActiveTeam as patchActiveTeamApi } from '../user/api';
+import { usePatchActiveTeam } from '../user/queries';
 import type { AcceptInvitationResponse, AcceptInvitationVariables } from './types';
 
 export const useInvitationLink = (teamId: number) =>
@@ -40,6 +40,8 @@ export const useInvitationPreview = (token: string) =>
 export const useAcceptInvitation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  // 참여 자체는 이미 성공했으므로, 뒤이은 활성 팀 자동 전환 실패는 조용히 넘어간다
+  const { mutateAsync: patchActiveTeam } = usePatchActiveTeam({ silent: true });
 
   return useMutation<AcceptInvitationResponse, Error, AcceptInvitationVariables>({
     // 강퇴당한 팀 재참여 불가 등 서버가 구체적 사유를 내려주므로 서버 메시지를 우선 노출
@@ -47,7 +49,7 @@ export const useAcceptInvitation = () => {
     mutationFn: (variables) => unwrap(() => postAcceptInvitation(variables)),
     onSuccess: async (data) => {
       try {
-        await patchActiveTeamApi({ teamId: data.teamId });
+        await patchActiveTeam(data.teamId);
       } catch (error) {
         console.error('초대 수락 후 활성 팀 변경 실패', error);
       }

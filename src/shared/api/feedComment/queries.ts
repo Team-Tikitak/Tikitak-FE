@@ -22,16 +22,22 @@ interface PostCommentContext {
 let tempIdSeed = 0;
 const nextTempId = () => --tempIdSeed;
 
+interface GetFeedCommentsOptions {
+  refetchInterval?: number | false;
+}
+
 export const useGetFeedComments = (
   teamId: number,
   feedId: number,
   params?: FeedCommentListParams,
+  { refetchInterval = false }: GetFeedCommentsOptions = {},
 ) =>
   useQuery({
     queryKey: feedCommentKeys.comments(teamId, feedId),
     queryFn: () => getFeedComments(teamId, feedId, params).then((res) => res.data.data),
     enabled: Boolean(teamId) && Boolean(feedId),
     staleTime: 30 * 1000,
+    refetchInterval,
   });
 
 export const usePostFeedComment = (teamId: number, feedId: number) => {
