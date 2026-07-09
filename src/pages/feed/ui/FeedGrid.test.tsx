@@ -1,7 +1,19 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FeedGrid } from './FeedGrid';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
+import type { ReactElement } from 'react';
+
+vi.mock('../lib/warmFeedDetail', () => ({
+  warmFeedDetail: vi.fn(),
+}));
+
+const renderGrid = (ui: ReactElement) => {
+  const queryClient = new QueryClient();
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 const { navigateMock } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
@@ -62,7 +74,7 @@ describe('FeedGrid', () => {
   });
 
   it('navigates with hero preview state after warming the selected item assets', async () => {
-    render(<FeedGrid items={[makeFeed('42')]} />);
+    renderGrid(<FeedGrid items={[makeFeed('42')]} teamId={1} />);
 
     fireEvent.click(screen.getByRole('link'));
 
@@ -75,7 +87,7 @@ describe('FeedGrid', () => {
 
   it('captures the clicked image as a hero source before navigation', async () => {
     const onHeroCapture = vi.fn();
-    render(<FeedGrid items={[makeFeed('77')]} onHeroCapture={onHeroCapture} />);
+    renderGrid(<FeedGrid items={[makeFeed('77')]} teamId={1} onHeroCapture={onHeroCapture} />);
     const link = screen.getByRole('link');
     const image = link.querySelector('[data-hero-exit-key]');
 
@@ -90,8 +102,8 @@ describe('FeedGrid', () => {
   });
 
   it('hides the matching grid image while a stored hero source is active', () => {
-    const { container } = render(
-      <FeedGrid items={[makeFeed('77'), makeFeed('88')]} suppressedHeroId="77" />,
+    const { container } = renderGrid(
+      <FeedGrid items={[makeFeed('77'), makeFeed('88')]} teamId={1} suppressedHeroId="77" />,
     );
 
     const images = container.querySelectorAll('img');
@@ -103,12 +115,13 @@ describe('FeedGrid', () => {
   });
 
   it('shows the today tikitak chip only on daily question tiles', () => {
-    render(
+    renderGrid(
       <FeedGrid
         items={[
           makeFeed('1'),
           { ...makeFeed('2'), type: 'DAILY_QUESTION', question: '오늘의 질문' },
         ]}
+        teamId={1}
       />,
     );
 
@@ -119,9 +132,10 @@ describe('FeedGrid', () => {
   });
 
   it('hides the daily question chip while a stored hero source is active', () => {
-    render(
+    renderGrid(
       <FeedGrid
         items={[{ ...makeFeed('7'), type: 'DAILY_QUESTION', question: '오늘의 질문' }]}
+        teamId={1}
         suppressedHeroId="7"
       />,
     );
@@ -130,7 +144,7 @@ describe('FeedGrid', () => {
   });
 
   it('reuses preloaded image promises for repeated pointer and click warming', async () => {
-    render(<FeedGrid items={[makeFeed('99')]} />);
+    renderGrid(<FeedGrid items={[makeFeed('99')]} teamId={1} />);
     const link = screen.getByRole('link');
 
     fireEvent.pointerDown(link);
@@ -144,5 +158,13 @@ describe('FeedGrid', () => {
     });
     expect(imageSources.filter((source) => source === '/thumb-99.jpg')).toHaveLength(1);
     expect(imageSources.filter((source) => source === '/preview-99.jpg')).toHaveLength(1);
+  });
+
+  it('pointerDown 시 상세 데이터를 미리 캐시한다', () => {
+    renderGrid(<FeedGrid items={[makeFeed('42')]} teamId={7} />);
+
+    fireEvent.pointerDown(screen.getByRole('link'));
+
+    expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 7, '42');
   });
 });

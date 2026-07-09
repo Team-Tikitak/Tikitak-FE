@@ -1,15 +1,31 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FeedPage } from './FeedPage';
 import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
+import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
+import type { ReactElement } from 'react';
+
+vi.mock('../lib/warmFeedDetail', () => ({
+  warmFeedDetail: vi.fn(),
+}));
+
+const renderFeedPage = (ui: ReactElement) => {
+  const queryClient = new QueryClient();
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 vi.mock('@/shared/api/user/queries', () => ({
   useMe: vi.fn(() => ({ data: { activeTeamId: 1 }, isPending: false })),
 }));
 
 vi.mock('@/shared/api/feed/queries', () => ({
+  feedDetailQueryOptions: vi.fn(() => ({
+    queryKey: ['feed', 'detail', 'mock'],
+    queryFn: () => Promise.resolve(null),
+  })),
   useInfiniteFeeds: vi.fn(() => ({
     data: {
       pages: [
@@ -213,7 +229,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 90, 90));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter>
         <FeedPage />
       </MemoryRouter>,
@@ -234,7 +250,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
         <FeedPage />
       </MemoryRouter>,
@@ -251,7 +267,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
-    const { container } = render(
+    const { container } = renderFeedPage(
       <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
         <FeedPage />
       </MemoryRouter>,
@@ -281,5 +297,20 @@ describe('FeedPage - Hero Management', () => {
 
     expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
     expect(readStoredFeedHero()).toBeNull();
+  });
+
+  it('리스트 뷰에서 pointerDown 시 상세 데이터를 미리 캐시한다', () => {
+    const { container } = renderFeedPage(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const link = container.querySelector('a[href="/feed/1"]');
+    expect(link).toBeInTheDocument();
+
+    fireEvent.pointerDown(link!);
+
+    expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 1, '1');
   });
 });
