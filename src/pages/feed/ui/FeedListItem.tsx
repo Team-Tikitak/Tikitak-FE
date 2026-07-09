@@ -1,6 +1,7 @@
 import { type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
 import { AvatarGroup } from '@/shared/ui/AvatarGroup/AvatarGroup';
+import { TodayTikitakChip } from './TodayTikitakChip';
 import type { FeedItem } from '../model/types';
 
 const MAX_VISIBLE_AVATARS = 4;
@@ -20,12 +21,17 @@ export const FeedListItem = ({
   ...props
 }: FeedListItemProps) => {
   return (
-    <article ref={ref} className={cn('flex w-full items-start gap-4', className)} {...props}>
+    <article ref={ref} className={cn('flex w-full items-start gap-5', className)} {...props}>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-col gap-2">
           <div className="flex w-full flex-col gap-1">
-            <p className="font-pretendard line-clamp-2 w-full text-[14px] tracking-[-0.004em] break-keep text-gray-700">
-              {item.location}
+            <p
+              className={cn(
+                'font-pretendard body-1 w-full truncate',
+                item.type === 'DAILY_QUESTION' ? 'text-main-001' : 'text-gray-700',
+              )}
+            >
+              {item.type === 'DAILY_QUESTION' ? item.question : item.place}
             </p>
             <p className="body-9 w-full truncate text-black">{item.title}</p>
           </div>
@@ -52,12 +58,29 @@ export const FeedListItem = ({
         />
         <span
           className={cn(
-            'font-pretendard absolute top-1 right-1 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white',
-            suppressHeroImage && 'opacity-0',
+            'font-pretendard absolute top-1 right-1 z-40 inline-flex items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)] px-1 py-px text-center text-[12px] leading-[1.3] font-normal tracking-[-0.004em] whitespace-nowrap text-white transition-opacity duration-[400ms]',
+            suppressHeroImage && 'opacity-0 duration-200 ease-out',
           )}
         >
           {item.photoCount}
         </span>
+        {item.type === 'DAILY_QUESTION' && (
+          <>
+            <div
+              aria-hidden
+              className={cn(
+                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+              )}
+            />
+            <TodayTikitakChip
+              className={cn(
+                'absolute right-0 bottom-0 z-40 transition-opacity duration-[300ms]',
+                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+              )}
+            />
+          </>
+        )}
       </div>
     </article>
   );

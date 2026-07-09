@@ -1,6 +1,10 @@
+import type { FeedType } from '@/shared/api/feed/types';
+
 export interface FeedItem {
   id: string;
-  location: string;
+  type: FeedType;
+  place: string;
+  question: string;
   title: string;
   participantAvatarUrls: string[];
   date: string;

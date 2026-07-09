@@ -71,7 +71,9 @@ vi.mock('@/shared/hooks', async () => {
 const createFeedItem = (overrides: Partial<FeedItem> = {}): FeedItem => ({
   id: '1',
   title: '테스트 게시물',
-  location: '서울',
+  type: 'GENERAL',
+  place: '서울',
+  question: '',
   thumbnailUrl: 'https://example.com/thumb.jpg',
   heroPreviewUrl: 'https://example.com/hero.jpg',
   participantAvatarUrls: [],
@@ -95,7 +97,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-1',
       title: 'Test Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       date: new Date().toISOString(),
       photoCount: 3,
     });
@@ -115,7 +117,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-2',
       title: 'Empty Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       thumbnailUrl: '',
       heroPreviewUrl: '',
       date: new Date().toISOString(),
@@ -134,7 +136,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-3',
       title: 'Test Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       date: new Date().toISOString(),
       photoCount: 3,
     });
@@ -152,7 +154,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-4',
       title: 'Test Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       heroPreviewUrl: '',
       date: new Date().toISOString(),
     });
@@ -168,7 +170,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-5',
       title: 'Test Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       date: new Date().toISOString(),
       photoCount: 2,
     });
@@ -190,7 +192,7 @@ describe('FeedPage - Hero Management', () => {
     const feedItem = createFeedItem({
       id: 'feed-6',
       title: 'Test Feed',
-      location: 'Seoul',
+      place: 'Seoul',
       date: new Date().toISOString(),
       photoCount: 4,
     });
@@ -259,6 +261,12 @@ describe('FeedPage - Hero Management', () => {
     const listImage = container.querySelector('article img');
     expect(storedHero).toHaveClass('opacity-100');
     expect(listImage).toHaveClass('opacity-0');
+
+    // 히어로 비행 시작 대기(그레이스) 경과 후 핸드오프 시작
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(storedHero).toHaveClass('opacity-100');
 
     act(() => {
       vi.advanceTimersByTime(120);

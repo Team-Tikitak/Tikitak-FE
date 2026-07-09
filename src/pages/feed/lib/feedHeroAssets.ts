@@ -32,6 +32,14 @@ export const preloadImage = (url: string): Promise<void> => {
   return preload;
 };
 
+// 질문 장식(테두리·칩) 페이드아웃 중 네비게이션을 잡아주는 시간.
+const QUESTION_DECOR_FADE_OUT_MS = 100;
+
+export const waitForQuestionDecorFade = (item: FeedItem): Promise<void> =>
+  item.type === 'DAILY_QUESTION'
+    ? new Promise<void>((resolve) => window.setTimeout(resolve, QUESTION_DECOR_FADE_OUT_MS))
+    : Promise.resolve();
+
 export const preloadFeedHeroAssets = (item: FeedItem) =>
   Promise.race([
     Promise.all([preloadImage(item.thumbnailUrl), preloadImage(item.heroPreviewUrl)]).then(

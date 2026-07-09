@@ -8,8 +8,9 @@ export const adaptFeedListItem = (item: ApiFeedListItem): FeedItem => {
 
   return {
     id: String(item.feedId),
-    location:
-      item.type === 'DAILY_QUESTION' ? (item.question?.content ?? '') : (item.place?.name ?? ''),
+    type: item.type,
+    place: item.place?.name ?? '',
+    question: item.question?.content ?? '',
     title: item.content ?? '',
     date: formatYmd(item.createdAt),
     thumbnailUrl,

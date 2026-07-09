@@ -26,7 +26,9 @@ vi.mock('react-router', () => ({
 
 const makeFeed = (id: string): FeedItem => ({
   id,
-  location: '장소',
+  type: 'GENERAL',
+  place: '장소',
+  question: '',
   title: '게시물',
   participantAvatarUrls: [],
   date: '2026.07.02',
@@ -98,6 +100,33 @@ describe('FeedGrid', () => {
     expect(images[0]).not.toHaveAttribute('data-hero-exit-key');
     expect(images[1]).not.toHaveClass('opacity-0');
     expect(images[1]).toHaveAttribute('data-hero-exit-key', 'pin-88');
+  });
+
+  it('shows the today tikitak chip only on daily question tiles', () => {
+    render(
+      <FeedGrid
+        items={[
+          makeFeed('1'),
+          { ...makeFeed('2'), type: 'DAILY_QUESTION', question: '오늘의 질문' },
+        ]}
+      />,
+    );
+
+    const chips = screen.getAllByRole('img', { name: "Today's Tiki-tak!" });
+
+    expect(chips).toHaveLength(1);
+    expect(chips[0].closest('a')).toHaveAttribute('href', '/feed/2');
+  });
+
+  it('hides the daily question chip while a stored hero source is active', () => {
+    render(
+      <FeedGrid
+        items={[{ ...makeFeed('7'), type: 'DAILY_QUESTION', question: '오늘의 질문' }]}
+        suppressedHeroId="7"
+      />,
+    );
+
+    expect(screen.getByRole('img', { name: "Today's Tiki-tak!" })).toHaveClass('opacity-0');
   });
 
   it('reuses preloaded image promises for repeated pointer and click warming', async () => {

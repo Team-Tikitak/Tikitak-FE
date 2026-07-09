@@ -4,7 +4,9 @@ import type { FeedItem } from '../model/types';
 
 const makeFeed = (overrides: Partial<FeedItem> = {}): FeedItem => ({
   id: '42',
-  location: '사무실',
+  type: 'GENERAL',
+  place: '사무실',
+  question: '',
   title: '오늘의 피드',
   participantAvatarUrls: [],
   date: '2026.07.04',
@@ -55,13 +57,24 @@ describe('feedHeroStorage', () => {
     expect(readStoredFeedHero()).toBeNull();
   });
 
+  it('does not restore heroes stored before a reload (new js runtime)', async () => {
+    storeFeedHero(makeFeed(), makeRect());
+    expect(readStoredFeedHero()).not.toBeNull();
+
+    // 새로고침/콜드 스타트 시뮬레이션: sessionStorage는 남고 모듈 상태만 초기화된다
+    vi.resetModules();
+    const freshRuntime = await import('./feedHeroStorage');
+
+    expect(freshRuntime.readStoredFeedHero()).toBeNull();
+  });
+
   it('drops stale hero sources instead of replaying old coordinates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-07-04T10:00:00Z'));
 
     storeFeedHero(makeFeed(), makeRect());
 
-    vi.setSystemTime(new Date('2026-07-04T10:00:06Z'));
+    vi.setSystemTime(new Date('2026-07-04T10:11:00Z'));
 
     expect(readStoredFeedHero()).toBeNull();
   });

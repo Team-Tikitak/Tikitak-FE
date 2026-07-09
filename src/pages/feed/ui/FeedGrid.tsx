@@ -2,7 +2,12 @@ import { type ComponentPropsWithRef, type MouseEvent, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toFeedDetail } from '@/app/routes/paths';
 import { cn } from '@/shared/lib';
-import { preloadFeedHeroAssets, preloadImage } from '../lib/feedHeroAssets';
+import { TodayTikitakChip } from './TodayTikitakChip';
+import {
+  preloadFeedHeroAssets,
+  preloadImage,
+  waitForQuestionDecorFade,
+} from '../lib/feedHeroAssets';
 import type { FeedItem } from '../model/types';
 
 const GRID_EAGER_COUNT = 9;
@@ -63,7 +68,7 @@ export const FeedGrid = ({
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
     if (source) onHeroCapture?.(item, source);
-    await preloadFeedHeroAssets(item);
+    await Promise.all([preloadFeedHeroAssets(item), waitForQuestionDecorFade(item)]);
     navigate(toFeedDetail(item.id), {
       state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
     });
@@ -74,11 +79,11 @@ export const FeedGrid = ({
       {items.map((item, index) => {
         const isAboveFold = index < GRID_EAGER_COUNT;
         return (
-          <li key={item.id} className="overflow-hidden rounded-sm">
+          <li key={item.id} className="relative overflow-hidden rounded-sm">
             <Link
               to={toFeedDetail(item.id)}
               state={{ thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl }}
-              aria-label={`${item.title || item.location || '피드'} 상세 보기`}
+              aria-label={`${item.title || (item.type === 'DAILY_QUESTION' ? item.question : item.place) || '피드'} 상세 보기`}
               className="block aspect-square size-full"
               onPointerDown={(event) => {
                 const source =
@@ -106,6 +111,23 @@ export const FeedGrid = ({
                   suppressedHeroId === item.id && 'opacity-0',
                 )}
               />
+              {item.type === 'DAILY_QUESTION' && (
+                <>
+                  <div
+                    aria-hidden
+                    className={cn(
+                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-[300ms]',
+                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                    )}
+                  />
+                  <TodayTikitakChip
+                    className={cn(
+                      'absolute top-0 left-0 z-40 transition-opacity duration-[300ms]',
+                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                    )}
+                  />
+                </>
+              )}
             </Link>
           </li>
         );
