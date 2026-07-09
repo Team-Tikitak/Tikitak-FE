@@ -4,6 +4,9 @@
     --status-bar-height: 24px;
     --keyboard-height: 0px;
     --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+    /* 바텀 내비게이션 바(60px) 위로 플로팅 + 버튼이 튀어나오는 만큼(-translate-y-7 28px + 버튼 절반 28px)까지
+       가려지지 않으려면 90px는 확보해야 한다. 콘텐츠 하단 여백 계산에 이 값을 공용으로 사용한다. */
+    --bottom-nav-clearance: 90px;
   }
 
   html.cap-android {

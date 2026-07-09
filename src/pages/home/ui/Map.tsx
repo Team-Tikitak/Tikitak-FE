@@ -56,7 +56,7 @@ export const Map = ({ pins, teamId, initialCenter, locationResolved, onPinClick 
     <>
       <div ref={mapRef} data-allow-zoom className="pointer-events-auto absolute inset-0 z-0" />
       {!mapReady && (
-        <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center bg-white pb-[calc(60px+env(safe-area-inset-bottom))]">
+        <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center bg-white pb-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))]">
           <LoadingState variant="fullscreen" />
         </div>
       )}
