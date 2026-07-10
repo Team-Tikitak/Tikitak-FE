@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "latestVersion": "1.0.2",
+    "minimumVersion": "1.0.2",
+    "forceUpdate": false,
+    "updateMessage": "최신 버전으로 업데이트해야 티키탁을 계속 이용할 수 있어요.",
+    "storeUrl": "https://apps.apple.com/kr/app/tikitak/id6787856530"
+  }
+}
