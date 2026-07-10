@@ -121,16 +121,18 @@ export const useReadAllNotifications = () => {
   return useMutation({
     mutationFn: (params: NotificationTeamParams = {}) =>
       unwrap(() => patchNotificationReadAll(params)),
-    onSuccess: () => {
+    onSuccess: (_data, variables: NotificationTeamParams = {}) => {
       queryClient.setQueriesData<InfiniteData<NotificationListResponse>>(
-        { queryKey: notificationKeys.list() },
+        { queryKey: notificationKeys.infiniteListFiltered(variables) },
         markAllNotificationsRead,
       );
       queryClient.setQueriesData<NotificationUnreadCountResponse>(
-        { queryKey: notificationKeys.unreadCount() },
+        { queryKey: notificationKeys.unreadCountFiltered(variables) },
         (old) => (old ? { ...old, unreadCount: 0 } : old),
       );
-      void queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void queryClient.invalidateQueries({
+        queryKey: notificationKeys.unreadCountFiltered(variables),
+      });
     },
   });
 };
