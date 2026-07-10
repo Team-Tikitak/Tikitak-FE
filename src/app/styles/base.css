@@ -41,8 +41,10 @@
   input,
   textarea,
   [contenteditable]:not([contenteditable='false']) {
-    -webkit-user-select: auto;
-    user-select: auto;
+    /* iOS WebKit: 조상 user-select:none 아래서는 auto가 선택을 못 살림 — text 명시 필수 */
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
   }
 
   html.native-camera-active,

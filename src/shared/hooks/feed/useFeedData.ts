@@ -25,6 +25,7 @@ export const useFeedData = (teamId: number, feedId: number) => {
   const placeName = data?.place?.name ?? '';
   const content = data?.content ?? '';
   const date = data ? formatYmd(data.createdAt) : '';
+  const question = data?.type === 'DAILY_QUESTION' ? (data.question?.content ?? '') : '';
 
   return {
     authorName,
@@ -34,6 +35,7 @@ export const useFeedData = (teamId: number, feedId: number) => {
     placeName,
     content,
     date,
+    question,
     isLoading,
     isError,
   };

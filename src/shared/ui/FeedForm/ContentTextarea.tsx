@@ -23,7 +23,7 @@ export const ContentTextarea = ({
         aria-label={placeholder}
         placeholder={placeholder}
         maxLength={maxLength}
-        className="ios-textarea-zoom-guard font-pretendard placeholder:font-pretendard h-full resize-none leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
+        className="ios-textarea-zoom-guard font-pretendard placeholder:font-pretendard h-full w-full resize-none leading-[1.4] tracking-[-0.004em] text-gray-900 outline-none placeholder:text-gray-900"
       />
     </div>
     <p className="body-10 self-end text-gray-500">

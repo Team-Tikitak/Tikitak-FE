@@ -1,68 +1,35 @@
-import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { PATHS } from '@/app/routes/paths';
-import { useGetDailyQuestion } from '@/shared/api/dailyQuestion/queries';
-import {
-  isDailyQuestionAnswered,
-  shouldShowDailyQuestion,
-} from '@/shared/api/dailyQuestion/selectors';
-import {
-  useHomeBestAttendance,
-  useHomeEveryonePick,
-  useHomeRegions,
-} from '@/shared/api/home/queries';
-import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
-import { useHasUnreadNotifications } from '@/shared/hooks/useHasUnreadNotifications';
 import { cn } from '@/shared/lib/cn';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
+import { useActivityPage } from '../hooks/useActivityPage';
 import type { ReactNode } from 'react';
 
 export const ActivityPage = () => {
-  const navigate = useNavigate();
-  const { activeTeam, openTeamSheet, toNotificationPage, isMePending, isTeamsPending } =
-    useActiveTeamSelection();
-  const { data: question, isPending: isQuestionPending } = useGetDailyQuestion(
-    activeTeam?.teamId ?? 0,
-  );
   const {
-    data: bestAttendance,
-    isPending: isBestAttendancePending,
-    isFetching: isBestAttendanceFetching,
-  } = useHomeBestAttendance(activeTeam?.teamId);
-  const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(activeTeam?.teamId);
-  const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(activeTeam?.teamId);
-  const hasUnreadNotifications = useHasUnreadNotifications();
-
-  const dailyQuestion = question?.content;
-  const showDailyQuestion = shouldShowDailyQuestion(question);
-  const dailyQuestionAnswered = isDailyQuestionAnswered(question);
-  const hasActiveTeam = Boolean(activeTeam?.teamId);
-
-  const isLoading =
-    isMePending ||
-    isTeamsPending ||
-    (hasActiveTeam &&
-      (isQuestionPending || isBestAttendancePending || isPickPending || isRegionsPending));
-  const isHeaderLoading = isMePending || isTeamsPending;
-
-  const hasNoAttendance =
-    !isBestAttendanceFetching &&
-    bestAttendance !== undefined &&
-    (bestAttendance.members ?? []).length === 0;
-  const hasNoPicks =
-    !isPickPending && pickData !== undefined && (pickData.picks ?? []).length === 0;
-  const hasNoRegions =
-    !isRegionsPending && regionsData !== undefined && (regionsData.regions ?? []).length === 0;
-  const isEmpty = hasNoAttendance && hasNoPicks && hasNoRegions;
+    activeTeam,
+    teamId,
+    openTeamSheet,
+    toNotificationPage,
+    dailyQuestion,
+    showDailyQuestion,
+    dailyQuestionAnswered,
+    isLoading,
+    isHeaderLoading,
+    hasActiveTeam,
+    hasUnreadNotifications,
+    isEmpty,
+    goToTeamCreate,
+    goToDailyFeedCreate,
+  } = useActivityPage();
 
   if (!isLoading && !hasActiveTeam) {
     return (
       <PageShell contentClassName="flex flex-1 flex-col">
-        <EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />
+        <EmptyTeamView onCreateTeam={goToTeamCreate} />
       </PageShell>
     );
   }
@@ -79,8 +46,8 @@ export const ActivityPage = () => {
   } else {
     content = (
       <div className="flex flex-col gap-9 px-5">
-        <MonthlyBestAttendance teamId={activeTeam?.teamId} />
-        <MonthlyMemories teamId={activeTeam?.teamId} />
+        <MonthlyBestAttendance teamId={teamId} />
+        <MonthlyMemories teamId={teamId} />
       </div>
     );
   }
@@ -98,8 +65,8 @@ export const ActivityPage = () => {
           />
           {showDailyQuestion ? (
             <DailyQuestion
-              question={dailyQuestion ?? ''}
-              onClick={dailyQuestionAnswered ? undefined : () => navigate(PATHS.DAILY_FEED_CREATE)}
+              question={dailyQuestion}
+              onClick={dailyQuestionAnswered ? undefined : goToDailyFeedCreate}
             />
           ) : null}
         </>
