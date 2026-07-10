@@ -2,10 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NotificationPage } from './NotificationPage';
-import {
-  readStoredNotificationHero,
-  storeNotificationHero,
-} from '../lib/notificationHeroStorage';
+import { readStoredNotificationHero, storeNotificationHero } from '../lib/notificationHeroStorage';
 
 const mockUseInfiniteNotifications = vi.fn();
 const mockReadNotification = vi.fn();
@@ -203,7 +200,10 @@ describe('NotificationPage - 무한 스크롤', () => {
     const callback = intersectionCallbacks.at(-1);
     expect(callback).toBeDefined();
     act(() => {
-      callback!([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+      callback!(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
     });
 
     expect(mockFetchNextPage).toHaveBeenCalled();
