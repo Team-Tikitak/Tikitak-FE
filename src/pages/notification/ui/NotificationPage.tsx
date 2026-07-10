@@ -4,7 +4,9 @@ import { PageShell } from '@/app/layout';
 import SettingIcon from '@/shared/assets/Icon/SettingIcon.svg?react';
 import { useEdgeSwipeBack, useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
+import { usePullToRefresh } from '@/shared/hooks/usePullToRefresh';
 import { Header } from '@/shared/ui';
+import { PullToRefreshIndicator } from '@/shared/ui/PullToRefreshIndicator';
 import { EmptyNotificationView } from './EmptyNotificationView';
 import { NotificationItem } from './NotificationItem';
 import { NotificationSkeleton } from './NotificationSkeleton';
@@ -20,8 +22,15 @@ export const NotificationPage = () => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const teamId = useActiveTeamId();
-  const { notifications, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useNotifications();
+  const {
+    notifications,
+    isLoading,
+    isError,
+    fetchNextPage,
+    refreshNotifications,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useNotifications();
   const { openSheet } = useNotificationSettingsSheet();
   const { observerRef } = useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage });
   const scrollKey = teamId > 0 ? `${NOTIFICATION_SCROLL_STORAGE_PREFIX}:${teamId}` : null;
@@ -32,6 +41,11 @@ export const NotificationPage = () => {
   } = useScrollRestore(scrollKey, {
     ready: !isLoading && !isError,
     contentSignal: notifications.length,
+  });
+  const pullToRefresh = usePullToRefresh({
+    scrollRef,
+    disabled: isLoading || isError,
+    onRefresh: refreshNotifications,
   });
   const {
     storedHero,
@@ -124,9 +138,26 @@ export const NotificationPage = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto"
+        className="no-scrollbar relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        {...pullToRefresh.touchHandlers}
       >
-        {renderContent()}
+        <PullToRefreshIndicator
+          pullDistance={pullToRefresh.pullDistance}
+          threshold={pullToRefresh.threshold}
+          refreshing={pullToRefresh.isRefreshing}
+        />
+        <div
+          className="flex min-h-full flex-col"
+          style={{
+            transform: `translateY(${pullToRefresh.pullDistance}px)`,
+            transition:
+              pullToRefresh.isRefreshing || pullToRefresh.pullDistance === 0
+                ? 'transform 180ms ease-out'
+                : undefined,
+          }}
+        >
+          {renderContent()}
+        </div>
       </div>
     </PageShell>
   );
