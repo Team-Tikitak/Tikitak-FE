@@ -4,6 +4,8 @@ import type {
   DeleteDeviceTokenRequest,
   NotificationListParams,
   NotificationListResponse,
+  NotificationTeamParams,
+  NotificationUnreadCountResponse,
   RegisterDeviceTokenRequest,
 } from './types';
 import type { ApiResponse } from '../type';
@@ -21,3 +23,14 @@ export const getNotifications = (params?: NotificationListParams) =>
 
 export const patchNotificationRead = (notificationId: number) =>
   instance.patch<ApiResponse<string>>(NOTIFICATION_ENDPOINTS.NOTIFICATION_READ(notificationId));
+
+export const getUnreadNotificationCount = (params?: NotificationTeamParams) =>
+  instance.get<ApiResponse<NotificationUnreadCountResponse>>(
+    NOTIFICATION_ENDPOINTS.NOTIFICATION_UNREAD_COUNT,
+    { params },
+  );
+
+export const patchNotificationReadAll = (params?: NotificationTeamParams) =>
+  instance.patch<ApiResponse<string>>(NOTIFICATION_ENDPOINTS.NOTIFICATION_READ_ALL, undefined, {
+    params,
+  });

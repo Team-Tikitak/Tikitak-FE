@@ -7,7 +7,9 @@ import type { NotificationListItem } from './useNotifications';
 import type { MouseEvent } from 'react';
 
 /** 알림 아이템 클릭 처리 — 읽음 처리 + 히어로 이미지 프리로드(≤180ms) 후 피드 상세로 이동 */
-export const useNotificationClick = () => {
+export const useNotificationClick = (
+  captureHero?: (notification: NotificationListItem, source: HTMLElement | null) => void,
+) => {
   const navigate = useNavigate();
   const { mutate: readNotification } = useReadNotification();
 
@@ -32,7 +34,9 @@ export const useNotificationClick = () => {
 
     event.preventDefault();
     if (!notification.read) readNotification(notification.id);
+    const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
     await preloadNotificationHeroAssets(notification);
+    captureHero?.(notification, source);
     navigate(toFeedDetail(String(notification.feedId)), {
       state: {
         thumbnailUrl: notification.thumbnailUrl ?? undefined,

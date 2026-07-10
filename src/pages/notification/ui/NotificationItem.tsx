@@ -20,6 +20,8 @@ export interface NotificationItemProps extends Omit<
   thumbnailUrl?: string | null;
   heroPreviewUrl?: string | null;
   unread?: boolean;
+  /** 출발 히어로 사본이 exit-key를 대신 드는 동안 원본 썸네일의 키를 감춘다 */
+  suppressHero?: boolean;
 }
 
 export const NotificationItem = ({
@@ -31,6 +33,7 @@ export const NotificationItem = ({
   thumbnailUrl,
   heroPreviewUrl,
   unread = false,
+  suppressHero = false,
   className,
   ref,
   ...props
@@ -71,8 +74,7 @@ export const NotificationItem = ({
         <div className="relative shrink-0">
           <div className="size-13 overflow-hidden rounded-sm">
             <img
-              data-hero-exit-key={heroKey}
-              data-hero-radius="4"
+              {...(suppressHero ? {} : { 'data-hero-exit-key': heroKey, 'data-hero-radius': '4' })}
               src={toSafeImageUrl(thumbnailUrl)}
               alt=""
               loading="lazy"
