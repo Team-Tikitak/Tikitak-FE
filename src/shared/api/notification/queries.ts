@@ -119,6 +119,7 @@ export const useReadAllNotifications = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: '알림을 모두 읽음 처리하는 데 실패했어요' },
     mutationFn: (params: NotificationTeamParams = {}) =>
       unwrap(() => patchNotificationReadAll(params)),
     onSuccess: (_data, variables: NotificationTeamParams = {}) => {
