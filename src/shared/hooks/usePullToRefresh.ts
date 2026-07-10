@@ -1,4 +1,12 @@
-import { useCallback, useRef, useState, type RefObject, type TouchEvent } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+  type TouchEvent,
+} from 'react';
 
 const DEFAULT_REFRESH_THRESHOLD = 72;
 const DEFAULT_MAX_PULL_DISTANCE = 96;
@@ -54,7 +62,7 @@ export const usePullToRefresh = ({
 
       const deltaY = event.touches[0].clientY - startYRef.current;
       if (deltaY <= 0) {
-        setPullDistance(0);
+        resetPull();
         return;
       }
 
@@ -90,8 +98,17 @@ export const usePullToRefresh = ({
     resetPull();
   }, [isRefreshing, resetPull]);
 
+  const pullTransformStyle: CSSProperties = useMemo(
+    () => ({
+      transform: `translateY(${pullDistance}px)`,
+      transition: isRefreshing || pullDistance === 0 ? 'transform 180ms ease-out' : undefined,
+    }),
+    [isRefreshing, pullDistance],
+  );
+
   return {
     pullDistance,
+    pullTransformStyle,
     threshold,
     isRefreshing,
     isActive: isRefreshing || pullDistance > 0,

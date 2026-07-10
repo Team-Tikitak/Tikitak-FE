@@ -280,6 +280,43 @@ describe('ActivityPage - 히어로 핸드오프', () => {
     expect(clone).toHaveAttribute('data-hero-radius', '8');
   });
 
+  it('회귀: 저장된 히어로 사본은 스크롤 컨테이너 내부에서 함께 스크롤된다', () => {
+    mockUseHomeBestAttendance.mockReturnValue({
+      data: { members: [{ teamMemberId: 1 }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeEveryonePick.mockReturnValue({
+      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeRegions.mockReturnValue({
+      data: { regions: [] },
+      isPending: false,
+      isFetching: false,
+    });
+
+    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
+      itemId: '1',
+      heroKey: 'pin-1',
+      thumbnailUrl: 'https://example.com/pick.jpg',
+      heroPreviewUrl: 'https://example.com/pick.jpg',
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+
+    const { container } = renderPage();
+
+    const scrollContainer = getScrollContainer(container);
+    const clone = container.querySelector('[data-stored-hero]');
+
+    expect(scrollContainer).toHaveClass('relative');
+    expect(clone?.parentElement).toBe(scrollContainer);
+  });
+
   it('저장된 히어로 대상이 더 이상 첫 PICK/지역이 아니면 그레이스 타임 안에 핸드오프되지 않는다', () => {
     vi.useFakeTimers();
     mockUseHomeBestAttendance.mockReturnValue({
