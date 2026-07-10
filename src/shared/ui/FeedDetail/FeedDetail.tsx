@@ -18,6 +18,8 @@ type FeedDetailProps = ComponentPropsWithRef<'div'> & {
   heroKey?: string;
   actionSlot?: ReactNode;
   question?: string;
+  // 히어로 전환 진입 시에만 배너를 늦게 페이드인
+  animateQuestionBanner?: boolean;
 };
 
 export function FeedDetail({
@@ -31,6 +33,7 @@ export function FeedDetail({
   heroKey,
   actionSlot,
   question,
+  animateQuestionBanner = false,
   className,
   ref,
   ...props
@@ -47,7 +50,16 @@ export function FeedDetail({
         )}
       </div>
       <div className="flex w-full flex-col">
-        {question && <DailyQuestion question={question} />}
+        {question && (
+          <DailyQuestion
+            question={question}
+            variant="answered"
+            className={cn(
+              animateQuestionBanner &&
+                'animate-question-banner-enter [animation-delay:180ms] motion-reduce:animate-none',
+            )}
+          />
+        )}
         <FeedImageCarousel images={images} onLongPress={onLongPress} heroKey={heroKey} />
       </div>
       <div className="flex flex-col gap-1 px-5">

@@ -61,4 +61,49 @@ describe('MonthlyMemories', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith(PATHS.ACTIVITY_REGION_FEEDS);
   });
+
+  it('PICK 카드를 pointerDown하면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
+    const onHeroCapture = vi.fn();
+    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: '모두의 PICK' }));
+
+    expect(onHeroCapture).toHaveBeenCalledWith(
+      {
+        id: '1',
+        heroKey: 'pin-1',
+        thumbnailUrl: 'https://example.com/pick.jpg',
+      },
+      expect.any(HTMLElement),
+    );
+  });
+
+  it('지역 카드를 pointerDown하면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
+    const onHeroCapture = vi.fn();
+    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: '서울에서' }));
+
+    expect(onHeroCapture).toHaveBeenCalledWith(
+      {
+        id: '145',
+        heroKey: 'pin-145',
+        thumbnailUrl: 'https://example.com/seoul.jpg',
+      },
+      expect.any(HTMLElement),
+    );
+  });
+
+  it('suppressedItemId가 PICK 카드의 feedId와 일치하면 그 카드의 이미지만 숨긴다', () => {
+    const { container } = render(<MonthlyMemories teamId={1} suppressedItemId="1" />);
+
+    const images = container.querySelectorAll('img');
+    const pickImage = Array.from(images).find((img) => img.src.includes('pick.jpg'));
+    const regionImage = Array.from(images).find((img) => img.src.includes('seoul.jpg'));
+
+    expect(pickImage).toHaveClass('opacity-0');
+    expect(pickImage).not.toHaveAttribute('data-hero-exit-key');
+    expect(regionImage).not.toHaveClass('opacity-0');
+    expect(regionImage).toHaveAttribute('data-hero-exit-key', 'pin-145');
+  });
 });
