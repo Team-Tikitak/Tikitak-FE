@@ -1,5 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useState, type MouseEvent, type UIEvent } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type MouseEvent,
+  type TouchEvent,
+  type UIEvent,
+  type WheelEvent,
+} from 'react';
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
@@ -81,15 +89,6 @@ export const FeedPage = () => {
     onRefresh: () =>
       teamId ? queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) }) : undefined,
   });
-  // StoredHero는 당김 콘텐츠 wrapper의 형제 요소라, 같은 translateY를 직접 걸어줘야
-  // 당기는 도중 캡처된 히어로 사본이 실제 콘텐츠와 어긋나 위로 떠 보이지 않는다
-  const pullTransformStyle = {
-    transform: `translateY(${pullToRefresh.pullDistance}px)`,
-    transition:
-      pullToRefresh.isRefreshing || pullToRefresh.pullDistance === 0
-        ? 'transform 180ms ease-out'
-        : undefined,
-  };
 
   const {
     storedHero: storedFeedHero,
@@ -154,6 +153,26 @@ export const FeedPage = () => {
     [dismissStoredHero, handleRestoreScroll, scrollRestored, storedFeedHero],
   );
 
+  const dismissFeedHeroOnScrollIntent = useCallback(() => {
+    if (!storedFeedHero || !scrollRestored) return;
+    dismissStoredHero();
+  }, [dismissStoredHero, scrollRestored, storedFeedHero]);
+
+  const handleFeedTouchMove = useCallback(
+    (event: TouchEvent<HTMLDivElement>) => {
+      pullToRefresh.touchHandlers.onTouchMove(event);
+      dismissFeedHeroOnScrollIntent();
+    },
+    [dismissFeedHeroOnScrollIntent, pullToRefresh.touchHandlers],
+  );
+
+  const handleFeedWheel = useCallback(
+    (_event: WheelEvent<HTMLDivElement>) => {
+      dismissFeedHeroOnScrollIntent();
+    },
+    [dismissFeedHeroOnScrollIntent],
+  );
+
   const handleListFeedClick = async (event: MouseEvent<HTMLAnchorElement>, feed: FeedItem) => {
     if (
       event.defaultPrevented ||
@@ -193,21 +212,29 @@ export const FeedPage = () => {
         <StoredHero
           storedHero={storedFeedHero}
           visible={storedHeroVisible}
-          style={pullTransformStyle}
+          style={pullToRefresh.pullTransformStyle}
         />
       )}
       <div
         ref={scrollRef}
+        data-feed-scroll-container
         className="no-scrollbar relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
         onScroll={handleFeedScroll}
-        {...pullToRefresh.touchHandlers}
+        onTouchStart={pullToRefresh.touchHandlers.onTouchStart}
+        onTouchMove={handleFeedTouchMove}
+        onTouchEnd={pullToRefresh.touchHandlers.onTouchEnd}
+        onTouchCancel={pullToRefresh.touchHandlers.onTouchCancel}
+        onWheel={handleFeedWheel}
       >
         <PullToRefreshIndicator
           pullDistance={pullToRefresh.pullDistance}
           threshold={pullToRefresh.threshold}
           refreshing={pullToRefresh.isRefreshing}
         />
-        <div className="flex min-h-full flex-col px-6 pt-6 pb-24" style={pullTransformStyle}>
+        <div
+          className="flex min-h-full flex-col px-6 pt-6"
+          style={pullToRefresh.pullTransformStyle}
+        >
           <FeedCountToolbar
             count={totalCount}
             loading={showFeedLoading}
@@ -273,6 +300,11 @@ export const FeedPage = () => {
               {isFetchingNextPage && <FeedSkeleton viewMode={viewMode} />}
             </>
           )}
+          <div
+            data-feed-bottom-spacer
+            className="h-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))] shrink-0"
+            aria-hidden="true"
+          />
         </div>
       </div>
     </PageShell>

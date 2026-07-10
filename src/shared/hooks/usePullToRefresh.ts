@@ -1,4 +1,12 @@
-import { useCallback, useRef, useState, type RefObject, type TouchEvent } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+  type TouchEvent,
+} from 'react';
 
 const DEFAULT_REFRESH_THRESHOLD = 72;
 const DEFAULT_MAX_PULL_DISTANCE = 96;
@@ -52,15 +60,14 @@ export const usePullToRefresh = ({
         return;
       }
 
-      // 방향이 위로 바뀌어도 preventDefault를 유지해 네이티브 스크롤이 scrollTop을 건드리지 않게 한다
-      if (event.cancelable) {
-        event.preventDefault();
-      }
-
       const deltaY = event.touches[0].clientY - startYRef.current;
       if (deltaY <= 0) {
-        setPullDistance(0);
+        resetPull();
         return;
+      }
+
+      if (event.cancelable) {
+        event.preventDefault();
       }
 
       setPullDistance(Math.min(maxPullDistance, deltaY * PULL_RESISTANCE));
@@ -91,8 +98,17 @@ export const usePullToRefresh = ({
     resetPull();
   }, [isRefreshing, resetPull]);
 
+  const pullTransformStyle: CSSProperties = useMemo(
+    () => ({
+      transform: `translateY(${pullDistance}px)`,
+      transition: isRefreshing || pullDistance === 0 ? 'transform 180ms ease-out' : undefined,
+    }),
+    [isRefreshing, pullDistance],
+  );
+
   return {
     pullDistance,
+    pullTransformStyle,
     threshold,
     isRefreshing,
     isActive: isRefreshing || pullDistance > 0,

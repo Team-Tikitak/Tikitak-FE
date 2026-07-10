@@ -35,6 +35,10 @@ describe('usePullToRefresh', () => {
     expect(preventDefault).toHaveBeenCalled();
     expect(onRefresh).toHaveBeenCalledTimes(1);
     expect(result.current.pullDistance).toBe(0);
+    expect(result.current.pullTransformStyle).toEqual({
+      transform: 'translateY(0px)',
+      transition: 'transform 180ms ease-out',
+    });
     expect(result.current.isRefreshing).toBe(false);
   });
 
@@ -62,7 +66,7 @@ describe('usePullToRefresh', () => {
     expect(result.current.pullDistance).toBe(0);
   });
 
-  it('회귀: 시작점보다 위로 올리는 move에도 preventDefault를 호출해 네이티브 스크롤 개입을 막는다', () => {
+  it('회귀: 시작점보다 위로 올리는 move는 네이티브 스크롤을 허용하고 pull 상태를 끊는다', () => {
     const scrollElement = document.createElement('div');
     const onRefresh = vi.fn();
     const { result } = renderHook(() =>
@@ -83,13 +87,15 @@ describe('usePullToRefresh', () => {
     act(() => {
       result.current.touchHandlers.onTouchMove(touchEvent(-20, preventDefault));
     });
-    expect(preventDefault).toHaveBeenCalled();
+    expect(preventDefault).not.toHaveBeenCalled();
     expect(result.current.pullDistance).toBe(0);
+    expect(result.current.pullTransformStyle.transform).toBe('translateY(0px)');
 
     act(() => {
       result.current.touchHandlers.onTouchMove(touchEvent(100));
     });
-    expect(result.current.pullDistance).toBeGreaterThan(0);
+    expect(result.current.pullDistance).toBe(0);
+    expect(result.current.pullTransformStyle.transform).toBe('translateY(0px)');
   });
 
   it('does not track pulls while the scroll container is not at the top', () => {

@@ -262,6 +262,18 @@ describe('FeedPage - Hero Management', () => {
     expect(listHeroImage).not.toHaveClass('opacity-0');
   });
 
+  it('활동 페이지와 같은 하단 내비게이션 여백 스페이서를 렌더링한다', () => {
+    const { container } = renderFeedPage(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    expect(container.querySelector('[data-feed-bottom-spacer]')).toHaveClass(
+      'h-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))]',
+    );
+  });
+
   it('keeps a stored hero target in list view while hiding the matching list image', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
@@ -276,6 +288,31 @@ describe('FeedPage - Hero Management', () => {
     expect(container.querySelector('article [data-hero-exit-key="pin-1"]')).toBeNull();
     expect(container.querySelector('article img')).toHaveClass('opacity-0');
     expect(container.querySelector('article span.absolute')).toHaveClass('opacity-0');
+  });
+
+  it('스크롤 의도가 시작되면 stored hero를 즉시 정리해 스크롤 잔상을 남기지 않는다', () => {
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = renderFeedPage(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const scrollContainer = container.querySelector('[data-feed-scroll-container]');
+    expect(scrollContainer).toBeInTheDocument();
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeInTheDocument();
+    expect(container.querySelector('article img')).toHaveClass('opacity-0');
+
+    fireEvent.touchMove(scrollContainer as Element, {
+      cancelable: true,
+      touches: [{ clientY: -20 }],
+    });
+
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+    expect(container.querySelector('article img')).not.toHaveClass('opacity-0');
+    expect(readStoredFeedHero()).toBeNull();
   });
 
   it('quickly hands off the stored list hero back to the real list image', () => {
