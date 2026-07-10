@@ -132,7 +132,7 @@ describe('FeedGrid', () => {
   });
 
   it('hides the daily question chip while a stored hero source is active', () => {
-    renderGrid(
+    const { container } = renderGrid(
       <FeedGrid
         items={[{ ...makeFeed('7'), type: 'DAILY_QUESTION', question: '오늘의 질문' }]}
         teamId={1}
@@ -140,7 +140,27 @@ describe('FeedGrid', () => {
       />,
     );
 
-    expect(screen.getByRole('img', { name: "Today's Tiki-tak!" })).toHaveClass('opacity-0');
+    const chip = screen.getByRole('img', { name: "Today's Tiki-tak!" });
+    expect(chip).toHaveClass('opacity-0', 'duration-200', 'ease-out');
+    expect(container.querySelector('.border-main-001')).toHaveClass(
+      'opacity-0',
+      'duration-200',
+      'ease-out',
+    );
+  });
+
+  it('uses the same 200ms transition for the chip and border when not suppressed', () => {
+    const { container } = renderGrid(
+      <FeedGrid
+        items={[{ ...makeFeed('7'), type: 'DAILY_QUESTION', question: '오늘의 질문' }]}
+        teamId={1}
+      />,
+    );
+
+    const chip = screen.getByRole('img', { name: "Today's Tiki-tak!" });
+    expect(chip).toHaveClass('duration-200');
+    expect(chip).not.toHaveClass('opacity-0');
+    expect(container.querySelector('.border-main-001')).toHaveClass('duration-200');
   });
 
   it('reuses preloaded image promises for repeated pointer and click warming', async () => {
