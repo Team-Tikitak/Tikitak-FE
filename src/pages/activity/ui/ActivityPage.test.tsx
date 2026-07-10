@@ -18,8 +18,8 @@ vi.mock('@/shared/api/dailyQuestion/queries', () => ({
   useGetDailyQuestion: (teamId: number) => mockUseGetDailyQuestion(teamId),
 }));
 
-vi.mock('@/shared/api/notification/queries', () => ({
-  useUnreadNotificationCount: () => ({ data: undefined }),
+vi.mock('@/shared/hooks/useHasUnreadNotifications', () => ({
+  useHasUnreadNotifications: () => false,
 }));
 
 vi.mock('@/shared/api/home/queries', () => ({

@@ -11,8 +11,8 @@ import {
   useHomeEveryonePick,
   useHomeRegions,
 } from '@/shared/api/home/queries';
-import { useUnreadNotificationCount } from '@/shared/api/notification/queries';
 import { useActiveTeamSelection } from '@/shared/hooks/team/useActiveTeamSelection';
+import { useHasUnreadNotifications } from '@/shared/hooks/useHasUnreadNotifications';
 import { cn } from '@/shared/lib/cn';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
 import { ActivitySkeleton } from './ActivitySkeleton';
@@ -35,8 +35,7 @@ export const ActivityPage = () => {
   } = useHomeBestAttendance(activeTeam?.teamId);
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(activeTeam?.teamId);
   const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(activeTeam?.teamId);
-  const { data: unreadData } = useUnreadNotificationCount({ teamId: activeTeam?.teamId ?? 0 });
-  const hasUnreadNotifications = (unreadData?.unreadCount ?? 0) > 0;
+  const hasUnreadNotifications = useHasUnreadNotifications();
 
   const dailyQuestion = question?.content;
   const showDailyQuestion = shouldShowDailyQuestion(question);

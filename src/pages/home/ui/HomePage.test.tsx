@@ -20,8 +20,8 @@ vi.mock('@/shared/hooks/team/useActiveTeamSelection', () => ({
   useActiveTeamSelection: useActiveTeamSelectionMock,
 }));
 
-vi.mock('@/shared/api/notification/queries', () => ({
-  useUnreadNotificationCount: () => ({ data: undefined }),
+vi.mock('@/shared/hooks/useHasUnreadNotifications', () => ({
+  useHasUnreadNotifications: () => false,
 }));
 
 vi.mock('@/shared/ui/AppHeader', () => ({
