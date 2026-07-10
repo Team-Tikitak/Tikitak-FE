@@ -1,10 +1,9 @@
-import { useState, type UIEvent } from 'react';
+import { type UIEvent } from 'react';
 import { useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import SettingIcon from '@/shared/assets/Icon/SettingIcon.svg?react';
 import { useEdgeSwipeBack, useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
-import { safeSessionRemove } from '@/shared/lib/storage/sessionStore';
 import { Header } from '@/shared/ui';
 import { EmptyNotificationView } from './EmptyNotificationView';
 import { NotificationItem } from './NotificationItem';
@@ -26,11 +25,6 @@ export const NotificationPage = () => {
   const { openSheet } = useNotificationSettingsSheet();
   const { observerRef } = useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage });
   const scrollKey = teamId > 0 ? `${NOTIFICATION_SCROLL_STORAGE_PREFIX}:${teamId}` : null;
-  // 상세에서 뒤로 돌아온 경우에만 스크롤 복원 — 종 아이콘 등 새 진입에선 항상 맨 위에서 시작
-  useState(() => {
-    if (navigationType !== 'POP' && scrollKey) safeSessionRemove(scrollKey);
-    return null;
-  });
   const {
     scrollRef,
     handleScroll: handleRestoreScroll,
