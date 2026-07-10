@@ -6,14 +6,14 @@ import { PATHS, toFeedDetail } from '@/app/routes/paths';
 import { useInfiniteFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
+import { useHeroHandoff } from '@/shared/hooks/useHeroHandoff';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';
+import { StoredHero } from '@/shared/ui/StoredHero';
 import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
 import { FeedListItem } from './FeedListItem';
 import { FeedSkeleton } from './FeedSkeleton';
-import { StoredFeedHero } from './StoredFeedHero';
-import { useFeedHeroHandoff } from '../hooks/useFeedHeroHandoff';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { preloadFeedHeroAssets, runFeedHeroTransition } from '../lib/feedHeroAssets';
 import { warmFeedDetail } from '../lib/warmFeedDetail';
@@ -21,6 +21,7 @@ import type { FeedItem } from '../model/types';
 
 const FEED_LIST_EAGER_COUNT = 6;
 const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
+const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
 
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
   `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
@@ -73,19 +74,35 @@ export const FeedPage = () => {
   });
 
   const {
-    storedFeedHero,
+    storedHero: storedFeedHero,
     storedHeroVisible,
-    suppressedHeroId,
+    suppressedItemId: suppressedHeroId,
     hideStoredHero,
     dismissStoredHero,
-    captureFeedHero,
-  } = useFeedHeroHandoff({
+    captureHero,
+  } = useHeroHandoff({
+    storageKey: FEED_HERO_STORAGE_KEY,
     navigationType,
-    isTeamSwitch,
+    shouldResetOnContextChange: isTeamSwitch,
     scrollRestored,
-    feeds,
+    isItemLoaded: (itemId) => feeds.some((feed) => feed.id === itemId),
     scrollFrameRef: scrollRef,
   });
+
+  const captureFeedHero = useCallback(
+    (item: FeedItem, source: HTMLElement) => {
+      captureHero(
+        {
+          id: item.id,
+          heroKey: `pin-${item.id}`,
+          thumbnailUrl: item.thumbnailUrl,
+          heroPreviewUrl: item.heroPreviewUrl,
+        },
+        source,
+      );
+    },
+    [captureHero],
+  );
 
   if (teamId !== viewModeTeamId) {
     setViewModeTeamId(teamId);
@@ -154,9 +171,7 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {storedFeedHero && (
-        <StoredFeedHero storedFeedHero={storedFeedHero} visible={storedHeroVisible} />
-      )}
+      {storedFeedHero && <StoredHero storedHero={storedFeedHero} visible={storedHeroVisible} />}
       <div
         ref={scrollRef}
         className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
