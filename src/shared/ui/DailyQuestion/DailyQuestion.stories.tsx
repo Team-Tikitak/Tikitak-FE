@@ -39,12 +39,3 @@ export const LongQuestion: Story = {
     onClick: () => {},
   },
 };
-
-export const Answered: Story = {
-  args: {
-    question: '오늘 가장 인상 깊었던 순간은?',
-    variant: 'answered',
-    showAnsweredMessage: true,
-    onClick: () => {},
-  },
-};

@@ -50,12 +50,6 @@ export const useActivityPage = () => {
 
   const goToTeamCreate = () => navigate(PATHS.TEAM_CREATE);
   const goToDailyFeedCreate = () => navigate(PATHS.DAILY_FEED_CREATE);
-  const goToDailyQuestionFeed = () => navigate(PATHS.FEED);
-
-  // 히어로 핸드오프가 복귀 시 저장된 히어로의 대상이 아직 화면에 남아있는지 확인할 때 쓴다
-  const isHeroItemLoaded = (itemId: string) =>
-    String(pickData?.picks[0]?.feedId) === itemId ||
-    String(regionsData?.regions[0]?.feedId) === itemId;
 
   return {
     activeTeam,
@@ -72,7 +66,5 @@ export const useActivityPage = () => {
     isEmpty,
     goToTeamCreate,
     goToDailyFeedCreate,
-    goToDailyQuestionFeed,
-    isHeroItemLoaded,
   };
 };

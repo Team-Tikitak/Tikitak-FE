@@ -6,7 +6,6 @@ import { cropImageBlobToAspectRatio } from '@/shared/lib/image/cropImageBlob';
 import { applyFilterToBlob } from '@/shared/lib/image/photoFilter';
 import {
   captureNativeCameraPhoto,
-  getNativeCameraPreviewFrame,
   setNativeCameraZoom,
   startNativeCameraPreview,
   stopNativeCameraPreview,
@@ -85,11 +84,7 @@ export const useNativeCamera = ({
     setIsReady(false);
     setError(null);
 
-    void startNativeCameraPreview({
-      facingMode,
-      zoomLevel: zoomLevelRef.current,
-      previewFrame: getNativeCameraPreviewFrame(),
-    })
+    void startNativeCameraPreview({ facingMode, zoomLevel: zoomLevelRef.current })
       .then(() => {
         if (!cancelled && isMountedRef.current) setIsReady(true);
       })

@@ -46,10 +46,6 @@ export const MapView = ({ teamId }: MapViewProps) => {
     navigate(PATHS.DAILY_FEED_CREATE);
   }, [navigate]);
 
-  const handleAnsweredQuestionClick = useCallback(() => {
-    navigate(PATHS.FEED);
-  }, [navigate]);
-
   return (
     <div className="pointer-events-none relative isolate w-full flex-1">
       <Map
@@ -66,9 +62,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
         >
           <DailyQuestion
             question={dailyQuestion ?? ''}
-            variant={dailyQuestionAnswered ? 'answered' : 'pending'}
-            showAnsweredMessage={dailyQuestionAnswered}
-            onClick={dailyQuestionAnswered ? handleAnsweredQuestionClick : handleQuestionClick}
+            onClick={dailyQuestionAnswered ? undefined : handleQuestionClick}
           />
         </div>
       )}

@@ -1,14 +1,11 @@
 import { cn } from '@/shared/lib';
-import type { PointerEvent } from 'react';
 
 interface ContentImageCardProps {
   title: string;
   description: string;
   imageUrl?: string;
   heroKey?: string;
-  suppressed?: boolean;
   onClick?: () => void;
-  onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void;
   className?: string;
 }
 
@@ -17,9 +14,7 @@ export const ContentImageCard = ({
   description,
   imageUrl,
   heroKey,
-  suppressed = false,
   onClick,
-  onPointerDown,
   className,
 }: ContentImageCardProps) => {
   return (
@@ -27,7 +22,6 @@ export const ContentImageCard = ({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       aria-label={onClick ? title : undefined}
-      onPointerDown={onPointerDown}
       onClick={onClick}
       onKeyDown={onClick ? (e) => (e.key === 'Enter' || e.key === ' ') && onClick() : undefined}
       className={cn(
@@ -38,14 +32,12 @@ export const ContentImageCard = ({
     >
       {imageUrl && (
         <img
-          {...(heroKey && !suppressed
-            ? { 'data-hero-exit-key': heroKey, 'data-hero-radius': '8' }
-            : {})}
+          {...(heroKey ? { 'data-hero-exit-key': heroKey, 'data-hero-radius': '8' } : {})}
           src={imageUrl}
           alt=""
           loading="lazy"
           decoding="async"
-          className={cn('absolute inset-0 size-full object-cover', suppressed && 'opacity-0')}
+          className="absolute inset-0 size-full object-cover"
         />
       )}
       <div className="absolute inset-0 rounded-lg bg-linear-to-b from-black/45 from-30% to-transparent" />

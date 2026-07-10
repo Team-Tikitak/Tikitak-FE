@@ -1,20 +1,14 @@
-import { useRef, type ReactNode } from 'react';
-import { useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
-import { useHeroHandoff } from '@/shared/hooks/useHeroHandoff';
 import { cn } from '@/shared/lib/cn';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
-import { StoredHero } from '@/shared/ui/StoredHero';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
 import { useActivityPage } from '../hooks/useActivityPage';
-
-const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
+import type { ReactNode } from 'react';
 
 export const ActivityPage = () => {
-  const navigationType = useNavigationType();
   const {
     activeTeam,
     teamId,
@@ -30,18 +24,7 @@ export const ActivityPage = () => {
     isEmpty,
     goToTeamCreate,
     goToDailyFeedCreate,
-    goToDailyQuestionFeed,
-    isHeroItemLoaded,
   } = useActivityPage();
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { storedHero, storedHeroVisible, suppressedItemId, captureHero } = useHeroHandoff({
-    storageKey: ACTIVITY_HERO_STORAGE_KEY,
-    navigationType,
-    scrollRestored: true,
-    isItemLoaded: isHeroItemLoaded,
-    scrollFrameRef: scrollRef,
-  });
 
   if (!isLoading && !hasActiveTeam) {
     return (
@@ -64,11 +47,7 @@ export const ActivityPage = () => {
     content = (
       <div className="flex flex-col gap-9 px-5">
         <MonthlyBestAttendance teamId={teamId} />
-        <MonthlyMemories
-          teamId={teamId}
-          suppressedItemId={suppressedItemId}
-          onHeroCapture={captureHero}
-        />
+        <MonthlyMemories teamId={teamId} />
       </div>
     );
   }
@@ -87,18 +66,14 @@ export const ActivityPage = () => {
           {showDailyQuestion ? (
             <DailyQuestion
               question={dailyQuestion}
-              variant={dailyQuestionAnswered ? 'answered' : 'pending'}
-              showAnsweredMessage={dailyQuestionAnswered}
-              onClick={dailyQuestionAnswered ? goToDailyQuestionFeed : goToDailyFeedCreate}
+              onClick={dailyQuestionAnswered ? undefined : goToDailyFeedCreate}
             />
           ) : null}
         </>
       }
-      contentClassName="relative isolate flex flex-col overflow-hidden bg-white"
+      contentClassName="flex flex-col overflow-hidden bg-white"
     >
-      {storedHero && <StoredHero storedHero={storedHero} visible={storedHeroVisible} radius="8" />}
       <div
-        ref={scrollRef}
         className={cn(
           'no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto',
           showDailyQuestion && 'pt-9',

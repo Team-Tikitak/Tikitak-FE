@@ -61,7 +61,7 @@ describe('MapView', () => {
     expect(mockNavigate).toHaveBeenCalledWith(PATHS.DAILY_FEED_CREATE);
   });
 
-  it('오늘의 질문에 이미 답변했으면 고정 안내 문구를 보여주고 눌렀을 때 피드 페이지로 이동한다', () => {
+  it('오늘의 질문에 이미 답변했으면 배너는 보이되 이동은 막힌다', () => {
     mockNavigate.mockClear();
     mockUseMapView.mockReturnValue({
       dailyQuestion: '오늘의 질문입니다',
@@ -72,10 +72,10 @@ describe('MapView', () => {
 
     renderMapView();
 
-    const banner = screen.getByText('참여 완료! 친구들의 답변도 확인해 보세요').closest('button');
-    expect(banner).not.toBeDisabled();
+    const banner = screen.getByText('오늘의 질문입니다').closest('button');
+    expect(banner).toBeDisabled();
 
     fireEvent.click(banner!);
-    expect(mockNavigate).toHaveBeenCalledWith(PATHS.FEED);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

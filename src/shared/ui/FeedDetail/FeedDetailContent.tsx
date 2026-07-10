@@ -46,8 +46,6 @@ export const FeedDetailContent = ({
     feedId,
   );
   const routeState = useLocation().state as FeedDetailLocationState | null;
-  // 히어로 전환 진입에서만 route state에 썸네일이 실린다
-  const enteredViaHero = Boolean(routeState?.thumbnailUrl || routeState?.heroPreviewUrl);
   const fallbackHeroPreview = normalizeImageUrl(routeState?.heroPreviewUrl ?? placeholderThumbnail);
   const fallbackThumbnail = normalizeImageUrl(
     routeState?.thumbnailUrl ?? placeholderThumbnail ?? routeState?.heroPreviewUrl,
@@ -100,7 +98,6 @@ export const FeedDetailContent = ({
         content={content}
         date={date}
         question={question}
-        animateQuestionBanner={enteredViaHero}
         actionSlot={actionSlot}
         onMoreParticipantsClick={() => setParticipantsSheetState('open')}
         onLongPress={

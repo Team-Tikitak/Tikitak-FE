@@ -1,12 +1,7 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
-import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { clearStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { ActivityPage } from './ActivityPage';
-
-const LocationDisplay = () => <div data-testid="location-display">{useLocation().pathname}</div>;
-
-const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
 
 vi.mock('@/shared/hooks/team/useActiveTeamSelection', () => ({
   useActiveTeamSelection: vi.fn(() => ({
@@ -96,18 +91,8 @@ beforeEach(() => {
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={['/activity']}>
-      <Routes>
-        <Route
-          path="*"
-          element={
-            <>
-              <ActivityPage />
-              <LocationDisplay />
-            </>
-          }
-        />
-      </Routes>
+    <MemoryRouter>
+      <ActivityPage />
     </MemoryRouter>,
   );
 
@@ -138,18 +123,14 @@ describe('ActivityPage - DailyQuestion 헤더 고정 레이아웃', () => {
     expect(getScrollContainer(container)).not.toHaveClass('pt-9');
   });
 
-  it('이미 답변한 질문이면 고정 안내 문구를 보여주고 눌렀을 때 피드 페이지로 이동한다', () => {
+  it('이미 답변한 질문이면 배너는 유지되지만 이동은 막힌다', () => {
     setDailyQuestion({ content: '오늘의 질문입니다', answerFeedId: 42 });
     const { container } = renderPage();
 
-    const banner = screen.getByText('참여 완료! 친구들의 답변도 확인해 보세요');
+    const banner = screen.getByText('오늘의 질문입니다');
     expect(banner.closest('header')).not.toBeNull();
     expect(getScrollContainer(container)).toHaveClass('pt-9');
-
-    const button = banner.closest('button');
-    expect(button).not.toBeDisabled();
-    fireEvent.click(button!);
-    expect(screen.getByTestId('location-display')).toHaveTextContent('/feed');
+    expect(banner.closest('button')).toBeDisabled();
   });
 
   it('배너 유무와 관계없이 콘텐츠는 스크롤 컨테이너 안에 렌더된다', () => {
@@ -232,92 +213,5 @@ describe('ActivityPage - 빈 상태 판별', () => {
     renderPage();
 
     expect(screen.queryByText(/아직 우리 팀의 활동이 없어요/)).toBeNull();
-  });
-});
-
-describe('ActivityPage - 히어로 핸드오프', () => {
-  beforeEach(() => {
-    setDailyQuestion(undefined);
-  });
-
-  afterEach(() => {
-    clearStoredHero(ACTIVITY_HERO_STORAGE_KEY);
-  });
-
-  it('복귀(POP) 시 저장된 히어로가 있고 대상이 여전히 첫 PICK이면 사본을 렌더한다', () => {
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    const clone = container.querySelector('[data-stored-hero]');
-    expect(clone).toBeInTheDocument();
-    expect(clone).toHaveAttribute('data-hero-exit-key', 'pin-1');
-    expect(clone).toHaveAttribute('data-hero-radius', '8');
-  });
-
-  it('저장된 히어로 대상이 더 이상 첫 PICK/지역이 아니면 그레이스 타임 안에 핸드오프되지 않는다', () => {
-    vi.useFakeTimers();
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 999, thumbnailImageUrl: 'https://example.com/other.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    // 정상 핸드오프(그레이스 300ms + 페이드 120ms + 클리어 260ms = 680ms)가 지나도
-    // 대상 불일치라 dismiss가 트리거되지 않아 사본이 그대로 남아있어야 한다
-    act(() => {
-      vi.advanceTimersByTime(680);
-    });
-
-    expect(container.querySelector('[data-stored-hero]')).toBeInTheDocument();
-    vi.useRealTimers();
   });
 });

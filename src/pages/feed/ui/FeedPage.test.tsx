@@ -2,27 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import { FeedPage } from './FeedPage';
+import { storeFeedHero, readStoredFeedHero, clearStoredFeedHero } from '../lib/feedHeroStorage';
 import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 import type { ReactElement } from 'react';
-
-const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
-
-const storeFeedHero = (feedItem: FeedItem, rect: DOMRect) =>
-  storeHero(FEED_HERO_STORAGE_KEY, {
-    itemId: feedItem.id,
-    heroKey: `pin-${feedItem.id}`,
-    thumbnailUrl: feedItem.thumbnailUrl,
-    heroPreviewUrl: feedItem.heroPreviewUrl,
-    left: rect.left,
-    top: rect.top,
-    width: rect.width,
-    height: rect.height,
-  });
-const readStoredFeedHero = () => readStoredHero(FEED_HERO_STORAGE_KEY);
-const clearStoredFeedHero = () => clearStoredHero(FEED_HERO_STORAGE_KEY);
 
 vi.mock('../lib/warmFeedDetail', () => ({
   warmFeedDetail: vi.fn(),
@@ -139,7 +123,7 @@ describe('FeedPage - Hero Management', () => {
 
     const retrieved = readStoredFeedHero();
     expect(retrieved).not.toBeNull();
-    expect(retrieved?.itemId).toBe('feed-1');
+    expect(retrieved?.feedId).toBe('feed-1');
     expect(retrieved?.thumbnailUrl).toBe('https://example.com/thumb.jpg');
     expect(retrieved?.left).toBe(10);
     expect(retrieved?.top).toBe(20);
@@ -232,7 +216,7 @@ describe('FeedPage - Hero Management', () => {
     const rect = new DOMRect(10, 20, 100, 150);
     const stored = storeFeedHero(feedItem, rect);
 
-    expect(stored).toHaveProperty('itemId');
+    expect(stored).toHaveProperty('feedId');
     expect(stored).toHaveProperty('thumbnailUrl');
     expect(stored).toHaveProperty('heroPreviewUrl');
     expect(stored).toHaveProperty('left');

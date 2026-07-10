@@ -28,7 +28,6 @@ class NativeCameraPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func startPreview(_ call: CAPPluginCall) {
         let facingMode = call.getString("facingMode", "environment")
         let zoomLevel = call.getDouble("zoomLevel", 1)
-        let previewFrame = getPreviewFrame(from: call)
 
         ensureCameraPermission { [weak self] granted in
             guard let self = self else { return }
@@ -38,7 +37,7 @@ class NativeCameraPlugin: CAPPlugin, CAPBridgedPlugin {
             }
 
             DispatchQueue.main.async {
-                self.attachPreviewView(previewFrame: previewFrame)
+                self.attachPreviewView()
             }
 
             self.sessionQueue.async {
@@ -125,42 +124,12 @@ class NativeCameraPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    private func getPreviewFrame(from call: CAPPluginCall) -> CGRect? {
-        guard let frame = call.getObject("previewFrame") else { return nil }
-        guard
-            let x = getCGFloat(frame["x"]),
-            let y = getCGFloat(frame["y"]),
-            let width = getCGFloat(frame["width"]),
-            let height = getCGFloat(frame["height"])
-        else {
-            return nil
-        }
-
-        return CGRect(x: x, y: y, width: width, height: height)
-    }
-
-    private func getCGFloat(_ value: Any?) -> CGFloat? {
-        if let number = value as? NSNumber {
-            return CGFloat(truncating: number)
-        }
-        if let double = value as? Double {
-            return CGFloat(double)
-        }
-        if let float = value as? Float {
-            return CGFloat(float)
-        }
-        if let int = value as? Int {
-            return CGFloat(int)
-        }
-        return nil
-    }
-
-    private func attachPreviewView(previewFrame: CGRect?) {
+    private func attachPreviewView() {
         guard let webView = bridge?.webView else { return }
-        let targetFrame = previewFrame ?? webView.bounds
 
         if previewView == nil {
-            let view = NativeCameraPreviewView(frame: targetFrame)
+            let view = NativeCameraPreviewView(frame: webView.bounds)
+            view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             view.backgroundColor = .black
 
             let layer = AVCaptureVideoPreviewLayer(session: session)
@@ -174,7 +143,7 @@ class NativeCameraPlugin: CAPPlugin, CAPBridgedPlugin {
             previewLayer = layer
         }
 
-        previewView?.frame = targetFrame
+        previewView?.frame = webView.bounds
         previewLayer?.frame = previewView?.bounds ?? .zero
         previewView?.isHidden = true
 
