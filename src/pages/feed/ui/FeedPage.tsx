@@ -81,6 +81,15 @@ export const FeedPage = () => {
     onRefresh: () =>
       teamId ? queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) }) : undefined,
   });
+  // StoredHero는 당김 콘텐츠 wrapper의 형제 요소라, 같은 translateY를 직접 걸어줘야
+  // 당기는 도중 캡처된 히어로 사본이 실제 콘텐츠와 어긋나 위로 떠 보이지 않는다
+  const pullTransformStyle = {
+    transform: `translateY(${pullToRefresh.pullDistance}px)`,
+    transition:
+      pullToRefresh.isRefreshing || pullToRefresh.pullDistance === 0
+        ? 'transform 180ms ease-out'
+        : undefined,
+  };
 
   const {
     storedHero: storedFeedHero,
@@ -180,7 +189,13 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {storedFeedHero && <StoredHero storedHero={storedFeedHero} visible={storedHeroVisible} />}
+      {storedFeedHero && (
+        <StoredHero
+          storedHero={storedFeedHero}
+          visible={storedHeroVisible}
+          style={pullTransformStyle}
+        />
+      )}
       <div
         ref={scrollRef}
         className="no-scrollbar relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
@@ -192,16 +207,7 @@ export const FeedPage = () => {
           threshold={pullToRefresh.threshold}
           refreshing={pullToRefresh.isRefreshing}
         />
-        <div
-          className="flex min-h-full flex-col px-6 pt-6 pb-24"
-          style={{
-            transform: `translateY(${pullToRefresh.pullDistance}px)`,
-            transition:
-              pullToRefresh.isRefreshing || pullToRefresh.pullDistance === 0
-                ? 'transform 180ms ease-out'
-                : undefined,
-          }}
-        >
+        <div className="flex min-h-full flex-col px-6 pt-6 pb-24" style={pullTransformStyle}>
           <FeedCountToolbar
             count={totalCount}
             loading={showFeedLoading}
