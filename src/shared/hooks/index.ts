@@ -16,6 +16,7 @@ export * from './useKeyboardVisible';
 export * from './useNativeKeyboardVisible';
 export * from './usePhotoSourcePicker';
 export * from './usePinComments';
+export * from './usePullToRefresh';
 export * from './usePushNotificationSync';
 export * from './useScrollRestore';
 export * from './useShareSubmit';

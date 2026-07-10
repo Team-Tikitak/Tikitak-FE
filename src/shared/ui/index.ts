@@ -33,6 +33,7 @@ export * from './PhotoRadio';
 export * from './PhotoUploader';
 export * from './Picker';
 export * from './ProgressBar';
+export * from './PullToRefreshIndicator';
 export * from './Radio';
 export * from './Skeleton';
 export * from './StoredHero';
