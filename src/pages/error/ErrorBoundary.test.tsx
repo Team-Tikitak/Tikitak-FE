@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RootErrorBoundary } from './ErrorBoundary';
@@ -18,6 +19,15 @@ const renderBoundary = () =>
     <MemoryRouter>
       <RootErrorBoundary />
     </MemoryRouter>,
+  );
+
+const renderBoundaryStrict = () =>
+  render(
+    <StrictMode>
+      <MemoryRouter>
+        <RootErrorBoundary />
+      </MemoryRouter>
+    </StrictMode>,
   );
 
 describe('RootErrorBoundary', () => {
@@ -40,6 +50,16 @@ describe('RootErrorBoundary', () => {
     mockUseRouteError.mockReturnValue(new Error('Failed to fetch dynamically imported module'));
 
     renderBoundary();
+
+    expect(screen.getByText('최신 버전을 불러오는 중이에요')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '홈으로' })).toBeNull();
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('StrictMode에서 청크 로드 복구 판정이 두 번 호출되어도 복구 안내를 유지한다', () => {
+    mockUseRouteError.mockReturnValue(new Error('Failed to fetch dynamically imported module'));
+
+    renderBoundaryStrict();
 
     expect(screen.getByText('최신 버전을 불러오는 중이에요')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: '홈으로' })).toBeNull();

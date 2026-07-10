@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { recoverFromChunkLoadError } from './chunkLoadRecovery';
+import { createChunkLoadRecoveryState, recoverFromChunkLoadError } from './chunkLoadRecovery';
 
 describe('recoverFromChunkLoadError', () => {
   beforeEach(() => {
@@ -30,6 +30,15 @@ describe('recoverFromChunkLoadError', () => {
     );
 
     expect(secondHandled).toBe(false);
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('같은 에러 객체는 세션 가드와 무관하게 같은 복구 상태를 반환한다', () => {
+    const getRecoveringState = createChunkLoadRecoveryState();
+    const error = new Error('Failed to fetch dynamically imported module');
+
+    expect(getRecoveringState(error)).toBe(true);
+    expect(getRecoveringState(error)).toBe(true);
     expect(window.location.reload).toHaveBeenCalledTimes(1);
   });
 });

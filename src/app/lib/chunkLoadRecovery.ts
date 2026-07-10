@@ -26,3 +26,16 @@ export const recoverFromChunkLoadError = (error: unknown): boolean => {
   window.location.reload();
   return true;
 };
+
+export const createChunkLoadRecoveryState = () => {
+  let lastRecoveryError: unknown;
+  let lastRecoveryResult = false;
+
+  return (error: unknown): boolean => {
+    if (error === lastRecoveryError) return lastRecoveryResult;
+
+    lastRecoveryError = error;
+    lastRecoveryResult = recoverFromChunkLoadError(error);
+    return lastRecoveryResult;
+  };
+};

@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Link, useRouteError } from 'react-router';
-import { recoverFromChunkLoadError } from '@/app/lib/chunkLoadRecovery';
+import { createChunkLoadRecoveryState } from '@/app/lib/chunkLoadRecovery';
 import { PATHS } from '@/app/routes/paths';
+
+const getChunkLoadRecoveringState = createChunkLoadRecoveryState();
+
+const getRecoveringState = (error: unknown): boolean => {
+  console.error('RootErrorBoundary', error);
+  return getChunkLoadRecoveringState(error);
+};
 
 export const RootErrorBoundary = () => {
   const error = useRouteError();
-  // 지연 초기화로 마운트당 한 번만 판정 — 재고침 시도는 sessionStorage 가드로 중복 방지
-  const [isRecovering] = useState(() => {
-    console.error('RootErrorBoundary', error);
-    return recoverFromChunkLoadError(error);
-  });
+  const [isRecovering] = useState(() => getRecoveringState(error));
 
   if (isRecovering) {
     return (

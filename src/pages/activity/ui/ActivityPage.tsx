@@ -99,7 +99,7 @@ export const ActivityPage = () => {
       <div
         ref={scrollRef}
         className={cn(
-          'no-scrollbar flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto',
+          'no-scrollbar relative flex min-h-0 flex-1 flex-col gap-9 overflow-y-auto',
           showDailyQuestion && 'pt-9',
         )}
       >
