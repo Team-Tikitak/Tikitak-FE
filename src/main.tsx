@@ -3,6 +3,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import App from './app/App.tsx';
+import { AppUpdateRequired } from './app/AppUpdateRequired';
+import { checkRequiredAppUpdate, showRequiredAppUpdateDialog } from './app/lib/appVersionPolicy';
 import { clearLegacyPwaRuntimeCaches } from './app/lib/clearLegacyPwaCaches';
 import { initNativeBridge } from './app/lib/initNativeBridge';
 import { prefetchTabRoutes } from './app/lib/prefetchRoutes';
@@ -30,7 +32,24 @@ const bootstrap = async () => {
     }
   }
 
-  createRoot(document.getElementById('root')!).render(
+  const requiredAppUpdate = await checkRequiredAppUpdate();
+  const root = createRoot(document.getElementById('root')!);
+
+  if (requiredAppUpdate) {
+    const openUpdate = () => {
+      void showRequiredAppUpdateDialog(requiredAppUpdate);
+    };
+
+    root.render(
+      <StrictMode>
+        <AppUpdateRequired message={requiredAppUpdate.message} onUpdate={openUpdate} />
+      </StrictMode>,
+    );
+    await showRequiredAppUpdateDialog(requiredAppUpdate);
+    return;
+  }
+
+  root.render(
     <StrictMode>
       <App />
     </StrictMode>,

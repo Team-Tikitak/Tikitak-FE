@@ -9,5 +9,4 @@ export * from './FeedListItem';
 export * from './FeedPage';
 export * from './FeedSkeleton';
 export * from './MenuButton';
-export * from './StoredFeedHero';
 export * from './TodayTikitakChip';

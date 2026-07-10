@@ -40,40 +40,37 @@ export const CameraView = ({
   onZoomChange,
 }: CameraViewProps) => {
   return (
-    <div
-      className={cn(
-        'relative flex h-full w-full justify-center overflow-hidden',
-        nativePreview ? 'bg-transparent' : 'bg-black',
-      )}
-    >
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-black">
       {nativePreview ? (
         <div
           data-testid="camera-preview"
           className={cn(
-            'absolute inset-0 h-full w-full transition-opacity duration-150',
+            'mt-[calc(var(--safe-top)+85px)] aspect-3/4 w-full shrink-0 bg-transparent transition-opacity duration-150',
             isReady ? 'opacity-100' : 'opacity-0',
           )}
         />
       ) : (
-        <video
-          ref={videoRef}
-          data-testid="camera-preview"
-          autoPlay
-          playsInline
-          muted
-          className={cn(
-            'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
-            mirrored && '-scale-x-100',
-            isReady ? 'opacity-100' : 'opacity-0',
-          )}
-        />
+        <div className="mt-[calc(var(--safe-top)+85px)] aspect-3/4 w-full shrink-0 overflow-hidden bg-black">
+          <video
+            ref={videoRef}
+            data-testid="camera-preview"
+            autoPlay
+            playsInline
+            muted
+            className={cn(
+              'h-full w-full object-cover transition-opacity duration-150',
+              mirrored && '-scale-x-100',
+              isReady ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+        </div>
       )}
 
       <button
         type="button"
         aria-label="카메라 닫기"
         onClick={onClose}
-        className="press-feedback absolute top-[calc(var(--safe-top)+24px)] left-6 z-10 flex size-9 items-center justify-center"
+        className="press-feedback absolute top-[calc(var(--safe-top)+9px)] left-5 z-10 flex size-9 items-center justify-center"
       >
         <CloseIcon3 className="size-[18px]" />
       </button>
@@ -85,9 +82,9 @@ export const CameraView = ({
       )}
 
       {isReady && !error && (
-        <>
+        <div className="relative flex min-h-0 flex-1 items-start justify-center pt-2.5">
           {zoomSupported && (
-            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+132px)] left-1/2 z-10 flex -translate-x-1/2 items-center rounded-full bg-black/35 p-1 backdrop-blur-md">
+            <div className="z-10 flex items-center rounded-full bg-white/12 p-1 backdrop-blur-md">
               <span
                 aria-hidden="true"
                 className={cn(
@@ -116,18 +113,18 @@ export const CameraView = ({
             </div>
           )}
           <CameraButton
-            className="absolute bottom-[calc(env(safe-area-inset-bottom)+40px)] z-10"
+            className="absolute top-[79px] left-1/2 z-10 -translate-x-1/2"
             onClick={onCapture}
           />
           <button
             type="button"
             aria-label="카메라 전환"
             onClick={onToggleFacingMode}
-            className="press-feedback absolute right-[43px] bottom-[calc(env(safe-area-inset-bottom)+58px)] z-10 flex size-9 items-center justify-center rounded-full bg-gray-500"
+            className="press-feedback absolute top-[97px] right-[43px] z-10 flex size-9 items-center justify-center rounded-full bg-gray-500"
           >
             <ChangeIcon className="size-6" />
           </button>
-        </>
+        </div>
       )}
     </div>
   );

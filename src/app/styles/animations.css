@@ -25,6 +25,15 @@
   }
 }
 
+@keyframes question-banner-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes marquee-left {
   from {
     transform: translateX(0);
