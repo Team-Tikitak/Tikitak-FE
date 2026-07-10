@@ -29,14 +29,13 @@ vi.mock('@/shared/api/user/queries', () => ({
   useMe: () => ({ data: { activeTeamId: 1 } }),
 }));
 
+const mockUseHomeBestAttendance = vi.fn();
+const mockUseHomeEveryonePick = vi.fn();
+const mockUseHomeRegions = vi.fn();
 vi.mock('@/shared/api/home/queries', () => ({
-  useHomeBestAttendance: vi.fn(() => ({
-    data: { members: [{ teamMemberId: 1 }] },
-    isPending: false,
-    isFetching: false,
-  })),
-  useHomeEveryonePick: vi.fn(() => ({ data: { picks: [{ placeId: 'p1' }] }, isPending: false })),
-  useHomeRegions: vi.fn(() => ({ data: { regions: [{ region: '서울' }] }, isPending: false })),
+  useHomeBestAttendance: (teamId?: number) => mockUseHomeBestAttendance(teamId),
+  useHomeEveryonePick: (teamId?: number) => mockUseHomeEveryonePick(teamId),
+  useHomeRegions: (teamId?: number) => mockUseHomeRegions(teamId),
 }));
 
 vi.mock('./MonthlyBestAttendance', () => ({
@@ -56,6 +55,24 @@ const setUnreadCount = (unreadCount?: number) => {
   });
 };
 
+const setHomeQueries = ({
+  members = [{ teamMemberId: 1 }],
+  picks = [{ placeId: 'p1' }],
+  regions = [{ region: '서울' }],
+  isPending = false,
+  isFetching = false,
+}: {
+  members?: { teamMemberId: number }[];
+  picks?: { placeId: string }[];
+  regions?: { region: string }[];
+  isPending?: boolean;
+  isFetching?: boolean;
+} = {}) => {
+  mockUseHomeBestAttendance.mockReturnValue({ data: { members }, isPending, isFetching });
+  mockUseHomeEveryonePick.mockReturnValue({ data: { picks }, isPending, isFetching });
+  mockUseHomeRegions.mockReturnValue({ data: { regions }, isPending, isFetching });
+};
+
 beforeAll(() => {
   vi.stubGlobal(
     'ResizeObserver',
@@ -69,6 +86,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   setUnreadCount(undefined);
+  setHomeQueries();
 });
 
 const renderPage = () =>
@@ -157,5 +175,43 @@ describe('ActivityPage - 안읽은 알림 점 표시', () => {
     renderPage();
 
     expect(mockUseUnreadNotificationCount).toHaveBeenCalledWith({ teamId: 1 });
+  });
+});
+
+describe('ActivityPage - 빈 상태 판별', () => {
+  beforeEach(() => {
+    setDailyQuestion(undefined);
+  });
+
+  it('모든 섹션이 비어 있으면 EmptyActiveView를 렌더한다', () => {
+    setHomeQueries({ members: [], picks: [], regions: [] });
+    renderPage();
+
+    expect(screen.getByText(/아직 우리 팀의 활동이 없어요/)).toBeInTheDocument();
+    expect(screen.queryByTestId('monthly-best-attendance')).toBeNull();
+  });
+
+  it('빈 상태에서 백그라운드 리패치(isFetching) 중에도 EmptyActiveView가 유지된다', () => {
+    // 회귀: 빈 상태 판별에 isFetching을 쓰면 리패치마다 콘텐츠 뷰로 토글돼 깜빡인다
+    setHomeQueries({ members: [], picks: [], regions: [], isFetching: true });
+    renderPage();
+
+    expect(screen.getByText(/아직 우리 팀의 활동이 없어요/)).toBeInTheDocument();
+    expect(screen.queryByTestId('monthly-best-attendance')).toBeNull();
+  });
+
+  it('하나라도 데이터가 있으면 콘텐츠 뷰를 렌더한다', () => {
+    setHomeQueries({ members: [{ teamMemberId: 1 }], picks: [], regions: [] });
+    renderPage();
+
+    expect(screen.queryByText(/아직 우리 팀의 활동이 없어요/)).toBeNull();
+    expect(screen.getByTestId('monthly-best-attendance')).toBeInTheDocument();
+  });
+
+  it('첫 로드(isPending) 중에는 빈 상태 대신 스켈레톤을 보여준다', () => {
+    setHomeQueries({ members: [], picks: [], regions: [], isPending: true });
+    renderPage();
+
+    expect(screen.queryByText(/아직 우리 팀의 활동이 없어요/)).toBeNull();
   });
 });

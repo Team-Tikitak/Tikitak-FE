@@ -20,11 +20,8 @@ export const useActivityPage = () => {
   const teamId = activeTeam?.teamId;
 
   const { data: question, isPending: isQuestionPending } = useGetDailyQuestion(teamId ?? 0);
-  const {
-    data: bestAttendance,
-    isPending: isBestAttendancePending,
-    isFetching: isBestAttendanceFetching,
-  } = useHomeBestAttendance(teamId);
+  const { data: bestAttendance, isPending: isBestAttendancePending } =
+    useHomeBestAttendance(teamId);
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(teamId);
   const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(teamId);
   const hasUnreadNotifications = useHasUnreadNotifications();
@@ -40,8 +37,9 @@ export const useActivityPage = () => {
       (isQuestionPending || isBestAttendancePending || isPickPending || isRegionsPending));
   const isHeaderLoading = isMePending || isTeamsPending;
 
+  // 빈 상태 판별은 isPending 기준 — isFetching을 쓰면 백그라운드 리패치마다 isEmpty가 토글돼 깜빡인다
   const hasNoAttendance =
-    !isBestAttendanceFetching &&
+    !isBestAttendancePending &&
     bestAttendance !== undefined &&
     (bestAttendance.members ?? []).length === 0;
   const hasNoPicks =
