@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { ActivityPage } from './ActivityPage';
 
 vi.mock('@/shared/hooks/team/useActiveTeamSelection', () => ({
@@ -18,8 +18,15 @@ vi.mock('@/shared/api/dailyQuestion/queries', () => ({
   useGetDailyQuestion: (teamId: number) => mockUseGetDailyQuestion(teamId),
 }));
 
-vi.mock('@/shared/hooks/useHasUnreadNotifications', () => ({
-  useHasUnreadNotifications: () => false,
+// useHasUnreadNotifications는 실제 구현을 태우고 그 아래 쿼리만 mock — unreadCount 파생 로직까지 검증
+const mockUseUnreadNotificationCount = vi.fn();
+vi.mock('@/shared/api/notification/queries', () => ({
+  useUnreadNotificationCount: (params: { teamId: number }) =>
+    mockUseUnreadNotificationCount(params),
+}));
+
+vi.mock('@/shared/api/user/queries', () => ({
+  useMe: () => ({ data: { activeTeamId: 1 } }),
 }));
 
 vi.mock('@/shared/api/home/queries', () => ({
@@ -43,6 +50,27 @@ const setDailyQuestion = (data: { content: string; answerFeedId: number | null }
   mockUseGetDailyQuestion.mockReturnValue({ data, isPending: false });
 };
 
+const setUnreadCount = (unreadCount?: number) => {
+  mockUseUnreadNotificationCount.mockReturnValue({
+    data: unreadCount === undefined ? undefined : { unreadCount },
+  });
+};
+
+beforeAll(() => {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+});
+
+beforeEach(() => {
+  setUnreadCount(undefined);
+});
+
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -53,17 +81,6 @@ const renderPage = () =>
 const getScrollContainer = (container: HTMLElement) => container.querySelector('.overflow-y-auto');
 
 describe('ActivityPage - DailyQuestion 헤더 고정 레이아웃', () => {
-  beforeAll(() => {
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-  });
-
   it('미답변 질문이 있으면 배너가 스크롤 영역이 아닌 헤더 안에 렌더된다', () => {
     setDailyQuestion({ content: '오늘의 질문입니다', answerFeedId: null });
     const { container } = renderPage();
@@ -105,5 +122,40 @@ describe('ActivityPage - DailyQuestion 헤더 고정 레이아웃', () => {
     const scrollContainer = getScrollContainer(container);
     expect(scrollContainer).toContainElement(screen.getByTestId('monthly-best-attendance'));
     expect(scrollContainer).toContainElement(screen.getByTestId('monthly-memories'));
+  });
+});
+
+describe('ActivityPage - 안읽은 알림 점 표시', () => {
+  beforeEach(() => {
+    setDailyQuestion(undefined);
+  });
+
+  it('안읽은 알림이 있으면 벨 버튼에 점이 표시되고 aria-label이 바뀐다', () => {
+    setUnreadCount(5);
+    renderPage();
+
+    const bell = screen.getByRole('button', { name: '알림 (읽지 않은 알림 있음)' });
+    expect(bell.querySelector('span[aria-hidden]')).not.toBeNull();
+  });
+
+  it('안읽은 알림이 0개면 점 없이 기본 aria-label로 렌더된다', () => {
+    setUnreadCount(0);
+    renderPage();
+
+    const bell = screen.getByRole('button', { name: '알림' });
+    expect(bell.querySelector('span[aria-hidden]')).toBeNull();
+  });
+
+  it('안읽음 카운트 응답 전(data undefined)에도 점 없이 렌더된다', () => {
+    renderPage();
+
+    expect(screen.getByRole('button', { name: '알림' })).toBeInTheDocument();
+  });
+
+  it('활성 팀 id로 안읽음 카운트를 조회한다', () => {
+    setUnreadCount(5);
+    renderPage();
+
+    expect(mockUseUnreadNotificationCount).toHaveBeenCalledWith({ teamId: 1 });
   });
 });
