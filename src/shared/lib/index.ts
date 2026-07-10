@@ -7,6 +7,7 @@ export * from './cn';
 export * from './createId';
 export * from './date';
 export * from './getPointerRatio';
+export * from './hero';
 export * from './image';
 export * from './kakaoSdk';
 export * from './native';

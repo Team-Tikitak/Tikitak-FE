@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { flushSync } from 'react-dom';
-import { clearStoredFeedHero, readStoredFeedHero, storeFeedHero } from '../lib/feedHeroStorage';
-import type { FeedItem } from '../model/types';
+import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import type { NavigationType } from 'react-router';
 
 const STORED_HERO_FADE_DELAY_MS = 120;
@@ -10,70 +9,83 @@ const STORED_HERO_MAX_LIFETIME_MS = 5000;
 const HERO_FLIGHT_START_GRACE_MS = 300;
 const HERO_FLIGHT_MAX_WAIT_MS = 2000;
 const STORED_HERO_DEPARTURE_RECOVERY_MS = 1500;
+const STORED_HERO_CLONE_SELECTOR = '[data-stored-hero]';
 
-interface UseFeedHeroHandoffParams {
-  navigationType: NavigationType;
-  isTeamSwitch: boolean;
-  scrollRestored: boolean;
-  feeds: FeedItem[];
-  scrollFrameRef: RefObject<HTMLElement | null>;
+export interface HeroSourceItem {
+  id: string;
+  heroKey: string;
+  thumbnailUrl: string;
+  heroPreviewUrl?: string;
 }
 
-export const useFeedHeroHandoff = ({
+interface UseHeroHandoffParams {
+  storageKey: string;
+  navigationType: NavigationType;
+  scrollRestored: boolean;
+  isItemLoaded: (itemId: string) => boolean;
+  scrollFrameRef: RefObject<HTMLElement | null>;
+  // 팀 전환처럼 목록의 맥락 자체가 바뀌는 시점에 남은 히어로를 버려야 하는 페이지만 넘긴다
+  shouldResetOnContextChange?: boolean;
+}
+
+// 목록 썸네일 ↔ 상세 사이 hero 전환의 왕복(특히 뒤로가기) 구간을 매끄럽게 만드는 공용 훅.
+// 출발 시 클릭 순간의 화면 좌표에 고정 사본을 sessionStorage에 남기고, 복귀(POP) 시 같은
+// 좌표에 사본을 되살려 왕복 히어로의 exit-key를 사본이 대신 든다. feed/notification 페이지에서
+// 거의 동일한 로직이 반복되던 것을 여기로 추출했다.
+export const useHeroHandoff = ({
+  storageKey,
   navigationType,
-  isTeamSwitch,
   scrollRestored,
-  feeds,
+  isItemLoaded,
   scrollFrameRef,
-}: UseFeedHeroHandoffParams) => {
+  shouldResetOnContextChange = false,
+}: UseHeroHandoffParams) => {
   // 현재 마운트에서 캡처된 출발용 히어로인지 여부 — 복귀 시 sessionStorage에서 복원된 히어로와 구분
   const departureHeroRef = useRef(false);
   // 상세에서 뒤로 돌아온(POP) 경우에만 저장된 히어로를 복원 — 탭 등 새 진입에선 잔여 히어로 폐기
-  const [storedFeedHero, setStoredFeedHero] = useState(() => {
+  const [storedHero, setStoredHero] = useState(() => {
     if (navigationType !== 'POP') {
-      clearStoredFeedHero();
+      clearStoredHero(storageKey);
       return null;
     }
-    return readStoredFeedHero();
+    return readStoredHero(storageKey);
   });
-  const [storedHeroVisible, setStoredHeroVisible] = useState(Boolean(storedFeedHero));
+  const [storedHeroVisible, setStoredHeroVisible] = useState(Boolean(storedHero));
 
   const hideStoredHero = useCallback(() => {
     setStoredHeroVisible(false);
-    setStoredFeedHero(null);
+    setStoredHero(null);
   }, []);
 
   const dismissStoredHero = useCallback(() => {
     departureHeroRef.current = false;
-    clearStoredFeedHero();
+    clearStoredHero(storageKey);
     hideStoredHero();
-  }, [hideStoredHero]);
+  }, [hideStoredHero, storageKey]);
 
-  const suppressedHeroId = storedHeroVisible ? (storedFeedHero?.feedId ?? null) : null;
-  const isStoredHeroFeedLoaded = storedFeedHero
-    ? feeds.some((feed) => feed.id === storedFeedHero.feedId)
-    : true;
+  const suppressedItemId = storedHeroVisible ? (storedHero?.itemId ?? null) : null;
+  const isStoredHeroItemLoaded = storedHero ? isItemLoaded(storedHero.itemId) : true;
 
   useEffect(() => {
-    if (!isTeamSwitch) return;
-    clearStoredFeedHero();
-  }, [isTeamSwitch]);
+    if (!shouldResetOnContextChange) return;
+    clearStoredHero(storageKey);
+  }, [shouldResetOnContextChange, storageKey]);
 
   useEffect(() => {
-    if (!storedFeedHero) return;
+    if (!storedHero) return;
 
     const maxTimeoutId = window.setTimeout(() => {
       dismissStoredHero();
     }, STORED_HERO_MAX_LIFETIME_MS);
     return () => window.clearTimeout(maxTimeoutId);
-  }, [dismissStoredHero, storedFeedHero]);
+  }, [dismissStoredHero, storedHero]);
 
   // 저장 히어로 핸드오프. ssgoi 역방향 비행 중에는 클론이 타일을 덮고 있어 그 밑에서
   // 미리 페이드인이 끝나면 클론이 걷힐 때 장식이 "뚝" 나타난다. ssgoi가 비행 동안
   // 사본에 inline opacity 0을 걸었다가 착지 시 복원하므로, 그 복원 시점을 기다렸다가
   // 핸드오프(suppress 해제)를 시작한다.
   useEffect(() => {
-    if (!storedFeedHero || !scrollRestored || !isStoredHeroFeedLoaded) return;
+    if (!storedHero || !scrollRestored || !isStoredHeroItemLoaded) return;
 
     let finished = false;
     const timeoutIds: number[] = [];
@@ -88,7 +100,7 @@ export const useFeedHeroHandoff = ({
       schedule(() => dismissStoredHero(), STORED_HERO_CLEAR_DELAY_MS);
     };
 
-    const copy = document.querySelector<HTMLElement>('[data-stored-feed-hero]');
+    const copy = document.querySelector<HTMLElement>(STORED_HERO_CLONE_SELECTOR);
     const isInFlight = () => copy?.style.opacity === '0';
     const observeStyle = (onChange: () => void) => {
       if (!copy) return;
@@ -127,32 +139,42 @@ export const useFeedHeroHandoff = ({
       for (const id of timeoutIds) window.clearTimeout(id);
       for (const observer of observers) observer.disconnect();
     };
-  }, [dismissStoredHero, isStoredHeroFeedLoaded, scrollRestored, storedFeedHero]);
+  }, [dismissStoredHero, isStoredHeroItemLoaded, scrollRestored, storedHero]);
 
-  const captureFeedHero = useCallback(
-    (item: FeedItem, source: HTMLElement) => {
+  const captureHero = useCallback(
+    (item: HeroSourceItem, source: HTMLElement | null) => {
+      if (!source || !item.thumbnailUrl) return;
       const rect = source.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
       const frameRect = scrollFrameRef.current?.parentElement?.getBoundingClientRect();
       const localRect = frameRect
         ? new DOMRect(rect.left - frameRect.left, rect.top - frameRect.top, rect.width, rect.height)
         : rect;
-      const nextStoredFeedHero = storeFeedHero(item, localRect);
+      const nextStoredHero = storeHero(storageKey, {
+        itemId: item.id,
+        heroKey: item.heroKey,
+        thumbnailUrl: item.thumbnailUrl,
+        heroPreviewUrl: item.heroPreviewUrl ?? '',
+        left: localRect.left,
+        top: localRect.top,
+        width: localRect.width,
+        height: localRect.height,
+      });
       departureHeroRef.current = true;
       flushSync(() => {
         setStoredHeroVisible(true);
-        setStoredFeedHero(nextStoredFeedHero);
+        setStoredHero(nextStoredHero);
       });
     },
-    [scrollFrameRef],
+    [scrollFrameRef, storageKey],
   );
 
   return {
-    storedFeedHero,
+    storedHero,
     storedHeroVisible,
-    suppressedHeroId,
+    suppressedItemId,
     hideStoredHero,
     dismissStoredHero,
-    captureFeedHero,
+    captureHero,
   };
 };
