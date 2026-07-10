@@ -33,13 +33,35 @@ describe('FeedListItem', () => {
   });
 
   it('hides the chip while the hero image is suppressed', () => {
-    render(
+    const { container } = render(
       <FeedListItem
         item={makeItem({ type: 'DAILY_QUESTION', question: '오늘의 질문' })}
         suppressHeroImage
       />,
     );
 
-    expect(screen.getByRole('img', { name: "Today's Tiki-tak!" })).toHaveClass('opacity-0');
+    const chip = screen.getByRole('img', { name: "Today's Tiki-tak!" });
+    expect(chip).toHaveClass('opacity-0', 'duration-200', 'ease-out');
+    expect(container.querySelector('.border-main-001')).toHaveClass(
+      'opacity-0',
+      'duration-200',
+      'ease-out',
+    );
+    // 사진 개수 배지는 이번 타이밍 조정 대상이 아니므로 기존 duration을 유지한다
+    expect(container.querySelector('.font-pretendard.absolute.top-1')).toHaveClass(
+      'opacity-0',
+      'duration-200',
+    );
+  });
+
+  it('uses the same 200ms transition for the chip and border when not suppressed', () => {
+    const { container } = render(
+      <FeedListItem item={makeItem({ type: 'DAILY_QUESTION', question: '오늘의 질문' })} />,
+    );
+
+    const chip = screen.getByRole('img', { name: "Today's Tiki-tak!" });
+    expect(chip).toHaveClass('duration-200');
+    expect(chip).not.toHaveClass('opacity-0');
+    expect(container.querySelector('.border-main-001')).toHaveClass('duration-200');
   });
 });
