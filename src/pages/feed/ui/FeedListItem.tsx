@@ -69,14 +69,14 @@ export const FeedListItem = ({
             <div
               aria-hidden
               className={cn(
-                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-300',
-                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+                'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-200',
+                suppressHeroImage && 'opacity-0 duration-200 ease-out',
               )}
             />
             <TodayTikitakChip
               className={cn(
-                'absolute right-0 bottom-0 z-40 transition-opacity duration-300',
-                suppressHeroImage && 'opacity-0 duration-100 ease-out',
+                'absolute right-0 bottom-0 z-40 transition-opacity duration-200',
+                suppressHeroImage && 'opacity-0 duration-200 ease-out',
               )}
             />
           </>

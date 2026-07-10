@@ -117,14 +117,14 @@ export const FeedGrid = ({
                   <div
                     aria-hidden
                     className={cn(
-                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-300',
-                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                      'border-main-001 pointer-events-none absolute inset-0 z-40 rounded-sm border-2 transition-opacity duration-200',
+                      suppressedHeroId === item.id && 'opacity-0 duration-200 ease-out',
                     )}
                   />
                   <TodayTikitakChip
                     className={cn(
-                      'absolute top-0 left-0 z-40 transition-opacity duration-300',
-                      suppressedHeroId === item.id && 'opacity-0 duration-100 ease-out',
+                      'absolute top-0 left-0 z-40 transition-opacity duration-200',
+                      suppressedHeroId === item.id && 'opacity-0 duration-200 ease-out',
                     )}
                   />
                 </>
