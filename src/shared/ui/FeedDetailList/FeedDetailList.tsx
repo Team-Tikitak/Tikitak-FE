@@ -1,5 +1,6 @@
 import { useFirstVisitHint } from '@/shared/hooks/useFirstVisitHint';
 import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
+import { FeedActionMenu } from '@/shared/ui/FeedDetail/FeedActionMenu';
 import { FeedDetailContent } from '@/shared/ui/FeedDetail/FeedDetailContent';
 import type { ReactNode } from 'react';
 
@@ -39,15 +40,17 @@ export const FeedDetailList = ({
     <>
       {items.length > 0
         ? items.map((item, index) => (
-            <FeedDetailContent
-              key={item.feedId}
-              teamId={teamId}
-              feedId={item.feedId}
-              heroKey={item.heroKey}
-              placeholderThumbnail={item.placeholderThumbnail}
-              showHint={!seen && index === 0}
-              onHintDismiss={markSeen}
-            />
+            <div key={item.feedId} className="flex min-h-full shrink-0 flex-col">
+              <FeedDetailContent
+                teamId={teamId}
+                feedId={item.feedId}
+                heroKey={item.heroKey}
+                placeholderThumbnail={item.placeholderThumbnail}
+                showHint={!seen && index === 0}
+                onHintDismiss={markSeen}
+                actionSlot={<FeedActionMenu teamId={teamId} feedId={item.feedId} stayOnDelete />}
+              />
+            </div>
           ))
         : emptySlot}
       {items.length > 0 && hasNextPage && (

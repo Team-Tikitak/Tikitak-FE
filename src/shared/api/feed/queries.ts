@@ -10,6 +10,7 @@ import { markFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
 import { deleteFeed, getFeedDetail, getFeeds, patchFeed, postFeed } from './api';
 import { feedKeys } from './keys';
 import { dailyQuestionKeys } from '../dailyQuestion/keys';
+import { homeKeys } from '../home/keys';
 import { mapKeys } from '../map/keys';
 import { unwrap } from '../request';
 import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
@@ -103,7 +104,12 @@ export const usePatchFeed = (teamId: number, feedId: number) => {
   });
 };
 
-export const useDeleteFeed = (teamId: number, feedId: number) => {
+export const useDeleteFeed = (
+  teamId: number,
+  feedId: number,
+  options?: { navigateBack?: boolean },
+) => {
+  const navigateBack = options?.navigateBack ?? true;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -133,9 +139,10 @@ export const useDeleteFeed = (teamId: number, feedId: number) => {
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
       queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
       queryClient.invalidateQueries({ queryKey: dailyQuestionKeys.today(teamId) });
+      queryClient.invalidateQueries({ queryKey: homeKeys.all });
     },
     onSuccess: () => {
-      navigate(-1);
+      if (navigateBack) navigate(-1);
     },
   });
 };
