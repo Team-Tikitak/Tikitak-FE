@@ -43,3 +43,11 @@ export interface NotificationListParams {
   cursor?: string;
   size?: number;
 }
+
+export interface NotificationTeamParams {
+  teamId?: number;
+}
+
+export interface NotificationUnreadCountResponse {
+  unreadCount: number;
+}

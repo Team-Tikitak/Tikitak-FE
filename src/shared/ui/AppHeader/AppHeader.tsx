@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib';
 export interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
   teamName: string;
   teamNameLoading?: boolean;
+  showNotificationDot?: boolean;
   onTeamSelect?: () => void;
   onBellClick?: () => void;
 }
@@ -14,6 +15,7 @@ export interface AppHeaderProps extends ComponentPropsWithRef<'header'> {
 export const AppHeader = ({
   teamName,
   teamNameLoading = false,
+  showNotificationDot = false,
   onTeamSelect,
   onBellClick,
   className,
@@ -50,10 +52,13 @@ export const AppHeader = ({
       <button
         type="button"
         onClick={onBellClick}
-        aria-label="알림"
-        className="flex size-6 items-center justify-center text-black"
+        aria-label={showNotificationDot ? '알림 (읽지 않은 알림 있음)' : '알림'}
+        className="relative flex size-6 items-center justify-center text-black"
       >
         <BellIcon />
+        {showNotificationDot && (
+          <span className="bg-main-001 absolute top-0 right-0 size-1.5 rounded-full" aria-hidden />
+        )}
       </button>
     </header>
   );

@@ -1,23 +1,59 @@
-import { useNavigate } from 'react-router';
+import { type UIEvent } from 'react';
+import { useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import SettingIcon from '@/shared/assets/Icon/SettingIcon.svg?react';
-import { useEdgeSwipeBack, useInfiniteScroll } from '@/shared/hooks';
+import { useEdgeSwipeBack, useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
+import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 import { Header } from '@/shared/ui';
 import { EmptyNotificationView } from './EmptyNotificationView';
 import { NotificationItem } from './NotificationItem';
 import { NotificationSkeleton } from './NotificationSkeleton';
+import { StoredNotificationHero } from './StoredNotificationHero';
 import { useNotificationClick } from '../hooks/useNotificationClick';
+import { useNotificationHeroHandoff } from '../hooks/useNotificationHeroHandoff';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotificationSettingsSheet } from '../hooks/useNotificationSettingsSheet';
 
+const NOTIFICATION_SCROLL_STORAGE_PREFIX = 'notification-scroll';
+
 export const NotificationPage = () => {
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
+  const teamId = useActiveTeamId();
   const { notifications, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useNotifications();
   const { openSheet } = useNotificationSettingsSheet();
   const { observerRef } = useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage });
-  const { handleNotificationClick, preloadNotification } = useNotificationClick();
+  const scrollKey = teamId > 0 ? `${NOTIFICATION_SCROLL_STORAGE_PREFIX}:${teamId}` : null;
+  const {
+    scrollRef,
+    handleScroll: handleRestoreScroll,
+    restored: scrollRestored,
+  } = useScrollRestore(scrollKey, {
+    ready: !isLoading && !isError,
+    contentSignal: notifications.length,
+  });
+  const {
+    storedHero,
+    storedHeroVisible,
+    suppressedNotificationId,
+    dismissStoredHero,
+    captureNotificationHero,
+  } = useNotificationHeroHandoff({
+    navigationType,
+    scrollRestored,
+    notifications,
+    scrollFrameRef: scrollRef,
+  });
+  const { handleNotificationClick, preloadNotification } =
+    useNotificationClick(captureNotificationHero);
   useEdgeSwipeBack();
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    handleRestoreScroll(event);
+    if (!storedHero || !scrollRestored) return;
+    dismissStoredHero();
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -54,6 +90,7 @@ export const NotificationPage = () => {
                 heroPreviewUrl={notification.heroPreviewUrl}
                 createdAt={notification.createdAt}
                 unread={!notification.read}
+                suppressHero={suppressedNotificationId === notification.id}
                 onPointerDown={() => preloadNotification(notification)}
                 onMouseEnter={() => preloadNotification(notification)}
                 onFocus={() => preloadNotification(notification)}
@@ -63,7 +100,8 @@ export const NotificationPage = () => {
             </li>
           ))}
         </ul>
-        <div ref={observerRef} aria-hidden />
+        {isFetchingNextPage && <NotificationSkeleton count={3} className="py-0" />}
+        <div ref={observerRef} className="h-8 shrink-0" aria-hidden />
       </>
     );
   };
@@ -80,9 +118,16 @@ export const NotificationPage = () => {
           onRightClick={openSheet}
         />
       }
-      contentClassName="no-scrollbar flex flex-1 flex-col"
+      contentClassName="relative isolate flex flex-1 flex-col overflow-hidden"
     >
-      {renderContent()}
+      {storedHero && <StoredNotificationHero storedHero={storedHero} visible={storedHeroVisible} />}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto"
+      >
+        {renderContent()}
+      </div>
     </PageShell>
   );
 };

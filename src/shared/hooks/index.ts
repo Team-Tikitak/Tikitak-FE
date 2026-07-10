@@ -8,6 +8,7 @@ export * from './team';
 export * from './useDebounce';
 export * from './useEdgeSwipeBack';
 export * from './useFirstVisitHint';
+export * from './useHasUnreadNotifications';
 export * from './useImageFileInput';
 export * from './useInfiniteScroll';
 export * from './useKeyboardVisible';
