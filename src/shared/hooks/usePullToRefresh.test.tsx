@@ -62,6 +62,36 @@ describe('usePullToRefresh', () => {
     expect(result.current.pullDistance).toBe(0);
   });
 
+  it('회귀: 시작점보다 위로 올리는 move에도 preventDefault를 호출해 네이티브 스크롤 개입을 막는다', () => {
+    const scrollElement = document.createElement('div');
+    const onRefresh = vi.fn();
+    const { result } = renderHook(() =>
+      usePullToRefresh({
+        scrollRef: { current: scrollElement },
+        onRefresh,
+        threshold: 60,
+      }),
+    );
+
+    act(() => {
+      result.current.touchHandlers.onTouchStart(touchEvent(0));
+      result.current.touchHandlers.onTouchMove(touchEvent(100));
+    });
+    expect(result.current.pullDistance).toBeGreaterThan(0);
+
+    const preventDefault = vi.fn();
+    act(() => {
+      result.current.touchHandlers.onTouchMove(touchEvent(-20, preventDefault));
+    });
+    expect(preventDefault).toHaveBeenCalled();
+    expect(result.current.pullDistance).toBe(0);
+
+    act(() => {
+      result.current.touchHandlers.onTouchMove(touchEvent(100));
+    });
+    expect(result.current.pullDistance).toBeGreaterThan(0);
+  });
+
   it('does not track pulls while the scroll container is not at the top', () => {
     const scrollElement = document.createElement('div');
     scrollElement.scrollTop = 12;

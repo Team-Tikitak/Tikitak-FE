@@ -52,14 +52,15 @@ export const usePullToRefresh = ({
         return;
       }
 
+      // 방향이 위로 바뀌어도 preventDefault를 유지해 네이티브 스크롤이 scrollTop을 건드리지 않게 한다
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+
       const deltaY = event.touches[0].clientY - startYRef.current;
       if (deltaY <= 0) {
         setPullDistance(0);
         return;
-      }
-
-      if (event.cancelable) {
-        event.preventDefault();
       }
 
       setPullDistance(Math.min(maxPullDistance, deltaY * PULL_RESISTANCE));
