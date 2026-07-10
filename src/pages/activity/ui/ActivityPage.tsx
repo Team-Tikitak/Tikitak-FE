@@ -96,7 +96,6 @@ export const ActivityPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden bg-white"
     >
-      {storedHero && <StoredHero storedHero={storedHero} visible={storedHeroVisible} radius="8" />}
       <div
         ref={scrollRef}
         className={cn(
@@ -104,6 +103,9 @@ export const ActivityPage = () => {
           showDailyQuestion && 'pt-9',
         )}
       >
+        {storedHero && (
+          <StoredHero storedHero={storedHero} visible={storedHeroVisible} radius="8" />
+        )}
         {content}
         {/* iOS(WebKit)는 스크롤 컨테이너 자신의 padding-bottom을 스크롤 범위에 안 넣어서 자식 스페이서로 하단 여백 확보 */}
         <div
