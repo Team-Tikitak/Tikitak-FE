@@ -99,7 +99,7 @@ export const DailyQuestion = ({
           {displayText}
         </span>
       </div>
-      {onClick && <RightIcon className="size-4 shrink-0 text-white" />}
+      {onClick && <RightIcon className="size-4 shrink-0 text-white" aria-hidden="true" />}
     </button>
   );
 };

@@ -23,11 +23,10 @@ describe('DailyQuestion', () => {
 
     expect(banner).toBeDisabled();
     expect(banner).toHaveClass('bg-[#ff5ca8]');
-    expect(screen.queryByRole('img', { name: '오른쪽 화살표' })).not.toBeInTheDocument();
     expect(screen.getByText('가장 기억에 남는 순간은?')).toBeInTheDocument();
   });
 
-  it('calls the click handler and shows the arrow when clickable', () => {
+  it('calls the click handler when clickable', () => {
     const onClick = vi.fn();
     render(<DailyQuestion question="오늘 뭐 먹었나요?" onClick={onClick} />);
 
