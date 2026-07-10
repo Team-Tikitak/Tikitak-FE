@@ -2,21 +2,14 @@ import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useHomeEveryonePick, useHomeRegions } from '@/shared/api/home/queries';
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
-import type { HeroSourceItem } from '@/shared/hooks/useHeroHandoff';
 import { normalizeImageUrl } from '@/shared/lib';
 import { ContentImageCard } from './ContentImageCard';
 
 interface MonthlyMemoriesProps {
   teamId: number | null | undefined;
-  suppressedItemId?: string | null;
-  onHeroCapture?: (item: HeroSourceItem, source: HTMLElement | null) => void;
 }
 
-export const MonthlyMemories = ({
-  teamId,
-  suppressedItemId = null,
-  onHeroCapture,
-}: MonthlyMemoriesProps) => {
+export const MonthlyMemories = ({ teamId }: MonthlyMemoriesProps) => {
   const navigate = useNavigate();
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(teamId);
   const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(teamId);
@@ -63,19 +56,6 @@ export const MonthlyMemories = ({
                 description="반응과 댓글이 가장 많은 사진"
                 imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
                 heroKey={`pin-${firstPick.feedId}`}
-                suppressed={suppressedItemId === String(firstPick.feedId)}
-                onPointerDown={(event) => {
-                  const source =
-                    event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                  onHeroCapture?.(
-                    {
-                      id: String(firstPick.feedId),
-                      heroKey: `pin-${firstPick.feedId}`,
-                      thumbnailUrl: normalizeImageUrl(firstPick.thumbnailImageUrl) ?? '',
-                    },
-                    source,
-                  );
-                }}
                 onClick={() => navigate(PATHS.ACTIVITY_EVERYONE_PICK)}
               />
             )}
@@ -85,19 +65,6 @@ export const MonthlyMemories = ({
                 description="지역별로 모아보는 사진"
                 imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
                 heroKey={`pin-${firstRegion.feedId}`}
-                suppressed={suppressedItemId === String(firstRegion.feedId)}
-                onPointerDown={(event) => {
-                  const source =
-                    event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                  onHeroCapture?.(
-                    {
-                      id: String(firstRegion.feedId),
-                      heroKey: `pin-${firstRegion.feedId}`,
-                      thumbnailUrl: normalizeImageUrl(firstRegion.thumbnailImageUrl) ?? '',
-                    },
-                    source,
-                  );
-                }}
                 onClick={() => navigate(PATHS.ACTIVITY_REGION_FEEDS)}
               />
             )}

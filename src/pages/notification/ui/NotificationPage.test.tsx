@@ -44,7 +44,6 @@ const makeNotification = (overrides: Partial<Record<string, unknown>> = {}) => (
 });
 
 const mockFetchNextPage = vi.fn();
-const mockRefetchNotifications = vi.fn();
 
 const setNotifications = (
   items: ReturnType<typeof makeNotification>[],
@@ -55,7 +54,6 @@ const setNotifications = (
     isLoading: false,
     isError: false,
     fetchNextPage: mockFetchNextPage,
-    refetch: mockRefetchNotifications,
     hasNextPage: false,
     isFetchingNextPage: false,
     ...extra,
@@ -113,7 +111,6 @@ beforeEach(() => {
   intersectionCallbacks = [];
   mockReadNotification.mockClear();
   mockFetchNextPage.mockClear();
-  mockRefetchNotifications.mockClear();
   setNotifications([
     makeNotification(),
     makeNotification({
@@ -216,22 +213,6 @@ describe('NotificationPage - 무한 스크롤', () => {
     renderPage();
 
     expect(intersectionCallbacks).toHaveLength(0);
-  });
-});
-
-describe('NotificationPage - 당겨서 새로고침', () => {
-  it('상단에서 임계값 이상 당겼다가 놓으면 알림 목록을 다시 불러온다', async () => {
-    const { container } = renderPage();
-    const scrollContainer = getScrollContainer(container);
-
-    fireEvent.touchStart(scrollContainer, { touches: [{ clientY: 0 }] });
-    fireEvent.touchMove(scrollContainer, { touches: [{ clientY: 180 }] });
-
-    await act(async () => {
-      fireEvent.touchEnd(scrollContainer);
-    });
-
-    expect(mockRefetchNotifications).toHaveBeenCalledTimes(1);
   });
 });
 

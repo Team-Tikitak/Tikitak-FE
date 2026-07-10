@@ -3,20 +3,17 @@ import { useCallback, useMemo, useState, type MouseEvent, type UIEvent } from 'r
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
-import { feedKeys } from '@/shared/api/feed/keys';
 import { useInfiniteFeeds } from '@/shared/api/feed/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { useInfiniteScroll, useScrollRestore } from '@/shared/hooks';
-import { useHeroHandoff } from '@/shared/hooks/useHeroHandoff';
-import { usePullToRefresh } from '@/shared/hooks/usePullToRefresh';
 import { Divider, EmptyTeamView, Header } from '@/shared/ui';
-import { PullToRefreshIndicator } from '@/shared/ui/PullToRefreshIndicator';
-import { StoredHero } from '@/shared/ui/StoredHero';
 import { EmptyFeedView } from './EmptyFeedView';
 import { FeedCountToolbar, type FeedViewMode } from './FeedCountToolbar';
 import { FeedGrid } from './FeedGrid';
 import { FeedListItem } from './FeedListItem';
 import { FeedSkeleton } from './FeedSkeleton';
+import { StoredFeedHero } from './StoredFeedHero';
+import { useFeedHeroHandoff } from '../hooks/useFeedHeroHandoff';
 import { adaptFeedListItem } from '../lib/adaptFeedListItem';
 import { preloadFeedHeroAssets, runFeedHeroTransition } from '../lib/feedHeroAssets';
 import { warmFeedDetail } from '../lib/warmFeedDetail';
@@ -24,7 +21,6 @@ import type { FeedItem } from '../model/types';
 
 const FEED_LIST_EAGER_COUNT = 6;
 const FEED_SCROLL_STORAGE_PREFIX = 'feed-scroll';
-const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
 
 const getFeedScrollKey = (teamId: number, viewMode: FeedViewMode) =>
   `${FEED_SCROLL_STORAGE_PREFIX}:${teamId}:${viewMode}`;
@@ -75,43 +71,21 @@ export const FeedPage = () => {
     ready: !showFeedLoading && !isError,
     contentSignal: feeds.length,
   });
-  const pullToRefresh = usePullToRefresh({
-    scrollRef,
-    disabled: !teamId || showFeedLoading || isError,
-    onRefresh: () =>
-      teamId ? queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) }) : undefined,
-  });
 
   const {
-    storedHero: storedFeedHero,
+    storedFeedHero,
     storedHeroVisible,
-    suppressedItemId: suppressedHeroId,
+    suppressedHeroId,
     hideStoredHero,
     dismissStoredHero,
-    captureHero,
-  } = useHeroHandoff({
-    storageKey: FEED_HERO_STORAGE_KEY,
+    captureFeedHero,
+  } = useFeedHeroHandoff({
     navigationType,
-    shouldResetOnContextChange: isTeamSwitch,
+    isTeamSwitch,
     scrollRestored,
-    isItemLoaded: (itemId) => feeds.some((feed) => feed.id === itemId),
+    feeds,
     scrollFrameRef: scrollRef,
   });
-
-  const captureFeedHero = useCallback(
-    (item: FeedItem, source: HTMLElement) => {
-      captureHero(
-        {
-          id: item.id,
-          heroKey: `pin-${item.id}`,
-          thumbnailUrl: item.thumbnailUrl,
-          heroPreviewUrl: item.heroPreviewUrl,
-        },
-        source,
-      );
-    },
-    [captureHero],
-  );
 
   if (teamId !== viewModeTeamId) {
     setViewModeTeamId(teamId);
@@ -180,94 +154,76 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {storedFeedHero && <StoredHero storedHero={storedFeedHero} visible={storedHeroVisible} />}
+      {storedFeedHero && (
+        <StoredFeedHero storedFeedHero={storedFeedHero} visible={storedHeroVisible} />
+      )}
       <div
         ref={scrollRef}
-        className="no-scrollbar relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pt-6 pb-24"
         onScroll={handleFeedScroll}
-        {...pullToRefresh.touchHandlers}
       >
-        <PullToRefreshIndicator
-          pullDistance={pullToRefresh.pullDistance}
-          threshold={pullToRefresh.threshold}
-          refreshing={pullToRefresh.isRefreshing}
+        <FeedCountToolbar
+          count={totalCount}
+          loading={showFeedLoading}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          className="mb-6"
         />
-        <div
-          className="flex min-h-full flex-col px-6 pt-6 pb-24"
-          style={{
-            transform: `translateY(${pullToRefresh.pullDistance}px)`,
-            transition:
-              pullToRefresh.isRefreshing || pullToRefresh.pullDistance === 0
-                ? 'transform 180ms ease-out'
-                : undefined,
-          }}
-        >
-          <FeedCountToolbar
-            count={totalCount}
-            loading={showFeedLoading}
-            viewMode={viewMode}
-            onViewModeChange={handleViewModeChange}
-            className="mb-6"
+        {showFeedLoading ? (
+          <FeedSkeleton viewMode={viewMode} />
+        ) : isError ? (
+          <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
+        ) : feeds.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center">
+            <EmptyFeedView />
+          </div>
+        ) : viewMode === 'grid' ? (
+          <FeedGrid
+            items={feeds}
+            teamId={teamId}
+            suppressedHeroId={suppressedHeroId}
+            onHeroCapture={captureFeedHero}
           />
-          {showFeedLoading ? (
-            <FeedSkeleton viewMode={viewMode} />
-          ) : isError ? (
-            <p className="body-3 mt-10 text-center text-gray-500">피드를 불러오지 못했습니다.</p>
-          ) : feeds.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center">
-              <EmptyFeedView />
-            </div>
-          ) : viewMode === 'grid' ? (
-            <FeedGrid
-              items={feeds}
-              teamId={teamId}
-              suppressedHeroId={suppressedHeroId}
-              onHeroCapture={captureFeedHero}
-            />
-          ) : (
-            <ul className="flex flex-col gap-5">
-              {feeds.map((feed, index) => (
-                <li key={feed.id} className="flex flex-col gap-5">
-                  <Link
-                    to={toFeedDetail(feed.id)}
-                    state={{
-                      thumbnailUrl: feed.thumbnailUrl,
-                      heroPreviewUrl: feed.heroPreviewUrl,
-                    }}
-                    className="block"
-                    onPointerDown={(event) => {
-                      const source =
-                        event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                      if (source) captureFeedHero(feed, source);
-                      void preloadFeedHeroAssets(feed);
-                      warmFeedDetail(queryClient, teamId, feed.id);
-                    }}
-                    onFocus={() => {
-                      void preloadFeedHeroAssets(feed);
-                    }}
-                    onMouseEnter={() => {
-                      void preloadFeedHeroAssets(feed);
-                    }}
-                    onClick={(event) => void handleListFeedClick(event, feed)}
-                  >
-                    <FeedListItem
-                      item={feed}
-                      eager={index < FEED_LIST_EAGER_COUNT}
-                      suppressHeroImage={suppressedHeroId === feed.id}
-                    />
-                  </Link>
-                  <Divider />
-                </li>
-              ))}
-            </ul>
-          )}
-          {!showFeedLoading && !isError && feeds.length > 0 && (
-            <>
-              <div ref={observerRef} className="h-8 shrink-0" aria-hidden="true" />
-              {isFetchingNextPage && <FeedSkeleton viewMode={viewMode} />}
-            </>
-          )}
-        </div>
+        ) : (
+          <ul className="flex flex-col gap-5">
+            {feeds.map((feed, index) => (
+              <li key={feed.id} className="flex flex-col gap-5">
+                <Link
+                  to={toFeedDetail(feed.id)}
+                  state={{ thumbnailUrl: feed.thumbnailUrl, heroPreviewUrl: feed.heroPreviewUrl }}
+                  className="block"
+                  onPointerDown={(event) => {
+                    const source =
+                      event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+                    if (source) captureFeedHero(feed, source);
+                    void preloadFeedHeroAssets(feed);
+                    warmFeedDetail(queryClient, teamId, feed.id);
+                  }}
+                  onFocus={() => {
+                    void preloadFeedHeroAssets(feed);
+                  }}
+                  onMouseEnter={() => {
+                    void preloadFeedHeroAssets(feed);
+                  }}
+                  onClick={(event) => void handleListFeedClick(event, feed)}
+                >
+                  <FeedListItem
+                    item={feed}
+                    eager={index < FEED_LIST_EAGER_COUNT}
+                    suppressHeroImage={suppressedHeroId === feed.id}
+                  />
+                </Link>
+                <Divider />
+              </li>
+            ))}
+          </ul>
+        )}
+        {!showFeedLoading && !isError && feeds.length > 0 && (
+          <>
+            <div ref={observerRef} className="h-8 shrink-0" aria-hidden="true" />
+            {isFetchingNextPage && <FeedSkeleton viewMode={viewMode} />}
+          </>
+        )}
       </div>
     </PageShell>
   );

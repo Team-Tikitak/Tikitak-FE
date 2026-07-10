@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
 
 interface PageShellProps {
@@ -7,8 +7,6 @@ interface PageShellProps {
   bottom?: ReactNode;
   className?: string;
   contentClassName?: string;
-  contentRef?: ComponentPropsWithRef<'main'>['ref'];
-  contentProps?: Omit<ComponentPropsWithRef<'main'>, 'children' | 'className' | 'ref'>;
   bottomClassName?: string;
 }
 
@@ -18,8 +16,6 @@ export const PageShell = ({
   bottom,
   className,
   contentClassName,
-  contentRef,
-  contentProps,
   bottomClassName,
 }: PageShellProps) => {
   return (
@@ -31,11 +27,7 @@ export const PageShell = ({
     >
       {header && <header className="shrink-0 pt-(--safe-top)">{header}</header>}
 
-      <main
-        ref={contentRef}
-        className={cn('no-scrollbar min-h-0 flex-1 overflow-y-auto', contentClassName)}
-        {...contentProps}
-      >
+      <main className={cn('no-scrollbar min-h-0 flex-1 overflow-y-auto', contentClassName)}>
         {children}
       </main>
 

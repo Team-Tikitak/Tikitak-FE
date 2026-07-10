@@ -14,7 +14,7 @@ export interface NotificationListItem {
 
 export const useNotifications = () => {
   const teamId = useActiveTeamId();
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteNotifications({ teamId });
 
   const notifications: NotificationListItem[] =
@@ -36,7 +36,6 @@ export const useNotifications = () => {
     isLoading,
     isError,
     fetchNextPage,
-    refreshNotifications: refetch,
     hasNextPage,
     isFetchingNextPage,
   };
