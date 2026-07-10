@@ -41,7 +41,7 @@ export const FeedDetailContent = ({
   onHintDismiss,
   actionSlot,
 }: FeedDetailContentProps) => {
-  const { authorName, participants, images, feedImageIds, content, date } = useFeedData(
+  const { authorName, participants, images, feedImageIds, content, date, question } = useFeedData(
     teamId,
     feedId,
   );
@@ -97,6 +97,7 @@ export const FeedDetailContent = ({
         authorName={authorName}
         content={content}
         date={date}
+        question={question}
         actionSlot={actionSlot}
         onMoreParticipantsClick={() => setParticipantsSheetState('open')}
         onLongPress={
