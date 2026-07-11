@@ -94,7 +94,7 @@ export const BottomNavigation = ({
       )}
       {...props}
     >
-      <ul className="absolute bottom-[env(safe-area-inset-bottom)] left-0 grid h-[60px] w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_minmax(0,1fr)_minmax(0,1fr)] items-center border-t border-gray-300 bg-white px-5 py-2">
+      <ul className="absolute bottom-0 left-0 grid h-[calc(60px+env(safe-area-inset-bottom))] w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_minmax(0,1fr)_minmax(0,1fr)] items-center border-t border-gray-300 bg-white px-5 pt-2 pb-[calc(8px+env(safe-area-inset-bottom))]">
         {NAVIGATION_TABS.map(({ gridColumnClassName, ...tab }) => (
           <BottomNavigationItem
             key={tab.value}

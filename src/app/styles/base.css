@@ -52,6 +52,13 @@
     background-color: transparent;
   }
 
+  /* 네이티브 카메라 프리뷰는 웹뷰 뒤(insertSubview at 0)에 그려진다.
+     카메라 오버레이는 body 포털이라 #root(뒤에 깔린 페이지)만 숨겨야 프리뷰가 비쳐 보인다. */
+  body.native-camera-active #root {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* 이미지·링크 드래그 차단 */
   img,
   a {
