@@ -65,7 +65,8 @@ describe('BottomNavigation', () => {
       expect(button.className).not.toContain('press-feedback');
       expect(button.className).not.toContain('active:scale');
       expect(button.className).not.toContain('translate');
-      expect(button.querySelector('span')).toHaveClass('group-active:scale-[0.98]');
+      expect(button.querySelector('span')).toHaveClass('h-full', 'w-full');
+      expect(button.querySelector('svg')).toHaveClass('origin-center', 'group-active:scale-[0.98]');
     }
   });
 

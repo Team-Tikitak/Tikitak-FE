@@ -65,13 +65,16 @@ export function BottomNavigationItem({
         className={bottomNavigationButtonVariants({ selected, className })}
         {...props}
       >
-        <span className="flex flex-col items-center justify-center transition-transform duration-150 ease-out group-active:scale-[0.98]">
+        <span className="flex h-full w-full flex-col items-center justify-center">
           <ResolvedIcon
             aria-hidden="true"
             className={bottomNavigationIconVariants({
               fillCurrent: selected && fillsWhenSelected && !FilledIcon,
               showFilledIcon: selected,
-              className: iconClassName,
+              className: cn(
+                'origin-center transition-transform duration-150 ease-out group-active:scale-[0.98]',
+                iconClassName,
+              ),
             })}
           />
           <span className="relative inline-grid">

@@ -51,6 +51,7 @@ const NAVIGATION_TABS = [
     label: '활동',
     icon: ActivityIcon,
     filledIcon: ActivityIconFilled,
+    iconClassName: '-translate-x-[0.3px]',
     fillsWhenSelected: false,
     gridColumnClassName: 'col-start-4',
   },
