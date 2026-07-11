@@ -43,6 +43,7 @@ const NAVIGATION_TABS = [
     label: '피드',
     icon: IconBottom,
     filledIcon: IconBottomFilled,
+    iconClassName: '-translate-x-[0.3px]',
     fillsWhenSelected: false,
     gridColumnClassName: 'col-start-2',
   },
