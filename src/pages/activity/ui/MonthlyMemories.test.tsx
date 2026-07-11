@@ -78,6 +78,30 @@ describe('MonthlyMemories', () => {
     );
   });
 
+  it('상세로 이동하기 전에 현재 활동 스크롤 위치를 저장할 수 있게 알린다', () => {
+    const onBeforeNavigate = vi.fn();
+    const onHeroCapture = vi.fn();
+    render(
+      <MonthlyMemories
+        teamId={1}
+        onBeforeNavigate={onBeforeNavigate}
+        onHeroCapture={onHeroCapture}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '모두의 PICK' }));
+
+    expect(onBeforeNavigate).toHaveBeenCalledTimes(1);
+    const [beforeNavigateOrder] = onBeforeNavigate.mock.invocationCallOrder;
+    const [heroCaptureOrder] = onHeroCapture.mock.invocationCallOrder;
+    const [navigateOrder] = mockNavigate.mock.invocationCallOrder;
+    expect(beforeNavigateOrder).toBeDefined();
+    expect(heroCaptureOrder).toBeDefined();
+    expect(navigateOrder).toBeDefined();
+    expect(beforeNavigateOrder!).toBeLessThan(heroCaptureOrder!);
+    expect(beforeNavigateOrder!).toBeLessThan(navigateOrder!);
+  });
+
   it('PICK 카드를 키보드로 활성화하면 히어로 캡처 후 이동하고 기본 스크롤을 막는다', () => {
     const onHeroCapture = vi.fn();
     render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
