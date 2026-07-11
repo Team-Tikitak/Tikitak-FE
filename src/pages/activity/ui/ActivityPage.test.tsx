@@ -8,6 +8,15 @@ const LocationDisplay = () => <div data-testid="location-display">{useLocation()
 
 const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
 
+const scrollRestoreMocks = vi.hoisted(() => ({
+  handleScroll: vi.fn(),
+  useScrollRestore: vi.fn(),
+}));
+
+vi.mock('@/shared/hooks', () => ({
+  useScrollRestore: scrollRestoreMocks.useScrollRestore,
+}));
+
 vi.mock('@/shared/hooks/team/useActiveTeamSelection', () => ({
   useActiveTeamSelection: vi.fn(() => ({
     activeTeam: { teamId: 1, teamName: '티키탁' },
@@ -90,6 +99,13 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  scrollRestoreMocks.handleScroll.mockReset();
+  scrollRestoreMocks.useScrollRestore.mockReset();
+  scrollRestoreMocks.useScrollRestore.mockReturnValue({
+    scrollRef: { current: null },
+    handleScroll: scrollRestoreMocks.handleScroll,
+    restored: true,
+  });
   setUnreadCount(undefined);
   setHomeQueries();
 });
@@ -315,6 +331,20 @@ describe('ActivityPage - 히어로 핸드오프', () => {
 
     expect(scrollContainer).toHaveClass('relative');
     expect(clone?.parentElement).toBe(scrollContainer);
+  });
+
+  it('회귀: 활동 스크롤 복원 상태와 스크롤 이벤트를 히어로 컨테이너에 연결한다', () => {
+    const { container } = renderPage();
+
+    expect(scrollRestoreMocks.useScrollRestore).toHaveBeenCalledWith('activity-scroll', {
+      ready: true,
+      contentSignal: '1:false',
+    });
+
+    const scrollContainer = getScrollContainer(container);
+    fireEvent.scroll(scrollContainer!);
+
+    expect(scrollRestoreMocks.handleScroll).toHaveBeenCalledTimes(1);
   });
 
   it('저장된 히어로 대상이 더 이상 첫 PICK/지역이 아니면 그레이스 타임 안에 핸드오프되지 않는다', () => {
