@@ -29,7 +29,15 @@ export const ContentImageCard = ({
       aria-label={onClick ? title : undefined}
       onPointerDown={onPointerDown}
       onClick={onClick}
-      onKeyDown={onClick ? (e) => (e.key === 'Enter' || e.key === ' ') && onClick(e) : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              e.preventDefault();
+              onClick(e);
+            }
+          : undefined
+      }
       className={cn(
         'relative flex h-[204px] flex-1 flex-col items-start gap-1.5 overflow-hidden rounded-lg bg-gray-300 px-3 py-4',
         onClick && 'cursor-pointer',

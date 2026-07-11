@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { createEvent, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PATHS } from '@/app/routes/paths';
 import { MonthlyMemories } from './MonthlyMemories';
@@ -76,6 +76,27 @@ describe('MonthlyMemories', () => {
       },
       expect.any(HTMLElement),
     );
+  });
+
+  it('PICK 카드를 키보드로 활성화하면 히어로 캡처 후 이동하고 기본 스크롤을 막는다', () => {
+    const onHeroCapture = vi.fn();
+    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+
+    const card = screen.getByRole('button', { name: '모두의 PICK' });
+    const event = createEvent.keyDown(card, { key: ' ' });
+    const preventDefault = vi.spyOn(event, 'preventDefault');
+    fireEvent(card, event);
+
+    expect(preventDefault).toHaveBeenCalledTimes(1);
+    expect(onHeroCapture).toHaveBeenCalledWith(
+      {
+        id: '1',
+        heroKey: 'pin-1',
+        thumbnailUrl: 'https://example.com/pick.jpg',
+      },
+      expect.any(HTMLElement),
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(PATHS.ACTIVITY_EVERYONE_PICK);
   });
 
   it('지역 카드를 누르면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
