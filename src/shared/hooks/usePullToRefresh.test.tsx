@@ -66,7 +66,7 @@ describe('usePullToRefresh', () => {
     expect(result.current.pullDistance).toBe(0);
   });
 
-  it('회귀: 시작점보다 위로 올리는 move는 네이티브 스크롤을 허용하고 pull 상태를 끊는다', () => {
+  it('회귀: pull 시작 후 손을 떼지 않고 위로 올렸다가 다시 아래로 당기면 인디케이터가 다시 나타난다', () => {
     const scrollElement = document.createElement('div');
     const onRefresh = vi.fn();
     const { result } = renderHook(() =>
@@ -87,15 +87,42 @@ describe('usePullToRefresh', () => {
     act(() => {
       result.current.touchHandlers.onTouchMove(touchEvent(-20, preventDefault));
     });
-    expect(preventDefault).not.toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
     expect(result.current.pullDistance).toBe(0);
     expect(result.current.pullTransformStyle.transform).toBe('translateY(0px)');
 
     act(() => {
       result.current.touchHandlers.onTouchMove(touchEvent(100));
     });
+    expect(result.current.pullDistance).toBeGreaterThan(0);
+    expect(result.current.pullTransformStyle.transform).toBe('translateY(50px)');
+  });
+
+  it('처음부터 위로 스크롤하려는 제스처는 기존처럼 pull 추적을 시작하지 않는다', () => {
+    const scrollElement = document.createElement('div');
+    const onRefresh = vi.fn();
+    const preventDefault = vi.fn();
+    const { result } = renderHook(() =>
+      usePullToRefresh({
+        scrollRef: { current: scrollElement },
+        onRefresh,
+        threshold: 60,
+      }),
+    );
+
+    act(() => {
+      result.current.touchHandlers.onTouchStart(touchEvent(100));
+      result.current.touchHandlers.onTouchMove(touchEvent(80, preventDefault));
+    });
+
+    expect(preventDefault).not.toHaveBeenCalled();
     expect(result.current.pullDistance).toBe(0);
-    expect(result.current.pullTransformStyle.transform).toBe('translateY(0px)');
+
+    act(() => {
+      result.current.touchHandlers.onTouchMove(touchEvent(180));
+    });
+
+    expect(result.current.pullDistance).toBe(0);
   });
 
   it('does not track pulls while the scroll container is not at the top', () => {
