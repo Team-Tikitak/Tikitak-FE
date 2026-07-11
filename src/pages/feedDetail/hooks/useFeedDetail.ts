@@ -6,8 +6,8 @@ import { PATHS } from '@/app/routes/paths';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
-import { alertDialog } from '@/shared/lib/native/nativeDialog';
 import { isFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
+import { openConfirmDialog } from '@/shared/ui/ConfirmDialog/openConfirmDialog';
 
 export const useFeedDetail = () => {
   const { feedId } = useParams<{ feedId: string }>();
@@ -25,7 +25,12 @@ export const useFeedDetail = () => {
     const isNotFound = isAxiosError(error) && error.response?.status === 404;
     if (!isNotFound || isFeedDeleting() || notifiedNotFoundRef.current) return;
     notifiedNotFoundRef.current = true;
-    void alertDialog('삭제되었거나 존재하지 않는 게시물이에요');
+    openConfirmDialog({
+      title: '오류',
+      description: '삭제되었거나 존재하지 않는 게시물이에요',
+      confirmLabel: '확인',
+      showCancel: false,
+    });
 
     // 죽은 캐시를 지워 재진입 시 로더가 새로 조회하도록 한다
     queryClient.removeQueries({ queryKey: feedKeys.detail(teamId, feedIdNum) });
