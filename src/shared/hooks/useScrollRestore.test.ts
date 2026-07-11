@@ -18,6 +18,7 @@ describe('useScrollRestore', () => {
     const { result } = renderHook(() => useScrollRestore(null, { ready: true, contentSignal: 1 }));
 
     expect(result.current.restored).toBe(true);
+    expect(result.current.isRestored()).toBe(true);
   });
 
   it('should return restored=false initially when key is provided', () => {
@@ -26,6 +27,15 @@ describe('useScrollRestore', () => {
     );
 
     expect(result.current.restored).toBe(false);
+    expect(result.current.isRestored()).toBe(false);
+  });
+
+  it('복원 완료 여부를 상태 반영 전에도 동기 조회할 수 있다', () => {
+    const { result } = renderHook(() =>
+      useScrollRestore('scroll-key', { ready: true, contentSignal: 1 }),
+    );
+
+    expect(result.current.isRestored()).toBe(true);
   });
 
   it('should handle scroll event', () => {

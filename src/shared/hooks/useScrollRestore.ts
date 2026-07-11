@@ -1,4 +1,4 @@
-import { type UIEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type UIEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
 const MAX_RESTORE_ATTEMPTS = 30;
@@ -55,6 +55,8 @@ export const useScrollRestore = (
     }
     storeScrollTop(key, scrollTop);
   };
+
+  const isRestored = useCallback(() => !key || restoredKeyRef.current === key, [key]);
 
   useEffect(
     () => () => {
@@ -115,5 +117,11 @@ export const useScrollRestore = (
     };
   }, [key, ready, contentSignal]);
 
-  return { scrollRef, handleScroll, saveScrollPosition, restored: !key || restoredKey === key };
+  return {
+    scrollRef,
+    handleScroll,
+    saveScrollPosition,
+    isRestored,
+    restored: !key || restoredKey === key,
+  };
 };

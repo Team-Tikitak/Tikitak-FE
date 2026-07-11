@@ -37,6 +37,7 @@ export const NotificationPage = () => {
   const {
     scrollRef,
     handleScroll: handleRestoreScroll,
+    isRestored: isScrollRestored,
     restored: scrollRestored,
   } = useScrollRestore(scrollKey, {
     ready: !isLoading && !isError,
@@ -65,7 +66,7 @@ export const NotificationPage = () => {
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     handleRestoreScroll(event);
-    if (!storedHero || !scrollRestored) return;
+    if (!storedHero || !isScrollRestored()) return;
     dismissStoredHero();
   };
 
