@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { recoverFromChunkLoadError } from '@/app/lib/chunkLoadRecovery';
 
 interface GlobalErrorBoundaryProps {
   children: ReactNode;
@@ -6,24 +7,37 @@ interface GlobalErrorBoundaryProps {
 
 interface GlobalErrorBoundaryState {
   hasError: boolean;
+  isRecovering: boolean;
 }
 
 export class GlobalErrorBoundary extends Component<
   GlobalErrorBoundaryProps,
   GlobalErrorBoundaryState
 > {
-  state: GlobalErrorBoundaryState = { hasError: false };
+  state: GlobalErrorBoundaryState = { hasError: false, isRecovering: false };
 
   static getDerivedStateFromError(): GlobalErrorBoundaryState {
-    return { hasError: true };
+    return { hasError: true, isRecovering: false };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('GlobalErrorBoundary caught', error, errorInfo);
+    if (recoverFromChunkLoadError(error)) {
+      this.setState({ isRecovering: true });
+    }
   }
 
   render() {
     if (this.state.hasError) {
+      if (this.state.isRecovering) {
+        return (
+          <div className="mx-auto flex min-h-dvh w-full max-w-[393px] flex-col items-center justify-center px-5">
+            <p className="title-2 text-black">최신 버전을 불러오는 중이에요</p>
+            <p className="body-1 mt-2 text-center text-gray-500">잠시만 기다려주세요</p>
+          </div>
+        );
+      }
+
       return (
         <div className="mx-auto flex min-h-dvh w-full max-w-[393px] flex-col items-center justify-center px-5">
           <p className="title-2 text-black">문제가 발생했어요</p>

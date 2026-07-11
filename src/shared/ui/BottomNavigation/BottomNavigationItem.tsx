@@ -9,6 +9,7 @@ interface BottomNavigationItemProps extends Omit<ComponentPropsWithRef<'button'>
   filledIcon?: ComponentType<SVGProps<SVGSVGElement>>;
   selected?: boolean;
   fillsWhenSelected?: boolean;
+  listItemClassName?: string;
   onSelect?: (tab: BottomNavigationTab) => void;
 }
 
@@ -19,6 +20,7 @@ export function BottomNavigationItem({
   filledIcon: FilledIcon,
   selected = false,
   fillsWhenSelected = false,
+  listItemClassName,
   onSelect,
   className,
   ref,
@@ -27,7 +29,7 @@ export function BottomNavigationItem({
   const ResolvedIcon = selected && FilledIcon ? FilledIcon : Icon;
 
   return (
-    <li className="flex min-w-0 justify-center">
+    <li className={cn('flex min-w-0 justify-center', listItemClassName)}>
       <button
         type="button"
         ref={ref}

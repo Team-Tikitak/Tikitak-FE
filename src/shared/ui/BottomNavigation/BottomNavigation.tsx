@@ -1,4 +1,4 @@
-import { type ComponentPropsWithRef } from 'react';
+import { type ComponentPropsWithRef, type ComponentType, type SVGProps } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import ActivityIcon from '@/shared/assets/Icon/ActivityIcon.svg?react';
@@ -19,27 +19,47 @@ interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onCh
   createDisabled?: boolean;
 }
 
-const LEFT_TABS = [
-  { value: 'home' as const, label: '홈', icon: HomeIcon, fillsWhenSelected: true },
+interface BottomNavigationTabConfig {
+  value: BottomNavigationTab;
+  label: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  filledIcon?: ComponentType<SVGProps<SVGSVGElement>>;
+  fillsWhenSelected?: boolean;
+  gridColumnClassName: string;
+}
+
+const NAVIGATION_TABS = [
   {
-    value: 'feed' as const,
+    value: 'home',
+    label: '홈',
+    icon: HomeIcon,
+    fillsWhenSelected: true,
+    gridColumnClassName: 'col-start-1',
+  },
+  {
+    value: 'feed',
     label: '피드',
     icon: IconBottom,
     filledIcon: IconBottomFilled,
     fillsWhenSelected: false,
+    gridColumnClassName: 'col-start-2',
   },
-];
-
-const RIGHT_TABS = [
   {
-    value: 'activity' as const,
+    value: 'activity',
     label: '활동',
     icon: ActivityIcon,
     filledIcon: ActivityIconFilled,
     fillsWhenSelected: false,
+    gridColumnClassName: 'col-start-4',
   },
-  { value: 'my' as const, label: '마이', icon: MyIcon, fillsWhenSelected: true },
-];
+  {
+    value: 'my',
+    label: '마이',
+    icon: MyIcon,
+    fillsWhenSelected: true,
+    gridColumnClassName: 'col-start-5',
+  },
+] satisfies BottomNavigationTabConfig[];
 
 export const BottomNavigation = ({
   activeTab = 'home',
@@ -71,31 +91,24 @@ export const BottomNavigation = ({
       )}
       {...props}
     >
-      <ul className="flex flex-1 justify-around">
-        {LEFT_TABS.map((tab) => (
+      <ul className="grid w-full grid-cols-[1fr_1fr_72px_1fr_1fr] items-center">
+        {NAVIGATION_TABS.map(({ gridColumnClassName, ...tab }) => (
           <BottomNavigationItem
             key={tab.value}
             {...tab}
             selected={activeTab === tab.value}
             onSelect={handleTabChange}
+            listItemClassName={gridColumnClassName}
           />
         ))}
-      </ul>
-      <FloatingButton
-        aria-label={createAriaLabel}
-        onClick={handleCreateClick}
-        disabled={createDisabled}
-        className="shrink-0 -translate-y-7"
-      />
-      <ul className="flex flex-1 justify-around">
-        {RIGHT_TABS.map((tab) => (
-          <BottomNavigationItem
-            key={tab.value}
-            {...tab}
-            selected={activeTab === tab.value}
-            onSelect={handleTabChange}
+        <li className="col-start-3 row-start-1 flex justify-center">
+          <FloatingButton
+            aria-label={createAriaLabel}
+            onClick={handleCreateClick}
+            disabled={createDisabled}
+            className="-translate-y-7 active:-translate-y-7 active:scale-[0.97]"
           />
-        ))}
+        </li>
       </ul>
     </nav>
   );
