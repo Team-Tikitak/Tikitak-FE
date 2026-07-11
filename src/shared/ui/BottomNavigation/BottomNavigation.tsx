@@ -17,6 +17,7 @@ interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onCh
   onCreateClick?: () => void;
   createAriaLabel?: string;
   createDisabled?: boolean;
+  interactive?: boolean;
 }
 
 interface BottomNavigationTabConfig {
@@ -24,8 +25,9 @@ interface BottomNavigationTabConfig {
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   filledIcon?: ComponentType<SVGProps<SVGSVGElement>>;
+  iconClassName?: string;
   fillsWhenSelected?: boolean;
-  gridColumnClassName: string;
+  gridColumnClassName: 'col-start-1' | 'col-start-2' | 'col-start-4' | 'col-start-5';
 }
 
 const NAVIGATION_TABS = [
@@ -66,6 +68,7 @@ export const BottomNavigation = ({
   onCreateClick,
   createAriaLabel = '추가',
   createDisabled = false,
+  interactive = true,
   className,
   ref,
   ...props
@@ -86,12 +89,12 @@ export const BottomNavigation = ({
       ref={ref}
       aria-label="하단 내비게이션"
       className={cn(
-        'relative flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-center overflow-visible border-t border-gray-300 bg-white pb-[env(safe-area-inset-bottom)]',
+        'relative h-[calc(88px+env(safe-area-inset-bottom))] w-full overflow-visible pb-[env(safe-area-inset-bottom)]',
         className,
       )}
       {...props}
     >
-      <ul className="grid w-full grid-cols-[1fr_1fr_72px_1fr_1fr] items-center">
+      <ul className="absolute bottom-[env(safe-area-inset-bottom)] left-0 grid h-[60px] w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_minmax(0,1fr)_minmax(0,1fr)] items-center border-t border-gray-300 bg-white px-5 py-2">
         {NAVIGATION_TABS.map(({ gridColumnClassName, ...tab }) => (
           <BottomNavigationItem
             key={tab.value}
@@ -101,12 +104,15 @@ export const BottomNavigation = ({
             listItemClassName={gridColumnClassName}
           />
         ))}
-        <li className="col-start-3 row-start-1 flex justify-center">
+        <li className="pointer-events-none absolute top-[-28px] left-0 h-14 w-full">
           <FloatingButton
             aria-label={createAriaLabel}
             onClick={handleCreateClick}
             disabled={createDisabled}
-            className="-translate-y-7 active:-translate-y-7 active:scale-[0.97]"
+            className={cn(
+              'absolute top-0 left-1/2 -translate-x-1/2',
+              interactive ? 'pointer-events-auto' : 'pointer-events-none',
+            )}
           />
         </li>
       </ul>

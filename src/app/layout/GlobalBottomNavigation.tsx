@@ -29,17 +29,20 @@ export const GlobalBottomNavigation = () => {
     ? ACTIVE_TAB_BY_PATH[location.pathname]
     : undefined;
   const isKeyboardVisible = useNativeKeyboardVisible();
+  const isInteractive = showTabBar && !isKeyboardVisible;
 
   return (
     <div
       className={cn(
         'absolute bottom-0 left-1/2 z-30 w-full -translate-x-1/2 transition-opacity duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] sm:max-w-[393px]',
-        showTabBar && !isKeyboardVisible
-          ? 'pointer-events-auto opacity-100'
-          : 'pointer-events-none opacity-0',
+        isInteractive ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
       )}
     >
-      <BottomNavigation activeTab={activeTab} createDisabled={!hasActiveTeam} />
+      <BottomNavigation
+        activeTab={activeTab}
+        createDisabled={!hasActiveTeam}
+        interactive={isInteractive}
+      />
     </div>
   );
 };

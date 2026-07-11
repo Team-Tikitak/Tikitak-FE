@@ -170,6 +170,9 @@ describe('NotificationPage - 히어로 핸드오프', () => {
     // 사본이 exit-key를 드는 동안 해당 알림의 원본 썸네일은 키를 내려놓는다
     const suppressedItem = screen.getByRole('link', { name: /성정수/ });
     expect(suppressedItem.querySelector('[data-hero-exit-key]')).toBeNull();
+    expect(suppressedItem.querySelector('img[src="https://example.com/thumb-7.jpg"]')).toHaveClass(
+      'opacity-0',
+    );
     // 다른 알림의 썸네일은 영향 없음
     const otherItem = screen.getByRole('link', { name: /이시언/ });
     expect(otherItem.querySelector('[data-hero-exit-key="pin-8-n12"]')).not.toBeNull();

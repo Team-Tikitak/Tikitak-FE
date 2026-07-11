@@ -40,7 +40,13 @@ export const CameraView = ({
   onZoomChange,
 }: CameraViewProps) => {
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-black">
+    <div
+      data-testid="camera-view"
+      className={cn(
+        'relative flex h-full w-full flex-col overflow-hidden',
+        nativePreview ? 'bg-transparent' : 'bg-black',
+      )}
+    >
       {nativePreview ? (
         <div
           data-testid="camera-preview"

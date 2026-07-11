@@ -29,12 +29,14 @@ export const usePullToRefresh = ({
 }: UsePullToRefreshOptions) => {
   const startYRef = useRef(0);
   const trackingRef = useRef(false);
+  const hasPulledRef = useRef(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const resetPull = useCallback(() => {
     trackingRef.current = false;
     startYRef.current = 0;
+    hasPulledRef.current = false;
     setPullDistance(0);
   }, []);
 
@@ -45,6 +47,7 @@ export const usePullToRefresh = ({
       if (event.touches.length !== 1) return;
 
       trackingRef.current = true;
+      hasPulledRef.current = false;
       startYRef.current = event.touches[0].clientY;
     },
     [disabled, isRefreshing, scrollRef],
@@ -62,7 +65,16 @@ export const usePullToRefresh = ({
 
       const deltaY = event.touches[0].clientY - startYRef.current;
       if (deltaY <= 0) {
-        resetPull();
+        if (!hasPulledRef.current) {
+          resetPull();
+          return;
+        }
+
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+
+        setPullDistance(0);
         return;
       }
 
@@ -70,6 +82,7 @@ export const usePullToRefresh = ({
         event.preventDefault();
       }
 
+      hasPulledRef.current = true;
       setPullDistance(Math.min(maxPullDistance, deltaY * PULL_RESISTANCE));
     },
     [disabled, isRefreshing, maxPullDistance, resetPull, scrollRef],

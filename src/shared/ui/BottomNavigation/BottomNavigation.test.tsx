@@ -19,13 +19,61 @@ describe('BottomNavigation', () => {
     navigateMock.mockClear();
   });
 
-  it('home, feed, my 세 개의 탭과 추가 버튼을 렌더링한다', () => {
+  it('home, feed, activity, my 탭과 추가 버튼을 렌더링한다', () => {
     render(<BottomNavigation />);
 
     expect(screen.getByRole('button', { name: /홈/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /피드/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /활동/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /마이/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '추가' })).toBeInTheDocument();
+  });
+
+  it('Figma 기준 좌우 20px, 중앙 80px gap 레이아웃을 유지한다', () => {
+    render(<BottomNavigation />);
+
+    const navigation = screen.getByRole('navigation', { name: '하단 내비게이션' });
+    const list = navigation.querySelector('ul');
+
+    expect(navigation).toHaveClass('h-[calc(88px+env(safe-area-inset-bottom))]');
+    expect(list).toHaveClass('h-[60px]', 'bottom-[env(safe-area-inset-bottom)]');
+    expect(list).toHaveClass('px-5');
+    expect(list).toHaveClass(
+      'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_minmax(0,1fr)_minmax(0,1fr)]',
+    );
+    expect(screen.getByRole('button', { name: '추가' })).toHaveClass(
+      'left-1/2',
+      '-translate-x-1/2',
+      'top-0',
+    );
+    expect(screen.getByRole('button', { name: '추가' }).className).not.toContain('translate-y');
+    expect(screen.getByRole('button', { name: '추가' }).className).not.toContain('active:scale');
+    expect(screen.getByRole('button', { name: '추가' }).querySelector('span')).toHaveClass(
+      'group-active:scale-[0.97]',
+    );
+  });
+
+  it('탭 버튼은 누름 피드백으로 위치가 흔들리지 않는다', () => {
+    render(<BottomNavigation />);
+
+    for (const label of ['홈', '피드', '활동', '마이']) {
+      const button = screen.getByRole('button', { name: label });
+      expect(button.className).not.toContain('press-feedback');
+      expect(button.className).not.toContain('active:scale');
+      expect(button.className).not.toContain('translate');
+      expect(button.querySelector('span')).toHaveClass('group-active:scale-[0.98]');
+    }
+  });
+
+  it('피드와 활동 아이콘은 별도 광학 보정 없이 중앙 정렬한다', () => {
+    render(<BottomNavigation />);
+
+    expect(
+      screen.getByRole('button', { name: '피드' }).querySelector('svg')?.className,
+    ).not.toContain('translate-x');
+    expect(
+      screen.getByRole('button', { name: '활동' }).querySelector('svg')?.className,
+    ).not.toContain('translate-x');
   });
 
   it('activeTab 에 해당하는 항목만 aria-current 가 page 이다', () => {
@@ -59,6 +107,12 @@ describe('BottomNavigation', () => {
     fireEvent.click(screen.getByRole('button', { name: '추가' }));
 
     expect(onCreateClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('비활성 상태에서는 floating 추가 버튼이 포인터 이벤트를 받지 않는다', () => {
+    render(<BottomNavigation interactive={false} />);
+
+    expect(screen.getByRole('button', { name: '추가' })).toHaveClass('pointer-events-none');
   });
 
   it('createAriaLabel 로 추가 버튼의 aria-label 을 바꿀 수 있다', () => {

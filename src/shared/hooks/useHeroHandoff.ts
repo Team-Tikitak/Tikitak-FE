@@ -24,6 +24,7 @@ interface UseHeroHandoffParams {
   scrollRestored: boolean;
   isItemLoaded: (itemId: string) => boolean;
   scrollFrameRef: RefObject<HTMLElement | null>;
+  heroCoordinateMode?: 'frame' | 'scroll-content';
   // 팀 전환처럼 목록의 맥락 자체가 바뀌는 시점에 남은 히어로를 버려야 하는 페이지만 넘긴다
   shouldResetOnContextChange?: boolean;
 }
@@ -38,6 +39,7 @@ export const useHeroHandoff = ({
   scrollRestored,
   isItemLoaded,
   scrollFrameRef,
+  heroCoordinateMode = 'frame',
   shouldResetOnContextChange = false,
 }: UseHeroHandoffParams) => {
   // 현재 마운트에서 캡처된 출발용 히어로인지 여부 — 복귀 시 sessionStorage에서 복원된 히어로와 구분
@@ -146,9 +148,22 @@ export const useHeroHandoff = ({
       if (!source || !item.thumbnailUrl) return;
       const rect = source.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
-      const frameRect = scrollFrameRef.current?.parentElement?.getBoundingClientRect();
+      const scrollFrame = scrollFrameRef.current;
+      const frameRect =
+        heroCoordinateMode === 'scroll-content'
+          ? scrollFrame?.getBoundingClientRect()
+          : scrollFrame?.parentElement?.getBoundingClientRect();
       const localRect = frameRect
-        ? new DOMRect(rect.left - frameRect.left, rect.top - frameRect.top, rect.width, rect.height)
+        ? new DOMRect(
+            rect.left -
+              frameRect.left +
+              (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollLeft ?? 0) : 0),
+            rect.top -
+              frameRect.top +
+              (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollTop ?? 0) : 0),
+            rect.width,
+            rect.height,
+          )
         : rect;
       const nextStoredHero = storeHero(storageKey, {
         itemId: item.id,
@@ -166,7 +181,7 @@ export const useHeroHandoff = ({
         setStoredHero(nextStoredHero);
       });
     },
-    [scrollFrameRef, storageKey],
+    [heroCoordinateMode, scrollFrameRef, storageKey],
   );
 
   return {

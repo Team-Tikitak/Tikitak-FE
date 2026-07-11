@@ -1,21 +1,28 @@
 import { getSticker } from '@/shared/assets/Sticker/catalog';
+import { cn } from '@/shared/lib';
 import { type PlacedSticker } from '@/shared/types/sticker';
 
 interface PlacedStickerViewProps {
   sticker: PlacedSticker;
   isActive: boolean;
+  isDropping?: boolean;
 }
 
 const BASE_STICKER_SIZE_PX = 88;
 const HIT_SLOP_PX = 24;
 
-export const PlacedStickerView = ({ sticker, isActive }: PlacedStickerViewProps) => {
+export const PlacedStickerView = ({
+  sticker,
+  isActive,
+  isDropping = false,
+}: PlacedStickerViewProps) => {
   const { Component, label } = getSticker(sticker.stickerId);
 
   return (
     <div
       data-sticker-id={sticker.id}
       data-active={isActive || undefined}
+      data-dropping={isDropping || undefined}
       role="img"
       aria-label={`${label} 스티커`}
       style={{
@@ -27,7 +34,14 @@ export const PlacedStickerView = ({ sticker, isActive }: PlacedStickerViewProps)
       }}
       className="absolute touch-none p-6 will-change-transform select-none"
     >
-      <Component className="size-full" aria-hidden="true" />
+      <Component
+        className={cn(
+          'size-full transition-[filter,opacity,transform] duration-180 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform',
+          isActive && !isDropping && 'scale-[1.03]',
+          isDropping && 'scale-75 opacity-70 saturate-75',
+        )}
+        aria-hidden="true"
+      />
     </div>
   );
 };
