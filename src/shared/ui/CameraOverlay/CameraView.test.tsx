@@ -39,4 +39,11 @@ describe('CameraView', () => {
 
     expect(onZoomChange).toHaveBeenCalledWith(2);
   });
+
+  it('keeps the native preview layer visible behind the web overlay', () => {
+    render(<CameraView {...baseProps} isReady nativePreview />);
+
+    expect(screen.getByTestId('camera-view')).toHaveClass('bg-transparent');
+    expect(screen.getByTestId('camera-preview')).toHaveClass('bg-transparent', 'opacity-100');
+  });
 });

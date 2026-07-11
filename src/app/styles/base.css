@@ -52,11 +52,6 @@
     background-color: transparent;
   }
 
-  body.native-camera-active #root {
-    opacity: 0;
-    pointer-events: none;
-  }
-
   /* 이미지·링크 드래그 차단 */
   img,
   a {
