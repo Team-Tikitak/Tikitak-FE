@@ -7,6 +7,7 @@ interface BottomNavigationItemProps extends Omit<ComponentPropsWithRef<'button'>
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   filledIcon?: ComponentType<SVGProps<SVGSVGElement>>;
+  iconClassName?: string;
   selected?: boolean;
   fillsWhenSelected?: boolean;
   listItemClassName?: string;
@@ -18,6 +19,7 @@ export function BottomNavigationItem({
   label,
   icon: Icon,
   filledIcon: FilledIcon,
+  iconClassName,
   selected = false,
   fillsWhenSelected = false,
   listItemClassName,
@@ -36,25 +38,28 @@ export function BottomNavigationItem({
         aria-current={selected ? 'page' : undefined}
         onClick={() => onSelect?.(value)}
         className={cn(
-          'rounded-max press-feedback flex h-[44px] w-full max-w-[84px] flex-col items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500',
+          'group rounded-max flex h-[44px] w-full max-w-[84px] items-center justify-center text-[12px] leading-[140%] font-medium text-gray-500 transition-colors duration-150 ease-out [-webkit-tap-highlight-color:transparent]',
           selected && 'text-main font-semibold',
           className,
         )}
         {...props}
       >
-        <ResolvedIcon
-          aria-hidden="true"
-          className={cn(
-            'size-6 shrink-0',
-            selected && fillsWhenSelected && !FilledIcon && '[&_path]:fill-current',
-            selected && '[&_.icon-filled]:inline [&_.icon-outline]:hidden',
-          )}
-        />
-        <span className="relative inline-grid">
-          <span aria-hidden="true" className="invisible font-semibold">
-            {label}
+        <span className="flex flex-col items-center justify-center transition-transform duration-150 ease-out group-active:scale-[0.98]">
+          <ResolvedIcon
+            aria-hidden="true"
+            className={cn(
+              'size-6 shrink-0',
+              iconClassName,
+              selected && fillsWhenSelected && !FilledIcon && '[&_path]:fill-current',
+              selected && '[&_.icon-filled]:inline [&_.icon-outline]:hidden',
+            )}
+          />
+          <span className="relative inline-grid">
+            <span aria-hidden="true" className="invisible font-semibold">
+              {label}
+            </span>
+            <span className="absolute inset-0">{label}</span>
           </span>
-          <span className="absolute inset-0">{label}</span>
         </span>
       </button>
     </li>
