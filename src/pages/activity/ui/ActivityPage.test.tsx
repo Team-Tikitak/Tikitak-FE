@@ -10,6 +10,7 @@ const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
 
 const scrollRestoreMocks = vi.hoisted(() => ({
   handleScroll: vi.fn(),
+  saveScrollPosition: vi.fn(),
   useScrollRestore: vi.fn(),
 }));
 
@@ -100,10 +101,12 @@ beforeAll(() => {
 
 beforeEach(() => {
   scrollRestoreMocks.handleScroll.mockReset();
+  scrollRestoreMocks.saveScrollPosition.mockReset();
   scrollRestoreMocks.useScrollRestore.mockReset();
   scrollRestoreMocks.useScrollRestore.mockReturnValue({
     scrollRef: { current: null },
     handleScroll: scrollRestoreMocks.handleScroll,
+    saveScrollPosition: scrollRestoreMocks.saveScrollPosition,
     restored: true,
   });
   setUnreadCount(undefined);

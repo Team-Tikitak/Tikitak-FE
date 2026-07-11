@@ -10,7 +10,10 @@ import type { FeedItem } from '../model/types';
 import type { ReactElement } from 'react';
 
 const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
-const navigateMock = vi.hoisted(() => vi.fn());
+const { navigateMock, saveScrollPositionMock } = vi.hoisted(() => ({
+  navigateMock: vi.fn(),
+  saveScrollPositionMock: vi.fn(),
+}));
 
 const storeFeedHero = (feedItem: FeedItem, rect: DOMRect) =>
   storeHero(FEED_HERO_STORAGE_KEY, {
@@ -113,6 +116,7 @@ vi.mock('@/shared/hooks', async () => {
     useScrollRestore: vi.fn(() => ({
       scrollRef: { current: null },
       handleScroll: vi.fn(),
+      saveScrollPosition: saveScrollPositionMock,
       restored: true,
     })),
   };
@@ -138,6 +142,7 @@ describe('FeedPage - Hero Management', () => {
     clearStoredFeedHero();
     sessionStorage.clear();
     navigateMock.mockClear();
+    saveScrollPositionMock.mockClear();
     vi.mocked(runFeedHeroTransition).mockResolvedValue({});
   });
 
@@ -426,5 +431,11 @@ describe('FeedPage - Hero Management', () => {
         },
       });
     });
+    expect(saveScrollPositionMock).toHaveBeenCalledTimes(1);
+    const [saveOrder] = saveScrollPositionMock.mock.invocationCallOrder;
+    const [navigateOrder] = navigateMock.mock.invocationCallOrder;
+    expect(saveOrder).toBeDefined();
+    expect(navigateOrder).toBeDefined();
+    expect(saveOrder!).toBeLessThan(navigateOrder!);
   });
 });

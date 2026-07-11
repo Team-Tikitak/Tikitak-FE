@@ -15,6 +15,7 @@ interface FeedGridProps extends Omit<ComponentPropsWithRef<'ul'>, 'children'> {
   teamId: number | null;
   suppressedHeroId?: string | null;
   onHeroCapture?: (item: FeedItem, source: HTMLElement) => void;
+  onBeforeNavigate?: () => void;
 }
 
 export const FeedGrid = ({
@@ -22,6 +23,7 @@ export const FeedGrid = ({
   teamId,
   suppressedHeroId,
   onHeroCapture,
+  onBeforeNavigate,
   className,
   ref,
   ...props
@@ -67,6 +69,7 @@ export const FeedGrid = ({
     }
 
     event.preventDefault();
+    onBeforeNavigate?.();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
     const { imageAspectRatio } = await runFeedHeroTransition(item, source, (i, s) =>
       onHeroCapture?.(i, s),

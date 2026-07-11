@@ -101,6 +101,27 @@ describe('FeedGrid', () => {
     expect(onHeroCapture).toHaveBeenCalledWith(expect.objectContaining({ id: '77' }), image);
   });
 
+  it('상세로 이동하기 전에 현재 피드 스크롤 위치를 저장할 수 있게 알린다', async () => {
+    const onBeforeNavigate = vi.fn();
+    renderGrid(
+      <FeedGrid items={[makeFeed('42')]} teamId={1} onBeforeNavigate={onBeforeNavigate} />,
+    );
+
+    fireEvent.click(screen.getByRole('link'));
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/feed/42', {
+        state: { thumbnailUrl: '/thumb-42.jpg', heroPreviewUrl: '/preview-42.jpg' },
+      });
+    });
+    expect(onBeforeNavigate).toHaveBeenCalledTimes(1);
+    const [beforeNavigateOrder] = onBeforeNavigate.mock.invocationCallOrder;
+    const [navigateOrder] = navigateMock.mock.invocationCallOrder;
+    expect(beforeNavigateOrder).toBeDefined();
+    expect(navigateOrder).toBeDefined();
+    expect(beforeNavigateOrder!).toBeLessThan(navigateOrder!);
+  });
+
   it('hides the matching grid image while a stored hero source is active', () => {
     const { container } = renderGrid(
       <FeedGrid items={[makeFeed('77'), makeFeed('88')]} teamId={1} suppressedHeroId="77" />,

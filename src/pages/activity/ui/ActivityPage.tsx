@@ -39,6 +39,7 @@ export const ActivityPage = () => {
   const {
     scrollRef,
     handleScroll,
+    saveScrollPosition,
     restored: scrollRestored,
   } = useScrollRestore(ACTIVITY_SCROLL_STORAGE_KEY, {
     ready: !isLoading,
@@ -79,6 +80,7 @@ export const ActivityPage = () => {
           teamId={teamId}
           suppressedItemId={suppressedItemId}
           onHeroCapture={captureHero}
+          onBeforeNavigate={saveScrollPosition}
         />
       </div>
     );

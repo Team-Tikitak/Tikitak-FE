@@ -11,12 +11,14 @@ interface MonthlyMemoriesProps {
   teamId: number | null | undefined;
   suppressedItemId?: string | null;
   onHeroCapture?: (item: HeroSourceItem, source: HTMLElement | null) => void;
+  onBeforeNavigate?: () => void;
 }
 
 export const MonthlyMemories = ({
   teamId,
   suppressedItemId = null,
   onHeroCapture,
+  onBeforeNavigate,
 }: MonthlyMemoriesProps) => {
   const navigate = useNavigate();
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(teamId);
@@ -49,6 +51,7 @@ export const MonthlyMemories = ({
     path: string,
   ) => {
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+    onBeforeNavigate?.();
     onHeroCapture?.(item, source);
     navigate(path);
   };
