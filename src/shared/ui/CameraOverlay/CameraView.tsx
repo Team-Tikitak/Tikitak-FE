@@ -47,16 +47,19 @@ export const CameraView = ({
         nativePreview ? 'bg-transparent' : 'bg-black',
       )}
     >
+      {/* 네이티브 프리뷰는 웹뷰 뒤에 그려져서 프리뷰 영역만 투명 구멍으로 남기고
+          위아래 영역은 웹 레이어에서 검게 덮는다 */}
+      <div className="h-[calc(var(--safe-top)+85px)] w-full shrink-0 bg-black" />
       {nativePreview ? (
         <div
           data-testid="camera-preview"
           className={cn(
-            'mt-[calc(var(--safe-top)+85px)] aspect-3/4 w-full shrink-0 bg-transparent transition-opacity duration-150',
+            'aspect-3/4 w-full shrink-0 bg-transparent transition-opacity duration-150',
             isReady ? 'opacity-100' : 'opacity-0',
           )}
         />
       ) : (
-        <div className="mt-[calc(var(--safe-top)+85px)] aspect-3/4 w-full shrink-0 overflow-hidden bg-black">
+        <div className="aspect-3/4 w-full shrink-0 overflow-hidden bg-black">
           <video
             ref={videoRef}
             data-testid="camera-preview"
@@ -87,51 +90,53 @@ export const CameraView = ({
         </p>
       )}
 
-      {isReady && !error && (
-        <div className="relative flex min-h-0 flex-1 items-start justify-center pt-2.5">
-          {zoomSupported && (
-            <div className="z-10 flex items-center rounded-full bg-white/12 p-1 backdrop-blur-md">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'absolute top-1 left-1 size-10 rounded-full bg-[rgba(30,31,31,0.72)] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-                  zoomLevel === 2 && 'translate-x-10',
-                )}
-              />
-              {([1, 2] as const).map((level) => {
-                const selected = zoomLevel === level;
-                return (
-                  <button
-                    key={level}
-                    type="button"
-                    aria-label={`${level}배 줌`}
-                    aria-pressed={selected}
-                    onClick={() => onZoomChange?.(level)}
-                    className={cn(
-                      'press-feedback relative z-10 flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-[color,transform] duration-200 ease-out active:scale-95',
-                      selected && 'text-main-001 scale-105',
-                    )}
-                  >
-                    {level}x
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          <CameraButton
-            className="absolute top-[79px] left-1/2 z-10 -translate-x-1/2"
-            onClick={onCapture}
-          />
-          <button
-            type="button"
-            aria-label="카메라 전환"
-            onClick={onToggleFacingMode}
-            className="press-feedback absolute top-[97px] right-[43px] z-10 flex size-9 items-center justify-center rounded-full bg-gray-500"
-          >
-            <ChangeIcon className="size-6" />
-          </button>
-        </div>
-      )}
+      <div className="relative flex min-h-0 flex-1 items-start justify-center bg-black pt-2.5">
+        {isReady && !error && (
+          <>
+            {zoomSupported && (
+              <div className="z-10 flex items-center rounded-full bg-white/12 p-1 backdrop-blur-md">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'absolute top-1 left-1 size-10 rounded-full bg-[rgba(30,31,31,0.72)] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+                    zoomLevel === 2 && 'translate-x-10',
+                  )}
+                />
+                {([1, 2] as const).map((level) => {
+                  const selected = zoomLevel === level;
+                  return (
+                    <button
+                      key={level}
+                      type="button"
+                      aria-label={`${level}배 줌`}
+                      aria-pressed={selected}
+                      onClick={() => onZoomChange?.(level)}
+                      className={cn(
+                        'press-feedback relative z-10 flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-[color,transform] duration-200 ease-out active:scale-95',
+                        selected && 'text-main-001 scale-105',
+                      )}
+                    >
+                      {level}x
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <CameraButton
+              className="absolute top-[79px] left-1/2 z-10 -translate-x-1/2"
+              onClick={onCapture}
+            />
+            <button
+              type="button"
+              aria-label="카메라 전환"
+              onClick={onToggleFacingMode}
+              className="press-feedback absolute top-[97px] right-[43px] z-10 flex size-9 items-center justify-center rounded-full bg-gray-500"
+            >
+              <ChangeIcon className="size-6" />
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
