@@ -29,9 +29,24 @@ describe('PlacedStickerView', () => {
     render(<PlacedStickerView sticker={sticker} isActive />);
 
     const stickerElement = screen.getByRole('img', { name: '반짝임 스티커' });
+    const stickerGraphic = stickerElement.querySelector('svg');
 
     expect(stickerElement).toHaveAttribute('data-active', 'true');
     expect(stickerElement).not.toHaveClass('ring-2');
     expect(stickerElement).not.toHaveClass('ring-white/90');
+    expect(stickerGraphic).toHaveClass('scale-[1.03]');
+  });
+
+  it('shrinks only the inner sticker graphic while hovering over the trash zone', () => {
+    render(<PlacedStickerView sticker={sticker} isActive isDropping />);
+
+    const stickerElement = screen.getByRole('img', { name: '반짝임 스티커' });
+    const stickerGraphic = stickerElement.querySelector('svg');
+
+    expect(stickerElement).toHaveAttribute('data-dropping', 'true');
+    expect(stickerElement).toHaveStyle({
+      transform: 'translate(-50%, -50%) rotate(0deg) scale(1)',
+    });
+    expect(stickerGraphic).toHaveClass('scale-75', 'opacity-70', 'saturate-75');
   });
 });

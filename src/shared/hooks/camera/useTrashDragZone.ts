@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 
+const TRASH_HIT_SLOP_PX = 28;
+
 interface UseTrashDragZoneOptions {
   onMove: (id: string, xRatio: number, yRatio: number) => void;
   onRemove: (id: string) => void;
@@ -21,7 +23,10 @@ export const useTrashDragZone = ({ onMove, onRemove }: UseTrashDragZoneOptions) 
     const rect = trashRectRef.current;
     if (!rect) return false;
     return (
-      screenX >= rect.left && screenX <= rect.right && screenY >= rect.top && screenY <= rect.bottom
+      screenX >= rect.left - TRASH_HIT_SLOP_PX &&
+      screenX <= rect.right + TRASH_HIT_SLOP_PX &&
+      screenY >= rect.top - TRASH_HIT_SLOP_PX &&
+      screenY <= rect.bottom + TRASH_HIT_SLOP_PX
     );
   };
 

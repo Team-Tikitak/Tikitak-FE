@@ -54,6 +54,17 @@ describe('useTrashDragZone', () => {
     expect(result.current.isOverTrash).toBe(true);
   });
 
+  it('activates trash before the pointer reaches the exact visible circle', () => {
+    const onMove = vi.fn();
+    const { result } = renderHook(() => useTrashDragZone({ onMove, onRemove: vi.fn() }));
+    attachTrash(result.current.trashRef, { left: 100, top: 100, width: 56, height: 56 });
+    act(() => result.current.handleDragStart('sticker-1'));
+    act(() => result.current.handleDragMove('sticker-1', 0.5, 0.5, 80, 128));
+
+    expect(onMove).toHaveBeenCalledWith('sticker-1', 0.5, 0.5);
+    expect(result.current.isOverTrash).toBe(true);
+  });
+
   it('handleDragEnd over trash calls onRemove', () => {
     const onRemove = vi.fn();
     const { result } = renderHook(() => useTrashDragZone({ onMove: vi.fn(), onRemove }));

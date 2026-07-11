@@ -1,5 +1,6 @@
 ﻿import { useRef, useState } from 'react';
 import CancelIcon from '@/shared/assets/Icon/CancelIcon.svg?react';
+import CheckIcon from '@/shared/assets/Icon/CheckIcon.svg?react';
 import FilterIcon from '@/shared/assets/Icon/FilterIcon.svg?react';
 import StickerIcon from '@/shared/assets/Icon/StickerIcon.svg?react';
 import TrashIcon from '@/shared/assets/Icon/TrashIcon.svg?react';
@@ -15,6 +16,10 @@ import { StickerPicker } from './StickerPicker';
 
 const MOTION_ENTER_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
 const MOTION_EXIT_CLASS = 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]';
+const STICKER_DRAG_EXIT_CLASS = 'duration-220 ease-[cubic-bezier(0.2,0.8,0.2,1)]';
+const TRASH_MOTION_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
+// vaul 바텀시트가 올라오는 시간(0.5s, cubic-bezier(.32,.72,0,1))과 맞춰 같이 사라지게 한다
+const STICKER_SHEET_EXIT_CLASS = 'duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]';
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -65,11 +70,22 @@ export const CameraReview = ({
     setIsPickerOpen(false);
   };
 
-  const isToolButtonsCollapsed = isPickerOpen || Boolean(draggingId);
-  const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !draggingId;
+  const isStickerDragging = Boolean(draggingId);
+  const isToolButtonsCollapsed = isPickerOpen || isFilterOpen || isStickerDragging;
+  const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !isStickerDragging;
   const filterMotionClass = isFilterOpen ? MOTION_ENTER_CLASS : MOTION_EXIT_CLASS;
-  const uploadMotionClass = shouldShowUploadButton ? MOTION_ENTER_CLASS : MOTION_EXIT_CLASS;
-  const toolButtonsMotionClass = isToolButtonsCollapsed ? MOTION_EXIT_CLASS : MOTION_ENTER_CLASS;
+  const uploadMotionClass = shouldShowUploadButton
+    ? MOTION_ENTER_CLASS
+    : isStickerDragging
+      ? STICKER_DRAG_EXIT_CLASS
+      : MOTION_EXIT_CLASS;
+  const toolButtonsMotionClass = isToolButtonsCollapsed
+    ? isStickerDragging
+      ? STICKER_DRAG_EXIT_CLASS
+      : isPickerOpen
+        ? STICKER_SHEET_EXIT_CLASS
+        : filterMotionClass
+    : MOTION_ENTER_CLASS;
 
   return (
     <div
@@ -103,6 +119,7 @@ export const CameraReview = ({
             key={sticker.id}
             sticker={sticker}
             isActive={activeId === sticker.id}
+            isDropping={isOverTrash && draggingId === sticker.id}
           />
         ))}
 
@@ -119,28 +136,98 @@ export const CameraReview = ({
         <div
           ref={trashRef}
           aria-hidden={!draggingId}
+          data-testid="camera-trash-drop-zone"
           className={cn(
-            'pointer-events-none absolute bottom-4 left-1/2 z-30 flex size-12 -translate-x-1/2 items-center justify-center rounded-full transition-[opacity,transform,background-color] duration-200 ease-out',
-            draggingId ? 'opacity-100' : 'opacity-0',
-            isOverTrash ? 'scale-110 bg-red-500' : 'bg-[rgba(30,31,31,0.6)]',
+            'pointer-events-none absolute bottom-4 left-1/2 z-30 flex size-14 -translate-x-1/2 items-center justify-center rounded-full backdrop-blur-md transition-[opacity,transform,background-color,box-shadow] will-change-transform motion-reduce:transition-none',
+            TRASH_MOTION_CLASS,
+            draggingId
+              ? 'translate-y-0 scale-100 opacity-100 shadow-[0_12px_32px_rgba(0,0,0,0.24)]'
+              : 'translate-y-4 scale-75 opacity-0 shadow-none',
+            isOverTrash
+              ? 'scale-125 bg-red-500 shadow-[0_18px_40px_rgba(239,68,68,0.35)]'
+              : 'bg-[rgba(30,31,31,0.62)]',
           )}
         >
-          <TrashIcon className="size-5 text-white" />
+          <TrashIcon
+            className={cn(
+              'size-5 text-white transition-transform duration-180 ease-out',
+              isOverTrash && 'scale-110 -rotate-6',
+            )}
+          />
         </div>
       </div>
 
-      <div
-        data-testid="camera-filter-tray"
-        aria-hidden={!isFilterOpen}
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] will-change-[grid-template-rows,opacity] motion-reduce:transition-none',
-          isFilterOpen
-            ? `grid-rows-[1fr] opacity-100 ${filterMotionClass}`
-            : `pointer-events-none grid-rows-[0fr] opacity-0 ${filterMotionClass}`,
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="no-scrollbar -mx-1 flex touch-pan-x snap-x snap-mandatory scroll-px-4 gap-5 overflow-x-auto px-4 pt-1 pb-2">
+      {/* 아이콘 로우 ↔ 필터 트레이는 같은 칸에 겹쳐 자리 잡아 레이아웃 흔들림 없이 좌우 슬라이드로 전환된다 */}
+      <div className="grid w-full min-w-0 overflow-hidden">
+        <div
+          className={cn(
+            'col-start-1 row-start-1 flex w-full min-w-0 items-center justify-center gap-8 self-start transition-[filter,opacity,transform] motion-reduce:transition-none',
+            isToolButtonsCollapsed
+              ? isFilterOpen
+                ? 'pointer-events-none -translate-x-8 scale-[0.98] opacity-0 blur-[1px]'
+                : 'pointer-events-none translate-y-3 scale-95 opacity-0 blur-[1px]'
+              : 'translate-y-0 scale-100 opacity-100 blur-none',
+            toolButtonsMotionClass,
+          )}
+        >
+          <button
+            type="button"
+            aria-label="스티커 추가"
+            aria-pressed={isPickerOpen}
+            tabIndex={isToolButtonsCollapsed ? -1 : 0}
+            onClick={() => {
+              setIsFilterOpen(false);
+              setIsPickerOpen((prev) => !prev);
+            }}
+            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+          >
+            <StickerIcon className="size-9" />
+            <span className="text-xs">스티커</span>
+          </button>
+          <button
+            type="button"
+            aria-label="필터"
+            aria-pressed={isFilterOpen}
+            tabIndex={isToolButtonsCollapsed ? -1 : 0}
+            onClick={() => {
+              setIsPickerOpen(false);
+              setIsFilterOpen((prev) => !prev);
+            }}
+            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+          >
+            <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
+              <FilterIcon className="size-5 text-white" aria-hidden="true" />
+            </span>
+            <span className="text-xs">필터</span>
+          </button>
+        </div>
+
+        <div
+          data-testid="camera-filter-tray"
+          aria-hidden={!isFilterOpen}
+          className={cn(
+            'col-start-1 row-start-1 flex w-full min-w-0 flex-col gap-6 transition-[opacity,transform] motion-reduce:transition-none',
+            isFilterOpen
+              ? `translate-x-0 opacity-100 ${filterMotionClass}`
+              : `pointer-events-none translate-x-full opacity-0 ${filterMotionClass}`,
+          )}
+        >
+          <div
+            data-testid="camera-filter-header"
+            className="grid h-6 grid-cols-[40px_1fr_40px] items-center px-4"
+          >
+            <span className="body-2 col-start-2 justify-self-center text-black">필터</span>
+            <button
+              type="button"
+              aria-label="필터 편집 완료"
+              tabIndex={isFilterOpen ? 0 : -1}
+              onClick={() => setIsFilterOpen(false)}
+              className="press-feedback col-start-3 flex size-9 items-center justify-center justify-self-end"
+            >
+              <CheckIcon className="size-6 text-black" />
+            </button>
+          </div>
+          <div className="no-scrollbar flex w-full min-w-0 touch-pan-x snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2">
             {PHOTO_FILTERS.map((filter) => (
               <button
                 key={filter.id}
@@ -179,50 +266,13 @@ export const CameraReview = ({
       </div>
 
       <div
-        className={cn(
-          'flex items-center justify-center gap-8 transition-[opacity,transform] motion-reduce:transition-none',
-          isToolButtonsCollapsed ? 'pointer-events-none translate-y-2 opacity-0' : 'opacity-100',
-          toolButtonsMotionClass,
-        )}
-      >
-        <button
-          type="button"
-          aria-label="스티커 추가"
-          aria-pressed={isPickerOpen}
-          onClick={() => {
-            setIsFilterOpen(false);
-            setIsPickerOpen((prev) => !prev);
-          }}
-          className="press-feedback flex flex-col items-center gap-1 text-gray-700"
-        >
-          <StickerIcon className="size-9" />
-          <span className="text-xs">스티커</span>
-        </button>
-        <button
-          type="button"
-          aria-label="필터"
-          aria-pressed={isFilterOpen}
-          onClick={() => {
-            setIsPickerOpen(false);
-            setIsFilterOpen((prev) => !prev);
-          }}
-          className="press-feedback flex flex-col items-center gap-1 text-gray-700"
-        >
-          <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
-            <FilterIcon className="size-5 text-white" aria-hidden="true" />
-          </span>
-          <span className="text-xs">필터</span>
-        </button>
-      </div>
-
-      <div
         data-testid="camera-upload-action"
         aria-hidden={!shouldShowUploadButton}
         className={cn(
-          'absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10 transition-[opacity,transform] motion-reduce:transition-none',
+          'absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10 transition-[filter,opacity,transform] motion-reduce:transition-none',
           shouldShowUploadButton
             ? 'translate-y-0 opacity-100'
-            : 'pointer-events-none translate-y-3 opacity-0',
+            : 'pointer-events-none translate-y-4 scale-95 opacity-0 blur-[1px]',
           uploadMotionClass,
         )}
       >
