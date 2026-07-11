@@ -53,6 +53,7 @@ export const useHeroHandoff = ({
     return readStoredHero(storageKey);
   });
   const [storedHeroVisible, setStoredHeroVisible] = useState(Boolean(storedHero));
+  const [isDepartureHero, setIsDepartureHero] = useState(false);
 
   const hideStoredHero = useCallback(() => {
     setStoredHeroVisible(false);
@@ -61,11 +62,13 @@ export const useHeroHandoff = ({
 
   const dismissStoredHero = useCallback(() => {
     departureHeroRef.current = false;
+    setIsDepartureHero(false);
     clearStoredHero(storageKey);
     hideStoredHero();
   }, [hideStoredHero, storageKey]);
 
-  const suppressedItemId = storedHeroVisible ? (storedHero?.itemId ?? null) : null;
+  const suppressedItemId =
+    storedHeroVisible && !isDepartureHero ? (storedHero?.itemId ?? null) : null;
   const isStoredHeroItemLoaded = storedHero ? isItemLoaded(storedHero.itemId) : true;
 
   useEffect(() => {
@@ -177,6 +180,7 @@ export const useHeroHandoff = ({
       });
       departureHeroRef.current = true;
       flushSync(() => {
+        setIsDepartureHero(true);
         setStoredHeroVisible(true);
         setStoredHero(nextStoredHero);
       });

@@ -97,4 +97,16 @@ describe('useHeroHandoff', () => {
     expect(stored?.left).toBe(32);
     expect(stored?.top).toBe(320);
   });
+
+  it('출발 캡처 직후에는 현재 목록의 원본 히어로 이미지를 숨기지 않는다', () => {
+    const scrollFrame = document.createElement('div');
+    const { result } = renderHandoff({ current: scrollFrame });
+
+    act(() => {
+      result.current.captureHero(HERO_ITEM, createSource(rect(20, 180, 160, 204)));
+    });
+
+    expect(result.current.storedHeroVisible).toBe(true);
+    expect(result.current.suppressedItemId).toBeNull();
+  });
 });
