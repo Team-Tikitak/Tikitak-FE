@@ -109,6 +109,12 @@ describe('BottomNavigation', () => {
     expect(onCreateClick).toHaveBeenCalledTimes(1);
   });
 
+  it('비활성 상태에서는 floating 추가 버튼이 포인터 이벤트를 받지 않는다', () => {
+    render(<BottomNavigation interactive={false} />);
+
+    expect(screen.getByRole('button', { name: '추가' })).toHaveClass('pointer-events-none');
+  });
+
   it('createAriaLabel 로 추가 버튼의 aria-label 을 바꿀 수 있다', () => {
     render(<BottomNavigation createAriaLabel="모임 생성" />);
 

@@ -17,6 +17,7 @@ interface BottomNavigationProps extends Omit<ComponentPropsWithRef<'nav'>, 'onCh
   onCreateClick?: () => void;
   createAriaLabel?: string;
   createDisabled?: boolean;
+  interactive?: boolean;
 }
 
 interface BottomNavigationTabConfig {
@@ -67,6 +68,7 @@ export const BottomNavigation = ({
   onCreateClick,
   createAriaLabel = '추가',
   createDisabled = false,
+  interactive = true,
   className,
   ref,
   ...props
@@ -107,7 +109,10 @@ export const BottomNavigation = ({
             aria-label={createAriaLabel}
             onClick={handleCreateClick}
             disabled={createDisabled}
-            className="pointer-events-auto absolute top-0 left-1/2 -translate-x-1/2"
+            className={cn(
+              'absolute top-0 left-1/2 -translate-x-1/2',
+              interactive ? 'pointer-events-auto' : 'pointer-events-none',
+            )}
           />
         </li>
       </ul>
