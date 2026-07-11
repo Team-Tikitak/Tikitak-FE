@@ -19,12 +19,16 @@ describe('feedHeroAssets', () => {
         onload: (() => void) | null;
         onerror: (() => void) | null;
         decode?: () => Promise<void>;
+        naturalWidth: number;
+        naturalHeight: number;
       }> = [];
 
       class MockImage {
         onload: (() => void) | null = null;
         onerror: (() => void) | null = null;
         decode = decode;
+        naturalWidth = 1200;
+        naturalHeight = 900;
         src = '';
 
         constructor() {
@@ -114,17 +118,24 @@ describe('feedHeroAssets', () => {
       const promise = preloadFeedHeroAssets(mockFeedItem);
       vi.advanceTimersByTime(300);
 
-      await expect(promise).resolves.toBeUndefined();
+      await expect(promise).resolves.toBeNull();
     });
   });
 
   describe('runFeedHeroTransition', () => {
     const stubImage = () => {
-      const instances: Array<{ onload: (() => void) | null; onerror: (() => void) | null }> = [];
+      const instances: Array<{
+        onload: (() => void) | null;
+        onerror: (() => void) | null;
+        naturalWidth: number;
+        naturalHeight: number;
+      }> = [];
 
       class MockImage {
         onload: (() => void) | null = null;
         onerror: (() => void) | null = null;
+        naturalWidth = 1200;
+        naturalHeight = 900;
         src = '';
 
         constructor() {
@@ -169,7 +180,7 @@ describe('feedHeroAssets', () => {
       await resolveAllImages(images);
 
       // decor fade를 기다리지 않고 capture 직후 바로 완료된다 — navigate를 인위적으로 늦추지 않기 위함
-      await expect(promise).resolves.toBeUndefined();
+      await expect(promise).resolves.toEqual({ imageAspectRatio: 4 / 3 });
       expect(capture).toHaveBeenCalledWith(item, source);
     });
 
@@ -193,7 +204,7 @@ describe('feedHeroAssets', () => {
       const promise = runFeedHeroTransition(item, source, capture);
       await resolveAllImages(images);
 
-      await expect(promise).resolves.toBeUndefined();
+      await expect(promise).resolves.toEqual({ imageAspectRatio: 4 / 3 });
       expect(capture).toHaveBeenCalledWith(item, source);
     });
   });

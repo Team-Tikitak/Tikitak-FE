@@ -290,6 +290,23 @@ describe('FeedPage - Hero Management', () => {
     expect(container.querySelector('article span.absolute')).toHaveClass('opacity-0');
   });
 
+  it('renders the stored hero inside the feed scroll container so restored coordinates follow scroll content', () => {
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = renderFeedPage(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const scrollContainer = container.querySelector('[data-feed-scroll-container]');
+    const storedHero = container.querySelector('img.absolute[data-hero-exit-key="pin-1"]');
+
+    expect(storedHero).toBeInTheDocument();
+    expect(storedHero?.closest('[data-feed-scroll-container]')).toBe(scrollContainer);
+  });
+
   it('스크롤 의도가 시작되면 stored hero를 즉시 정리해 스크롤 잔상을 남기지 않는다', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));

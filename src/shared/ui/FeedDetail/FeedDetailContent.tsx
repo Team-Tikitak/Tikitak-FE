@@ -20,6 +20,7 @@ interface FeedDetailLocationState {
   thumbnailUrl?: string;
   heroPreviewUrl?: string;
   heroKey?: string;
+  imageAspectRatio?: number;
 }
 
 interface FeedDetailContentProps {
@@ -94,6 +95,7 @@ export const FeedDetailContent = ({
         participants={participants}
         images={renderedImages.map((image, imageIndex) => ({
           ...image,
+          initialAspectRatio: imageIndex === 0 ? routeState?.imageAspectRatio : undefined,
           pins: isFallback ? [] : decoratePins(feedId, imageIndex, image.pins ?? []),
         }))}
         authorName={authorName}

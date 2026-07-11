@@ -104,6 +104,7 @@ export const FeedPage = () => {
     scrollRestored,
     isItemLoaded: (itemId) => feeds.some((feed) => feed.id === itemId),
     scrollFrameRef: scrollRef,
+    heroCoordinateMode: 'scroll-content',
   });
 
   const captureFeedHero = useCallback(
@@ -187,9 +188,13 @@ export const FeedPage = () => {
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-    await runFeedHeroTransition(feed, source, captureFeedHero);
+    const { imageAspectRatio } = await runFeedHeroTransition(feed, source, captureFeedHero);
     navigate(toFeedDetail(feed.id), {
-      state: { thumbnailUrl: feed.thumbnailUrl, heroPreviewUrl: feed.heroPreviewUrl },
+      state: {
+        thumbnailUrl: feed.thumbnailUrl,
+        heroPreviewUrl: feed.heroPreviewUrl,
+        ...(imageAspectRatio ? { imageAspectRatio } : {}),
+      },
     });
   };
 
@@ -208,13 +213,6 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
-      {storedFeedHero && (
-        <StoredHero
-          storedHero={storedFeedHero}
-          visible={storedHeroVisible}
-          style={pullToRefresh.pullTransformStyle}
-        />
-      )}
       <div
         ref={scrollRef}
         data-feed-scroll-container
@@ -231,6 +229,13 @@ export const FeedPage = () => {
           threshold={pullToRefresh.threshold}
           refreshing={pullToRefresh.isRefreshing}
         />
+        {storedFeedHero && (
+          <StoredHero
+            storedHero={storedFeedHero}
+            visible={storedHeroVisible}
+            style={pullToRefresh.pullTransformStyle}
+          />
+        )}
         <div
           className="flex min-h-full flex-col px-6 pt-6"
           style={pullToRefresh.pullTransformStyle}

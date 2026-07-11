@@ -8,6 +8,7 @@ export type CarouselImage = {
   pins?: Pin[];
   heroPreviewUrl?: string;
   previewOnly?: boolean;
+  initialAspectRatio?: number;
 };
 
 type FeedImageCarouselProps = ComponentPropsWithRef<'div'> & {
@@ -114,6 +115,7 @@ export function FeedImageCarousel({
               pins={image.pins}
               heroPreviewUrl={image.heroPreviewUrl}
               previewOnly={image.previewOnly}
+              initialAspectRatio={image.initialAspectRatio}
               onLongPress={onLongPress && ((position) => onLongPress(position, index))}
               heroKey={index === 0 ? heroKey : undefined}
               fetchPriority={index === 0 ? 'high' : 'auto'}

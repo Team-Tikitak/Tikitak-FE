@@ -25,6 +25,7 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
   onLongPress?: (position: PressPosition) => void;
   heroKey?: string;
   heroPreviewUrl?: string;
+  initialAspectRatio?: number;
   previewOnly?: boolean;
   fetchPriority?: 'high' | 'low' | 'auto';
   loading?: 'eager' | 'lazy';
@@ -33,6 +34,10 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
 
 const LONG_PRESS_DELAY = 800;
 const MOVE_CANCEL_THRESHOLD = 6;
+const DETAIL_FRAME_ASPECT_RATIO = 3 / 4;
+
+const getInitialFit = (aspectRatio?: number): 'cover' | 'contain' =>
+  aspectRatio && aspectRatio > DETAIL_FRAME_ASPECT_RATIO ? 'contain' : 'cover';
 
 export function FeedImageDetail({
   src,
@@ -41,6 +46,7 @@ export function FeedImageDetail({
   onLongPress,
   heroKey,
   heroPreviewUrl,
+  initialAspectRatio,
   previewOnly = false,
   fetchPriority = 'auto',
   loading = 'lazy',
@@ -52,16 +58,18 @@ export function FeedImageDetail({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const figureRef = useRef<HTMLElement | null>(null);
-  const naturalRef = useRef<{ width: number; height: number } | null>(null);
+  const naturalRef = useRef<{ width: number; height: number } | null>(
+    initialAspectRatio ? { width: initialAspectRatio, height: 1 } : null,
+  );
   const [loaded, setLoaded] = useState(false);
   // 이미지가 프레임(3:4)보다 넓으면(1:1·가로) contain으로 레터박스, 세로로 길면 cover로 꽉 채움
-  const [fit, setFit] = useState<'cover' | 'contain'>('cover');
-  const [naturalAspectRatio, setNaturalAspectRatio] = useState<number | undefined>();
+  const [fit, setFit] = useState<'cover' | 'contain'>(() => getInitialFit(initialAspectRatio));
 
   const measureFit = useCallback(() => {
     const frame = figureRef.current;
     const natural = naturalRef.current;
     if (!frame || !natural || !natural.width || !natural.height) return;
+    if (!frame.clientWidth || !frame.clientHeight) return;
     const frameAspect = frame.clientWidth / frame.clientHeight;
     const imageAspect = natural.width / natural.height;
     setFit(imageAspect > frameAspect ? 'contain' : 'cover');
@@ -71,7 +79,6 @@ export function FeedImageDetail({
     (image: HTMLImageElement) => {
       if (!image.naturalWidth || !image.naturalHeight) return;
       naturalRef.current = { width: image.naturalWidth, height: image.naturalHeight };
-      setNaturalAspectRatio(image.naturalWidth / image.naturalHeight);
       measureFit();
     },
     [measureFit],
@@ -148,7 +155,6 @@ export function FeedImageDetail({
   };
 
   const fitClassName = fit === 'contain' ? 'object-contain' : 'object-cover';
-  const heroAspectRatio = heroKey && fit === 'contain' ? naturalAspectRatio : undefined;
 
   return (
     <figure
@@ -160,7 +166,6 @@ export function FeedImageDetail({
       onContextMenu={(e) => e.preventDefault()}
       data-feed-detail-image-frame
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
-      {...(heroAspectRatio ? { 'data-hero-aspect-ratio': heroAspectRatio } : {})}
       {...props}
     >
       {heroPreviewUrl && (
