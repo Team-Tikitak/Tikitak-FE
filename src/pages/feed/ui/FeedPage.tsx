@@ -78,6 +78,7 @@ export const FeedPage = () => {
   const {
     scrollRef,
     handleScroll: handleRestoreScroll,
+    saveScrollPosition,
     restored: scrollRestored,
   } = useScrollRestore(scrollKey, {
     ready: !showFeedLoading && !isError,
@@ -187,6 +188,7 @@ export const FeedPage = () => {
     }
 
     event.preventDefault();
+    saveScrollPosition();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
     const { imageAspectRatio } = await runFeedHeroTransition(feed, source, captureFeedHero);
     navigate(toFeedDetail(feed.id), {
@@ -261,6 +263,7 @@ export const FeedPage = () => {
               teamId={teamId}
               suppressedHeroId={suppressedHeroId}
               onHeroCapture={captureFeedHero}
+              onBeforeNavigate={saveScrollPosition}
             />
           ) : (
             <ul className="flex flex-col gap-5">
