@@ -5,6 +5,7 @@ import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
 import type { HeroSourceItem } from '@/shared/hooks/useHeroHandoff';
 import { normalizeImageUrl } from '@/shared/lib';
 import { ContentImageCard } from './ContentImageCard';
+import type { KeyboardEvent, MouseEvent } from 'react';
 
 interface MonthlyMemoriesProps {
   teamId: number | null | undefined;
@@ -42,6 +43,16 @@ export const MonthlyMemories = ({
     );
   }
 
+  const captureAndNavigate = (
+    event: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>,
+    item: HeroSourceItem,
+    path: string,
+  ) => {
+    const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+    onHeroCapture?.(item, source);
+    navigate(path);
+  };
+
   return (
     <section className="flex w-full flex-col gap-[18px]">
       {isPending ? (
@@ -64,19 +75,17 @@ export const MonthlyMemories = ({
                 imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
                 heroKey={`pin-${firstPick.feedId}`}
                 suppressed={suppressedItemId === String(firstPick.feedId)}
-                onPointerDown={(event) => {
-                  const source =
-                    event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                  onHeroCapture?.(
+                onClick={(event) =>
+                  captureAndNavigate(
+                    event,
                     {
                       id: String(firstPick.feedId),
                       heroKey: `pin-${firstPick.feedId}`,
                       thumbnailUrl: normalizeImageUrl(firstPick.thumbnailImageUrl) ?? '',
                     },
-                    source,
-                  );
-                }}
-                onClick={() => navigate(PATHS.ACTIVITY_EVERYONE_PICK)}
+                    PATHS.ACTIVITY_EVERYONE_PICK,
+                  )
+                }
               />
             )}
             {firstRegion && (
@@ -86,19 +95,17 @@ export const MonthlyMemories = ({
                 imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
                 heroKey={`pin-${firstRegion.feedId}`}
                 suppressed={suppressedItemId === String(firstRegion.feedId)}
-                onPointerDown={(event) => {
-                  const source =
-                    event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                  onHeroCapture?.(
+                onClick={(event) =>
+                  captureAndNavigate(
+                    event,
                     {
                       id: String(firstRegion.feedId),
                       heroKey: `pin-${firstRegion.feedId}`,
                       thumbnailUrl: normalizeImageUrl(firstRegion.thumbnailImageUrl) ?? '',
                     },
-                    source,
-                  );
-                }}
-                onClick={() => navigate(PATHS.ACTIVITY_REGION_FEEDS)}
+                    PATHS.ACTIVITY_REGION_FEEDS,
+                  )
+                }
               />
             )}
           </>

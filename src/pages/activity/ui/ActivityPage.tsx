@@ -51,6 +51,7 @@ export const ActivityPage = () => {
     isItemLoaded: isHeroItemLoaded,
     scrollFrameRef: scrollRef,
     heroCoordinateMode: 'scroll-content',
+    renderCapturedHero: false,
   });
 
   if (!isLoading && !hasActiveTeam) {

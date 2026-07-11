@@ -62,11 +62,11 @@ describe('MonthlyMemories', () => {
     expect(mockNavigate).toHaveBeenCalledWith(PATHS.ACTIVITY_REGION_FEEDS);
   });
 
-  it('PICK 카드를 pointerDown하면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
+  it('PICK 카드를 누르면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
     const onHeroCapture = vi.fn();
     render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
 
-    fireEvent.pointerDown(screen.getByRole('button', { name: '모두의 PICK' }));
+    fireEvent.click(screen.getByRole('button', { name: '모두의 PICK' }));
 
     expect(onHeroCapture).toHaveBeenCalledWith(
       {
@@ -78,11 +78,11 @@ describe('MonthlyMemories', () => {
     );
   });
 
-  it('지역 카드를 pointerDown하면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
+  it('지역 카드를 누르면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
     const onHeroCapture = vi.fn();
     render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
 
-    fireEvent.pointerDown(screen.getByRole('button', { name: '서울에서' }));
+    fireEvent.click(screen.getByRole('button', { name: '서울에서' }));
 
     expect(onHeroCapture).toHaveBeenCalledWith(
       {
@@ -92,6 +92,15 @@ describe('MonthlyMemories', () => {
       },
       expect.any(HTMLElement),
     );
+  });
+
+  it('카드를 터치만 한 상태에서는 히어로 캡처를 시작하지 않는다', () => {
+    const onHeroCapture = vi.fn();
+    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: '모두의 PICK' }));
+
+    expect(onHeroCapture).not.toHaveBeenCalled();
   });
 
   it('suppressedItemId가 PICK 카드의 feedId와 일치하면 그 카드의 이미지만 숨긴다', () => {
