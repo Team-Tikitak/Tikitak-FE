@@ -1,14 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import { FeedPage } from './FeedPage';
+import { runFeedHeroTransition } from '../lib/feedHeroAssets';
 import { warmFeedDetail } from '../lib/warmFeedDetail';
 import type { FeedItem } from '../model/types';
 import type { ReactElement } from 'react';
 
 const FEED_HERO_STORAGE_KEY = 'tikitak:last-feed-hero';
+const navigateMock = vi.hoisted(() => vi.fn());
 
 const storeFeedHero = (feedItem: FeedItem, rect: DOMRect) =>
   storeHero(FEED_HERO_STORAGE_KEY, {
@@ -27,6 +29,22 @@ const clearStoredFeedHero = () => clearStoredHero(FEED_HERO_STORAGE_KEY);
 vi.mock('../lib/warmFeedDetail', () => ({
   warmFeedDetail: vi.fn(),
 }));
+
+vi.mock('../lib/feedHeroAssets', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    runFeedHeroTransition: vi.fn(),
+  };
+});
+
+vi.mock('react-router', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+  };
+});
 
 const renderFeedPage = (ui: ReactElement) => {
   const queryClient = new QueryClient();
@@ -119,6 +137,8 @@ describe('FeedPage - Hero Management', () => {
   beforeEach(() => {
     clearStoredFeedHero();
     sessionStorage.clear();
+    navigateMock.mockClear();
+    vi.mocked(runFeedHeroTransition).mockResolvedValue({});
   });
 
   afterEach(() => {
@@ -290,6 +310,23 @@ describe('FeedPage - Hero Management', () => {
     expect(container.querySelector('article span.absolute')).toHaveClass('opacity-0');
   });
 
+  it('renders the stored hero inside the feed scroll container so restored coordinates follow scroll content', () => {
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = renderFeedPage(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const scrollContainer = container.querySelector('[data-feed-scroll-container]');
+    const storedHero = container.querySelector('img.absolute[data-hero-exit-key="pin-1"]');
+
+    expect(storedHero).toBeInTheDocument();
+    expect(storedHero?.closest('[data-feed-scroll-container]')).toBe(scrollContainer);
+  });
+
   it('스크롤 의도가 시작되면 stored hero를 즉시 정리해 스크롤 잔상을 남기지 않는다', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
@@ -365,5 +402,29 @@ describe('FeedPage - Hero Management', () => {
     fireEvent.pointerDown(link!);
 
     expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 1, '1');
+  });
+
+  it('리스트 뷰에서 상세 진입 시 imageAspectRatio를 navigate state로 전달한다', async () => {
+    vi.mocked(runFeedHeroTransition).mockResolvedValue({ imageAspectRatio: 16 / 9 });
+    const { container } = renderFeedPage(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const link = container.querySelector('a[href="/feed/1"]');
+    expect(link).toBeInTheDocument();
+
+    fireEvent.click(link!);
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/feed/1', {
+        state: {
+          thumbnailUrl: 'https://example.com/thumb.jpg',
+          heroPreviewUrl: 'https://example.com/hero.jpg',
+          imageAspectRatio: 16 / 9,
+        },
+      });
+    });
   });
 });

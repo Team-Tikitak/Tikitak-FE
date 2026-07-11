@@ -25,6 +25,7 @@ interface UseHeroHandoffParams {
   isItemLoaded: (itemId: string) => boolean;
   scrollFrameRef: RefObject<HTMLElement | null>;
   heroCoordinateMode?: 'frame' | 'scroll-content';
+  renderCapturedHero?: boolean;
   // 팀 전환처럼 목록의 맥락 자체가 바뀌는 시점에 남은 히어로를 버려야 하는 페이지만 넘긴다
   shouldResetOnContextChange?: boolean;
 }
@@ -40,6 +41,7 @@ export const useHeroHandoff = ({
   isItemLoaded,
   scrollFrameRef,
   heroCoordinateMode = 'frame',
+  renderCapturedHero = true,
   shouldResetOnContextChange = false,
 }: UseHeroHandoffParams) => {
   // 현재 마운트에서 캡처된 출발용 히어로인지 여부 — 복귀 시 sessionStorage에서 복원된 히어로와 구분
@@ -53,7 +55,6 @@ export const useHeroHandoff = ({
     return readStoredHero(storageKey);
   });
   const [storedHeroVisible, setStoredHeroVisible] = useState(Boolean(storedHero));
-  const [isDepartureHero, setIsDepartureHero] = useState(false);
 
   const hideStoredHero = useCallback(() => {
     setStoredHeroVisible(false);
@@ -62,13 +63,11 @@ export const useHeroHandoff = ({
 
   const dismissStoredHero = useCallback(() => {
     departureHeroRef.current = false;
-    setIsDepartureHero(false);
     clearStoredHero(storageKey);
     hideStoredHero();
   }, [hideStoredHero, storageKey]);
 
-  const suppressedItemId =
-    storedHeroVisible && !isDepartureHero ? (storedHero?.itemId ?? null) : null;
+  const suppressedItemId = storedHeroVisible ? (storedHero?.itemId ?? null) : null;
   const isStoredHeroItemLoaded = storedHero ? isItemLoaded(storedHero.itemId) : true;
 
   useEffect(() => {
@@ -179,13 +178,13 @@ export const useHeroHandoff = ({
         height: localRect.height,
       });
       departureHeroRef.current = true;
+      if (!renderCapturedHero) return;
       flushSync(() => {
-        setIsDepartureHero(true);
         setStoredHeroVisible(true);
         setStoredHero(nextStoredHero);
       });
     },
-    [heroCoordinateMode, scrollFrameRef, storageKey],
+    [heroCoordinateMode, renderCapturedHero, scrollFrameRef, storageKey],
   );
 
   return {

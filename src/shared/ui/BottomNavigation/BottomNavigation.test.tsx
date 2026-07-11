@@ -66,19 +66,25 @@ describe('BottomNavigation', () => {
       expect(button.className).not.toContain('active:scale');
       expect(button.className).not.toContain('translate');
       expect(button.querySelector('span')).toHaveClass('h-full', 'w-full');
+      expect(button.querySelector('[data-bottom-navigation-icon-frame]')).toHaveClass('size-6');
       expect(button.querySelector('svg')).toHaveClass('origin-center', 'group-active:scale-[0.98]');
+      expect(button.querySelector('svg')?.className).not.toContain('translate-x');
     }
   });
 
-  it('피드와 활동 아이콘은 별도 광학 보정 없이 중앙 정렬한다', () => {
+  it('피드와 활동 아이콘은 프레임만 왼쪽으로 미세 보정한다', () => {
     render(<BottomNavigation />);
 
     expect(
-      screen.getByRole('button', { name: '피드' }).querySelector('svg')?.className,
-    ).not.toContain('translate-x');
+      screen
+        .getByRole('button', { name: '피드' })
+        .querySelector('[data-bottom-navigation-icon-frame]'),
+    ).toHaveClass('-translate-x-[0.3px]');
     expect(
-      screen.getByRole('button', { name: '활동' }).querySelector('svg')?.className,
-    ).not.toContain('translate-x');
+      screen
+        .getByRole('button', { name: '활동' })
+        .querySelector('[data-bottom-navigation-icon-frame]'),
+    ).toHaveClass('-translate-x-[0.3px]');
   });
 
   it('activeTab 에 해당하는 항목만 aria-current 가 page 이다', () => {

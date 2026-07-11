@@ -68,9 +68,15 @@ export const FeedGrid = ({
 
     event.preventDefault();
     const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-    await runFeedHeroTransition(item, source, (i, s) => onHeroCapture?.(i, s));
+    const { imageAspectRatio } = await runFeedHeroTransition(item, source, (i, s) =>
+      onHeroCapture?.(i, s),
+    );
     navigate(toFeedDetail(item.id), {
-      state: { thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl },
+      state: {
+        thumbnailUrl: item.thumbnailUrl,
+        heroPreviewUrl: item.heroPreviewUrl,
+        ...(imageAspectRatio ? { imageAspectRatio } : {}),
+      },
     });
   };
 

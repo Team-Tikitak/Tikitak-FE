@@ -3,6 +3,24 @@ import { describe, expect, it } from 'vitest';
 import { FeedImageDetail } from './FeedImageDetail';
 
 describe('FeedImageDetail', () => {
+  it('uses the initial image aspect ratio for fit without changing the fixed hero frame', () => {
+    const { container } = render(
+      <FeedImageDetail
+        src="/detail.jpg"
+        heroKey="pin-1"
+        heroPreviewUrl="/preview.jpg"
+        initialAspectRatio={4 / 3}
+        previewOnly
+      />,
+    );
+    const figure = container.querySelector('figure') as HTMLElement;
+    const preview = container.querySelector('img[aria-hidden="true"]') as HTMLImageElement;
+
+    expect(preview).toHaveClass('object-contain');
+    expect(preview).not.toHaveClass('object-cover');
+    expect(figure).not.toHaveAttribute('data-hero-aspect-ratio');
+  });
+
   it('uses the same contained fit for a square hero preview before the detail image loads', () => {
     const { container } = render(
       <FeedImageDetail
@@ -24,7 +42,7 @@ describe('FeedImageDetail', () => {
 
     expect(preview).toHaveClass('object-contain');
     expect(preview).not.toHaveClass('object-cover');
-    expect(figure).toHaveAttribute('data-hero-aspect-ratio', '1');
+    expect(figure).not.toHaveAttribute('data-hero-aspect-ratio');
   });
 
   it('does not set a hero aspect ratio when the image covers the detail frame', () => {

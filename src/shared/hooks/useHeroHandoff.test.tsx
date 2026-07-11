@@ -98,7 +98,7 @@ describe('useHeroHandoff', () => {
     expect(stored?.top).toBe(320);
   });
 
-  it('출발 캡처 직후에는 현재 목록의 원본 히어로 이미지를 숨기지 않는다', () => {
+  it('캡처된 히어로와 원본이 겹치지 않도록 원본 itemId를 숨김 대상으로 반환한다', () => {
     const scrollFrame = document.createElement('div');
     const { result } = renderHandoff({ current: scrollFrame });
 
@@ -107,6 +107,20 @@ describe('useHeroHandoff', () => {
     });
 
     expect(result.current.storedHeroVisible).toBe(true);
+    expect(result.current.suppressedItemId).toBe('1');
+  });
+
+  it('renderCapturedHero가 false면 복귀용 히어로만 저장하고 현재 목록은 숨기지 않는다', () => {
+    const scrollFrame = document.createElement('div');
+    const { result } = renderHandoff({ current: scrollFrame }, { renderCapturedHero: false });
+
+    act(() => {
+      result.current.captureHero(HERO_ITEM, createSource(rect(20, 180, 160, 204)));
+    });
+
+    expect(readStoredHero(STORAGE_KEY)?.itemId).toBe('1');
+    expect(result.current.storedHero).toBeNull();
+    expect(result.current.storedHeroVisible).toBe(false);
     expect(result.current.suppressedItemId).toBeNull();
   });
 });

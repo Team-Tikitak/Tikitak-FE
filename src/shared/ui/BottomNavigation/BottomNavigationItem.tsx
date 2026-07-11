@@ -66,17 +66,20 @@ export function BottomNavigationItem({
         {...props}
       >
         <span className="flex h-full w-full flex-col items-center justify-center">
-          <ResolvedIcon
-            aria-hidden="true"
-            className={bottomNavigationIconVariants({
-              fillCurrent: selected && fillsWhenSelected && !FilledIcon,
-              showFilledIcon: selected,
-              className: cn(
-                'origin-center transition-transform duration-150 ease-out group-active:scale-[0.98]',
-                iconClassName,
-              ),
-            })}
-          />
+          <span
+            data-bottom-navigation-icon-frame
+            className={cn('flex size-6 shrink-0 items-center justify-center', iconClassName)}
+          >
+            <ResolvedIcon
+              aria-hidden="true"
+              className={bottomNavigationIconVariants({
+                fillCurrent: selected && fillsWhenSelected && !FilledIcon,
+                showFilledIcon: selected,
+                className:
+                  'origin-center transition-transform duration-150 ease-out group-active:scale-[0.98]',
+              })}
+            />
+          </span>
           <span className="relative inline-grid">
             <span aria-hidden="true" className="invisible font-semibold">
               {label}
