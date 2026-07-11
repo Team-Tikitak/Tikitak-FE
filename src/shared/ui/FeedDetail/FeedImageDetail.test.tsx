@@ -5,7 +5,12 @@ import { FeedImageDetail } from './FeedImageDetail';
 describe('FeedImageDetail', () => {
   it('uses the same contained fit for a square hero preview before the detail image loads', () => {
     const { container } = render(
-      <FeedImageDetail src="/detail.jpg" heroPreviewUrl="/preview.jpg" previewOnly />,
+      <FeedImageDetail
+        src="/detail.jpg"
+        heroKey="pin-1"
+        heroPreviewUrl="/preview.jpg"
+        previewOnly
+      />,
     );
     const figure = container.querySelector('figure') as HTMLElement;
     const preview = container.querySelector('img[aria-hidden="true"]') as HTMLImageElement;
@@ -19,6 +24,31 @@ describe('FeedImageDetail', () => {
 
     expect(preview).toHaveClass('object-contain');
     expect(preview).not.toHaveClass('object-cover');
+    expect(figure).toHaveAttribute('data-hero-aspect-ratio', '1');
+  });
+
+  it('does not set a hero aspect ratio when the image covers the detail frame', () => {
+    const { container } = render(
+      <FeedImageDetail
+        src="/detail.jpg"
+        heroKey="pin-1"
+        heroPreviewUrl="/preview.jpg"
+        previewOnly
+      />,
+    );
+    const figure = container.querySelector('figure') as HTMLElement;
+    const preview = container.querySelector('img[aria-hidden="true"]') as HTMLImageElement;
+
+    Object.defineProperty(figure, 'clientWidth', { configurable: true, value: 393 });
+    Object.defineProperty(figure, 'clientHeight', { configurable: true, value: 524 });
+    Object.defineProperty(preview, 'naturalWidth', { configurable: true, value: 900 });
+    Object.defineProperty(preview, 'naturalHeight', { configurable: true, value: 1600 });
+
+    fireEvent.load(preview);
+
+    expect(preview).toHaveClass('object-cover');
+    expect(preview).not.toHaveClass('object-contain');
+    expect(figure).not.toHaveAttribute('data-hero-aspect-ratio');
   });
 
   it('captures cached hero preview dimensions from the ref fast path', async () => {

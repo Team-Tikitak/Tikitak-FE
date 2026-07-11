@@ -79,7 +79,10 @@ export const NotificationItem = ({
               alt=""
               loading="lazy"
               decoding="async"
-              className="no-native-image size-full object-cover"
+              className={cn(
+                'no-native-image size-full object-cover transition-opacity duration-200',
+                suppressHero && 'opacity-0',
+              )}
             />
           </div>
         </div>

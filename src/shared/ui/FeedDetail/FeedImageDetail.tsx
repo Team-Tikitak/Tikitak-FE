@@ -56,6 +56,7 @@ export function FeedImageDetail({
   const [loaded, setLoaded] = useState(false);
   // 이미지가 프레임(3:4)보다 넓으면(1:1·가로) contain으로 레터박스, 세로로 길면 cover로 꽉 채움
   const [fit, setFit] = useState<'cover' | 'contain'>('cover');
+  const [naturalAspectRatio, setNaturalAspectRatio] = useState<number | undefined>();
 
   const measureFit = useCallback(() => {
     const frame = figureRef.current;
@@ -70,6 +71,7 @@ export function FeedImageDetail({
     (image: HTMLImageElement) => {
       if (!image.naturalWidth || !image.naturalHeight) return;
       naturalRef.current = { width: image.naturalWidth, height: image.naturalHeight };
+      setNaturalAspectRatio(image.naturalWidth / image.naturalHeight);
       measureFit();
     },
     [measureFit],
@@ -146,6 +148,7 @@ export function FeedImageDetail({
   };
 
   const fitClassName = fit === 'contain' ? 'object-contain' : 'object-cover';
+  const heroAspectRatio = heroKey && fit === 'contain' ? naturalAspectRatio : undefined;
 
   return (
     <figure
@@ -157,6 +160,7 @@ export function FeedImageDetail({
       onContextMenu={(e) => e.preventDefault()}
       data-feed-detail-image-frame
       {...(heroKey ? { 'data-hero-enter-key': heroKey } : {})}
+      {...(heroAspectRatio ? { 'data-hero-aspect-ratio': heroAspectRatio } : {})}
       {...props}
     >
       {heroPreviewUrl && (

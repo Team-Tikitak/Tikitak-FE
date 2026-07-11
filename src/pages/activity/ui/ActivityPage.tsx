@@ -41,6 +41,7 @@ export const ActivityPage = () => {
     scrollRestored: true,
     isItemLoaded: isHeroItemLoaded,
     scrollFrameRef: scrollRef,
+    heroCoordinateMode: 'scroll-content',
   });
 
   if (!isLoading && !hasActiveTeam) {
