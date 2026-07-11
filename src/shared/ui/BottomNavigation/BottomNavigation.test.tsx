@@ -36,7 +36,11 @@ describe('BottomNavigation', () => {
     const list = navigation.querySelector('ul');
 
     expect(navigation).toHaveClass('h-[calc(88px+env(safe-area-inset-bottom))]');
-    expect(list).toHaveClass('h-[60px]', 'bottom-[env(safe-area-inset-bottom)]');
+    expect(list).toHaveClass(
+      'h-[calc(60px+env(safe-area-inset-bottom))]',
+      'bottom-0',
+      'pb-[calc(8px+env(safe-area-inset-bottom))]',
+    );
     expect(list).toHaveClass('px-5');
     expect(list).toHaveClass(
       'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_80px_minmax(0,1fr)_minmax(0,1fr)]',
