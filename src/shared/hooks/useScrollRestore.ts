@@ -44,6 +44,18 @@ export const useScrollRestore = (
     });
   };
 
+  const saveScrollPosition = () => {
+    if (!key) return;
+    const scrollTop = scrollRef.current?.scrollTop ?? latestTopRef.current;
+    pendingKeyRef.current = key;
+    latestTopRef.current = scrollTop;
+    if (pendingFrameRef.current !== null) {
+      window.cancelAnimationFrame(pendingFrameRef.current);
+      pendingFrameRef.current = null;
+    }
+    storeScrollTop(key, scrollTop);
+  };
+
   useEffect(
     () => () => {
       if (pendingFrameRef.current !== null) {
@@ -92,5 +104,5 @@ export const useScrollRestore = (
     return () => window.cancelAnimationFrame(frame);
   }, [key, ready, contentSignal]);
 
-  return { scrollRef, handleScroll, restored: !key || restoredKey === key };
+  return { scrollRef, handleScroll, saveScrollPosition, restored: !key || restoredKey === key };
 };

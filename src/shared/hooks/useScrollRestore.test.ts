@@ -1,8 +1,12 @@
-import { renderHook } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, it, expect } from 'vitest';
 import { useScrollRestore } from './useScrollRestore';
 
 describe('useScrollRestore', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
   it('should return scrollRef and handleScroll', () => {
     const { result } = renderHook(() => useScrollRestore(null, { ready: true, contentSignal: 1 }));
 
@@ -36,5 +40,20 @@ describe('useScrollRestore', () => {
     expect(() => {
       result.current.handleScroll(mockScrollEvent);
     }).not.toThrow();
+  });
+
+  it('현재 스크롤 위치를 즉시 저장한다', () => {
+    const { result } = renderHook(() =>
+      useScrollRestore('scroll-key', { ready: true, contentSignal: 1 }),
+    );
+    const scrollElement = document.createElement('div');
+    Object.defineProperty(scrollElement, 'scrollTop', { configurable: true, value: 372 });
+    result.current.scrollRef.current = scrollElement;
+
+    act(() => {
+      result.current.saveScrollPosition();
+    });
+
+    expect(sessionStorage.getItem('scroll-key')).toBe('372');
   });
 });
