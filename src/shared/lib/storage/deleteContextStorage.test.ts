@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { consumeFeedDeleting, markFeedDeleting } from './deleteContextStorage';
+import { consumeFeedDeleting, isFeedDeleting, markFeedDeleting } from './deleteContextStorage';
 
 const STORAGE_KEY = 'tikitak:feed-deleting';
 
@@ -40,5 +40,22 @@ describe('deleteContextStorage', () => {
     markFeedDeleting();
     expect(consumeFeedDeleting()).toBe(true);
     expect(consumeFeedDeleting()).toBe(false);
+  });
+
+  it('isFeedDeleting returns false when nothing was marked', () => {
+    expect(isFeedDeleting()).toBe(false);
+  });
+
+  it('isFeedDeleting returns true within TTL without consuming the flag', () => {
+    markFeedDeleting();
+    expect(isFeedDeleting()).toBe(true);
+    expect(isFeedDeleting()).toBe(true);
+    expect(consumeFeedDeleting()).toBe(true);
+  });
+
+  it('isFeedDeleting returns false when TTL has expired', () => {
+    markFeedDeleting();
+    vi.advanceTimersByTime(2000);
+    expect(isFeedDeleting()).toBe(false);
   });
 });
