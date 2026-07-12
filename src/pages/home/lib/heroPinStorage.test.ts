@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Pin } from '@/shared/api/map/types';
-import { readStoredHeroPin, storeHeroPin } from './heroPinStorage';
+import { getStoredHeroPinStyle, readStoredHeroPin, storeHeroPin } from './heroPinStorage';
 
 const STORAGE_KEY = 'tikitak:last-hero-pin';
 
@@ -15,11 +15,21 @@ const samplePin: Pin = {
 };
 
 describe('heroPinStorage', () => {
+  const originalDevicePixelRatio = window.devicePixelRatio;
+
   beforeEach(() => {
     sessionStorage.clear();
+    Object.defineProperty(window, 'devicePixelRatio', {
+      configurable: true,
+      value: originalDevicePixelRatio,
+    });
   });
   afterEach(() => {
     sessionStorage.clear();
+    Object.defineProperty(window, 'devicePixelRatio', {
+      configurable: true,
+      value: originalDevicePixelRatio,
+    });
   });
 
   it('returns null when nothing stored', () => {
@@ -55,5 +65,27 @@ describe('heroPinStorage', () => {
     expect(stored?.level).toBeUndefined();
     expect(stored?.x).toBe(10);
     expect(stored?.y).toBe(20);
+  });
+
+  it('snaps stored and rendered pin coordinates to device pixels', () => {
+    Object.defineProperty(window, 'devicePixelRatio', {
+      configurable: true,
+      value: 2,
+    });
+
+    storeHeroPin(samplePin, { x: 100.26, y: 200.26 }, 100);
+    const stored = readStoredHeroPin();
+
+    expect(stored).toMatchObject({
+      x: 100.5,
+      y: 200.5,
+    });
+
+    expect(
+      getStoredHeroPinStyle({ ...stored!, latitude: undefined, longitude: undefined }, 87),
+    ).toMatchObject({
+      left: 57,
+      top: 113.5,
+    });
   });
 });

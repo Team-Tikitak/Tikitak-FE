@@ -78,6 +78,39 @@ describe('useHeroHandoff', () => {
     expect(stored?.top).toBe(140);
   });
 
+  it('히어로 좌표를 device pixel에 맞춰 저장해 복귀 시 1px 흔들림을 줄인다', () => {
+    const originalDevicePixelRatio = window.devicePixelRatio;
+    Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: 2 });
+
+    try {
+      const parentFrame = document.createElement('div');
+      parentFrame.getBoundingClientRect = () => rect(0, 40, 390, 700);
+      const scrollFrame = document.createElement('div');
+      parentFrame.append(scrollFrame);
+
+      const { result } = renderHandoff({ current: scrollFrame });
+
+      act(() => {
+        result.current.captureHero(HERO_ITEM, createSource(rect(20.26, 180.26, 160.26, 204.26)));
+      });
+
+      const stored = readStoredHero(STORAGE_KEY);
+      expect(stored).toEqual(
+        expect.objectContaining({
+          left: 20.5,
+          top: 140.5,
+          width: 160.5,
+          height: 204.5,
+        }),
+      );
+    } finally {
+      Object.defineProperty(window, 'devicePixelRatio', {
+        configurable: true,
+        value: originalDevicePixelRatio,
+      });
+    }
+  });
+
   it('scroll-content 좌표 모드는 스크롤된 콘텐츠 기준으로 저장한다', () => {
     const scrollFrame = document.createElement('div');
     scrollFrame.getBoundingClientRect = () => rect(0, 100, 390, 600);
