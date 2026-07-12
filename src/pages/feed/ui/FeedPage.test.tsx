@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { useScrollRestore } from '@/shared/hooks';
 import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import { FeedPage } from './FeedPage';
 import { runFeedHeroTransition } from '../lib/feedHeroAssets';
@@ -117,6 +118,7 @@ vi.mock('@/shared/hooks', async () => {
       scrollRef: { current: null },
       handleScroll: vi.fn(),
       saveScrollPosition: saveScrollPositionMock,
+      isRestored: () => true,
       restored: true,
     })),
   };
@@ -330,6 +332,29 @@ describe('FeedPage - Hero Management', () => {
 
     expect(storedHero).toBeInTheDocument();
     expect(storedHero?.closest('[data-feed-scroll-container]')).toBe(scrollContainer);
+  });
+
+  it('스크롤 복원 전에는 저장 히어로 사본을 렌더하지 않아 상단 기준 좌표 캡처를 막는다', () => {
+    vi.mocked(useScrollRestore).mockReturnValueOnce({
+      scrollRef: { current: null },
+      handleScroll: vi.fn(),
+      saveScrollPosition: saveScrollPositionMock,
+      isRestored: () => false,
+      restored: false,
+    });
+    const feedItem = createFeedItem();
+    storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
+
+    const { container } = renderFeedPage(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const source = container.querySelector('[data-feed-hero-source-id="1"]');
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+    expect(source).toHaveClass('opacity-0');
+    expect(source).not.toHaveAttribute('data-hero-exit-key');
   });
 
   it('복귀 시 현재 피드 원본 DOM 좌표로 저장 히어로 위치를 보정한다', () => {

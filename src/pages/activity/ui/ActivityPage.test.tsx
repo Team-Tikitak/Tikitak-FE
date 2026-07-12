@@ -111,6 +111,7 @@ beforeEach(() => {
     scrollRef: { current: null },
     handleScroll: scrollRestoreMocks.handleScroll,
     saveScrollPosition: scrollRestoreMocks.saveScrollPosition,
+    isRestored: () => true,
     restored: true,
   });
   setUnreadCount(undefined);
@@ -338,6 +339,47 @@ describe('ActivityPage - 히어로 핸드오프', () => {
 
     expect(scrollContainer).toHaveClass('relative');
     expect(clone?.parentElement).toBe(scrollContainer);
+  });
+
+  it('스크롤 복원 전에는 저장 히어로 사본을 렌더하지 않아 상단 기준 좌표 캡처를 막는다', () => {
+    scrollRestoreMocks.useScrollRestore.mockReturnValueOnce({
+      scrollRef: { current: null },
+      handleScroll: scrollRestoreMocks.handleScroll,
+      saveScrollPosition: scrollRestoreMocks.saveScrollPosition,
+      isRestored: () => false,
+      restored: false,
+    });
+    mockUseHomeBestAttendance.mockReturnValue({
+      data: { members: [{ teamMemberId: 1 }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeEveryonePick.mockReturnValue({
+      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeRegions.mockReturnValue({
+      data: { regions: [] },
+      isPending: false,
+      isFetching: false,
+    });
+
+    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
+      itemId: '1',
+      heroKey: 'pin-1',
+      thumbnailUrl: 'https://example.com/pick.jpg',
+      heroPreviewUrl: 'https://example.com/pick.jpg',
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-stored-hero]')).toBeNull();
+    expect(container.querySelector('[data-activity-hero-source-id="1"]')).toBeInTheDocument();
   });
 
   it('복귀(POP) 시 현재 활동 카드 DOM 좌표로 저장 히어로 위치를 보정한다', () => {

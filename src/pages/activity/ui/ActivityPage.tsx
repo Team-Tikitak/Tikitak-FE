@@ -131,7 +131,7 @@ export const ActivityPage = () => {
           showDailyQuestion && 'pt-9',
         )}
       >
-        {storedHero && (
+        {storedHero && scrollRestored && (
           <StoredHero
             storedHero={storedHero}
             visible={storedHeroVisible}
