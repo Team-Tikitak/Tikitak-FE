@@ -18,9 +18,9 @@ export const FeedDetailPage = () => {
   const { teamId, feedIdNum, placeName } = useFeedDetail();
   const { seen, markSeen } = useFirstVisitHint(FEED_DETAIL_HINT_KEY);
 
-  const { authorName, images, content, date } = useFeedData(teamId, feedIdNum);
+  const { authorName, images, content, date, question } = useFeedData(teamId, feedIdNum);
   const shareCardData = images[0]
-    ? { imageUrl: images[0].src, authorName, title: placeName || content, date }
+    ? { imageUrl: images[0].src, authorName, title: question || placeName || content, date }
     : null;
   const { share } = useShareFeedCard(shareCardData);
 
