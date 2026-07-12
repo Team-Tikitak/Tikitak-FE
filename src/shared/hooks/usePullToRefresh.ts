@@ -31,6 +31,7 @@ export const usePullToRefresh = ({
   const trackingRef = useRef(false);
   const hasPulledRef = useRef(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshArmed, setIsRefreshArmed] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const resetPull = useCallback(() => {
@@ -38,6 +39,7 @@ export const usePullToRefresh = ({
     startYRef.current = 0;
     hasPulledRef.current = false;
     setPullDistance(0);
+    setIsRefreshArmed(false);
   }, []);
 
   const handleTouchStart = useCallback(
@@ -48,6 +50,7 @@ export const usePullToRefresh = ({
 
       trackingRef.current = true;
       hasPulledRef.current = false;
+      setIsRefreshArmed(false);
       startYRef.current = event.touches[0].clientY;
     },
     [disabled, isRefreshing, scrollRef],
@@ -83,9 +86,13 @@ export const usePullToRefresh = ({
       }
 
       hasPulledRef.current = true;
-      setPullDistance(Math.min(maxPullDistance, deltaY * PULL_RESISTANCE));
+      const nextPullDistance = Math.min(maxPullDistance, deltaY * PULL_RESISTANCE);
+      if (nextPullDistance >= threshold) {
+        setIsRefreshArmed(true);
+      }
+      setPullDistance(nextPullDistance);
     },
-    [disabled, isRefreshing, maxPullDistance, resetPull, scrollRef],
+    [disabled, isRefreshing, maxPullDistance, resetPull, scrollRef, threshold],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -94,6 +101,7 @@ export const usePullToRefresh = ({
 
     if (pullDistance < threshold || disabled || isRefreshing) {
       setPullDistance(0);
+      setIsRefreshArmed(false);
       return;
     }
 
@@ -103,6 +111,7 @@ export const usePullToRefresh = ({
     void Promise.resolve(onRefresh()).finally(() => {
       setIsRefreshing(false);
       setPullDistance(0);
+      setIsRefreshArmed(false);
     });
   }, [disabled, isRefreshing, onRefresh, pullDistance, threshold]);
 
@@ -124,6 +133,7 @@ export const usePullToRefresh = ({
     pullTransformStyle,
     threshold,
     isRefreshing,
+    isRefreshArmed,
     isActive: isRefreshing || pullDistance > 0,
     touchHandlers: {
       onTouchStart: handleTouchStart,

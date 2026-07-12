@@ -151,6 +151,7 @@ export const NotificationPage = () => {
         <PullToRefreshIndicator
           pullDistance={pullToRefresh.pullDistance}
           threshold={pullToRefresh.threshold}
+          armed={pullToRefresh.isRefreshArmed}
           refreshing={pullToRefresh.isRefreshing}
         />
         <div className="flex min-h-full flex-col" style={pullToRefresh.pullTransformStyle}>
