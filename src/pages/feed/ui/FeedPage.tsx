@@ -229,7 +229,7 @@ export const FeedPage = () => {
           armed={pullToRefresh.isRefreshArmed}
           refreshing={pullToRefresh.isRefreshing}
         />
-        {storedFeedHero && (
+        {storedFeedHero && scrollRestored && (
           <StoredHero
             storedHero={storedFeedHero}
             visible={storedHeroVisible}
