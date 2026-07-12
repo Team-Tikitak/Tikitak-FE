@@ -472,6 +472,22 @@ describe('FeedPage - Hero Management', () => {
     expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 1, '1');
   });
 
+  it('리스트 뷰에서 pointerDown만으로는 히어로 사본을 저장하지 않는다', () => {
+    const { container } = renderFeedPage(
+      <MemoryRouter initialEntries={[{ pathname: '/feed', state: { feedViewMode: 'list' } }]}>
+        <FeedPage />
+      </MemoryRouter>,
+    );
+
+    const link = container.querySelector('a[href="/feed/1"]');
+    expect(link).toBeInTheDocument();
+
+    fireEvent.pointerDown(link!);
+
+    expect(readStoredFeedHero()).toBeNull();
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+  });
+
   it('리스트 뷰에서 상세 진입 시 imageAspectRatio를 navigate state로 전달한다', async () => {
     vi.mocked(runFeedHeroTransition).mockResolvedValue({ imageAspectRatio: 16 / 9 });
     const { container } = renderFeedPage(

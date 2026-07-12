@@ -94,10 +94,7 @@ export const FeedGrid = ({
               state={{ thumbnailUrl: item.thumbnailUrl, heroPreviewUrl: item.heroPreviewUrl }}
               aria-label={`${item.title || (item.type === 'DAILY_QUESTION' ? item.question : item.place) || '피드'} 상세 보기`}
               className="block aspect-square size-full"
-              onPointerDown={(event) => {
-                const source =
-                  event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                if (source) onHeroCapture?.(item, source);
+              onPointerDown={() => {
                 warmHeroAssets(item);
                 warmFeedDetail(queryClient, teamId, item.id);
               }}

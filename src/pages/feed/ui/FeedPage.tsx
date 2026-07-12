@@ -262,10 +262,7 @@ export const FeedPage = () => {
                       heroPreviewUrl: feed.heroPreviewUrl,
                     }}
                     className="block"
-                    onPointerDown={(event) => {
-                      const source =
-                        event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
-                      if (source) captureFeedHero(feed, source);
+                    onPointerDown={() => {
                       void preloadFeedHeroAssets(feed);
                       warmFeedDetail(queryClient, teamId, feed.id);
                     }}
