@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { useScrollRestore } from '@/shared/hooks';
@@ -45,6 +45,19 @@ export const ActivityPage = () => {
     ready: !isLoading,
     contentSignal: `${teamId}:${isEmpty}`,
   });
+  const getCurrentActivityHeroSource = useCallback(
+    (itemId: string) => {
+      const container = scrollRef.current;
+      if (!container) return null;
+
+      return (
+        Array.from(container.querySelectorAll<HTMLElement>('[data-activity-hero-source-id]')).find(
+          (element) => element.dataset.activityHeroSourceId === itemId,
+        ) ?? null
+      );
+    },
+    [scrollRef],
+  );
   const { storedHero, storedHeroVisible, suppressedItemId, captureHero } = useHeroHandoff({
     storageKey: ACTIVITY_HERO_STORAGE_KEY,
     navigationType,
@@ -53,6 +66,7 @@ export const ActivityPage = () => {
     scrollFrameRef: scrollRef,
     heroCoordinateMode: 'scroll-content',
     renderCapturedHero: false,
+    getCurrentSource: getCurrentActivityHeroSource,
   });
 
   if (!isLoading && !hasActiveTeam) {

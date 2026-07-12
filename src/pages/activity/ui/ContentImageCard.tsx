@@ -5,6 +5,7 @@ interface ContentImageCardProps {
   title: string;
   description: string;
   imageUrl?: string;
+  sourceId?: string;
   heroKey?: string;
   suppressed?: boolean;
   onClick?: (event: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>) => void;
@@ -16,6 +17,7 @@ export const ContentImageCard = ({
   title,
   description,
   imageUrl,
+  sourceId,
   heroKey,
   suppressed = false,
   onClick,
@@ -46,6 +48,7 @@ export const ContentImageCard = ({
     >
       {imageUrl && (
         <img
+          {...(sourceId ? { 'data-activity-hero-source-id': sourceId } : {})}
           {...(heroKey && !suppressed
             ? { 'data-hero-exit-key': heroKey, 'data-hero-radius': '8' }
             : {})}

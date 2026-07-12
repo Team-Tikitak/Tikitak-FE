@@ -47,6 +47,7 @@ export const FeedListItem = ({
       </div>
       <div className="relative size-[92px] shrink-0 overflow-hidden rounded-sm">
         <img
+          data-feed-hero-source-id={item.id}
           {...(suppressHeroImage
             ? {}
             : { 'data-hero-exit-key': `pin-${item.id}`, 'data-hero-radius': '4' })}

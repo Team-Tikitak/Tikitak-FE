@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { flushSync } from 'react-dom';
 import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import type { NavigationType } from 'react-router';
@@ -26,9 +26,37 @@ interface UseHeroHandoffParams {
   scrollFrameRef: RefObject<HTMLElement | null>;
   heroCoordinateMode?: 'frame' | 'scroll-content';
   renderCapturedHero?: boolean;
+  getCurrentSource?: (itemId: string, heroKey: string) => HTMLElement | null;
   // 팀 전환처럼 목록의 맥락 자체가 바뀌는 시점에 남은 히어로를 버려야 하는 페이지만 넘긴다
   shouldResetOnContextChange?: boolean;
 }
+
+const getLocalHeroRect = (
+  source: HTMLElement,
+  scrollFrame: HTMLElement | null,
+  heroCoordinateMode: NonNullable<UseHeroHandoffParams['heroCoordinateMode']>,
+) => {
+  const rect = source.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return null;
+
+  const frameRect =
+    heroCoordinateMode === 'scroll-content'
+      ? scrollFrame?.getBoundingClientRect()
+      : scrollFrame?.parentElement?.getBoundingClientRect();
+
+  return frameRect
+    ? new DOMRect(
+        rect.left -
+          frameRect.left +
+          (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollLeft ?? 0) : 0),
+        rect.top -
+          frameRect.top +
+          (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollTop ?? 0) : 0),
+        rect.width,
+        rect.height,
+      )
+    : rect;
+};
 
 // 목록 썸네일 ↔ 상세 사이 hero 전환의 왕복(특히 뒤로가기) 구간을 매끄럽게 만드는 공용 훅.
 // 출발 시 클릭 순간의 화면 좌표에 고정 사본을 sessionStorage에 남기고, 복귀(POP) 시 같은
@@ -42,6 +70,7 @@ export const useHeroHandoff = ({
   scrollFrameRef,
   heroCoordinateMode = 'frame',
   renderCapturedHero = true,
+  getCurrentSource,
   shouldResetOnContextChange = false,
 }: UseHeroHandoffParams) => {
   // 현재 마운트에서 캡처된 출발용 히어로인지 여부 — 복귀 시 sessionStorage에서 복원된 히어로와 구분
@@ -75,6 +104,43 @@ export const useHeroHandoff = ({
     clearStoredHero(storageKey);
   }, [shouldResetOnContextChange, storageKey]);
 
+  useLayoutEffect(() => {
+    if (!storedHero || !scrollRestored || !isStoredHeroItemLoaded || !getCurrentSource) return;
+
+    const source = getCurrentSource(storedHero.itemId, storedHero.heroKey);
+    if (!source) return;
+
+    const localRect = getLocalHeroRect(source, scrollFrameRef.current, heroCoordinateMode);
+    if (!localRect) return;
+
+    setStoredHero((current) => {
+      if (!current) return current;
+      if (
+        current.left === localRect.left &&
+        current.top === localRect.top &&
+        current.width === localRect.width &&
+        current.height === localRect.height
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        left: localRect.left,
+        top: localRect.top,
+        width: localRect.width,
+        height: localRect.height,
+      };
+    });
+  }, [
+    getCurrentSource,
+    heroCoordinateMode,
+    isStoredHeroItemLoaded,
+    scrollFrameRef,
+    scrollRestored,
+    storedHero,
+  ]);
+
   useEffect(() => {
     if (!storedHero) return;
 
@@ -104,39 +170,66 @@ export const useHeroHandoff = ({
       schedule(() => dismissStoredHero(), STORED_HERO_CLEAR_DELAY_MS);
     };
 
-    const copy = document.querySelector<HTMLElement>(STORED_HERO_CLONE_SELECTOR);
-    const isInFlight = () => copy?.style.opacity === '0';
+    const queryCopies = () =>
+      Array.from(document.querySelectorAll<HTMLElement>(STORED_HERO_CLONE_SELECTOR));
+    const isInFlight = () => queryCopies().some((copy) => copy.style.opacity === '0');
     const observeStyle = (onChange: () => void) => {
-      if (!copy) return;
-      const observer = new MutationObserver(onChange);
-      observer.observe(copy, { attributes: true, attributeFilter: ['style'] });
-      observers.push(observer);
+      for (const copy of queryCopies()) {
+        const observer = new MutationObserver(onChange);
+        observer.observe(copy, { attributes: true, attributeFilter: ['style'] });
+        observers.push(observer);
+      }
     };
     const waitForLanding = () => {
       observeStyle(() => {
         if (!isInFlight()) finish();
       });
+      const pollLanding = () => {
+        if (finished) return;
+        if (!isInFlight()) {
+          finish();
+          return;
+        }
+        schedule(pollLanding, 50);
+      };
+      schedule(pollLanding, 50);
       schedule(finish, HERO_FLIGHT_MAX_WAIT_MS);
+    };
+    const waitForFlightStart = () => {
+      let elapsed = 0;
+      let flightStarted = false;
+      const startLandingWait = () => {
+        if (flightStarted) return;
+        flightStarted = true;
+        waitForLanding();
+      };
+      const pollStart = () => {
+        if (finished || flightStarted) return;
+        if (isInFlight()) {
+          startLandingWait();
+          return;
+        }
+        elapsed += 50;
+        if (elapsed >= HERO_FLIGHT_START_GRACE_MS) {
+          finish();
+          return;
+        }
+        schedule(pollStart, 50);
+      };
+
+      observeStyle(() => {
+        if (isInFlight()) startLandingWait();
+      });
+      schedule(pollStart, 50);
     };
 
     if (departureHeroRef.current) {
       // 출발용 히어로(이 페이지에서 방금 캡처)는 핸드오프하지 않고, 탭이 취소된 경우만 늦게 복구.
       schedule(finish, STORED_HERO_DEPARTURE_RECOVERY_MS);
-    } else if (!copy) {
-      finish();
     } else if (isInFlight()) {
       waitForLanding();
     } else {
-      let flightStarted = false;
-      observeStyle(() => {
-        if (!flightStarted && isInFlight()) {
-          flightStarted = true;
-          waitForLanding();
-        }
-      });
-      schedule(() => {
-        if (!flightStarted) finish();
-      }, HERO_FLIGHT_START_GRACE_MS);
+      waitForFlightStart();
     }
 
     return () => {
@@ -148,25 +241,10 @@ export const useHeroHandoff = ({
   const captureHero = useCallback(
     (item: HeroSourceItem, source: HTMLElement | null) => {
       if (!source || !item.thumbnailUrl) return;
-      const rect = source.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
       const scrollFrame = scrollFrameRef.current;
-      const frameRect =
-        heroCoordinateMode === 'scroll-content'
-          ? scrollFrame?.getBoundingClientRect()
-          : scrollFrame?.parentElement?.getBoundingClientRect();
-      const localRect = frameRect
-        ? new DOMRect(
-            rect.left -
-              frameRect.left +
-              (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollLeft ?? 0) : 0),
-            rect.top -
-              frameRect.top +
-              (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollTop ?? 0) : 0),
-            rect.width,
-            rect.height,
-          )
-        : rect;
+      const localRect = getLocalHeroRect(source, scrollFrame, heroCoordinateMode);
+      if (!localRect) return;
+
       const nextStoredHero = storeHero(storageKey, {
         itemId: item.id,
         heroKey: item.heroKey,

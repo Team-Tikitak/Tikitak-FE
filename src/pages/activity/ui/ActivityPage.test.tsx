@@ -57,7 +57,11 @@ vi.mock('./MonthlyBestAttendance', () => ({
   MonthlyBestAttendance: () => <div data-testid="monthly-best-attendance" />,
 }));
 vi.mock('./MonthlyMemories', () => ({
-  MonthlyMemories: () => <div data-testid="monthly-memories" />,
+  MonthlyMemories: () => (
+    <div data-testid="monthly-memories">
+      <img data-activity-hero-source-id="1" src="https://example.com/pick.jpg" alt="" />
+    </div>
+  ),
 }));
 
 const setDailyQuestion = (data: { content: string; answerFeedId: number | null } | undefined) => {
@@ -334,6 +338,59 @@ describe('ActivityPage - 히어로 핸드오프', () => {
 
     expect(scrollContainer).toHaveClass('relative');
     expect(clone?.parentElement).toBe(scrollContainer);
+  });
+
+  it('복귀(POP) 시 현재 활동 카드 DOM 좌표로 저장 히어로 위치를 보정한다', () => {
+    const getBoundingClientRect = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.dataset.activityHeroSourceId === '1') {
+          return new DOMRect(60, 260, 92, 92);
+        }
+        if (this.classList.contains('overflow-y-auto')) {
+          return new DOMRect(0, 100, 390, 600);
+        }
+
+        return new DOMRect(0, 0, 0, 0);
+      });
+
+    mockUseHomeBestAttendance.mockReturnValue({
+      data: { members: [{ teamMemberId: 1 }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeEveryonePick.mockReturnValue({
+      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
+      isPending: false,
+      isFetching: false,
+    });
+    mockUseHomeRegions.mockReturnValue({
+      data: { regions: [] },
+      isPending: false,
+      isFetching: false,
+    });
+
+    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
+      itemId: '1',
+      heroKey: 'pin-1',
+      thumbnailUrl: 'https://example.com/pick.jpg',
+      heroPreviewUrl: 'https://example.com/pick.jpg',
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+
+    const { container } = renderPage();
+
+    expect(container.querySelector('[data-stored-hero]')).toHaveStyle({
+      left: '60px',
+      top: '160px',
+      width: '92px',
+      height: '92px',
+    });
+
+    getBoundingClientRect.mockRestore();
   });
 
   it('회귀: 활동 스크롤 복원 상태와 스크롤 이벤트를 히어로 컨테이너에 연결한다', () => {

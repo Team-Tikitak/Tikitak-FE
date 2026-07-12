@@ -156,8 +156,10 @@ describe('MonthlyMemories', () => {
     const regionImage = Array.from(images).find((img) => img.src.includes('seoul.jpg'));
 
     expect(pickImage).toHaveClass('opacity-0');
+    expect(pickImage).toHaveAttribute('data-activity-hero-source-id', '1');
     expect(pickImage).not.toHaveAttribute('data-hero-exit-key');
     expect(regionImage).not.toHaveClass('opacity-0');
+    expect(regionImage).toHaveAttribute('data-activity-hero-source-id', '145');
     expect(regionImage).toHaveAttribute('data-hero-exit-key', 'pin-145');
   });
 });

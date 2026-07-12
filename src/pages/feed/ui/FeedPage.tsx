@@ -90,6 +90,19 @@ export const FeedPage = () => {
     onRefresh: () =>
       teamId ? queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) }) : undefined,
   });
+  const getCurrentFeedHeroSource = useCallback(
+    (itemId: string) => {
+      const container = scrollRef.current;
+      if (!container) return null;
+
+      return (
+        Array.from(container.querySelectorAll<HTMLElement>('[data-feed-hero-source-id]')).find(
+          (element) => element.dataset.feedHeroSourceId === itemId,
+        ) ?? null
+      );
+    },
+    [scrollRef],
+  );
 
   const {
     storedHero: storedFeedHero,
@@ -106,6 +119,7 @@ export const FeedPage = () => {
     isItemLoaded: (itemId) => feeds.some((feed) => feed.id === itemId),
     scrollFrameRef: scrollRef,
     heroCoordinateMode: 'scroll-content',
+    getCurrentSource: getCurrentFeedHeroSource,
   });
 
   const captureFeedHero = useCallback(
@@ -149,10 +163,8 @@ export const FeedPage = () => {
   const handleFeedScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       handleRestoreScroll(event);
-      if (!storedFeedHero || !scrollRestored) return;
-      dismissStoredHero();
     },
-    [dismissStoredHero, handleRestoreScroll, scrollRestored, storedFeedHero],
+    [handleRestoreScroll],
   );
 
   const dismissFeedHeroOnScrollIntent = useCallback(() => {
@@ -229,6 +241,7 @@ export const FeedPage = () => {
         <PullToRefreshIndicator
           pullDistance={pullToRefresh.pullDistance}
           threshold={pullToRefresh.threshold}
+          armed={pullToRefresh.isRefreshArmed}
           refreshing={pullToRefresh.isRefreshing}
         />
         {storedFeedHero && (
