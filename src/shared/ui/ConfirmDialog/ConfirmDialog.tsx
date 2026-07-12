@@ -7,7 +7,8 @@ interface ConfirmDialogProps extends Omit<ComponentPropsWithRef<'div'>, 'childre
   cancelLabel?: string;
   confirmLabel: string;
   destructive?: boolean;
-  onCancel: () => void;
+  /** 없으면 취소 버튼을 렌더링하지 않는다 (확인 버튼만 있는 알럿) */
+  onCancel?: () => void;
   onConfirm: () => void;
 }
 
@@ -59,13 +60,15 @@ export function ConfirmDialog({
       </div>
       <div className="flex w-full flex-col items-start px-5 pb-3">
         <div className="flex w-full items-center justify-end gap-6">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="press-feedback py-1 text-center text-[16px] leading-normal font-semibold tracking-[0.0912px] whitespace-nowrap text-[rgba(55,56,60,0.61)]"
-          >
-            {cancelLabel}
-          </button>
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="press-feedback py-1 text-center text-[16px] leading-normal font-semibold tracking-[0.0912px] whitespace-nowrap text-[rgba(55,56,60,0.61)]"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}

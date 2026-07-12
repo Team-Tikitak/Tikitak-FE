@@ -1,5 +1,9 @@
 import { cn } from '@/shared/lib/cn';
-import { confirmDialog, isNativeDialogPlatform } from '@/shared/lib/native/nativeDialog';
+import {
+  alertDialog,
+  confirmDialog,
+  isNativeDialogPlatform,
+} from '@/shared/lib/native/nativeDialog';
 import { openOverlay } from '@/shared/lib/openOverlay';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -9,6 +13,8 @@ interface OpenConfirmDialogOptions {
   cancelLabel?: string;
   confirmLabel: string;
   destructive?: boolean;
+  /** false면 확인 버튼만 있는 알럿으로 띄운다 */
+  showCancel?: boolean;
   onCancel?: () => void;
   onConfirm?: () => void;
   overlayClassName?: string;
@@ -21,6 +27,7 @@ export const openConfirmDialog = ({
   cancelLabel,
   confirmLabel,
   destructive = false,
+  showCancel = true,
   onCancel,
   onConfirm,
   overlayClassName,
@@ -28,6 +35,12 @@ export const openConfirmDialog = ({
 }: OpenConfirmDialogOptions): void => {
   if (isNativeDialogPlatform()) {
     void (async () => {
+      if (!showCancel) {
+        await alertDialog(description ?? title, title, confirmLabel);
+        onConfirm?.();
+        return;
+      }
+
       const confirmed = await confirmDialog({
         title,
         message: description ?? '',
@@ -69,7 +82,7 @@ export const openConfirmDialog = ({
           confirmLabel={confirmLabel}
           destructive={destructive}
           className={dialogClassName}
-          onCancel={() => closeAndRun(onCancel)}
+          onCancel={showCancel ? () => closeAndRun(onCancel) : undefined}
           onConfirm={() => closeAndRun(onConfirm)}
         />
       </div>
