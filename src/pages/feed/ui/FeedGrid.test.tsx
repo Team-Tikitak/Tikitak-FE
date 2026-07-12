@@ -208,4 +208,13 @@ describe('FeedGrid', () => {
 
     expect(warmFeedDetail).toHaveBeenCalledWith(expect.anything(), 7, '42');
   });
+
+  it('pointerDown만으로는 히어로 사본을 캡처하지 않아 스크롤 드래그 중 썸네일이 따라오지 않게 한다', () => {
+    const onHeroCapture = vi.fn();
+    renderGrid(<FeedGrid items={[makeFeed('42')]} teamId={7} onHeroCapture={onHeroCapture} />);
+
+    fireEvent.pointerDown(screen.getByRole('link'));
+
+    expect(onHeroCapture).not.toHaveBeenCalled();
+  });
 });

@@ -8,6 +8,11 @@ import {
 
 const HERO_PIN_STORAGE_KEY = 'tikitak:last-hero-pin';
 
+const snapToDevicePixel = (value: number) => {
+  const ratio = window.devicePixelRatio || 1;
+  return Math.round(value * ratio) / ratio;
+};
+
 interface StoredHeroPinPayload {
   placeId: string;
   teamId: number;
@@ -64,8 +69,10 @@ export const getStoredHeroPinStyle = (storedHeroPin: StoredHeroPin, pinSize: num
   const shouldCenter =
     typeof storedHeroPin.latitude === 'number' && typeof storedHeroPin.longitude === 'number';
   return {
-    left: shouldCenter ? `calc(50% - ${pinSize / 2}px)` : storedHeroPin.x - pinSize / 2,
-    top: shouldCenter ? `calc(50% - ${pinSize}px)` : storedHeroPin.y - pinSize,
+    left: shouldCenter
+      ? `calc(50% - ${pinSize / 2}px)`
+      : snapToDevicePixel(storedHeroPin.x - pinSize / 2),
+    top: shouldCenter ? `calc(50% - ${pinSize}px)` : snapToDevicePixel(storedHeroPin.y - pinSize),
     width: pinSize,
     height: pinSize,
   };
@@ -83,8 +90,8 @@ export const storeHeroPin = (
     thumbnailUrl: normalizeImageUrl(pin.thumbnailUrl),
     feedCount: pin.feedCount,
     level: viewport?.level,
-    x: position.x,
-    y: position.y,
+    x: snapToDevicePixel(position.x),
+    y: snapToDevicePixel(position.y),
   };
   safeSessionSet(HERO_PIN_STORAGE_KEY, JSON.stringify(payload));
   pendingHeroPinCoords = {

@@ -31,6 +31,19 @@ interface UseHeroHandoffParams {
   shouldResetOnContextChange?: boolean;
 }
 
+const snapToDevicePixel = (value: number) => {
+  const ratio = window.devicePixelRatio || 1;
+  return Math.round(value * ratio) / ratio;
+};
+
+const createSnappedRect = (left: number, top: number, width: number, height: number) =>
+  new DOMRect(
+    snapToDevicePixel(left),
+    snapToDevicePixel(top),
+    snapToDevicePixel(width),
+    snapToDevicePixel(height),
+  );
+
 const getLocalHeroRect = (
   source: HTMLElement,
   scrollFrame: HTMLElement | null,
@@ -45,7 +58,7 @@ const getLocalHeroRect = (
       : scrollFrame?.parentElement?.getBoundingClientRect();
 
   return frameRect
-    ? new DOMRect(
+    ? createSnappedRect(
         rect.left -
           frameRect.left +
           (heroCoordinateMode === 'scroll-content' ? (scrollFrame?.scrollLeft ?? 0) : 0),
@@ -55,7 +68,7 @@ const getLocalHeroRect = (
         rect.width,
         rect.height,
       )
-    : rect;
+    : createSnappedRect(rect.left, rect.top, rect.width, rect.height);
 };
 
 // 목록 썸네일 ↔ 상세 사이 hero 전환의 왕복(특히 뒤로가기) 구간을 매끄럽게 만드는 공용 훅.
