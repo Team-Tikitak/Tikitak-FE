@@ -18,7 +18,7 @@ export interface FeedShareCardData {
 const CARD_WIDTH = 1080;
 const CARD_HEIGHT = 1920;
 const PHOTO = { x: 100, y: 250, w: 880, h: 1180, radius: 38 };
-const META = { x: 120, y: 1488, w: 840, h: 172, radius: 34 };
+const META = { x: PHOTO.x, y: 1488, w: PHOTO.w, h: 172, radius: 34 };
 const MEDIA_CDN_BASE_URL = import.meta.env.VITE_MEDIA_CDN_BASE_URL ?? '';
 const IMAGE_FETCH_TIMEOUT_MS = 15_000;
 
@@ -271,7 +271,7 @@ export const generateFeedShareCard = async (data: FeedShareCardData): Promise<Bl
 
   if (data.title) {
     ctx.fillStyle = '#111827';
-    ctx.font = '700 48px SUIT, sans-serif';
+    ctx.font = '700 40px SUIT, sans-serif';
     ctx.fillText(truncateToWidth(ctx, data.title, metaTextWidth), metaLeft, META.y + 128);
   }
 

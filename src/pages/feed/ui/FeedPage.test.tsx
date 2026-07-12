@@ -317,7 +317,7 @@ describe('FeedPage - Hero Management', () => {
     expect(container.querySelector('article span.absolute')).toHaveClass('opacity-0');
   });
 
-  it('renders the stored hero inside the feed scroll container so restored coordinates follow scroll content', () => {
+  it('renders the stored hero outside the feed scroll container so return coordinates stay viewport-based', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
@@ -331,7 +331,7 @@ describe('FeedPage - Hero Management', () => {
     const storedHero = container.querySelector('img.absolute[data-hero-exit-key="pin-1"]');
 
     expect(storedHero).toBeInTheDocument();
-    expect(storedHero?.closest('[data-feed-scroll-container]')).toBe(scrollContainer);
+    expect(storedHero?.closest('[data-feed-scroll-container]')).not.toBe(scrollContainer);
   });
 
   it('스크롤 복원 전에는 저장 히어로 사본을 렌더하지 않아 상단 기준 좌표 캡처를 막는다', () => {
@@ -357,41 +357,25 @@ describe('FeedPage - Hero Management', () => {
     expect(source).not.toHaveAttribute('data-hero-exit-key');
   });
 
-  it('복귀 시 현재 피드 원본 DOM 좌표로 저장 히어로 위치를 보정한다', () => {
-    const getBoundingClientRect = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function (this: HTMLElement) {
-        if (this.dataset.feedHeroSourceId === '1') {
-          return new DOMRect(64, 284, 88, 88);
-        }
-        if (this.hasAttribute('data-feed-scroll-container')) {
-          return new DOMRect(0, 220, 390, 600);
-        }
-
-        return new DOMRect(0, 0, 0, 0);
-      });
+  it('복귀 시 저장된 화면 기준 좌표를 그대로 히어로 타겟으로 사용한다', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
-    try {
-      const { container } = renderFeedPage(
-        <MemoryRouter>
-          <FeedPage />
-        </MemoryRouter>,
-      );
+    const { container } = renderFeedPage(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    );
 
-      expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toHaveStyle({
-        left: '64px',
-        top: '64px',
-        width: '88px',
-        height: '88px',
-      });
-    } finally {
-      getBoundingClientRect.mockRestore();
-    }
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toHaveStyle({
+      left: '10px',
+      top: '20px',
+      width: '92px',
+      height: '92px',
+    });
   });
 
-  it('복귀 중 발생한 scroll 이벤트만으로는 stored hero를 정리하지 않는다', () => {
+  it('복귀 이후 사용자가 스크롤하면 화면 기준 stored hero를 즉시 정리한다', () => {
     const feedItem = createFeedItem();
     storeFeedHero(feedItem, new DOMRect(10, 20, 92, 92));
 
@@ -407,8 +391,8 @@ describe('FeedPage - Hero Management', () => {
 
     fireEvent.scroll(scrollContainer as Element, { target: { scrollTop: 240 } });
 
-    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeInTheDocument();
-    expect(readStoredFeedHero()).not.toBeNull();
+    expect(container.querySelector('img.absolute[data-hero-exit-key="pin-1"]')).toBeNull();
+    expect(readStoredFeedHero()).toBeNull();
   });
 
   it('복귀 직후 스크롤 제스처가 들어와도 stored hero를 착지 전에 정리하지 않는다', () => {
