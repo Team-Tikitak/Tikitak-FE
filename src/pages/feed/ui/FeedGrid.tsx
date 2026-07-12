@@ -108,6 +108,7 @@ export const FeedGrid = ({
               onClick={(event) => void handleFeedClick(event, item)}
             >
               <img
+                data-feed-hero-source-id={item.id}
                 {...(suppressedHeroId === item.id
                   ? {}
                   : { 'data-hero-exit-key': `pin-${item.id}`, 'data-hero-radius': '4' })}

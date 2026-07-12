@@ -78,6 +78,7 @@ export const TeamDetailPage = () => {
       <PullToRefreshIndicator
         pullDistance={pullToRefresh.pullDistance}
         threshold={pullToRefresh.threshold}
+        armed={pullToRefresh.isRefreshArmed}
         refreshing={pullToRefresh.isRefreshing}
       />
       <div

@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib';
 interface PullToRefreshIndicatorProps {
   pullDistance: number;
   threshold: number;
+  armed?: boolean;
   refreshing?: boolean;
   className?: string;
 }
@@ -13,16 +14,17 @@ const INDICATOR_SIZE = 48;
 export const PullToRefreshIndicator = ({
   pullDistance,
   threshold,
+  armed = false,
   refreshing = false,
   className,
 }: PullToRefreshIndicatorProps) => {
-  const progress = refreshing ? 1 : Math.min(1, pullDistance / threshold);
+  const progress = refreshing || armed ? 1 : Math.min(1, pullDistance / threshold);
   const visible = refreshing || pullDistance > 0;
   const refreshDistance = refreshing ? threshold : pullDistance;
   const translateY = Math.max(0, refreshDistance / 2 - INDICATOR_SIZE / 2);
   const logoScale = 0.9 + progress * 0.1;
   const fillClipTop = `${100 - progress * 100}%`;
-  const shouldSpin = refreshing || progress >= 1;
+  const shouldSpin = refreshing || armed || progress >= 1;
 
   return (
     <div

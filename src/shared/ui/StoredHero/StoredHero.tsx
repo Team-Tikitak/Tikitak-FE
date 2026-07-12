@@ -19,12 +19,14 @@ interface StoredHeroProps extends Omit<
   storedHero: StoredHeroData;
   visible?: boolean;
   radius?: string;
+  instanceKey?: string;
 }
 
 export const StoredHero = ({
   storedHero,
   visible = true,
   radius = '4',
+  instanceKey,
   className,
   ref,
   style,
@@ -35,6 +37,7 @@ export const StoredHero = ({
       ref={ref}
       {...props}
       data-stored-hero
+      {...(instanceKey ? { 'data-stored-hero-key': instanceKey } : {})}
       data-hero-exit-key={storedHero.heroKey}
       data-hero-radius={radius}
       src={storedHero.thumbnailUrl}

@@ -98,6 +98,42 @@ describe('usePullToRefresh', () => {
     expect(result.current.pullTransformStyle.transform).toBe('translateY(50px)');
   });
 
+  it('회귀: 한 번 임계점을 넘긴 같은 터치에서는 인디케이터가 사라졌다 다시 나와도 armed 상태를 유지한다', () => {
+    const scrollElement = document.createElement('div');
+    const onRefresh = vi.fn();
+    const { result } = renderHook(() =>
+      usePullToRefresh({
+        scrollRef: { current: scrollElement },
+        onRefresh,
+        threshold: 60,
+      }),
+    );
+
+    act(() => {
+      result.current.touchHandlers.onTouchStart(touchEvent(0));
+      result.current.touchHandlers.onTouchMove(touchEvent(140));
+    });
+    expect(result.current.pullDistance).toBe(70);
+    expect(result.current.isRefreshArmed).toBe(true);
+
+    act(() => {
+      result.current.touchHandlers.onTouchMove(touchEvent(-20));
+    });
+    expect(result.current.pullDistance).toBe(0);
+    expect(result.current.isRefreshArmed).toBe(true);
+
+    act(() => {
+      result.current.touchHandlers.onTouchMove(touchEvent(40));
+    });
+    expect(result.current.pullDistance).toBe(20);
+    expect(result.current.isRefreshArmed).toBe(true);
+
+    act(() => {
+      result.current.touchHandlers.onTouchEnd();
+    });
+    expect(result.current.isRefreshArmed).toBe(false);
+  });
+
   it('처음부터 위로 스크롤하려는 제스처는 기존처럼 pull 추적을 시작하지 않는다', () => {
     const scrollElement = document.createElement('div');
     const onRefresh = vi.fn();

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearStoredHero, readStoredHero } from '@/shared/lib/hero/heroStorage';
+import { clearStoredHero, readStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
 import { useHeroHandoff, type HeroSourceItem } from './useHeroHandoff';
 import type { RefObject } from 'react';
 import type { NavigationType } from 'react-router';
@@ -122,5 +122,127 @@ describe('useHeroHandoff', () => {
     expect(result.current.storedHero).toBeNull();
     expect(result.current.storedHeroVisible).toBe(false);
     expect(result.current.suppressedItemId).toBeNull();
+  });
+
+  it('복귀 시 현재 원본 DOM 좌표로 저장 히어로 위치를 보정한다', () => {
+    storeHero(STORAGE_KEY, {
+      itemId: HERO_ITEM.id,
+      heroKey: HERO_ITEM.heroKey,
+      thumbnailUrl: HERO_ITEM.thumbnailUrl,
+      heroPreviewUrl: HERO_ITEM.thumbnailUrl,
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+    const scrollFrame = document.createElement('div');
+    scrollFrame.getBoundingClientRect = () => rect(0, 100, 390, 600);
+    Object.defineProperty(scrollFrame, 'scrollTop', { configurable: true, value: 300 });
+    const currentSource = createSource(rect(60, 260, 92, 92));
+
+    const { result } = renderHandoff(
+      { current: scrollFrame },
+      {
+        navigationType: 'POP' as NavigationType,
+        heroCoordinateMode: 'scroll-content',
+        getCurrentSource: () => currentSource,
+      },
+    );
+
+    expect(result.current.storedHero).toEqual(
+      expect.objectContaining({
+        left: 60,
+        top: 460,
+        width: 92,
+        height: 92,
+      }),
+    );
+  });
+
+  it('복귀 히어로 비행이 늦게 시작되면 착지할 때까지 원본 숨김을 유지한다', () => {
+    storeHero(STORAGE_KEY, {
+      itemId: HERO_ITEM.id,
+      heroKey: HERO_ITEM.heroKey,
+      thumbnailUrl: HERO_ITEM.thumbnailUrl,
+      heroPreviewUrl: HERO_ITEM.thumbnailUrl,
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+    const storedHeroCopy = document.createElement('img');
+    storedHeroCopy.dataset.storedHero = '';
+    storedHeroCopy.dataset.storedHeroKey = STORAGE_KEY;
+    document.body.append(storedHeroCopy);
+
+    const { result } = renderHandoff(
+      { current: document.createElement('div') },
+      { navigationType: 'POP' as NavigationType },
+    );
+
+    expect(result.current.storedHeroVisible).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
+    storedHeroCopy.style.opacity = '0';
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(true);
+    expect(result.current.suppressedItemId).toBe(HERO_ITEM.id);
+
+    storedHeroCopy.style.opacity = '';
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(false);
+    expect(result.current.suppressedItemId).toBeNull();
+
+    storedHeroCopy.remove();
+  });
+
+  it('다른 히어로 인스턴스의 비행 상태는 현재 사본 핸드오프에 섞지 않는다', () => {
+    storeHero(STORAGE_KEY, {
+      itemId: HERO_ITEM.id,
+      heroKey: HERO_ITEM.heroKey,
+      thumbnailUrl: HERO_ITEM.thumbnailUrl,
+      heroPreviewUrl: HERO_ITEM.thumbnailUrl,
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+    const currentCopy = document.createElement('img');
+    currentCopy.dataset.storedHero = '';
+    currentCopy.dataset.storedHeroKey = STORAGE_KEY;
+    const otherCopy = document.createElement('img');
+    otherCopy.dataset.storedHero = '';
+    otherCopy.dataset.storedHeroKey = 'tikitak:other-hero-handoff';
+    otherCopy.style.opacity = '0';
+    document.body.append(currentCopy, otherCopy);
+
+    const { result } = renderHandoff(
+      { current: document.createElement('div') },
+      { navigationType: 'POP' as NavigationType },
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(false);
+    expect(result.current.suppressedItemId).toBeNull();
+
+    currentCopy.remove();
+    otherCopy.remove();
   });
 });
