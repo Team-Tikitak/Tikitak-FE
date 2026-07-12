@@ -6,7 +6,6 @@ import {
   type MouseEvent,
   type TouchEvent,
   type UIEvent,
-  type WheelEvent,
 } from 'react';
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
@@ -167,24 +166,11 @@ export const FeedPage = () => {
     [handleRestoreScroll],
   );
 
-  const dismissFeedHeroOnScrollIntent = useCallback(() => {
-    if (!storedFeedHero || !scrollRestored) return;
-    dismissStoredHero();
-  }, [dismissStoredHero, scrollRestored, storedFeedHero]);
-
   const handleFeedTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
       pullToRefresh.touchHandlers.onTouchMove(event);
-      dismissFeedHeroOnScrollIntent();
     },
-    [dismissFeedHeroOnScrollIntent, pullToRefresh.touchHandlers],
-  );
-
-  const handleFeedWheel = useCallback(
-    (_event: WheelEvent<HTMLDivElement>) => {
-      dismissFeedHeroOnScrollIntent();
-    },
-    [dismissFeedHeroOnScrollIntent],
+    [pullToRefresh.touchHandlers],
   );
 
   const handleListFeedClick = async (event: MouseEvent<HTMLAnchorElement>, feed: FeedItem) => {
@@ -236,7 +222,6 @@ export const FeedPage = () => {
         onTouchMove={handleFeedTouchMove}
         onTouchEnd={pullToRefresh.touchHandlers.onTouchEnd}
         onTouchCancel={pullToRefresh.touchHandlers.onTouchCancel}
-        onWheel={handleFeedWheel}
       >
         <PullToRefreshIndicator
           pullDistance={pullToRefresh.pullDistance}

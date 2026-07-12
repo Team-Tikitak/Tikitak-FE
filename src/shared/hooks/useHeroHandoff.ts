@@ -172,7 +172,14 @@ export const useHeroHandoff = ({
 
     const queryCopies = () =>
       Array.from(document.querySelectorAll<HTMLElement>(STORED_HERO_CLONE_SELECTOR)).filter(
-        (copy) => copy.dataset.storedHeroKey === storageKey,
+        (copy) => {
+          const copyStorageKey = copy.dataset.storedHeroKey;
+          if (copyStorageKey) return copyStorageKey === storageKey;
+
+          // ssgoi가 비행용으로 복제한 DOM은 커스텀 storage key를 잃을 수 있다.
+          // 이 경우 hero exit key로 같은 핸드오프 사본인지 한 번 더 판별한다.
+          return copy.dataset.heroExitKey === storedHero.heroKey;
+        },
       );
     const isInFlight = () => queryCopies().some((copy) => copy.style.opacity === '0');
     const observeStyle = (onChange: () => void) => {
