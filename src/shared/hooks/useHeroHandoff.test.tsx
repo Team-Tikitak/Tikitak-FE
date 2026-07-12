@@ -207,6 +207,49 @@ describe('useHeroHandoff', () => {
     storedHeroCopy.remove();
   });
 
+  it('storage key가 없는 전환 클론도 같은 heroKey면 착지할 때까지 기다린다', () => {
+    storeHero(STORAGE_KEY, {
+      itemId: HERO_ITEM.id,
+      heroKey: HERO_ITEM.heroKey,
+      thumbnailUrl: HERO_ITEM.thumbnailUrl,
+      heroPreviewUrl: HERO_ITEM.thumbnailUrl,
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+    const storedHeroCopy = document.createElement('img');
+    storedHeroCopy.dataset.storedHero = '';
+    storedHeroCopy.dataset.heroExitKey = HERO_ITEM.heroKey;
+    storedHeroCopy.style.opacity = '0';
+    document.body.append(storedHeroCopy);
+
+    const { result } = renderHandoff(
+      { current: document.createElement('div') },
+      { navigationType: 'POP' as NavigationType },
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(true);
+    expect(result.current.suppressedItemId).toBe(HERO_ITEM.id);
+
+    storedHeroCopy.style.opacity = '';
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(false);
+    expect(result.current.suppressedItemId).toBeNull();
+
+    storedHeroCopy.remove();
+  });
+
   it('다른 히어로 인스턴스의 비행 상태는 현재 사본 핸드오프에 섞지 않는다', () => {
     storeHero(STORAGE_KEY, {
       itemId: HERO_ITEM.id,
