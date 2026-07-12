@@ -157,4 +157,6 @@ export const useGetFeedDetail = (teamId: number, feedId: number) =>
   useQuery({
     ...feedDetailQueryOptions(teamId, feedId),
     enabled: teamId > 0 && Boolean(feedId),
+    // 캐시가 fresh해도 진입 시 항상 재검증해 이미 삭제된 피드(404)를 감지한다
+    refetchOnMount: 'always',
   });
