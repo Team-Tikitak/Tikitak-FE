@@ -248,6 +248,7 @@ export const FeedPage = () => {
           <StoredHero
             storedHero={storedFeedHero}
             visible={storedHeroVisible}
+            instanceKey={FEED_HERO_STORAGE_KEY}
             style={pullToRefresh.pullTransformStyle}
           />
         )}

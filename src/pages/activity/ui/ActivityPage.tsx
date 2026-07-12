@@ -132,7 +132,12 @@ export const ActivityPage = () => {
         )}
       >
         {storedHero && (
-          <StoredHero storedHero={storedHero} visible={storedHeroVisible} radius="8" />
+          <StoredHero
+            storedHero={storedHero}
+            visible={storedHeroVisible}
+            radius="8"
+            instanceKey={ACTIVITY_HERO_STORAGE_KEY}
+          />
         )}
         {content}
         {/* iOS(WebKit)는 스크롤 컨테이너 자신의 padding-bottom을 스크롤 범위에 안 넣어서 자식 스페이서로 하단 여백 확보 */}

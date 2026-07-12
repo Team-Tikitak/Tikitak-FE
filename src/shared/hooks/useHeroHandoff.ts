@@ -171,7 +171,9 @@ export const useHeroHandoff = ({
     };
 
     const queryCopies = () =>
-      Array.from(document.querySelectorAll<HTMLElement>(STORED_HERO_CLONE_SELECTOR));
+      Array.from(document.querySelectorAll<HTMLElement>(STORED_HERO_CLONE_SELECTOR)).filter(
+        (copy) => copy.dataset.storedHeroKey === storageKey,
+      );
     const isInFlight = () => queryCopies().some((copy) => copy.style.opacity === '0');
     const observeStyle = (onChange: () => void) => {
       for (const copy of queryCopies()) {
@@ -236,7 +238,7 @@ export const useHeroHandoff = ({
       for (const id of timeoutIds) window.clearTimeout(id);
       for (const observer of observers) observer.disconnect();
     };
-  }, [dismissStoredHero, isStoredHeroItemLoaded, scrollRestored, storedHero]);
+  }, [dismissStoredHero, isStoredHeroItemLoaded, scrollRestored, storageKey, storedHero]);
 
   const captureHero = useCallback(
     (item: HeroSourceItem, source: HTMLElement | null) => {

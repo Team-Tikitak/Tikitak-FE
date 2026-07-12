@@ -172,6 +172,7 @@ describe('useHeroHandoff', () => {
     });
     const storedHeroCopy = document.createElement('img');
     storedHeroCopy.dataset.storedHero = '';
+    storedHeroCopy.dataset.storedHeroKey = STORAGE_KEY;
     document.body.append(storedHeroCopy);
 
     const { result } = renderHandoff(
@@ -204,5 +205,44 @@ describe('useHeroHandoff', () => {
     expect(result.current.suppressedItemId).toBeNull();
 
     storedHeroCopy.remove();
+  });
+
+  it('다른 히어로 인스턴스의 비행 상태는 현재 사본 핸드오프에 섞지 않는다', () => {
+    storeHero(STORAGE_KEY, {
+      itemId: HERO_ITEM.id,
+      heroKey: HERO_ITEM.heroKey,
+      thumbnailUrl: HERO_ITEM.thumbnailUrl,
+      heroPreviewUrl: HERO_ITEM.thumbnailUrl,
+      left: 10,
+      top: 20,
+      width: 90,
+      height: 90,
+    });
+    const currentCopy = document.createElement('img');
+    currentCopy.dataset.storedHero = '';
+    currentCopy.dataset.storedHeroKey = STORAGE_KEY;
+    const otherCopy = document.createElement('img');
+    otherCopy.dataset.storedHero = '';
+    otherCopy.dataset.storedHeroKey = 'tikitak:other-hero-handoff';
+    otherCopy.style.opacity = '0';
+    document.body.append(currentCopy, otherCopy);
+
+    const { result } = renderHandoff(
+      { current: document.createElement('div') },
+      { navigationType: 'POP' as NavigationType },
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    act(() => {
+      vi.advanceTimersByTime(120);
+    });
+
+    expect(result.current.storedHeroVisible).toBe(false);
+    expect(result.current.suppressedItemId).toBeNull();
+
+    currentCopy.remove();
+    otherCopy.remove();
   });
 });

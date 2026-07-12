@@ -381,16 +381,18 @@ describe('ActivityPage - 히어로 핸드오프', () => {
       height: 90,
     });
 
-    const { container } = renderPage();
+    try {
+      const { container } = renderPage();
 
-    expect(container.querySelector('[data-stored-hero]')).toHaveStyle({
-      left: '60px',
-      top: '160px',
-      width: '92px',
-      height: '92px',
-    });
-
-    getBoundingClientRect.mockRestore();
+      expect(container.querySelector('[data-stored-hero]')).toHaveStyle({
+        left: '60px',
+        top: '160px',
+        width: '92px',
+        height: '92px',
+      });
+    } finally {
+      getBoundingClientRect.mockRestore();
+    }
   });
 
   it('회귀: 활동 스크롤 복원 상태와 스크롤 이벤트를 히어로 컨테이너에 연결한다', () => {
