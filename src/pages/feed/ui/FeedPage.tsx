@@ -89,19 +89,6 @@ export const FeedPage = () => {
     onRefresh: () =>
       teamId ? queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) }) : undefined,
   });
-  const getCurrentFeedHeroSource = useCallback(
-    (itemId: string) => {
-      const container = scrollRef.current;
-      if (!container) return null;
-
-      return (
-        Array.from(container.querySelectorAll<HTMLElement>('[data-feed-hero-source-id]')).find(
-          (element) => element.dataset.feedHeroSourceId === itemId,
-        ) ?? null
-      );
-    },
-    [scrollRef],
-  );
 
   const {
     storedHero: storedFeedHero,
@@ -117,8 +104,6 @@ export const FeedPage = () => {
     scrollRestored,
     isItemLoaded: (itemId) => feeds.some((feed) => feed.id === itemId),
     scrollFrameRef: scrollRef,
-    heroCoordinateMode: 'scroll-content',
-    getCurrentSource: getCurrentFeedHeroSource,
   });
 
   const captureFeedHero = useCallback(
@@ -162,8 +147,10 @@ export const FeedPage = () => {
   const handleFeedScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       handleRestoreScroll(event);
+      if (!storedFeedHero || !scrollRestored) return;
+      dismissStoredHero();
     },
-    [handleRestoreScroll],
+    [dismissStoredHero, handleRestoreScroll, scrollRestored, storedFeedHero],
   );
 
   const handleFeedTouchMove = useCallback(
@@ -213,6 +200,14 @@ export const FeedPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden"
     >
+      {storedFeedHero && scrollRestored && (
+        <StoredHero
+          storedHero={storedFeedHero}
+          visible={storedHeroVisible}
+          instanceKey={FEED_HERO_STORAGE_KEY}
+          style={pullToRefresh.pullTransformStyle}
+        />
+      )}
       <div
         ref={scrollRef}
         data-feed-scroll-container
@@ -229,14 +224,6 @@ export const FeedPage = () => {
           armed={pullToRefresh.isRefreshArmed}
           refreshing={pullToRefresh.isRefreshing}
         />
-        {storedFeedHero && scrollRestored && (
-          <StoredHero
-            storedHero={storedFeedHero}
-            visible={storedHeroVisible}
-            instanceKey={FEED_HERO_STORAGE_KEY}
-            style={pullToRefresh.pullTransformStyle}
-          />
-        )}
         <div
           className="flex min-h-full flex-col px-6 pt-6"
           style={pullToRefresh.pullTransformStyle}
