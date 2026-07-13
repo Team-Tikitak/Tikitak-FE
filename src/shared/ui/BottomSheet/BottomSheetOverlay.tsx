@@ -16,6 +16,9 @@ const blurActiveElement = () => {
   }
 };
 
+const isAndroidNativeShell = () =>
+  typeof document !== 'undefined' && document.documentElement.classList.contains('cap-android');
+
 interface BottomSheetOverlayProps {
   open: boolean;
   onClose: () => void;
@@ -51,6 +54,7 @@ export function BottomSheetOverlay({
   const keyboardVisible = useKeyboardVisible();
   const dimmedRef = useRef(false);
   const shouldAvoidKeyboard = avoidKeyboard && open;
+  const shouldOffsetKeyboard = shouldAvoidKeyboard && keyboardVisible && !isAndroidNativeShell();
 
   // 열림과 동시에 status bar dim, 닫힘 애니메이션 종료/언마운트 시 복원 → 오버레이와 동기화
   useEffect(() => {
@@ -122,13 +126,13 @@ export function BottomSheetOverlay({
         }}
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full flex-col outline-none sm:max-w-[393px]',
-          shouldAvoidKeyboard &&
+          shouldOffsetKeyboard &&
             'bottom-(--keyboard-height) transition-[bottom] duration-250 ease-[cubic-bezier(0.17,0.59,0.28,1)]',
           snapPoints && 'h-full',
           className,
         )}
       >
-        {shouldAvoidKeyboard ? (
+        {shouldOffsetKeyboard ? (
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-full h-(--keyboard-height) bg-white"
