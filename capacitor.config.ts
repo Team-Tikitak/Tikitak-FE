@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'space.tikitak.app',
+  appId: 'app.tikitak.space',
   appName: 'Tikitak',
   webDir: 'dist',
   server: {
