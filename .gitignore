@@ -45,6 +45,10 @@ storybook-static
 # Vercel
 .vercel
 
+# Android release secrets
+android/*.jks
+android/keystore.properties
+
 # Playwright
 playwright-report/
 test-results/
@@ -68,4 +72,3 @@ AGENTS.md
 .omx/
 .agents/
 .codex/
-
