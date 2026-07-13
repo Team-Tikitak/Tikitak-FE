@@ -9,6 +9,7 @@ export * from './date';
 export * from './getPointerRatio';
 export * from './hero';
 export * from './image';
+export * from './isAndroidBrowser';
 export * from './kakaoSdk';
 export * from './native';
 export * from './openOverlay';
