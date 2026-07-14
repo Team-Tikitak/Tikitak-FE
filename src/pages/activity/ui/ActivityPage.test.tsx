@@ -302,6 +302,7 @@ describe('ActivityPage - 히어로 핸드오프', () => {
     expect(clone).toBeInTheDocument();
     expect(clone).toHaveAttribute('data-hero-exit-key', 'pin-1');
     expect(clone).toHaveAttribute('data-hero-radius', '8');
+    expect(clone).toHaveAttribute('style', expect.stringContaining('border-radius: 8px'));
   });
 
   it('회귀: 저장된 히어로 사본은 스크롤 컨테이너 바깥에서 화면 기준 좌표를 유지한다', () => {
