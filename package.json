@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "preview:nopwa": "VITE_PWA_DISABLE=true vite build && vite preview",
     "test": "vitest",
-    "type-check": "tsc -b",
+    "type-check": "tsc -b --noEmit",
     "format:check": "prettier . --check",
     "gen:index": "tsx scripts/genIndex.ts",
     "gen:index:check": "tsx scripts/genIndex.ts --check",
