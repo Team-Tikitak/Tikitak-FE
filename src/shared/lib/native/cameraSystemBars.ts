@@ -3,6 +3,7 @@ const CAMERA_SYSTEM_BAR_COLOR = '#111111';
 const DEFAULT_SYSTEM_BAR_COLOR = '#ffffff';
 
 let requestId = 0;
+let systemBarQueue: Promise<void> = Promise.resolve();
 
 const setAndroidCameraClass = (active: boolean) => {
   if (typeof document === 'undefined') return;
@@ -11,8 +12,9 @@ const setAndroidCameraClass = (active: boolean) => {
   document.body.classList.toggle(ANDROID_CAMERA_SYSTEM_BARS_CLASS, active);
 };
 
-export const setAndroidCameraSystemBars = async (active: boolean): Promise<void> => {
-  const currentRequestId = ++requestId;
+const applyAndroidCameraSystemBars = async (active: boolean, currentRequestId: number) => {
+  if (currentRequestId !== requestId) return;
+
   const [{ Capacitor, SystemBars, SystemBarsStyle }, { StatusBar, Style }] = await Promise.all([
     import('@capacitor/core'),
     import('@capacitor/status-bar'),
@@ -30,4 +32,14 @@ export const setAndroidCameraSystemBars = async (active: boolean): Promise<void>
     StatusBar.setStyle({ style: active ? Style.Dark : Style.Light }),
     SystemBars.setStyle({ style: active ? SystemBarsStyle.Dark : SystemBarsStyle.Light }),
   ]);
+};
+
+export const setAndroidCameraSystemBars = (active: boolean): Promise<void> => {
+  const currentRequestId = ++requestId;
+
+  systemBarQueue = systemBarQueue
+    .catch(() => undefined)
+    .then(() => applyAndroidCameraSystemBars(active, currentRequestId));
+
+  return systemBarQueue;
 };

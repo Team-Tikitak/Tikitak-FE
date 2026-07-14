@@ -93,6 +93,7 @@ public class NativeCameraPlugin extends Plugin {
                         previewView.setVisibility(View.VISIBLE);
                         call.resolve();
                     } catch (Exception e) {
+                        cleanupPreviewResources();
                         call.reject(e.getMessage());
                     }
                 },
@@ -242,26 +243,41 @@ public class NativeCameraPlugin extends Plugin {
 
     @PluginMethod
     public void stopPreview(PluginCall call) {
-        stopPreviewInternal();
-        call.resolve();
+        stopPreviewInternal(call);
     }
 
     private void stopPreviewInternal() {
+        stopPreviewInternal(null);
+    }
+
+    private void stopPreviewInternal(PluginCall call) {
         Activity activity = getActivity();
-        if (activity == null) return;
+        if (activity == null) {
+            if (call != null) {
+                call.resolve();
+            }
+            return;
+        }
 
         activity.runOnUiThread(() -> {
-            if (cameraProvider != null) {
-                cameraProvider.unbindAll();
-            }
-            camera = null;
-            imageCapture = null;
-            if (previewView != null) {
-                previewView.setVisibility(View.INVISIBLE);
-            }
-            if (originalWebViewBackgroundColor != null) {
-                bridge.getWebView().setBackgroundColor(originalWebViewBackgroundColor);
+            cleanupPreviewResources();
+            if (call != null) {
+                call.resolve();
             }
         });
+    }
+
+    private void cleanupPreviewResources() {
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+        }
+        camera = null;
+        imageCapture = null;
+        if (previewView != null) {
+            previewView.setVisibility(View.INVISIBLE);
+        }
+        if (originalWebViewBackgroundColor != null) {
+            bridge.getWebView().setBackgroundColor(originalWebViewBackgroundColor);
+        }
     }
 }

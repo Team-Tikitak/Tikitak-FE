@@ -58,12 +58,18 @@ describe('statusBarDim', () => {
   });
 
   it('마지막 바텀시트가 닫히면 기본 시스템 바로 복구한다', async () => {
-    const { popStatusBarDim, pushStatusBarDim } = await importStatusBarDim();
+    const { core, popStatusBarDim, pushStatusBarDim, statusBar } = await importStatusBarDim();
 
     pushStatusBarDim();
+    await vi.waitFor(() =>
+      expect(statusBar.StatusBar.setBackgroundColor).toHaveBeenCalledWith({ color: '#808080' }),
+    );
     pushStatusBarDim();
     popStatusBarDim();
     popStatusBarDim();
+    await vi.waitFor(() =>
+      expect(statusBar.StatusBar.setBackgroundColor).toHaveBeenCalledWith({ color: '#ffffff' }),
+    );
 
     expect(document.querySelector('meta[name="theme-color"]')).toHaveAttribute(
       'content',
@@ -71,6 +77,8 @@ describe('statusBarDim', () => {
     );
     expect(document.documentElement).not.toHaveClass('android-status-bar-dimmed');
     expect(document.body).not.toHaveClass('android-status-bar-dimmed');
+    expect(statusBar.StatusBar.setStyle).toHaveBeenLastCalledWith({ style: 'LIGHT' });
+    expect(core.SystemBars.setStyle).toHaveBeenLastCalledWith({ style: 'LIGHT' });
   });
 
   it('iOS에서는 Android 시스템 바 클래스를 붙이지 않는다', async () => {
