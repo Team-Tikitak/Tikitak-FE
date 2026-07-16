@@ -11,6 +11,7 @@ import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { useAuthStore } from '@/shared/stores/authStore';
+import { openConfirmDialog } from '@/shared/ui/ConfirmDialog/openConfirmDialog';
 
 interface PushNotificationData {
   type?: string;
@@ -82,7 +83,15 @@ export const usePushNotificationDeepLink = () => {
     if (targetTeamId && targetTeamId !== activeTeamId) {
       patchActiveTeam(targetTeamId, {
         onSuccess: navigateToTarget,
-        onError: navigateToTarget,
+        // 전환 실패 상태로 상세에 진입하면 옛 팀 기준 404로 삭제 안내가 오탐되므로 이동하지 않는다
+        onError: () => {
+          openConfirmDialog({
+            title: '오류',
+            description: '팀 전환에 실패했어요',
+            confirmLabel: '확인',
+            showCancel: false,
+          });
+        },
       });
     } else {
       navigateToTarget();
