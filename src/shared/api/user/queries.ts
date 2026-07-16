@@ -100,7 +100,10 @@ export const usePatchActiveTeam = ({ silent = false }: { silent?: boolean } = {}
   return useMutation({
     meta: silent ? undefined : { errorMessage: '팀 전환에 실패했어요' },
     mutationFn: (teamId: number) => patchActiveTeam({ teamId }),
-    onSuccess: () => {
+    onSuccess: (_data, teamId) => {
+      queryClient.setQueryData<MeResponse>(userKeys.me(), (prev) =>
+        prev ? { ...prev, activeTeamId: teamId } : prev,
+      );
       queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
   });
