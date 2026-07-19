@@ -1,6 +1,7 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from 'eslint-plugin-storybook';
 
+import pluginQuery from '@tanstack/eslint-plugin-query';
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -21,6 +22,11 @@ export default defineConfig([
     'storybook-static',
     'node_modules',
     '.yarn',
+    '.codex',
+    '.claude',
+    '.omx',
+    '.omc',
+    '.agents',
     '.pnp.*',
     '*.config.js',
     '**/*.d.ts',
@@ -39,6 +45,7 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
+      ...pluginQuery.configs['flat/recommended'],
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
