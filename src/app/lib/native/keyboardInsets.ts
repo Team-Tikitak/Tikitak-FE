@@ -40,14 +40,9 @@ const getKeyboardOffset = (platform: string, reportedHeight: number) => {
 
   const visualOverlap = getVisualViewportKeyboardOverlap();
 
-  if (
-    reportedHeight > 0 &&
-    visualOverlap <= reportedHeight + KEYBOARD_VISUAL_OVERLAP_FALLBACK_THRESHOLD
-  ) {
-    return reportedHeight;
-  }
-
-  return Math.max(reportedHeight, visualOverlap);
+  // iOS WebView가 키보드에 맞춰 이미 축소된 경우 fixed 바텀시트도 함께 이동한다.
+  // 이때 CSS bottom 보정까지 더하면 시트가 키보드 높이만큼 한 번 더 위로 올라간다.
+  return visualOverlap > 0 ? 0 : reportedHeight;
 };
 
 const isEditableElement = (element: Element | null) => {
@@ -66,8 +61,6 @@ export const setupKeyboardInsets = async (platform: string): Promise<void> => {
     if (!keyboardVisible && !isEditableElement(document.activeElement)) return;
 
     const keyboardOffset = getKeyboardOffset(platform, lastReportedHeight);
-    if (keyboardOffset <= 0) return;
-
     setKeyboardHeight(keyboardOffset);
   };
 
