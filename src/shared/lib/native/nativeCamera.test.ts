@@ -1,5 +1,6 @@
+import { Capacitor } from '@capacitor/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getNativeCameraPreviewFrame } from './nativeCamera';
+import { getNativeCameraPreviewFrame, isNativeCameraPlatform } from './nativeCamera';
 
 vi.mock('@capacitor/core', () => ({
   Capacitor: {
@@ -13,6 +14,27 @@ vi.mock('@capacitor/core', () => ({
     stopPreview: vi.fn(),
   })),
 }));
+
+describe('isNativeCameraPlatform', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('iOS 네이티브에서 true를 반환한다', () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    expect(isNativeCameraPlatform()).toBe(true);
+  });
+
+  it('Android 네이티브에서도 true를 반환한다', () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    expect(isNativeCameraPlatform()).toBe(true);
+  });
+
+  it('네이티브가 아니면(웹) false를 반환한다', () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    expect(isNativeCameraPlatform()).toBe(false);
+  });
+});
 
 const setViewportWidth = (width: number) => {
   Object.defineProperty(window, 'innerWidth', {

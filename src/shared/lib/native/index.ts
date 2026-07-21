@@ -2,6 +2,7 @@
  * 자동 생성 파일 수정 금지
  */
 
+export * from './cameraSystemBars';
 export * from './deviceTokenStorage';
 export * from './getDeviceToken';
 export * from './keyboardResize';

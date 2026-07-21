@@ -1,5 +1,7 @@
-﻿import { createPortal } from 'react-dom';
+﻿import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { type CapturedPhoto, useCamera } from '@/shared/hooks/camera/useCamera';
+import { setAndroidCameraSystemBars } from '@/shared/lib/native/cameraSystemBars';
 import { CameraReview } from './CameraReview';
 import { CameraView } from './CameraView';
 
@@ -45,6 +47,16 @@ export const CameraOverlay = ({ open, onCapture, onClose, onExitComplete }: Came
       onExitComplete?.();
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    void setAndroidCameraSystemBars(true);
+
+    return () => {
+      void setAndroidCameraSystemBars(false);
+    };
+  }, [open]);
 
   if (!open) return null;
 

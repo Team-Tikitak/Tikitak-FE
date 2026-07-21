@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418921423314",
+    "project_id": "tikitak-b1f50",
+    "storage_bucket": "tikitak-b1f50.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418921423314:android:f8192335d33da9eb0f680b",
+        "android_client_info": {
+          "package_name": "app.tikitak.space"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQhTZX9mh4pY83w1JXX0TuTfhiQSyJsxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
