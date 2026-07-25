@@ -50,6 +50,7 @@ export const StoredHero = ({
         top: storedHero.top,
         width: storedHero.width,
         height: storedHero.height,
+        borderRadius: `${radius}px`,
       }}
     />
   );

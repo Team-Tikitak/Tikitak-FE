@@ -3,6 +3,7 @@ import { PageShell } from '@/app/layout';
 import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 import TikiTackIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
+import { isAndroidBrowser } from '@/shared/lib/isAndroidBrowser';
 import { Button } from '@/shared/ui';
 import { InvalidInvite } from './InvalidInvite';
 import { InviteBackground } from './InviteBackground';
@@ -13,6 +14,8 @@ export const InviteAcceptPage = () => {
   const { teamName, isInvalidInvite, isCheckingMembership, handleConfirm, openInApp } =
     useInviteAccept();
   const isApp = Capacitor.isNativePlatform();
+  // Play 스토어 등록 전까지는 Android에 Apple App Store 링크를 보낼 수 없어 설치 버튼을 숨긴다
+  const showInstallButton = !isAndroidBrowser();
 
   if (isInvalidInvite) {
     return <InvalidInvite />;
@@ -53,14 +56,16 @@ export const InviteAcceptPage = () => {
                 >
                   티키탁에서 초대장 확인하기
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() =>
-                    window.open(EXTERNAL_LINKS.APP_STORE, '_blank', 'noopener,noreferrer')
-                  }
-                >
-                  설치하기
-                </Button>
+                {showInstallButton && (
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      window.open(EXTERNAL_LINKS.APP_STORE, '_blank', 'noopener,noreferrer')
+                    }
+                  >
+                    설치하기
+                  </Button>
+                )}
               </>
             )}
           </div>

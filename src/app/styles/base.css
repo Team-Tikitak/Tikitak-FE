@@ -38,6 +38,61 @@
     -webkit-touch-callout: none;
   }
 
+  html.cap-android,
+  html.cap-android body {
+    background-color: #ffffff;
+  }
+
+  /*
+   * Android 16(targetSdk 36)+ edge-to-edge에서는 네이티브 status/navigation bar
+   * backgroundColor가 무시된다. 시스템 바 뒤에 비치는 웹뷰 레이어를 흰색으로 고정한다.
+   */
+  html.cap-android:not(.native-camera-active) body::before,
+  html.cap-android:not(.native-camera-active) body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    pointer-events: none;
+    background-color: #ffffff;
+  }
+
+  html.cap-android:not(.native-camera-active) body::before {
+    top: 0;
+    height: var(--safe-top);
+  }
+
+  html.cap-android:not(.native-camera-active) body::after {
+    bottom: 0;
+    height: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
+  }
+
+  /*
+   * Android edge-to-edge에서 바텀시트 오버레이가 네이티브 시스템 바 뒤까지
+   * 직접 칠하지 못하는 경우를 보정한다. iOS는 이 클래스가 붙지 않는다.
+   */
+  html.cap-android.android-status-bar-dimmed:not(.native-camera-active) body::before,
+  html.cap-android.android-status-bar-dimmed:not(.native-camera-active) body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    z-index: 41;
+    width: 100%;
+    pointer-events: none;
+    background-color: #808080;
+  }
+
+  html.cap-android.android-status-bar-dimmed:not(.native-camera-active) body::before {
+    top: 0;
+    height: var(--safe-top);
+  }
+
+  html.cap-android.android-status-bar-dimmed:not(.native-camera-active) body::after {
+    bottom: 0;
+    height: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
+  }
+
   input,
   textarea,
   [contenteditable]:not([contenteditable='false']) {
@@ -57,6 +112,31 @@
   body.native-camera-active #root {
     opacity: 0;
     pointer-events: none;
+  }
+
+  /*
+   * Android 카메라 오버레이는 프리뷰/리뷰 모두 검은 배경 위에 표시된다.
+   * 전체 body는 투명하게 유지해야 네이티브 프리뷰가 비치므로, 시스템 바 safe-area만 검정으로 덮는다.
+   */
+  html.cap-android.android-camera-system-bars-active body::before,
+  html.cap-android.android-camera-system-bars-active body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    z-index: 59;
+    width: 100%;
+    pointer-events: none;
+    background-color: #111111;
+  }
+
+  html.cap-android.android-camera-system-bars-active body::before {
+    top: 0;
+    height: var(--safe-top);
+  }
+
+  html.cap-android.android-camera-system-bars-active body::after {
+    bottom: 0;
+    height: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
   }
 
   /* 이미지·링크 드래그 차단 */

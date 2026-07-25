@@ -47,8 +47,7 @@ const getCssPixelValue = (name: string) => {
   return Number.isFinite(numericValue) ? numericValue : 0;
 };
 
-export const isNativeCameraPlatform = (): boolean =>
-  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+export const isNativeCameraPlatform = (): boolean => Capacitor.isNativePlatform();
 
 export const getNativeCameraPreviewFrame = (): NativeCameraPreviewFrame => {
   const viewportWidth = window.innerWidth;
