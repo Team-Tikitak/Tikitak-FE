@@ -124,8 +124,6 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/@capacitor')) return 'capacitor';
             if (id.includes('node_modules/vaul')) return 'vaul';
             if (id.includes('node_modules/overlay-kit')) return 'overlay';
-            if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zod'))
-              return 'forms';
             if (id.includes('node_modules/zustand') || id.includes('node_modules/axios'))
               return 'state-network';
             return 'vendor';

@@ -33,7 +33,7 @@ export const useGetFeedComments = (
   { refetchInterval = false }: GetFeedCommentsOptions = {},
 ) =>
   useQuery({
-    queryKey: feedCommentKeys.comments(teamId, feedId),
+    queryKey: feedCommentKeys.comments(teamId, feedId, params ?? null),
     queryFn: () => getFeedComments(teamId, feedId, params).then((res) => res.data.data),
     enabled: Boolean(teamId) && Boolean(feedId),
     staleTime: 30 * 1000,
