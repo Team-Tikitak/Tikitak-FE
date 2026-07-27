@@ -3,11 +3,12 @@ import { PageShell } from '@/app/layout';
 import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 import TikiTackIcon from '@/shared/assets/Logo/tikitakLogoIcon.svg?react';
+import { EXTERNAL_LINKS } from '@/shared/constants/externalLinks';
 import { isAndroidBrowser } from '@/shared/lib/isAndroidBrowser';
+import { openExternalUrl } from '@/shared/lib/openExternalUrl';
 import { Button } from '@/shared/ui';
 import { InvalidInvite } from './InvalidInvite';
 import { InviteBackground } from './InviteBackground';
-import { EXTERNAL_LINKS } from '../constants/externalLinks';
 import { useInviteAccept } from '../hooks/useInviteAccept';
 
 export const InviteAcceptPage = () => {
@@ -59,9 +60,7 @@ export const InviteAcceptPage = () => {
                 {showInstallButton && (
                   <Button
                     variant="secondary"
-                    onClick={() =>
-                      window.open(EXTERNAL_LINKS.APP_STORE, '_blank', 'noopener,noreferrer')
-                    }
+                    onClick={() => openExternalUrl(EXTERNAL_LINKS.APP_STORE)}
                   >
                     설치하기
                   </Button>
