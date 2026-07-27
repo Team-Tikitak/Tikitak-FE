@@ -20,12 +20,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 커스텀 스킴 딥링크. 새 `tikitak://<host>` 경로를 생성 시 <data> 추가 필요 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- host를 지정하지 않아야 tikitak://oauth, tikitak://invite 등 모든 경로가 매칭된다 -->
-                <data android:scheme="tikitak" />
+                <data android:scheme="tikitak" android:host="oauth" />
+                <data android:scheme="tikitak" android:host="invite" />
             </intent-filter>
 
             <!--
