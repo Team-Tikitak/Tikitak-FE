@@ -12,6 +12,7 @@ export * from './image';
 export * from './isAndroidBrowser';
 export * from './kakaoSdk';
 export * from './native';
+export * from './openExternalUrl';
 export * from './openOverlay';
 export * from './pinUtils';
 export * from './routing';

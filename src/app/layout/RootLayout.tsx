@@ -5,7 +5,9 @@ import { useInviteDeepLink } from '@/app/lib/useInviteDeepLink';
 import { useOAuthDeepLink } from '@/app/lib/useOAuthDeepLink';
 import { PATHS } from '@/app/routes/paths';
 import { cn } from '@/shared/lib/cn';
+import { DesktopWebLanding } from './DesktopWebLanding';
 import { GlobalBottomNavigation } from './GlobalBottomNavigation';
+import { useDesktopWebGate } from './useDesktopWebGate';
 import { TransitionProvider } from '../providers/TransitionProvider';
 
 const PushNotificationBridge = lazy(() =>
@@ -29,11 +31,20 @@ export const RootLayout = ({ className }: RootLayoutProps) => {
   useOAuthDeepLink();
   useInviteDeepLink();
   const location = useLocation();
+  const isDesktopWebBlocked = useDesktopWebGate();
+
+  if (isDesktopWebBlocked) {
+    return (
+      <OverlayProvider>
+        <DesktopWebLanding pathname={location.pathname} />
+      </OverlayProvider>
+    );
+  }
 
   return (
     <div
       className={cn(
-        'mx-auto flex h-dvh w-full flex-col overflow-hidden bg-white sm:max-w-[393px]',
+        'mx-auto flex h-dvh w-full flex-col overflow-hidden bg-white sm:max-w-98.25',
         className,
       )}
     >
