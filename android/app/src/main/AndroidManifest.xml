@@ -24,7 +24,23 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tikitak" android:host="oauth" />
+                <!-- host를 지정하지 않아야 tikitak://oauth, tikitak://invite 등 모든 경로가 매칭된다 -->
+                <data android:scheme="tikitak" />
+            </intent-filter>
+
+            <!--
+                App Links: https 링크를 브라우저 경유 없이 바로 앱으로 연다.
+                autoVerify는 /.well-known/assetlinks.json의 지문과 설치된 앱 서명을 대조해 검증한다.
+                app.tikitak.space는 앱 전용 도메인이라 전체 경로를 앱에서 연다 (iOS의
+                apple-app-site-association `/*` 설정과 동일하게 맞춤).
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="app.tikitak.space" />
             </intent-filter>
         </activity>
 
@@ -43,10 +59,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>
