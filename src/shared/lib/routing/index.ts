@@ -3,4 +3,5 @@
  */
 
 export * from './inviteDeepLink';
+export * from './oauthDeepLink';
 export * from './redirectAfterLogin';
