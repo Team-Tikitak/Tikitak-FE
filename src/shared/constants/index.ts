@@ -3,5 +3,6 @@
  */
 
 export * from './comment';
+export * from './externalLinks';
 export * from './feed';
 export * from './team';
