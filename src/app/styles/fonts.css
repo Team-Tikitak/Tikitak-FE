@@ -28,3 +28,11 @@
   font-display: swap;
   src: url('/fonts/SUIT-Bold.woff2') format('woff2');
 }
+
+@font-face {
+  font-family: 'SUIT';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/SUIT-ExtraBold.woff2') format('woff2');
+}
