@@ -45,9 +45,15 @@ export const DesktopWebLanding = ({ pathname }: DesktopWebLandingProps) => {
             가장 자연스럽게 사용할 수 있어요
           </h1>
           <p className="body-1 mt-5 max-w-120 text-gray-600">
-            {isInvite
-              ? '초대장은 휴대폰으로 QR 코드를 스캔하거나 링크를 복사해서 열어주세요.'
-              : '현재 웹 화면은 모바일 이용에 맞춰져 있어요. 휴대폰에서 접속하거나 앱을 설치해 이용해주세요.'}
+            {isInvite ? (
+              '초대장은 휴대폰으로 QR 코드를 스캔하거나 링크를 복사해서 열어주세요.'
+            ) : (
+              <>
+                현재 웹 화면은 모바일 이용에 맞춰져 있어요.
+                <br />
+                휴대폰에서 접속하거나 앱을 설치해 이용해주세요.
+              </>
+            )}
           </p>
 
           <div className="mt-8 flex w-full max-w-90 flex-col gap-3">
