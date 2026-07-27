@@ -52,7 +52,7 @@ export function ConfirmDialog({
         {description && (
           <p
             id={descId}
-            className="w-full text-[15px] leading-[1.467] font-normal tracking-[0.144px] text-[rgba(55,56,60,0.61)]"
+            className="w-full text-[15px] leading-[1.467] font-normal tracking-[0.144px] whitespace-pre-line text-[rgba(55,56,60,0.61)]"
           >
             {description}
           </p>
