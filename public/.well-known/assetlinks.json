@@ -3,8 +3,10 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "space.tikitak.app",
-      "sha256_cert_fingerprints": ["REPLACE_ANDROID_SIGNING_SHA256_FINGERPRINT"]
+      "package_name": "app.tikitak.space",
+      "sha256_cert_fingerprints": [
+        "89:18:EC:47:88:61:93:2E:25:83:39:92:50:55:18:F3:78:CD:8E:60:45:C0:5F:C3:27:0C:24:F3:EB:8D:2D:80"
+      ]
     }
   }
 ]

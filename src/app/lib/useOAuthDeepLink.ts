@@ -3,14 +3,7 @@ import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { useEffect, useRef } from 'react';
 import { useLoginCodeExchange } from '@/shared/api/auth/queries';
-
-const parseLoginCode = (url: string): string | null => {
-  try {
-    return new URL(url).searchParams.get('loginCode');
-  } catch {
-    return null;
-  }
-};
+import { parseLoginCode } from '@/shared/lib/routing/oauthDeepLink';
 
 export const useOAuthDeepLink = (): void => {
   const { mutate } = useLoginCodeExchange();
