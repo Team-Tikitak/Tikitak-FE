@@ -61,7 +61,7 @@ export const DesktopWebLanding = ({ pathname }: DesktopWebLandingProps) => {
               <Button variant="primary" onClick={() => openExternalUrl(EXTERNAL_LINKS.APP_STORE)}>
                 <span className="inline-block -translate-y-px leading-none">iOS 앱 설치하기</span>
               </Button>
-              <Button variant="secondary" onClick={handleAndroidInstall}>
+              <Button variant="secondary" className="h-12" onClick={handleAndroidInstall}>
                 <span className="inline-block -translate-y-px leading-none">
                   Android 앱 설치하기
                 </span>
