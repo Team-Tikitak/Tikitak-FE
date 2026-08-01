@@ -52,7 +52,7 @@
     "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
-    "@ssgoi/react": "^6.4.0",
+    "@ssgoi/react": "^7.0.0",
     "@tanstack/react-query": "^5.96.2",
     "axios": "^1.16.0",
     "capacitor-native-settings": "^8.1.0",

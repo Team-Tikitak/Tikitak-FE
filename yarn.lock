@@ -3437,21 +3437,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ssgoi/core@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@ssgoi/core@npm:6.4.0"
-  checksum: 10c0/df15ea1bffe0733f93c6c4f66df65ff44b049090cec0ff6ceeb9eca1398861a131136eda29fdcb77391d1321fc7491c94e1d689b0aa499fa4a6afcabc673cc8c
+"@ssgoi/core@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@ssgoi/core@npm:7.0.0"
+  checksum: 10c0/2b6955f69e4406a91ecb1aed269e1cbebd0d11c85701006bad940403152a92708747d509a7ff7a0e50c917d313a4c8b6b131ff5268eeab6685884dea0f593257
   languageName: node
   linkType: hard
 
-"@ssgoi/react@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@ssgoi/react@npm:6.4.0"
+"@ssgoi/react@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@ssgoi/react@npm:7.0.0"
   dependencies:
     "@babel/core": "npm:^7.26.10"
-    "@ssgoi/core": "npm:^6.4.0"
+    "@ssgoi/core": "npm:^7.0.0"
     unplugin: "npm:^2.3.2"
-  checksum: 10c0/3199fb1dda8d983ebec864df1fc2791cc5ca4a498e508ef9d6d186a0c31ad419f7816493f459880a7dde21e4d5b59f9fe0677c347624cee94bd921e1ccbff18e
+  checksum: 10c0/c7fbebb56c74ee7954aa3d7177178fb66891df3ff7d8e83900fb4f99778b587b0103193464c9b127f841b1fcad98fed668c2aa942f2d456bf0e852c493f17380
   languageName: node
   linkType: hard
 
@@ -4860,7 +4860,7 @@ __metadata:
     "@eslint/js": "npm:^9.39.4"
     "@playwright/test": "npm:^1.60.0"
     "@rolldown/plugin-babel": "npm:^0.2.3"
-    "@ssgoi/react": "npm:^6.4.0"
+    "@ssgoi/react": "npm:^7.0.0"
     "@storybook/addon-a11y": "npm:^10.3.6"
     "@storybook/addon-docs": "npm:^10.3.6"
     "@storybook/addon-onboarding": "npm:^10.3.6"
