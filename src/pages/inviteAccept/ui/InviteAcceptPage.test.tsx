@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { EXTERNAL_LINKS } from '@/shared/constants/externalLinks';
 import { InviteAcceptPage } from './InviteAcceptPage';
 
-const { isNativePlatformMock } = vi.hoisted(() => ({
+const { isNativePlatformMock, openExternalUrlMock } = vi.hoisted(() => ({
   isNativePlatformMock: vi.fn(),
+  openExternalUrlMock: vi.fn(),
 }));
 
 vi.mock('@capacitor/core', () => ({
@@ -26,6 +28,10 @@ vi.mock('../hooks/useInviteAccept', () => ({
   }),
 }));
 
+vi.mock('@/shared/lib/openExternalUrl', () => ({
+  openExternalUrl: openExternalUrlMock,
+}));
+
 const setUserAgent = (userAgent: string) => {
   Object.defineProperty(window.navigator, 'userAgent', {
     value: userAgent,
@@ -45,22 +51,26 @@ describe('InviteAcceptPage', () => {
   });
 
   afterEach(() => {
+    openExternalUrlMock.mockClear();
     setUserAgent(originalUserAgent);
   });
 
-  it('iOS 브라우저에서는 설치하기 버튼을 보여준다', () => {
+  it('iOS 브라우저에서는 설치하기 버튼이 App Store 링크를 연다', () => {
     setUserAgent(IOS_USER_AGENT);
     render(<InviteAcceptPage />);
 
-    expect(screen.getByRole('button', { name: '설치하기' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '설치하기' }));
+
+    expect(openExternalUrlMock).toHaveBeenCalledWith(EXTERNAL_LINKS.APP_STORE);
   });
 
-  it('Android 브라우저에서는 설치하기 버튼을 숨긴다 (Play 스토어 미등록)', () => {
+  it('Android 브라우저에서는 설치하기 버튼이 Play Store 링크를 연다', () => {
     setUserAgent(ANDROID_USER_AGENT);
     render(<InviteAcceptPage />);
 
-    expect(screen.queryByRole('button', { name: '설치하기' })).toBeNull();
-    expect(screen.getByRole('button', { name: '티키탁에서 초대장 확인하기' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '설치하기' }));
+
+    expect(openExternalUrlMock).toHaveBeenCalledWith(EXTERNAL_LINKS.PLAY_STORE);
   });
 
   it('앱 안에서는 참여하기 버튼만 보여준다', () => {

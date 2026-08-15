@@ -15,8 +15,7 @@ export const InviteAcceptPage = () => {
   const { teamName, isInvalidInvite, isCheckingMembership, handleConfirm, openInApp } =
     useInviteAccept();
   const isApp = Capacitor.isNativePlatform();
-  // Play 스토어 등록 전까지는 Android에 Apple App Store 링크를 보낼 수 없어 설치 버튼을 숨긴다
-  const showInstallButton = !isAndroidBrowser();
+  const installUrl = isAndroidBrowser() ? EXTERNAL_LINKS.PLAY_STORE : EXTERNAL_LINKS.APP_STORE;
 
   if (isInvalidInvite) {
     return <InvalidInvite />;
@@ -57,14 +56,9 @@ export const InviteAcceptPage = () => {
                 >
                   티키탁에서 초대장 확인하기
                 </Button>
-                {showInstallButton && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => openExternalUrl(EXTERNAL_LINKS.APP_STORE)}
-                  >
-                    설치하기
-                  </Button>
-                )}
+                <Button variant="secondary" onClick={() => openExternalUrl(installUrl)}>
+                  설치하기
+                </Button>
               </>
             )}
           </div>
