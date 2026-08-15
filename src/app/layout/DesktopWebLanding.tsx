@@ -5,7 +5,7 @@ import TikiTackLogo from '@/shared/assets/Logo/tiki-tak_Logo.svg?react';
 import { EXTERNAL_LINKS } from '@/shared/constants/externalLinks';
 import { cn } from '@/shared/lib/cn';
 import { openExternalUrl } from '@/shared/lib/openExternalUrl';
-import { Button, openConfirmDialog } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 
 interface DesktopWebLandingProps {
   pathname: string;
@@ -23,15 +23,6 @@ export const DesktopWebLanding = ({ pathname }: DesktopWebLandingProps) => {
   const handleCopyInviteUrl = async () => {
     if (!inviteUrl) return;
     await navigator.clipboard?.writeText(inviteUrl).catch(() => undefined);
-  };
-
-  const handleAndroidInstall = () => {
-    openConfirmDialog({
-      title: 'Android 앱은 준비 중이에요',
-      description: '조금만 기다려주세요.\n출시되면 바로 이용할 수 있어요.',
-      confirmLabel: '확인',
-      showCancel: false,
-    });
   };
 
   return (
@@ -61,7 +52,11 @@ export const DesktopWebLanding = ({ pathname }: DesktopWebLandingProps) => {
               <Button variant="primary" onClick={() => openExternalUrl(EXTERNAL_LINKS.APP_STORE)}>
                 <span className="inline-block -translate-y-px leading-none">iOS 앱 설치하기</span>
               </Button>
-              <Button variant="secondary" className="h-12" onClick={handleAndroidInstall}>
+              <Button
+                variant="secondary"
+                className="h-12"
+                onClick={() => openExternalUrl(EXTERNAL_LINKS.PLAY_STORE)}
+              >
                 <span className="inline-block -translate-y-px leading-none">
                   Android 앱 설치하기
                 </span>

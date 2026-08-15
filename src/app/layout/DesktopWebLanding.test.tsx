@@ -69,13 +69,12 @@ describe('DesktopWebLanding', () => {
     expect(openExternalUrlMock).toHaveBeenCalledWith(EXTERNAL_LINKS.APP_STORE);
   });
 
-  it('Android 앱 설치 버튼은 출시 준비 안내를 보여준다', () => {
+  it('Android 앱 설치 버튼은 Play Store 링크를 연다', () => {
     renderLanding('/home');
 
     fireEvent.click(screen.getByRole('button', { name: 'Android 앱 설치하기' }));
 
-    expect(screen.getByRole('alertdialog')).toHaveTextContent('Android 앱은 준비 중이에요');
-    expect(screen.getByText(/조금만 기다려주세요/)).toHaveClass('whitespace-pre-line');
+    expect(openExternalUrlMock).toHaveBeenCalledWith(EXTERNAL_LINKS.PLAY_STORE);
   });
 
   it('PC 초대 링크 방문에는 QR 과 복사 버튼을 보여주고 링크를 복사한다', () => {

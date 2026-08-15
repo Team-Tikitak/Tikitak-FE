@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { PATHS } from '@/app/routes/paths';
+import { PATHS, toInviteAppLink } from '@/app/routes/paths';
+import { EXTERNAL_LINKS } from '@/shared/constants/externalLinks';
 import { useInviteAccept } from './useInviteAccept';
 
 const navigateMock = vi.fn();
+const locationAssignMock = vi.fn();
 let tokenParam: string | undefined = 'invite-token';
 let accessToken: string | null = null;
 let previewResult: { data: { teamId: number; teamName: string } | undefined; isError: boolean } = {
@@ -36,9 +38,21 @@ vi.mock('@/shared/api/user/queries', () => ({
   }),
 }));
 
+const setUserAgent = (userAgent: string) => {
+  Object.defineProperty(window.navigator, 'userAgent', {
+    value: userAgent,
+    configurable: true,
+  });
+};
+
+const ANDROID_USER_AGENT = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36';
+
 describe('useInviteAccept', () => {
+  const originalUserAgent = window.navigator.userAgent;
+
   beforeEach(() => {
     navigateMock.mockClear();
+    locationAssignMock.mockClear();
     patchActiveTeamMock.mockReset();
     tokenParam = 'invite-token';
     accessToken = null;
@@ -48,6 +62,9 @@ describe('useInviteAccept', () => {
     patchActiveTeamPending = false;
     patchActiveTeamMock.mockResolvedValue(undefined);
     sessionStorage.clear();
+    setUserAgent(originalUserAgent);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('미로그인 상태에서 확인 시 복귀 경로를 저장하고 로그인으로 이동한다', async () => {
@@ -127,5 +144,44 @@ describe('useInviteAccept', () => {
 
     expect(result.current.isInvalidInvite).toBe(true);
     expect(result.current.teamName).toBe('');
+  });
+
+  it('앱 열기 실패 시 Android 브라우저는 Play Store 로 이동한다', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('location', { ...window.location, assign: locationAssignMock });
+    setUserAgent(ANDROID_USER_AGENT);
+    const { result } = renderHook(() => useInviteAccept());
+
+    act(() => {
+      result.current.openInApp();
+    });
+
+    expect(locationAssignMock).toHaveBeenCalledWith(toInviteAppLink('invite-token'));
+
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    expect(locationAssignMock).toHaveBeenCalledWith(EXTERNAL_LINKS.PLAY_STORE);
+  });
+
+  it('앱 실행으로 페이지가 숨겨지면 스토어 폴백을 취소한다', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('location', { ...window.location, assign: locationAssignMock });
+    const { result } = renderHook(() => useInviteAccept());
+
+    act(() => {
+      result.current.openInApp();
+    });
+
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true });
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+      vi.advanceTimersByTime(1500);
+    });
+
+    expect(locationAssignMock).toHaveBeenCalledTimes(1);
+    expect(locationAssignMock).toHaveBeenCalledWith(toInviteAppLink('invite-token'));
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true });
   });
 });
