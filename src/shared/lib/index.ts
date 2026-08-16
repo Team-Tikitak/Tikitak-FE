@@ -15,6 +15,7 @@ export * from './native';
 export * from './openExternalUrl';
 export * from './openOverlay';
 export * from './pinUtils';
+export * from './posthog';
 export * from './routing';
 export * from './storage';
 export * from './toQueryString';
