@@ -4909,7 +4909,7 @@ __metadata:
     storybook: "npm:^10.3.6"
     style-dictionary: "npm:^5.4.0"
     subset-font: "npm:^2.5.0"
-    supercluster: "npm:^8.0.1"
+    supercluster: "npm:^9.0.0"
     tailwind-merge: "npm:^3.5.0"
     tailwind-variants: "npm:^3.2.2"
     tailwindcss: "npm:^4.2.2"
@@ -9069,7 +9069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kdbush@npm:^4.0.2":
+"kdbush@npm:^4.1.0":
   version: 4.1.0
   resolution: "kdbush@npm:4.1.0"
   checksum: 10c0/b47c8a27de438df1e60080f73e3793217b4542a62bed7f07c8c29b0bf53359bbdba1e97305e396f7f4d28f98e31ce3fd21500dc3de03a44d8cda71a3d70ff7bb
@@ -12198,12 +12198,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supercluster@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "supercluster@npm:8.0.1"
+"supercluster@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "supercluster@npm:9.0.0"
   dependencies:
-    kdbush: "npm:^4.0.2"
-  checksum: 10c0/79121e6dbff67b3036ea6651f3baddb942478830ba3ecbc27455715ab5bd269de8381dc04618c0c15963346ea2ed0f81cd5f767c2978a63e2841807c73445d57
+    kdbush: "npm:^4.1.0"
+  checksum: 10c0/3bb32bc204b81da2579234121250a910d7884875d8427b8f37879e1c0e00b5ec87fd7089a88065d43e97ea7d5b1f0981cd454793688a314a627fda1d1492e8f1
   languageName: node
   linkType: hard
 
