@@ -135,6 +135,9 @@ public class NativeCameraPlugin extends Plugin {
         if (originalWebViewBackgroundColor == null) {
             originalWebViewBackgroundColor = Color.WHITE;
         }
+        // 하드웨어 가속 WebView는 setBackgroundColor(TRANSPARENT)만으로는 투명하게 그려지지 않는다.
+        // SOFTWARE 레이어로 바꿔야 실제로 합성되어 뒤의 PreviewView가 비친다.
+        bridge.getWebView().setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         bridge.getWebView().setBackgroundColor(Color.TRANSPARENT);
     }
 
@@ -279,5 +282,6 @@ public class NativeCameraPlugin extends Plugin {
         if (originalWebViewBackgroundColor != null) {
             bridge.getWebView().setBackgroundColor(originalWebViewBackgroundColor);
         }
+        bridge.getWebView().setLayerType(View.LAYER_TYPE_NONE, null);
     }
 }
