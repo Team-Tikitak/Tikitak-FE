@@ -1,5 +1,20 @@
-import { describe, expect, it } from 'vitest';
-import { compareAppVersion, getRequiredAppUpdate } from './appVersionPolicy';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  checkRequiredAppUpdate,
+  compareAppVersion,
+  getRequiredAppUpdate,
+} from './appVersionPolicy';
+
+const { isNativePlatformMock, getPlatformMock, getInfoMock } = vi.hoisted(() => ({
+  isNativePlatformMock: vi.fn(() => true),
+  getPlatformMock: vi.fn(() => 'android'),
+  getInfoMock: vi.fn(),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { isNativePlatform: isNativePlatformMock, getPlatform: getPlatformMock },
+}));
+vi.mock('@capacitor/app', () => ({ App: { getInfo: getInfoMock } }));
 
 describe('appVersionPolicy', () => {
   it('semantic version strings are compared by numeric parts', () => {
@@ -42,6 +57,47 @@ describe('appVersionPolicy', () => {
     ).toEqual({
       message: '최신 버전으로 업데이트한 뒤 다시 이용해 주세요.',
       storeUrl: undefined,
+    });
+  });
+
+  describe('checkRequiredAppUpdate', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.clearAllMocks();
+    });
+
+    it('안드로이드 네이티브에서 android 정책으로 필수 업데이트를 판단한다', async () => {
+      isNativePlatformMock.mockReturnValue(true);
+      getPlatformMock.mockReturnValue('android');
+      getInfoMock.mockResolvedValue({ version: '1.0' });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              android: {
+                minimumVersion: '1.0.1',
+                updateMessage: '업데이트해주세요',
+                storeUrl: 'https://play.google.com/store/apps/details?id=app.tikitak.space',
+              },
+            }),
+        }),
+      );
+
+      await expect(checkRequiredAppUpdate()).resolves.toEqual({
+        message: '업데이트해주세요',
+        storeUrl: 'https://play.google.com/store/apps/details?id=app.tikitak.space',
+      });
+    });
+
+    it('네이티브 플랫폼이 아니면 정책을 조회하지 않고 null을 반환한다', async () => {
+      isNativePlatformMock.mockReturnValue(false);
+      const fetchMock = vi.fn();
+      vi.stubGlobal('fetch', fetchMock);
+
+      await expect(checkRequiredAppUpdate()).resolves.toBeNull();
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 });
