@@ -46,6 +46,10 @@ public class NativeCameraPlugin extends Plugin {
     private ImageCapture imageCapture;
     private PreviewView previewView;
     private Integer originalWebViewBackgroundColor;
+    // stopPreview가 cleanupPreviewResources를 실행한 뒤에도, 그 전에 걸어둔
+    // ProcessCameraProvider future 콜백이 나중에 도착할 수 있다. 콜백 시작 시점의 값과
+    // 비교해 stale 콜백이 카메라를 다시 bind하지 않도록 막는다. UI 스레드에서만 접근한다.
+    private int previewSessionId = 0;
 
     @Override
     public void load() {
@@ -83,10 +87,16 @@ public class NativeCameraPlugin extends Plugin {
 
         activity.runOnUiThread(() -> {
             attachPreviewView(previewFrame);
+            int sessionId = ++previewSessionId;
 
             ListenableFuture<ProcessCameraProvider> future = ProcessCameraProvider.getInstance(getContext());
             future.addListener(
                 () -> {
+                    if (sessionId != previewSessionId) {
+                        // stopPreview(또는 새 startPreview)가 대기 중에 먼저 실행됨 — stale 결과 폐기
+                        call.reject("preview stopped");
+                        return;
+                    }
                     try {
                         cameraProvider = future.get();
                         bindCameraUseCases(facingMode, zoomLevel);
@@ -271,6 +281,7 @@ public class NativeCameraPlugin extends Plugin {
     }
 
     private void cleanupPreviewResources() {
+        previewSessionId++;
         if (cameraProvider != null) {
             cameraProvider.unbindAll();
         }
