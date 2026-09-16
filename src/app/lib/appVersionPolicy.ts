@@ -17,6 +17,7 @@ interface PlatformVersionPolicy {
 
 interface AppVersionPolicyResponse {
   ios?: PlatformVersionPolicy;
+  android?: PlatformVersionPolicy;
 }
 
 export interface RequiredAppUpdate {
@@ -84,11 +85,12 @@ const fetchAppVersionPolicy = async (): Promise<AppVersionPolicyResponse | null>
 };
 
 export const checkRequiredAppUpdate = async (): Promise<RequiredAppUpdate | null> => {
-  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') return null;
+  const platform = Capacitor.getPlatform();
+  if (!Capacitor.isNativePlatform() || (platform !== 'ios' && platform !== 'android')) return null;
 
   const [appInfo, versionPolicy] = await Promise.all([App.getInfo(), fetchAppVersionPolicy()]);
 
-  return getRequiredAppUpdate(appInfo.version, versionPolicy?.ios);
+  return getRequiredAppUpdate(appInfo.version, versionPolicy?.[platform]);
 };
 
 export const showRequiredAppUpdateDialog = async (update: RequiredAppUpdate): Promise<void> => {
