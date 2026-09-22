@@ -65,10 +65,14 @@ test-results/
 
 # AI
 tmp/
-CLAUDE.md
-AGENTS.md
-.claude/
+/AGENTS.md
 .omc/
 .omx/
 .agents/
 .codex/
+
+# Claude Code - personal/local, not shared with team
+.claude/private/
+.claude/settings.local.json
+.claude/CLAUDE.md
+.claude/skills/omc-reference/
