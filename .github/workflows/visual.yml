@@ -24,6 +24,7 @@ permissions:
 jobs:
   visual:
     name: Playwright VRT
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     # 고정 이미지로 렌더링 환경(폰트·브라우저)을 핀 → baseline drift 방지.
     # 태그는 @playwright/test 버전과 일치시킬 것.
