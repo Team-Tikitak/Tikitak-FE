@@ -95,7 +95,9 @@ async function githubRequest(token, method, endpoint, body) {
   }
 
   if (!response.ok) {
-    throw new Error(`GitHub API ${method} ${url} failed: ${response.status} ${JSON.stringify(data)}`);
+    throw new Error(
+      `GitHub API ${method} ${url} failed: ${response.status} ${JSON.stringify(data)}`,
+    );
   }
   return data;
 }
@@ -114,9 +116,11 @@ function resolveOwnerRepoPr(args) {
     fail('Could not infer repository from git remote. Provide --pr-url.');
   }
   const match = remote.match(/github\.com[:/]([^/]+)\/([^/.]+)(\.git)?$/);
-  if (!match) fail(`Could not parse GitHub repository from origin remote: ${remote}. Provide --pr-url.`);
+  if (!match)
+    fail(`Could not parse GitHub repository from origin remote: ${remote}. Provide --pr-url.`);
   const prNumber = args.prNumber ? Number(args.prNumber) : undefined;
-  if (!prNumber) fail('PR number is required when --pr-url is not provided. Pass --pr-number or --pr-url.');
+  if (!prNumber)
+    fail('PR number is required when --pr-url is not provided. Pass --pr-number or --pr-url.');
   return { owner: match[1], repo: match[2], prNumber };
 }
 
@@ -139,7 +143,12 @@ function normalizeComments(rawComments) {
     if (comment.side !== 'RIGHT' && comment.side !== 'LEFT') {
       fail(`Comment side must be RIGHT or LEFT: ${comment.path}:${comment.line}`);
     }
-    normalized.push({ path: comment.path, body: comment.body, line: comment.line, side: comment.side });
+    normalized.push({
+      path: comment.path,
+      body: comment.body,
+      line: comment.line,
+      side: comment.side,
+    });
   }
   return normalized;
 }
@@ -191,8 +200,8 @@ async function main() {
 
   const { owner, repo, prNumber } = resolveOwnerRepoPr(args);
 
-  const pr = await githubRequest(token, 'GET', `repos/${owner}/${repo}/pulls/${prNumber}`).catch((error) =>
-    fail(`Could not resolve PR head SHA: ${error.message}`),
+  const pr = await githubRequest(token, 'GET', `repos/${owner}/${repo}/pulls/${prNumber}`).catch(
+    (error) => fail(`Could not resolve PR head SHA: ${error.message}`),
   );
   const headSha = pr?.head?.sha;
   if (!headSha) fail('Could not resolve PR head SHA.');
@@ -246,14 +255,21 @@ async function main() {
           commentPayload.line = comment.line;
           commentPayload.side = comment.side;
         }
-        await githubRequest(token, 'POST', `repos/${owner}/${repo}/pulls/${prNumber}/comments`, commentPayload);
+        await githubRequest(
+          token,
+          'POST',
+          `repos/${owner}/${repo}/pulls/${prNumber}/comments`,
+          commentPayload,
+        );
         posted += 1;
       }
       console.log(`Posted ${posted} individual inline review comment(s) to PR #${prNumber}.`);
       removeCommentsFileAfterSuccess();
       return;
     } catch (error) {
-      console.warn(`Warning: Individual inline comments failed: ${error.message}. Posting fallback PR review body.`);
+      console.warn(
+        `Warning: Individual inline comments failed: ${error.message}. Posting fallback PR review body.`,
+      );
     }
   }
 
@@ -265,7 +281,9 @@ async function main() {
     console.log(`Posted fallback PR review body to PR #${prNumber}.`);
     removeCommentsFileAfterSuccess();
   } catch (error) {
-    fail(`All posting strategies failed: ${error.message}. Payload left at ${args.commentsPath} for debugging.`);
+    fail(
+      `All posting strategies failed: ${error.message}. Payload left at ${args.commentsPath} for debugging.`,
+    );
   }
 }
 

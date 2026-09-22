@@ -76,3 +76,6 @@ tmp/
 .claude/settings.local.json
 .claude/CLAUDE.md
 .claude/skills/omc-reference/
+
+# Serena
+.serena/
