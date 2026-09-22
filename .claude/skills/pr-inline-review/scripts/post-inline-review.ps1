@@ -202,9 +202,11 @@ if (-not (Test-Path -LiteralPath $CommentsPath)) {
 }
 
 $commentsJson = Get-Content -LiteralPath $CommentsPath -Raw -Encoding UTF8 | ConvertFrom-Json
-if (-not $commentsJson.comments -or $commentsJson.comments.Count -eq 0) {
-  Fail 'Comments file must contain a non-empty comments array.'
+if (-not $commentsJson.comments) {
+  $commentsJson | Add-Member -MemberType NoteProperty -Name comments -Value @() -Force
 }
+# .mjs와 달리 comments가 비어 있어도 실패시키지 않는다 — inline comment 없이 summary만
+# 남기는 "이상 없음" 리뷰도 유효한 결과다.
 
 Load-DotEnv -Path (Join-Path (Get-Location) '.env.pr-inline-review') -Override
 Load-DotEnv -Path (Join-Path (Get-Location) '.env.local')
@@ -285,10 +287,6 @@ foreach ($comment in $commentsJson.comments) {
   }
 
   $normalizedComments += $normalized
-}
-
-if ($normalizedComments.Count -eq 0) {
-  Fail 'No review comments remain after applying ignore path filters.'
 }
 
 $defaultReviewBody = @'
