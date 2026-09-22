@@ -42,7 +42,7 @@ export const userKeys = {
 };
 ```
 
-**규칙** (이미 [data-fetching.md](../rules/data-fetching.md)에 명시):
+**규칙** (이미 [data-fetching.md](../../rules/data-fetching.md)에 명시):
 
 - 도메인 루트 키(`all`)는 배열 const, `as const`로 좁힘
 - 세부 키는 함수 형태, 인자 없어도 함수 호출 형식 유지

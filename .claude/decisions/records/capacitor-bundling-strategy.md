@@ -7,6 +7,14 @@
 
 **로컬 번들 방식(`webDir: 'dist'`, `server.url` 없음)을 유지한다.** `server.url`로 배포 URL을 가리키는 원격 웹뷰 방식은 채택하지 않는다. 현재 `capacitor.config.ts`가 이미 로컬 번들 상태이며, 이는 실수가 아니라 의도된 올바른 상태다.
 
+> ⚠️ **2026-09-23 기록 시점 불일치**: 실제 `capacitor.config.ts`에는 현재
+> `server.url: 'https://app.tikitak.space'`가 설정되어 있다 — 이 문서가 기각한 "원격 웹뷰"
+> 방식이다. 아래 근거들은 여전히 의미가 있지만, 실제 배포 방식이 이 결정과 다시 일치하는지
+> (config가 실수로 바뀐 것인지, 아니면 이후에 의도적으로 전환하고 이 문서를 갱신하지
+> 않은 것인지) 확인 후 상태를 갱신해야 한다. `decisions/records/capacitor-setup.md`의
+> "★ origin 통일" 섹션(2026-06)도 `server.hostname` 방식을 전제로 하는데, 지금 config는
+> `server.hostname`도 아니라 `server.url` 그 자체다.
+
 ## 두 방식 정의
 
 - 상태: accepted

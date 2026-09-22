@@ -8,7 +8,7 @@ tools: Read, Glob, Grep, Bash
 
 조사 전에 항상 먼저 읽습니다.
 
-- `.claude/troubleshooting/history.md`(및 `.claude/troubleshooting/*-session-history.md`) — 이전에 진단된 버그, 플랫폼 함정, 막다른 시도들. 이미 기록된 걸 처음부터 다시 파지 않는다.
+- `.claude/troubleshooting/notable-fixes.md` — 재발 가능성 높은 버그 패턴 요약. 이미 기록된 걸 처음부터 다시 파지 않는다. (개인 로컬 환경에 `.claude/private/troubleshooting/`의 상세 세션 로그가 있으면 함께 확인한다.)
 - `capacitor.config.ts` — 이 앱의 네이티브 셸은 번들을 로컬에 넣는 게 아니라 `server.url`로 **원격 서버에서 페이지를 직접 로드**한다. 배포 타이밍(오래된 청크 참조, 앱 백그라운드 중 WKWebView 캐싱) 관련 버그가 이 구조 때문에 발생하는 경우가 많다.
 - `src/main.tsx` — PWA/서비스워커 등록과 캐시 정리는 `!Capacitor.isNativePlatform()`일 때만 실행되고, 네이티브 빌드에서는 그 경로 전체를 건너뛴다.
 

@@ -37,7 +37,7 @@ Phase 1은 "웹앱을 Capacitor WebView로 감싸기 위한 최소 셋업"으로
 - 상태: accepted
 - 기록일: 2026-09-23
 
-- `appId: space.tikitak.app` — `tikitak.space` 도메인과 일치하는 reverse DNS. 추후 Universal Links / App Links 도메인 검증에 유리.
+- `appId: app.tikitak.space` — 실제 서비스 서브도메인(`app.tikitak.space`)과 그대로 일치시킴(엄밀한 reverse DNS는 아님). 추후 Universal Links / App Links 도메인 검증에 유리.
 - iOS, Android 모두 추가. Windows 환경에서도 `npx cap add ios` 동작 확인.
 
 ## 설정 분리 원칙
@@ -68,7 +68,7 @@ Phase 1은 "웹앱을 Capacitor WebView로 감싸기 위한 최소 셋업"으로
 - 상태: accepted
 - 기록일: 2026-06
 
-- **`server.hostname: 'tikitak.space'` + `androidScheme`/`iosScheme: 'https'`**: 네이티브 WebView origin을 프로덕션 웹과 동일하게. 기본 `https://localhost`는 백엔드 CORS·Kakao 도메인 화이트리스트 밖이라 **모든 XHR(로그인 exchange·`/me`·업로드)·지도가 막힘** → origin 통일로 일괄 해결. 상세·트러블슈팅은 `decisions/records/native-oauth.md`. (로컬 번들 서빙 유지 — `server.url` 아님.)
+- **`server.hostname: 'tikitak.space'` + `androidScheme`/`iosScheme: 'https'`**: 네이티브 WebView origin을 프로덕션 웹과 동일하게. 기본 `https://localhost`는 백엔드 CORS·Kakao 도메인 화이트리스트 밖이라 **모든 XHR(로그인 exchange·`/me`·업로드)·지도가 막힘** → origin 통일로 일괄 해결. 상세·트러블슈팅은 `decisions/records/native-oauth.md`. (기록 당시엔 로컬 번들 서빙 유지 — `server.url` 아님. ⚠️ 2026-09-23 확인 결과 현재 `capacitor.config.ts`는 `server.hostname`이 아니라 `server.url: 'https://app.tikitak.space'`로 바뀌어 있음 — `decisions/records/capacitor-bundling-strategy.md`의 로컬 번들 결정과 상충하니 실제 배포 방식부터 재확인 필요.)
 - **`StatusBar.overlaysWebView: true`** (기존 false): 상태바 투명 + edge-to-edge → 바텀시트 오버레이가 상태바까지 같은 레이어로 덮어 dim 동기화. `statusBarDim`의 네이티브 `setBackgroundColor` 제거(웹 theme-color만 유지). 상세는 `decisions/records/bottom-sheet.md` "status bar dim 동기화".
 - **★ Android 헤더 inset — env() 불가, CSS floor로 보정 (2026-06)**: edge-to-edge에서 **iOS는 `env(safe-area-inset-top)`가 상태바 높이를 정확히 보고하지만 Android는 보고하지 않음**(노치만, 상태바 높이 0). 그래서 헤더에 `env()`만 쓰면 Android에서 헤더가 상태바와 겹침. 해결:
   - `base.css`: `--safe-top: env(safe-area-inset-top, 0px)` (iOS/web), `html.cap-android { --safe-top: max(env(safe-area-inset-top,0px), var(--status-bar-height)) }`. `--status-bar-height` 기본 24px(fallback).

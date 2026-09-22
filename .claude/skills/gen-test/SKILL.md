@@ -22,12 +22,12 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 
 ## 3단계: 테스트 파일 작성
 
-소스 파일 옆에 배치:
+소스 파일과 같은 디렉터리에 co-location(`__tests__/` 폴더로 분리 금지 — `rules/testing.md` 참고):
 
 ```
-src/shared/ui/Button.tsx       → src/shared/ui/__tests__/Button.test.tsx
-src/shared/hooks/useAuth.ts    → src/shared/hooks/__tests__/useAuth.test.ts
-src/shared/lib/formatDate.ts   → src/shared/lib/__tests__/formatDate.test.ts
+src/shared/ui/Button.tsx       → src/shared/ui/Button.test.tsx
+src/shared/hooks/useAuth.ts    → src/shared/hooks/useAuth.test.ts
+src/shared/lib/formatDate.ts   → src/shared/lib/formatDate.test.ts
 ```
 
 ### 필수 커버리지
@@ -52,7 +52,7 @@ yarn test <테스트-파일-경로>
 
 # 규칙
 
-- `userEvent.setup()`으로 인터랙션 처리
+- `fireEvent`로 인터랙션 처리 (`@testing-library/user-event` 미도입 — `rules/testing.md` 참고)
 - 상태 변경은 `act()`로 래핑
 - 비동기 작업: `await act(async () => ...)`
 - CSS 클래스나 Tailwind 유틸리티 검증 금지
