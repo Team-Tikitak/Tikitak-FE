@@ -4200,7 +4200,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/geojson@npm:*":
+"@types/geojson@npm:*, @types/geojson@npm:^7946.0.16":
   version: 7946.0.16
   resolution: "@types/geojson@npm:7946.0.16"
   checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
@@ -4909,7 +4909,7 @@ __metadata:
     storybook: "npm:^10.3.6"
     style-dictionary: "npm:^5.4.0"
     subset-font: "npm:^2.5.0"
-    supercluster: "npm:^8.0.1"
+    supercluster: "npm:^9.1.0"
     tailwind-merge: "npm:^3.5.0"
     tailwind-variants: "npm:^3.2.2"
     tailwindcss: "npm:^4.2.2"
@@ -9069,7 +9069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kdbush@npm:^4.0.2":
+"kdbush@npm:^4.1.0":
   version: 4.1.0
   resolution: "kdbush@npm:4.1.0"
   checksum: 10c0/b47c8a27de438df1e60080f73e3793217b4542a62bed7f07c8c29b0bf53359bbdba1e97305e396f7f4d28f98e31ce3fd21500dc3de03a44d8cda71a3d70ff7bb
@@ -12198,12 +12198,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supercluster@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "supercluster@npm:8.0.1"
+"supercluster@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "supercluster@npm:9.1.0"
   dependencies:
-    kdbush: "npm:^4.0.2"
-  checksum: 10c0/79121e6dbff67b3036ea6651f3baddb942478830ba3ecbc27455715ab5bd269de8381dc04618c0c15963346ea2ed0f81cd5f767c2978a63e2841807c73445d57
+    "@types/geojson": "npm:^7946.0.16"
+    kdbush: "npm:^4.1.0"
+  checksum: 10c0/01a8b02bb8700b37c68197e1d49487eec3691844d81bb071c83fbaf5fea1791e7c25235ede0625b1b29f3ab91136a23954e37d976458274dec4b756cc43721c6
   languageName: node
   linkType: hard
 
