@@ -7,11 +7,24 @@ import GoogleIcon from '@/shared/assets/Icon/GoogleIcon.svg?react';
 import KakaoIcon from '@/shared/assets/Icon/KakaoIcon.svg?react';
 import TikiTakSplashLogo from '@/shared/assets/Logo/tiki-tak_Logo_splash.svg?react';
 import { cn } from '@/shared/lib/cn';
+import { alertDialog } from '@/shared/lib/native/nativeDialog';
 import { LoadingState } from '@/shared/ui/LoadingState/LoadingState';
 import { SocialLoginButton } from './SocialLoginButton';
 
 export const LoginPage = () => {
-  const fromSplash = (useLocation().state as { fromSplash?: boolean } | null)?.fromSplash === true;
+  const locationState = useLocation().state as {
+    fromSplash?: boolean;
+    sessionUnavailable?: boolean;
+  } | null;
+  const fromSplash = locationState?.fromSplash === true;
+  const sessionUnavailable = locationState?.sessionUnavailable === true;
+
+  useEffect(() => {
+    if (!sessionUnavailable) return;
+    void alertDialog(
+      '서버에 연결할 수 없어 로그인 상태를 확인하지 못했어요.\n잠시 후 앱을 다시 실행해주세요.',
+    );
+  }, [sessionUnavailable]);
 
   const loginStatus = useMutationState({
     filters: { mutationKey: LOGIN_CODE_EXCHANGE_MUTATION_KEY },
