@@ -11,7 +11,7 @@ Capacitor 앱 출시용 소셜 로그인 설계 + **백엔드 요청 사항**. �
 
 - **start**: `GET /api/v1/auth/oauth/{provider}/start?mode=app` → **302 리다이렉트**(+ `oauthMode=app` 쿠키). 앱은 이 URL을 **`@capacitor/browser`**(인앱 브라우저: SFSafariViewController/Custom Tab)로 **그대로 오픈**(JSON 반환 아님). 계획안의 ASWebAuthenticationSession은 미채택 — 현재 동작 확인됨.
 - **콜백**: 백엔드가 `tikitak://oauth/callback?loginCode={code}` 로 302.
-- **교환**: `POST /api/v1/auth/oauth/login-code/exchange { loginCode }` → `CommonResponse<LoginResponse>`, `LoginResponse = { accessToken, refreshToken, isNewMember, hasAgreedRequiredTerms, activeTeamId }`. **응답이 refreshToken을 httpOnly 쿠키로도 set** — 이 POST는 **앱 WebView**가 호출하므로 쿠키가 앱 WebView 저장소에 박혀 **기존 `/token/refresh`(쿠키)가 앱에서도 그대로 동작** → 별도 refresh 경로(계획 4번) **불필요**. body의 refreshToken은 SecureStorage용(현재 미사용).
+- **교환**: `POST /api/v1/auth/oauth/login-code/exchange { loginCode }` → `CommonResponse<LoginResponse>`, `LoginResponse = { accessToken, refreshToken, isNewMember, hasAgreedRequiredTerms, activeTeamId }`. **응답이 refreshToken을 httpOnly 쿠키로도 set** — 이 POST는 **앱 WebView**가 호출하므로 쿠키가 앱 WebView 저장소에 박혀 **기존 `/token/refresh`(쿠키)가 앱에서도 그대로 동작** → 별도 refresh 경로(계획 4번) **불필요**. body의 refreshToken은 2026-10-05부터 쿠키 복구 실패 시 폴백용으로 보안 저장소에 저장한다(`auth-flow.md`의 "네이티브 refresh 토큰 보안 저장소 폴백").
 - **진입 후 라우팅**: `setAccessToken` → HOME 이동 → protected `setupFlowLoader`가 terms/onboarding 분기(웹과 동일). exchange의 isNewMember/hasAgreedRequiredTerms 필드는 현재 라우팅에 직접 안 씀(me/agreements로 분기).
 - **앱 재시작 자동 로그인 (2026-06)**: 스플래시(`useSplashGate`)에서 `restoreSession()`(`/token/refresh`) 시도 → 성공 시 HOME 자동 진입. ⚠️ **전제는 refresh 쿠키가 앱 재시작 후에도 WebView에 남아있는 것**. Android WebView가 세션 쿠키로 받거나 flush 안 하면 소실 → 자동 로그인 실패. 그 경우 폴백 = exchange body의 `refreshToken`(현재 미사용)을 `@capacitor/preferences`/SecureStorage 저장 후 부팅 시 갱신(아래 계획 4번 body/header refresh 필요). 즉 "별도 refresh 경로 불필요" 판단은 **쿠키 영속 성공 시에만** 유효. → `auth-flow.md`의 "앱 재시작 자동 로그인" 참조.
 - **FE 파일**: `auth/api.ts`(getStartOAuthLogin 네이티브 분기 + postLoginCodeExchange), `auth/queries.ts`(useLoginCodeExchange), `app/lib/useOAuthDeepLink.ts`(appUrlOpen→loginCode 파싱→exchange→`Browser.close()`, RootLayout 마운트), `auth/endpoints.ts`/`types.ts`. 엔드포인트가 `OAUTH_PREFIX`로 시작 → instance 인터셉터 Bearer/refresh-retry 제외에 자동 포함.
@@ -19,6 +19,8 @@ Capacitor 앱 출시용 소셜 로그인 설계 + **백엔드 요청 사항**. �
 - ⚠️ 빌드 후 `npx cap sync` 필요. 딥링크는 기기 네이티브 빌드에서만 동작(웹은 기존 redirect 유지).
 
 ### ⚠️ 기기에서 전부 막힘 → `server.hostname`로 해결 (핵심 트러블슈팅)
+
+> 2026-06-25 이후 현재 설정은 `server.hostname`이 아니라 `server.url: 'https://app.tikitak.space'`다(커밋 `de8be48`). WebView origin이 프로덕션 도메인이라는 해결 원리는 그대로지만, 아래 "로컬 번들을 서빙"이라는 서술은 더 이상 현재 방식이 아니다. → `decisions/records/capacitor-bundling-strategy.md`
 
 딥링크 복귀까지 됐는데 exchange가 **`Network Error`**(진단 다이얼로그로 확인), 지도 미로드, 사진 업로드 실패. 원인은 **네이티브 WebView origin이 `https://localhost`**(Capacitor 기본 androidScheme)라:
 
