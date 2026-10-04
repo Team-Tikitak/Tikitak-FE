@@ -6,6 +6,7 @@ import { createId } from '@/shared/lib/createId';
 import { createPhotoFromFile } from '@/shared/lib/image/createPhotoFromFile';
 import { optimizeFeedImageBlob } from '@/shared/lib/image/optimizeFeedImageBlob';
 import { readGalleryPhotoBlob } from '@/shared/lib/image/readGalleryPhotoBlob';
+import { promptOpenAppSettings } from '@/shared/lib/native/openAppSettings';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { CameraOverlay } from '@/shared/ui/CameraOverlay';
 
@@ -78,8 +79,14 @@ export const usePhotoSourcePicker = ({
     let photos;
     try {
       ({ photos } = await Camera.pickImages({ limit: remaining, quality: 90 }));
-    } catch {
-      return; // 사용자가 갤러리에서 취소
+    } catch (error) {
+      // 권한 거부는 설정 이동을 안내하고, 그 외(사용자 취소 등)는 조용히 종료
+      if (error instanceof Error && /denied/i.test(error.message)) {
+        await promptOpenAppSettings(
+          '사진 접근 권한이 거부되어 있어요. 설정에서 직접 허용할 수 있어요.',
+        );
+      }
+      return;
     }
     for (const photo of photos.slice(0, remaining)) {
       if (!photo.path && !photo.webPath) continue;

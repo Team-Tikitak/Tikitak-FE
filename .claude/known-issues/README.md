@@ -22,6 +22,7 @@
 
 ## 인덱스
 
-| 파일                                | 주제                                     | 상태 |
-| ----------------------------------- | ---------------------------------------- | ---- |
-| `instagram-stories-native-share.md` | 인스타 스토리 원탭 공유 (iOS pasteboard) | open |
+| 파일                                | 주제                                                | 상태 |
+| ----------------------------------- | --------------------------------------------------- | ---- |
+| `instagram-stories-native-share.md` | 인스타 스토리 원탭 공유 (iOS pasteboard)            | open |
+| `refresh-cookie-persistence.md`     | 로그인이 계속 풀림 (refresh 쿠키 영속성·TTL 미확인) | open |

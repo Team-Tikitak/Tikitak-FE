@@ -41,7 +41,41 @@
 
 **⚠️ 네이티브 전제 — 쿠키 영속성**: 이 흐름은 refresh 쿠키가 앱 재시작 후에도 WebView에 남아야 동작. Android WebView는 만료기간 있는 영속 쿠키는 유지하나, 백엔드가 **세션 쿠키로 설정**했거나 flush 안 되면 재시작 시 소실 → 자동 로그인 실패. 그 경우 폴백: exchange 응답의 `refreshToken`(현재 미사용, body로 옴)을 `@capacitor/preferences`/SecureStorage에 저장 후 부팅 시 그걸로 갱신(백엔드 body/header refresh 허용 필요). → `native-oauth.md` 참조.
 
+> **2026-10-05 확인·갱신**: dev API에 가짜 토큰으로 확인한 결과, `/token/refresh`는 쿠키 없이 본문 `{"refreshToken": ...}`만 줘도 토큰을 읽는다(쿠키·본문 모두 없으면 `400 AUTH006`, 있으나 무효면 `401 AUTH007`). 위 폴백은 백엔드상 가능하다. 다만 refresh 쿠키의 `Max-Age`, 토큰 TTL, 회전 여부는 아직 확인하지 못했다 → `.claude/known-issues/records/refresh-cookie-persistence.md`.
+>
+> `restoreSession`은 이제 `authenticated`/`unauthenticated`/`unavailable`을 구분한다. 5xx·네트워크 오류는 비로그인이 아니라 `unavailable`이라 2회 재시도 후 로그인 화면에서 서버 연결 안내를 띄운다(스플래시 `state.sessionUnavailable`).
+
 **테스트**: `useSplashGate.test.ts` — 복원 성공→HOME / 실패→LOGIN. vitest mock은 `vi.hoisted`로 작성(팩토리에서 top-level `let` 참조 시 호이스팅 충돌로 "reading config" 오류 발생 → `vi.hoisted` 사용).
+
+## 네이티브 refresh 토큰 보안 저장소 폴백 (2026-10-05)
+
+- 상태: accepted
+- 기록일: 2026-10-05
+
+**결정**: 네이티브 앱에서만 refresh 토큰을 보안 저장소(`@aparajita/capacitor-secure-storage`: iOS Keychain, Android Keystore AES-GCM)에 한 부 더 보관하고, 쿠키로 복구하지 못할 때만 그 토큰으로 복구한다. 웹은 기존 쿠키 방식 그대로다.
+
+- **저장**: 로그인 코드 교환 응답과 **모든 refresh 성공 응답**의 본문 `refreshToken`을 최신값으로 저장한다(서버가 refresh 때마다 토큰을 회전시키므로 매번 갱신해야 쿠키와 저장소가 같은 토큰을 가리킨다).
+- **사용**: `/token/refresh`가 `400 AUTH006`(쿠키 없음)일 때만 본문 `{ refreshToken }`으로 한 번 더 요청한다. 쿠키가 있는데 무효(`AUTH007`)인 경우는 폴백하지 않는다. 쿠키와 본문이 함께 갈 때 서버 우선순위를 모르기 때문이다.
+- **삭제**: 로그아웃, 회원 탈퇴, 세션 만료로 인한 강제 로그아웃, 폴백 토큰을 서버가 4xx로 거절했을 때. 서버 장애·네트워크 오류로 실패했을 때는 보존한다.
+- **옵션**: iCloud 동기화 끔, 접근 `whenUnlocked`.
+
+**근거**:
+
+- 서버는 쿠키 없이 본문 토큰도 읽는다(2026-10-05 dev API 확인). 쿠키 `Max-Age` 유무는 아직 확인하지 못했고, 쿠키가 재시작 후 남지 않으면 지금까지는 복구 수단이 없었다.
+- 보안: httpOnly 쿠키보다 약해지지 않도록 암호화 저장소를 쓴다. 웹은 저장하지 않아 XSS 노출면이 늘지 않는다.
+
+**고려한 대안**:
+
+- `@capacitor/preferences`: 새 빌드 없이 되지만 암호화되지 않고 iOS 백업에 포함된다. 기각.
+- `capacitor-secure-storage-plugin`: Android가 RSA/PKCS1 방식이라 AES-GCM을 쓰는 `@aparajita` 쪽이 낫다고 봤다.
+- 백엔드가 쿠키에 `Max-Age`를 주는 것: 근본 해결이지만 백엔드 확인이 선행돼야 한다. 병행 요청한다.
+
+**한계와 주의**:
+
+- 쿠키가 안 남는 경우만 해결한다. 다른 기기 로그인으로 토큰이 폐기되거나(사용자당 하나인 경우), TTL이 지나거나, 서버가 초기화되면 폴백도 같이 실패한다 → `known-issues/records/refresh-cookie-persistence.md`.
+- iOS Keychain 값은 앱을 삭제해도 남을 수 있다. 재설치 후 토큰이 유효하면 자동 로그인될 수 있고, 로그아웃과 만료 시 지운다.
+- 새 네이티브 플러그인이라 iOS·Android 새 빌드가 필요하다. 플러그인이 없는 구버전 바이너리에서는 저장·조회가 모두 실패를 삼키고 "저장된 토큰 없음"으로 동작해 앱이 깨지지 않는다(폴백만 비활성).
+- 이 플러그인은 Capacitor 패키지를 일반 `dependencies`로 선언해 중복 설치될 수 있어, `yarn set resolution`으로 `@capacitor/*@^8.0.x` 디스크립터를 설치된 버전에 고정했다(`yarn.lock`). 플러그인을 올릴 때는 `yarn install` 후 `node_modules/@aparajita/capacitor-secure-storage/node_modules`가 없는지 확인한다.
 
 ## 비인증 직접 진입 → 로그인 (2026-06)
 

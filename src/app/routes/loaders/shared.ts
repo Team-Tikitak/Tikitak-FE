@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { redirect } from 'react-router';
 import { queryClient } from '@/app/providers/queryClient';
 import { authKeys } from '@/shared/api/auth/keys';
+import { ApiError } from '@/shared/api/error';
 import { getAccessToken, refreshAccessToken } from '@/shared/api/instance';
-import { unwrap } from '@/shared/api/request';
+import { requestResult } from '@/shared/api/request';
 import { getMe } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { PATHS } from '../paths';
@@ -16,7 +16,7 @@ export const parsePositiveIntegerParam = (value: string | undefined) => {
 export const ensureMe = () =>
   queryClient.ensureQueryData({
     queryKey: userKeys.me(),
-    queryFn: () => unwrap(() => getMe()),
+    queryFn: () => requestResult(() => getMe()),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -28,7 +28,7 @@ export const ensureSessionAccessToken = () =>
   });
 
 export const getHttpStatus = (error: unknown) =>
-  axios.isAxiosError(error) ? error.response?.status : undefined;
+  error instanceof ApiError ? error.status : undefined;
 
 export const ensureAuthenticatedForLoader = async () => {
   if (getAccessToken()) return;

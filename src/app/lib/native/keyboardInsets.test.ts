@@ -78,4 +78,32 @@ describe('setupKeyboardInsets', () => {
 
     expect(getKeyboardHeight()).toBe('276px');
   });
+  it('Android는 키보드가 내려가면 입력창 포커스를 해제한다', async () => {
+    const { setupKeyboardInsets } = await import('./keyboardInsets');
+    await setupKeyboardInsets('android');
+
+    const textarea = document.createElement('textarea');
+    document.body.appendChild(textarea);
+    textarea.focus();
+    expect(document.activeElement).toBe(textarea);
+
+    listeners.get('keyboardDidHide')?.({ keyboardHeight: 0 });
+
+    expect(document.activeElement).not.toBe(textarea);
+    textarea.remove();
+  });
+
+  it('iOS는 키보드가 내려가도 포커스를 건드리지 않는다', async () => {
+    const { setupKeyboardInsets } = await import('./keyboardInsets');
+    await setupKeyboardInsets('ios');
+
+    const textarea = document.createElement('textarea');
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    listeners.get('keyboardDidHide')?.({ keyboardHeight: 0 });
+
+    expect(document.activeElement).toBe(textarea);
+    textarea.remove();
+  });
 });

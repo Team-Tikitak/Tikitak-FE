@@ -108,6 +108,37 @@ ssgoi v6 마이그레이션 후에도 **홈 → 장소 상세 backward는 instan
 - [ ] 5곳 호출처 (`useFeedDetail`, `usePlaceFeeds`, `DailyFeedCreatePage`, `DailyFeedEditPage`, `FeedEditPage`) 모두 `enabled: !!teamId` 가드 또는 early return 추가
 - [ ] OAuth 콜백 fragment 전환과 함께 진행 검토 (백엔드 협의 필요한 보안 follow-up)
 
+## API 에러 정규화 구현 — ✅ 구현 완료 (2026-10-04)
+
+`.claude/decisions/records/api-structure.md`의 "응답 envelope 검증과 요청 결과 정규화 (2026-08)"를 구현했다.
+
+- [x] `src/shared/api/error.ts` — `ApiError`(status, code, serverMessage), `NetworkError`, `toApiError`, `assertEnvelopeSuccess`
+- [x] `instance`/`publicInstance` 응답 인터셉터에 `success: false` 검증과 최종 오류 정규화 연결 (401 재발급 큐는 유지)
+- [x] `request.ts`를 `requestResult`/`requestVoid`로 교체하고 `unwrap(` 호출 41곳, `.data.data` 직접 접근 4곳 정리
+- [x] `isAxiosError` 기반 에러 해석을 `ApiError` 기준으로 전환 (`queryClient.ts`, `loaders/shared.ts`, `invitation/queries.ts`, `useFeedDetail.ts`, `checkApiReachable`)
+- [x] 회귀 테스트: 200 + `success: false` → `ApiError`, 4xx/5xx → `ApiError`, 응답 없음 → `NetworkError`, 동시 401 → refresh 1회, refresh 5xx → 세션 유지 (`instance.test.ts`, `error.test.ts`)
+- [x] 검증: `yarn lint`, `yarn format:check`, `yarn gen:index:check`, `yarn test --run`, `yarn build`
+- [ ] 실기기·dev 서버에서 로그인·세션 복구·초대 링크·피드 상세 404 흐름 확인 (`success: false`를 200으로 내려주는 엔드포인트가 있는지 포함)
+
+## 로그인 유지(refresh) 개선 (2026-10-05)
+
+`.claude/known-issues/records/refresh-cookie-persistence.md` 참고. 앱 재시작·시간 경과 후 로그인이 풀린다는 QA 제보 대응.
+
+- [x] `restoreSession`이 서버 장애(5xx·네트워크)를 비로그인과 구분 (2회 재시도, 로그인 화면에서 안내)
+- [x] 쿠키 없음(`AUTH006`) 시 네이티브 보안 저장소(`@aparajita/capacitor-secure-storage`)의 refresh 토큰으로 복구하는 폴백 (회전 대응: 모든 refresh 응답의 새 토큰 저장)
+- [ ] **새 iOS·Android 빌드에 플러그인 포함** (iOS 1.0.3 빌드와 함께). 구버전 바이너리는 폴백만 비활성이고 앱은 정상 동작
+- [ ] 실기기 확인: 로그인 → 앱 완전 종료 → 재실행에서 자동 로그인, 풀렸을 때 콘솔 `세션 복구 실패`의 `code`(`AUTH006`/`AUTH007`/5xx)
+- [ ] 백엔드 확인 요청: ① 사용자당 refresh 토큰이 하나인지(다른 기기 로그인이 기존 세션을 폐기하는지) ② refresh 쿠키 `Max-Age` ③ refresh 토큰 TTL
+
+## Capacitor 로딩 방식 재평가 (팀 결정 필요)
+
+실제 설정은 원격 URL(`server.url`)인데 결정 문서는 로컬 번들이었다. 2026-06-25 커밋 `de8be48`의 전환 사유가 어디에도 기록돼 있지 않다. `.claude/decisions/records/capacitor-bundling-strategy.md`의 "재평가 필요" 섹션 참고.
+
+- [ ] 전환 사유를 `de8be48` 작성자에게 확인해 결정 문서에 기록
+- [ ] 원격 URL 유지(A) vs 로컬 번들 + OTA(B) 결정
+- [ ] A를 택하면 `server.errorPath` 오프라인 페이지 추가 (Android는 5xx 포함, iOS는 네트워크 실패에서만 동작). 네이티브 설정 변경이라 `cap sync`와 스토어 빌드 필요
+- [ ] 로컬 `ios/App/App/capacitor.config.json`(gitignore 대상 생성 파일)의 `appId`가 `space.tikitak.app`으로 남아 있음 — `yarn cap:sync`로 재생성 (실제 번들 ID는 `app.tikitak.space`)
+
 ## 스킬 완성
 
 - [ ] `figma-to-component` — 디자인 시스템 확정 후 스킬 완성 (weeth-client 참조: 토큰 매핑 테이블, 레이아웃 원칙, 셀프체크 포함, 한글로 작성)
@@ -146,9 +177,13 @@ ssgoi v6 마이그레이션 후에도 **홈 → 장소 상세 backward는 instan
 - [x] 지도 클러스터링 너무 먼 확대에서 진입 — `PIN_ENTER_MAX_LEVEL` 진입 게이트(레벨 초과 시 한 단계 확대 후 진입) + `CLUSTER_MAX_ZOOM` 18 + 기본 줌 확대 (`Map.tsx`, `useKakaoMap.ts`, `clusterIndex.ts`)
 - [x] Android 상태바·헤더 겹침 — **safe-area 플러그인 아님**. `StatusBar.overlaysWebView:true`(edge-to-edge) + CSS floor(`--safe-top`/`html.cap-android`, `StatusBar.getInfo().height` 실측). 잔상은 구조 문제 아닌 **빌드 staleness**였음(풀 리빌드+`cap sync`로 해결). `capacitor-setup.md` 참조
 - [x] 바텀시트 인풋 키보드 겹침(댓글·위치 등) — Android `--keyboard-height`로 시트를 키보드 위로(`avoidKeyboard` prop), iOS는 0px 유지(native resize), 웹 영향 없음. `bottom-sheet.md` 참조
-- [x] 앱 재시작 자동 로그인 — 스플래시에서 `restoreSession()`(`/token/refresh`) 시도 → 성공 HOME / 실패 LOGIN. `auth-flow.md` 참조. ⚠️ **기기 확인 필요**: refresh 쿠키가 앱 재시작 후 잔존해야 동작(미잔존 시 `@capacitor/preferences` 폴백 별도 작업)
+- [x] 앱 재시작 자동 로그인 — 스플래시에서 `restoreSession()`(`/token/refresh`) 시도 → 성공 HOME / 실패 LOGIN. `auth-flow.md` 참조. ⚠️ **기기 확인 필요**: refresh 쿠키가 앱 재시작 후 잔존해야 동작(미잔존 시 `@capacitor/preferences` 폴백 별도 작업) → 추적: `.claude/known-issues/records/refresh-cookie-persistence.md`
 
 ### 🟡 부분 / 수용
+
+- [ ] 사진에 스티커·필터·텍스트 추가 — feature로 분리, 추후 진행
+- [ ] 피드·활동·홈 히어로 복귀 시 좌표가 살짝 어긋나 흔들리는 현상 — 보류(재현 영상 필요, 재발 시 이슈화)
+- [ ] 활동 페이지 히어로 복귀 후 radius 둥금→뾰족→둥금 — 보류(재현 영상 필요, 카드 텍스트 순차 덮임 의심)
 
 - [~] 웹 스테이터스바 딤 동기화 — 웹은 `theme-color`(브라우저 UI 레이어라 CSS 오버레이와 프레임 완전 동기화 불가 → 현 수준 수용). 네이티브는 edge-to-edge로 오버레이가 상태바까지 같은 레이어로 덮어 동기화됨
 

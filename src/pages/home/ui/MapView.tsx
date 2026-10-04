@@ -5,7 +5,7 @@ import { PATHS, toPlaceFeeds } from '@/app/routes/paths';
 import { getFeeds } from '@/shared/api/feed/api';
 import { feedKeys } from '@/shared/api/feed/keys';
 import type { Pin } from '@/shared/api/map/types';
-import { unwrap } from '@/shared/api/request';
+import { requestResult } from '@/shared/api/request';
 import { DailyQuestion } from '@/shared/ui/DailyQuestion/DailyQuestion';
 import { Map } from './Map';
 import { useMapView } from '../hooks/useMapView';
@@ -29,7 +29,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
         .prefetchInfiniteQuery({
           queryKey: feedKeys.infiniteListFiltered(teamId, params),
           queryFn: ({ pageParam }) =>
-            unwrap(() => getFeeds(teamId, { ...params, cursor: pageParam })),
+            requestResult(() => getFeeds(teamId, { ...params, cursor: pageParam })),
           initialPageParam: undefined as string | undefined,
           staleTime: 30 * 1000,
         })

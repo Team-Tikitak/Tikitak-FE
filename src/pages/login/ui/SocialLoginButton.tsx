@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { tv } from 'tailwind-variants';
-import { getStartOAuthLogin } from '@/shared/api/auth/api';
+import { checkApiReachable, getStartOAuthLogin } from '@/shared/api/auth/api';
 import type { OAuthProvider } from '@/shared/api/auth/types';
+import { alertDialog } from '@/shared/lib/native/nativeDialog';
 
 const socialLoginButton = tv({
   base: 'button-0 flex w-full items-center justify-center gap-3 rounded-[20px] py-3',
@@ -32,10 +34,26 @@ export const SocialLoginButton = ({
   animate,
   animationOrder,
 }: SocialLoginButtonProps) => {
+  const [isStarting, setIsStarting] = useState(false);
+
+  const handleClick = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    try {
+      if (!(await checkApiReachable())) {
+        await alertDialog('서버에 연결할 수 없어요.\n잠시 후 다시 시도해주세요.');
+        return;
+      }
+      getStartOAuthLogin(provider);
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={() => getStartOAuthLogin(provider)}
+      onClick={() => void handleClick()}
       className={socialLoginButton({
         provider,
         className: animate

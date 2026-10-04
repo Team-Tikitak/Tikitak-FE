@@ -1,5 +1,6 @@
 import { PageShell } from '@/app/layout';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
+import { usePendingPhotoStore } from '@/shared/stores/pendingPhotoStore';
 import { Button, DailyQuestion, Header } from '@/shared/ui';
 import { ContentTextarea, PhotoSlot } from '@/shared/ui/FeedForm';
 import type { ReactNode } from 'react';
@@ -40,6 +41,7 @@ export const DailyFeedFormView = ({
   footer = null,
 }: DailyFeedFormViewProps) => {
   const isKeyboardVisible = useKeyboardVisible();
+  const isPhotoPending = usePendingPhotoStore((state) => state.count > 0);
 
   return (
     <PageShell
@@ -50,7 +52,7 @@ export const DailyFeedFormView = ({
         isKeyboardVisible ? null : (
           <Button
             variant="primary"
-            disabled={submitDisabled}
+            disabled={submitDisabled || isPhotoPending}
             onClick={onSubmit}
             className="disabled:bg-gray-300 disabled:text-gray-400"
           >
@@ -66,7 +68,12 @@ export const DailyFeedFormView = ({
           loadingState
         ) : (
           <>
-            <PhotoSlot src={photoUrl} onAdd={onAddPhoto} onRemove={onRemovePhoto} />
+            <PhotoSlot
+              src={photoUrl}
+              onAdd={onAddPhoto}
+              onRemove={onRemovePhoto}
+              isPending={isPhotoPending}
+            />
 
             <ContentTextarea
               value={content}

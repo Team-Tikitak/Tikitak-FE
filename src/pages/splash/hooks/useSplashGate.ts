@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { restoreSession } from '@/shared/api/auth/restoreSession';
+import {
+  hasPendingPushDeepLink,
+  subscribePendingPushDeepLink,
+} from '@/shared/lib/native/pendingPushDeepLink';
 import { getInviteAcceptPathFromUrl } from '@/shared/lib/routing/inviteDeepLink';
 import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
@@ -68,26 +72,48 @@ export const useSplashGate = ({ animationStarted = false }: UseSplashGateParams 
     }
 
     let cancelled = false;
+    let proceeded = false;
     const restorePromise = restoreSession();
 
-    const timer = window.setTimeout(() => {
-      void restorePromise.then((authed) => {
+    const proceed = () => {
+      if (proceeded) return;
+      proceeded = true;
+      void restorePromise.then((result) => {
         if (cancelled) return;
         markSplashSeen();
-        if (authed) {
+        if (result === 'authenticated') {
           navigate(PATHS.HOME, { replace: true });
         } else {
+          // 서버 장애로 확인하지 못한 경우는 로그아웃이 아니므로 로그인 화면에서 안내한다
           navigate(PATHS.LOGIN, {
             replace: true,
-            state: { fromSplash: true },
+            state:
+              result === 'unavailable'
+                ? { fromSplash: true, sessionUnavailable: true }
+                : { fromSplash: true },
           });
         }
       });
-    }, SPLASH_DURATION_MS);
+    };
+
+    // 푸시 알림을 탭해 진입했다면 스플래시 연출 시간을 기다리지 않고 인증 복구 직후 바로 넘어간다
+    if (hasPendingPushDeepLink()) {
+      proceed();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const timer = window.setTimeout(proceed, SPLASH_DURATION_MS);
+    const unsubscribe = subscribePendingPushDeepLink(() => {
+      window.clearTimeout(timer);
+      proceed();
+    });
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      unsubscribe();
     };
   }, [alreadySeen, animationStarted, isCheckingLaunchInvite, navigate]);
 

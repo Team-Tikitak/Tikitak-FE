@@ -1,6 +1,6 @@
 import { postMediaUploadComplete, postMediaUploads, putMediaToR2 } from './api';
 import { MEDIA_CDN_BASE_URL } from './constants';
-import { unwrap } from '../request';
+import { requestResult } from '../request';
 import type { MediaUploadPurpose } from './types';
 
 interface UploadMediaInput {
@@ -18,7 +18,7 @@ export const uploadMediaBlobs = async ({
 }: UploadMediaInput): Promise<string[]> => {
   if (blobs.length === 0) return [];
 
-  const { uploadId, items } = await unwrap(() =>
+  const { uploadId, items } = await requestResult(() =>
     postMediaUploads({
       purpose,
       teamId,

@@ -8,10 +8,8 @@ import {
   useState,
 } from 'react';
 import { FEED_IMAGE_HEIGHT, FEED_IMAGE_WIDTH } from '@/shared/constants';
-import { createId } from '@/shared/lib/createId';
-import { composePhotoWithStickers } from '@/shared/lib/image/composePhoto';
 import { cropImageBlobToAspectRatio } from '@/shared/lib/image/cropImageBlob';
-import { applyFilterToBlob } from '@/shared/lib/image/photoFilter';
+import { confirmCapturedPhoto } from '@/shared/lib/image/finalizeCapturedPhoto';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { type PendingState } from '@/shared/types/sticker';
 
@@ -103,38 +101,13 @@ export const useCameraCapture = ({
     setPending(null);
   }, [pending, setPending]);
 
-  const handleConfirm = useCallback(async () => {
-    if (!pending || isConfirming) return;
+  const confirmedRef = useRef(false);
+  const handleConfirm = useCallback(() => {
+    if (!pending || confirmedRef.current) return;
+    confirmedRef.current = true;
     setIsConfirming(true);
-    try {
-      const filteredBlob = await applyFilterToBlob(pending.rawBlob, filterCss);
-      const composedBlob =
-        pending.stickers.length > 0
-          ? await composePhotoWithStickers(filteredBlob, pending.stickers)
-          : filteredBlob;
-      const uploadBlob = await cropImageBlobToAspectRatio(
-        composedBlob,
-        FEED_IMAGE_WIDTH,
-        FEED_IMAGE_HEIGHT,
-      );
-      if (!isMountedRef.current) {
-        URL.revokeObjectURL(pending.previewUrl);
-        return;
-      }
-      const photo: CapturedPhoto = {
-        id: createId(),
-        url: URL.createObjectURL(uploadBlob),
-        blob: uploadBlob,
-      };
-      URL.revokeObjectURL(pending.previewUrl);
-      setPending(null);
-      onCapture(photo);
-    } catch (cause) {
-      console.error('사진 합성 실패', cause);
-    } finally {
-      if (isMountedRef.current) setIsConfirming(false);
-    }
-  }, [filterCss, isConfirming, onCapture, pending, setPending]);
+    confirmCapturedPhoto(pending, filterCss, onCapture);
+  }, [filterCss, onCapture, pending]);
 
   return {
     isConfirming,

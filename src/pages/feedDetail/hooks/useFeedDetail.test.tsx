@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import { AxiosError } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PATHS } from '@/app/routes/paths';
+import { ApiError } from '@/shared/api/error';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { useFeedDetail } from './useFeedDetail';
 import type { ReactNode } from 'react';
@@ -14,8 +14,7 @@ let activeTeamId = 17;
 let feedDeleting = false;
 let detailResult: { data: unknown; error: unknown } = { data: undefined, error: null };
 
-const notFoundError = () =>
-  Object.assign(new AxiosError('Not found'), { response: { status: 404 } });
+const notFoundError = () => new ApiError({ status: 404 });
 
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
@@ -87,7 +86,7 @@ describe('useFeedDetail', () => {
   it('404가 아닌 에러는 안내하지 않는다', () => {
     detailResult = {
       data: undefined,
-      error: Object.assign(new AxiosError('Server error'), { response: { status: 500 } }),
+      error: new ApiError({ status: 500 }),
     };
 
     renderHook(() => useFeedDetail(), { wrapper });

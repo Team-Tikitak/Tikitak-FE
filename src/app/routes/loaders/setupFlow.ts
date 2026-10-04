@@ -3,7 +3,7 @@ import { queryClient } from '@/app/providers/queryClient';
 import { getAccessToken } from '@/shared/api/instance';
 import { getInvitationPreview } from '@/shared/api/invitation/api';
 import { invitationKeys } from '@/shared/api/invitation/keys';
-import { unwrap } from '@/shared/api/request';
+import { requestResult } from '@/shared/api/request';
 import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { safeSessionRemove, safeSessionSet } from '@/shared/lib/storage/sessionStore';
@@ -26,19 +26,19 @@ export const inviteAcceptLoader = async ({ params }: LoaderFunctionArgs) => {
     const [preview, teams, me, agreements] = await Promise.all([
       queryClient.fetchQuery({
         queryKey: invitationKeys.preview(token),
-        queryFn: () => unwrap(() => getInvitationPreview(token)),
+        queryFn: () => requestResult(() => getInvitationPreview(token)),
       }),
       queryClient.fetchQuery({
         queryKey: userKeys.teams(),
-        queryFn: async () => (await unwrap(() => getTeams())).teams ?? [],
+        queryFn: async () => (await requestResult(() => getTeams())).teams ?? [],
       }),
       queryClient.fetchQuery({
         queryKey: userKeys.me(),
-        queryFn: () => unwrap(() => getMe()),
+        queryFn: () => requestResult(() => getMe()),
       }),
       queryClient.fetchQuery({
         queryKey: userKeys.agreements(),
-        queryFn: () => unwrap(() => getAgreements()),
+        queryFn: () => requestResult(() => getAgreements()),
         staleTime: 5 * 60 * 1000,
       }),
     ]);
@@ -85,11 +85,11 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
   const [me, agreements] = await Promise.all([
     queryClient.fetchQuery({
       queryKey: userKeys.me(),
-      queryFn: () => unwrap(() => getMe()),
+      queryFn: () => requestResult(() => getMe()),
     }),
     queryClient.fetchQuery({
       queryKey: userKeys.agreements(),
-      queryFn: () => unwrap(() => getAgreements()),
+      queryFn: () => requestResult(() => getAgreements()),
       staleTime: 5 * 60 * 1000,
     }),
   ]);

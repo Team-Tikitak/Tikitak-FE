@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
+import { ApiError } from '@/shared/api/error';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { useGetFeedDetail } from '@/shared/api/feed/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
@@ -22,7 +22,7 @@ export const useFeedDetail = () => {
 
   // 본인 삭제 직후의 404 refetch는 안내 대상이 아니므로 제외한다.
   useEffect(() => {
-    const isNotFound = isAxiosError(error) && error.response?.status === 404;
+    const isNotFound = error instanceof ApiError && error.status === 404;
     if (!isNotFound || isFeedDeleting() || notifiedNotFoundRef.current) return;
     notifiedNotFoundRef.current = true;
     openConfirmDialog({

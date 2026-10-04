@@ -9,6 +9,8 @@ export * from './keyboardResize';
 export * from './nativeCamera';
 export * from './nativeDialog';
 export * from './openAppSettings';
+export * from './pendingPushDeepLink';
+export * from './refreshTokenStorage';
 export * from './requestAppPermissions';
 export * from './shareImage';
 export * from './statusBarDim';

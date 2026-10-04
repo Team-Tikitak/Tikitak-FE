@@ -102,8 +102,12 @@
     -webkit-touch-callout: default;
   }
 
+  /* html.cap-android body(0,1,2)의 흰 배경보다 specificity가 낮으면 Android body가 흰색으로 남아
+     프리뷰 구멍이 흰 화면이 되므로 cap-android 조합까지 명시한다 */
   html.native-camera-active,
-  body.native-camera-active {
+  body.native-camera-active,
+  html.cap-android.native-camera-active,
+  html.cap-android.native-camera-active body {
     background-color: transparent;
   }
 
