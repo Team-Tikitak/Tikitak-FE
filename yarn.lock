@@ -12,6 +12,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aparajita/capacitor-secure-storage@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@aparajita/capacitor-secure-storage@npm:8.0.1"
+  dependencies:
+    "@capacitor/android": "npm:^8.0.2"
+    "@capacitor/app": "npm:^8.0.0"
+    "@capacitor/core": "npm:^8.0.2"
+    "@capacitor/ios": "npm:^8.0.2"
+    "@capacitor/keyboard": "npm:^8.0.0"
+  checksum: 10c0/dcd3ed0232d28e075c8b76ab0eb49fc8636560c023564c297a32952f49e30aa0ac89cd0f5ba3ed7b938b837adaba668191a30bc725d69719d8ddb914f3986596
+  languageName: node
+  linkType: hard
+
 "@apideck/better-ajv-errors@npm:^0.3.1":
   version: 0.3.7
   resolution: "@apideck/better-ajv-errors@npm:0.3.7"
@@ -1510,7 +1523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/android@npm:^8.3.4":
+"@capacitor/android@npm:^8.0.2, @capacitor/android@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/android@npm:8.3.4"
   peerDependencies:
@@ -1519,7 +1532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/app@npm:^8.1.0":
+"@capacitor/app@npm:^8.0.0, @capacitor/app@npm:^8.1.0":
   version: 8.1.0
   resolution: "@capacitor/app@npm:8.1.0"
   peerDependencies:
@@ -1624,7 +1637,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/core@npm:^8.3.4":
+"@capacitor/core@npm:^8.0.2, @capacitor/core@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/core@npm:8.3.4"
   dependencies:
@@ -1664,7 +1677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/ios@npm:^8.3.4":
+"@capacitor/ios@npm:^8.0.2, @capacitor/ios@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/ios@npm:8.3.4"
   peerDependencies:
@@ -1673,7 +1686,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/keyboard@npm:^8.0.3":
+"@capacitor/keyboard@npm:^8.0.0, @capacitor/keyboard@npm:^8.0.3":
   version: 8.0.3
   resolution: "@capacitor/keyboard@npm:8.0.3"
   peerDependencies:
@@ -4837,6 +4850,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "Tikitak-FE@workspace:."
   dependencies:
+    "@aparajita/capacitor-secure-storage": "npm:^8.0.1"
     "@axe-core/playwright": "npm:^4.11.3"
     "@capacitor-firebase/messaging": "npm:^8.3.0"
     "@capacitor/action-sheet": "npm:^8.1.1"
