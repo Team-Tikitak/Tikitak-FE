@@ -16,7 +16,15 @@ vi.mock('@capacitor/core', () => ({
   Capacitor: { isNativePlatform: isNativePlatformMock },
 }));
 vi.mock('@aparajita/capacitor-secure-storage', () => ({
-  SecureStorage: { set: setMock, get: getMock, remove: removeMock },
+  // 실제 플러그인 프록시처럼 `then` 접근 시 네이티브 미구현 오류를 던진다
+  SecureStorage: {
+    set: setMock,
+    get: getMock,
+    remove: removeMock,
+    then: () => {
+      throw new Error('"SecureStorage.then()" is not implemented on ios');
+    },
+  },
 }));
 
 describe('refreshTokenStorage', () => {
