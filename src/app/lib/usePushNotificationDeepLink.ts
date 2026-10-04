@@ -100,12 +100,15 @@ export const usePushNotificationDeepLink = () => {
   };
 
   const redirectToLoginForPush = useCallback(
-    (data: PushNotificationData) => {
+    (data: PushNotificationData, sessionUnavailable = false) => {
       const targetPath = getPushNotificationTargetPath(data);
       if (targetPath) {
         saveRedirectAfterLogin(targetPath);
       }
-      navigate(PATHS.LOGIN, { replace: true });
+      navigate(PATHS.LOGIN, {
+        replace: true,
+        state: sessionUnavailable ? { sessionUnavailable: true } : undefined,
+      });
     },
     [navigate],
   );
@@ -145,7 +148,7 @@ export const usePushNotificationDeepLink = () => {
 
         void restoreSession().then((result) => {
           if (result === 'authenticated') handleRef.current(data);
-          else redirectToLoginForPush(data);
+          else redirectToLoginForPush(data, result === 'unavailable');
         });
       });
 
