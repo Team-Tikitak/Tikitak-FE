@@ -6,9 +6,27 @@ export interface PhotoSlotProps {
   onAdd: () => void;
   onRemove: () => void;
   emptyLabel?: string;
+  // 카메라 합성이 아직 끝나지 않은 새 사진이 있음(완성되면 src로 교체됨)
+  isPending?: boolean;
 }
 
-export const PhotoSlot = ({ src, onAdd, onRemove, emptyLabel = '0/1' }: PhotoSlotProps) => {
+export const PhotoSlot = ({
+  src,
+  onAdd,
+  onRemove,
+  emptyLabel = '0/1',
+  isPending = false,
+}: PhotoSlotProps) => {
+  if (isPending) {
+    return (
+      <div
+        role="status"
+        aria-label="사진 처리 중"
+        className="size-[112px] shrink-0 animate-pulse rounded-lg bg-gray-200"
+      />
+    );
+  }
+
   if (src) {
     return (
       <div className="relative size-[112px] shrink-0 overflow-hidden rounded-lg border border-gray-300">

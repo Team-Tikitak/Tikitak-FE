@@ -13,6 +13,8 @@ export interface PhotoStripProps {
   maxPhotoCount: number;
   canAddMore: boolean;
   onAddPhoto: () => void;
+  // 카메라 합성이 아직 끝나지 않은 사진 수(자리표시자로 표시)
+  pendingCount?: number;
 }
 
 export const PhotoStrip = ({
@@ -21,6 +23,7 @@ export const PhotoStrip = ({
   maxPhotoCount,
   canAddMore,
   onAddPhoto,
+  pendingCount = 0,
 }: PhotoStripProps) => (
   <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
     <button
@@ -46,6 +49,14 @@ export const PhotoStrip = ({
           <CloseIcon className="size-2.5" />
         </button>
       </div>
+    ))}
+    {Array.from({ length: pendingCount }, (_, index) => (
+      <div
+        key={`pending-${index}`}
+        role="status"
+        aria-label="사진 처리 중"
+        className="size-[112px] shrink-0 animate-pulse rounded-lg bg-gray-200"
+      />
     ))}
   </div>
 );

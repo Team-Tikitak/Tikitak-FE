@@ -6,6 +6,7 @@ export * from './composePhoto';
 export * from './computeCaptureRect';
 export * from './createPhotoFromFile';
 export * from './cropImageBlob';
+export * from './finalizeCapturedPhoto';
 export * from './loadImage';
 export * from './normalizeImageUrl';
 export * from './optimizeFeedImageBlob';

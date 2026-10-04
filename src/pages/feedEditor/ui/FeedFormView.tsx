@@ -7,6 +7,7 @@ import type { useFeedForm } from '@/shared/hooks/feed/useFeedForm';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { usePhotoSourcePicker } from '@/shared/hooks/usePhotoSourcePicker';
 import { normalizeImageUrl, openOverlay } from '@/shared/lib';
+import { usePendingPhotoStore } from '@/shared/stores/pendingPhotoStore';
 import { Button, Chip, FormRowButton, Header, UserChip } from '@/shared/ui';
 import { ContentTextarea, PhotoStrip, type PhotoStripItem } from '@/shared/ui/FeedForm';
 import { LocationSearchOverlay } from './LocationSearchOverlay';
@@ -38,6 +39,7 @@ export const FeedFormView = ({
   photoCount,
 }: FeedFormViewProps) => {
   const isKeyboardVisible = useKeyboardVisible();
+  const pendingPhotoCount = usePendingPhotoStore((state) => state.count);
   const {
     content,
     setContent,
@@ -110,7 +112,7 @@ export const FeedFormView = ({
         isKeyboardVisible ? null : (
           <Button
             variant="primary"
-            disabled={submitDisabled}
+            disabled={submitDisabled || pendingPhotoCount > 0}
             onClick={onSubmit}
             className="disabled:bg-gray-300 disabled:text-gray-400"
           >
@@ -126,6 +128,7 @@ export const FeedFormView = ({
           maxPhotoCount={maxPhotoCount}
           canAddMore={canAddMorePhotos}
           onAddPhoto={handleAddPhoto}
+          pendingCount={pendingPhotoCount}
         />
         <input {...inputProps} />
 

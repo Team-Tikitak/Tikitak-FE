@@ -3,4 +3,5 @@
  */
 
 export * from './authStore';
+export * from './pendingPhotoStore';
 export * from './pushSyncStore';
