@@ -3,30 +3,28 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { PATHS, toFeedDetail } from '@/app/routes/paths';
+import { warmFeedDetail } from '@/pages/feed/lib/warmFeedDetail';
 import { restoreSession } from '@/shared/api/auth/restoreSession';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { feedCommentKeys } from '@/shared/api/feedComment/keys';
 import { useReadNotification } from '@/shared/api/notification/queries';
 import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
+import {
+  hasPendingPushDeepLink,
+  setPendingPushDeepLink,
+  takePendingPushDeepLink,
+  type PushNotificationData,
+} from '@/shared/lib/native/pendingPushDeepLink';
 import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { openConfirmDialog } from '@/shared/ui/ConfirmDialog/openConfirmDialog';
-
-interface PushNotificationData {
-  type?: string;
-  feedId?: string;
-  teamId?: string;
-  notificationId?: string;
-}
 
 const FEED_DETAIL_TYPES = new Set([
   'FEED_COMMENT',
   'FEED_COMMENT_REPLIED',
   'DAILY_QUESTION_UPLOADED',
 ]);
-
-let pendingPushData: PushNotificationData | null = null;
 
 const isReadyForDeepLink = () =>
   Boolean(useAuthStore.getState().accessToken) && window.location.pathname !== PATHS.ROOT;
@@ -79,6 +77,9 @@ export const usePushNotificationDeepLink = () => {
       void queryClient.invalidateQueries({ queryKey: feedKeys.all });
     }
 
+    // 팀 전환(네트워크 왕복)과 병렬로 상세 데이터를 미리 받아, 이동 후 로더가 캐시를 바로 쓰게 한다
+    if (data.feedId) warmFeedDetail(queryClient, targetTeamId ?? activeTeamId, data.feedId);
+
     const navigateToTarget = () => navigate(targetPath);
     if (targetTeamId && targetTeamId !== activeTeamId) {
       patchActiveTeam(targetTeamId, {
@@ -111,9 +112,9 @@ export const usePushNotificationDeepLink = () => {
 
   // 콜드스타트: 인증 복구·스플래시 종료 후 보류해둔 딥링크를 처리
   useEffect(() => {
-    if (!pendingPushData || location.pathname === PATHS.ROOT) return;
-    const data = pendingPushData;
-    pendingPushData = null;
+    if (!hasPendingPushDeepLink() || location.pathname === PATHS.ROOT) return;
+    const data = takePendingPushDeepLink();
+    if (!data) return;
     if (accessToken) {
       handleRef.current(data);
     } else {
@@ -138,12 +139,12 @@ export const usePushNotificationDeepLink = () => {
         }
 
         if (window.location.pathname === PATHS.ROOT) {
-          pendingPushData = data;
+          setPendingPushDeepLink(data);
           return;
         }
 
-        void restoreSession().then((authed) => {
-          if (authed) handleRef.current(data);
+        void restoreSession().then((result) => {
+          if (result === 'authenticated') handleRef.current(data);
           else redirectToLoginForPush(data);
         });
       });

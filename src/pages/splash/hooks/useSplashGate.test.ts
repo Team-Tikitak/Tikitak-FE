@@ -1,6 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PATHS } from '@/app/routes/paths';
+import {
+  setPendingPushDeepLink,
+  takePendingPushDeepLink,
+} from '@/shared/lib/native/pendingPushDeepLink';
 import { useSplashGate } from './useSplashGate';
 
 const navigateMock = vi.fn();
@@ -9,7 +13,7 @@ const { getLaunchUrlMock, isNativePlatformMock, restoreSessionMock } = vi.hoiste
     Promise.resolve(undefined),
   ),
   isNativePlatformMock: vi.fn(() => false),
-  restoreSessionMock: vi.fn(() => Promise.resolve(false)),
+  restoreSessionMock: vi.fn(() => Promise.resolve('unauthenticated')),
 }));
 
 vi.mock('@capacitor/app', () => ({
@@ -39,10 +43,11 @@ describe('useSplashGate', () => {
     isNativePlatformMock.mockReset();
     isNativePlatformMock.mockReturnValue(false);
     restoreSessionMock.mockReset();
-    restoreSessionMock.mockResolvedValue(false);
+    restoreSessionMock.mockResolvedValue('unauthenticated');
   });
 
   afterEach(() => {
+    takePendingPushDeepLink();
     vi.useRealTimers();
   });
 
@@ -56,7 +61,7 @@ describe('useSplashGate', () => {
   });
 
   it('세션 복원 실패 시 타이머 종료 후 fromSplash state 로 LOGIN 한다', async () => {
-    restoreSessionMock.mockResolvedValue(false);
+    restoreSessionMock.mockResolvedValue('unauthenticated');
 
     const { result } = renderHook(() => useSplashGate({ animationStarted: true }));
 
@@ -108,8 +113,23 @@ describe('useSplashGate', () => {
     expect(restoreSessionMock).not.toHaveBeenCalled();
   });
 
+  it('서버 장애로 세션을 확인하지 못하면 로그아웃과 구분해 sessionUnavailable state 로 LOGIN 한다', async () => {
+    restoreSessionMock.mockResolvedValue('unavailable');
+
+    renderHook(() => useSplashGate({ animationStarted: true }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2300);
+    });
+
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.LOGIN, {
+      replace: true,
+      state: { fromSplash: true, sessionUnavailable: true },
+    });
+  });
+
   it('세션 복원 성공 시 타이머 종료 후 HOME 으로 navigate 한다', async () => {
-    restoreSessionMock.mockResolvedValue(true);
+    restoreSessionMock.mockResolvedValue('authenticated');
 
     renderHook(() => useSplashGate({ animationStarted: true }));
 
@@ -118,6 +138,38 @@ describe('useSplashGate', () => {
     });
 
     expect(sessionStorage.getItem('splash-seen')).toBe('1');
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
+  });
+
+  it('푸시 알림으로 진입했다면 스플래시 시간을 기다리지 않고 세션 복원 직후 이동한다', async () => {
+    restoreSessionMock.mockResolvedValue('authenticated');
+    setPendingPushDeepLink({ type: 'FEED_COMMENT', feedId: '1' });
+
+    renderHook(() => useSplashGate({ animationStarted: true }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
+  });
+
+  it('스플래시 진행 중 푸시가 들어오면 남은 시간을 건너뛰고 이동한다', async () => {
+    restoreSessionMock.mockResolvedValue('authenticated');
+
+    renderHook(() => useSplashGate({ animationStarted: true }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(navigateMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      setPendingPushDeepLink({ type: 'FEED_COMMENT', feedId: '1' });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(navigateMock).toHaveBeenCalledTimes(1);
     expect(navigateMock).toHaveBeenCalledWith(PATHS.HOME, { replace: true });
   });
 

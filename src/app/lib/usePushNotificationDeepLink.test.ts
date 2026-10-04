@@ -15,6 +15,7 @@ const {
   readNotificationMock,
   openConfirmDialogMock,
   activeTeamIdMock,
+  warmFeedDetailMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   isNativePlatformMock: vi.fn(),
@@ -24,6 +25,7 @@ const {
   readNotificationMock: vi.fn(),
   openConfirmDialogMock: vi.fn(),
   activeTeamIdMock: vi.fn(),
+  warmFeedDetailMock: vi.fn(),
 }));
 
 vi.mock('react-router', () => ({
@@ -41,6 +43,10 @@ vi.mock('@capacitor-firebase/messaging', () => ({
 
 vi.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: vi.fn() }),
+}));
+
+vi.mock('@/pages/feed/lib/warmFeedDetail', () => ({
+  warmFeedDetail: warmFeedDetailMock,
 }));
 
 vi.mock('@/shared/api/notification/queries', () => ({
@@ -65,7 +71,7 @@ vi.mock('@/shared/stores/authStore', () => {
 });
 
 vi.mock('@/shared/api/auth/restoreSession', () => ({
-  restoreSession: vi.fn().mockResolvedValue(true),
+  restoreSession: vi.fn().mockResolvedValue('authenticated'),
 }));
 
 vi.mock('@/shared/lib/routing/redirectAfterLogin', () => ({
@@ -161,6 +167,17 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     expect(openConfirmDialogMock).not.toHaveBeenCalled();
   });
 
+  it('다른 팀 알림이면 팀 전환 응답을 기다리지 않고 대상 팀 기준으로 상세를 미리 받는다', async () => {
+    // 팀 전환 mutate가 끝나지 않는 상황에서도 prefetch는 이미 시작돼 있어야 한다
+    patchActiveTeamMock.mockImplementation(() => undefined);
+
+    await renderDeepLinkWithListener();
+    await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '2' });
+
+    expect(warmFeedDetailMock).toHaveBeenCalledWith(expect.anything(), 2, '12');
+    expect(navigateMock).not.toHaveBeenCalled();
+  });
+
   it('팀 전환이 실패하면 상세로 진입하지 않고 오류 다이얼로그를 띄운다', async () => {
     patchActiveTeamMock.mockImplementation((_teamId: number, options?: MutateOptions) =>
       options?.onError?.(new Error('network error')),
@@ -180,6 +197,7 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1' });
 
     expect(patchActiveTeamMock).not.toHaveBeenCalled();
+    expect(warmFeedDetailMock).toHaveBeenCalledWith(expect.anything(), 1, '12');
     expect(navigateMock).toHaveBeenCalledWith('/feed/12');
   });
 });
