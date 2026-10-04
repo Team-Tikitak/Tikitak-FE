@@ -108,8 +108,11 @@ const requestTokens = async () => {
     try {
       return await postRefresh(storedRefreshToken);
     } catch (fallbackError) {
-      // 서버가 응답해 거절한 토큰은 다시 써도 소용없으니 지운다. 서버 장애·네트워크 오류면 보존한다.
-      if (fallbackError instanceof ApiError && fallbackError.status < 500) {
+      // 서버가 무효로 거절한 토큰(400/401/403)만 지운다. 장애·타임아웃·요청 제한(408/429)이면 보존한다.
+      if (
+        fallbackError instanceof ApiError &&
+        isSessionExpiredRefreshStatus(fallbackError.status)
+      ) {
         await clearStoredRefreshToken();
       }
       throw fallbackError;

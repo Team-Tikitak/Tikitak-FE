@@ -60,9 +60,10 @@ export const useLogout = () => {
     onMutate: () => {
       startLogout();
     },
-    onSettled: () => {
+    onSettled: async () => {
+      // 삭제가 끝나기 전에 세션 복구가 시작되면 저장 토큰으로 되살아날 수 있어 먼저 기다린다
+      await clearStoredRefreshToken();
       clearAccessToken();
-      void clearStoredRefreshToken();
       queryClient.removeQueries({ queryKey: authKeys.all });
       queryClient.removeQueries({ queryKey: userKeys.all });
       endLogout();
