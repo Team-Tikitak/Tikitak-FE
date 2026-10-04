@@ -8,12 +8,14 @@ const {
   showActionsMock,
   readGalleryPhotoBlobMock,
   optimizeFeedImageBlobMock,
+  promptOpenAppSettingsMock,
 } = vi.hoisted(() => ({
   isNativePlatformMock: vi.fn(),
   pickImagesMock: vi.fn(),
   showActionsMock: vi.fn(),
   readGalleryPhotoBlobMock: vi.fn(),
   optimizeFeedImageBlobMock: vi.fn(),
+  promptOpenAppSettingsMock: vi.fn(),
 }));
 
 vi.mock('@capacitor/core', () => ({
@@ -52,6 +54,10 @@ vi.mock('@/shared/lib/image/optimizeFeedImageBlob', () => ({
   optimizeFeedImageBlob: optimizeFeedImageBlobMock,
 }));
 
+vi.mock('@/shared/lib/native/openAppSettings', () => ({
+  promptOpenAppSettings: promptOpenAppSettingsMock,
+}));
+
 describe('usePhotoSourcePicker', () => {
   beforeEach(() => {
     isNativePlatformMock.mockReset();
@@ -59,6 +65,7 @@ describe('usePhotoSourcePicker', () => {
     showActionsMock.mockReset();
     readGalleryPhotoBlobMock.mockReset();
     optimizeFeedImageBlobMock.mockReset();
+    promptOpenAppSettingsMock.mockReset();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:gallery-photo');
     vi.spyOn(window, 'alert').mockImplementation(() => {});
   });
@@ -103,6 +110,38 @@ describe('usePhotoSourcePicker', () => {
       url: 'blob:gallery-photo',
       blob: optimizedBlob,
     });
+  });
+
+  it('prompts to open settings when gallery access is denied', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    pickImagesMock.mockRejectedValue(new Error('User denied access to photos'));
+    const onAdd = vi.fn();
+
+    const { result } = renderHook(() =>
+      usePhotoSourcePicker({ remaining: 1, source: 'gallery', onAdd }),
+    );
+
+    await act(async () => {
+      await result.current.pick();
+    });
+
+    expect(promptOpenAppSettingsMock).toHaveBeenCalledTimes(1);
+    expect(onAdd).not.toHaveBeenCalled();
+  });
+
+  it('does not prompt settings when the user just cancels the gallery', async () => {
+    isNativePlatformMock.mockReturnValue(true);
+    pickImagesMock.mockRejectedValue(new Error('User cancelled photos app'));
+
+    const { result } = renderHook(() =>
+      usePhotoSourcePicker({ remaining: 1, source: 'gallery', onAdd: vi.fn() }),
+    );
+
+    await act(async () => {
+      await result.current.pick();
+    });
+
+    expect(promptOpenAppSettingsMock).not.toHaveBeenCalled();
   });
 
   it('rejects unsupported optimized gallery image types', async () => {
