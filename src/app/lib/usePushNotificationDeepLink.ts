@@ -58,7 +58,8 @@ export const usePushNotificationDeepLink = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const accessToken = useAuthStore((state) => state.accessToken);
-  const activeTeamId = useActiveTeamId();
+  // 비로그인(스플래시 중)에 /me를 쏘면 401 → refresh 실패 → 강제 로그인 이동(전체 새로고침)으로 화면이 깜빡인다
+  const activeTeamId = useActiveTeamId({ enabled: Boolean(accessToken) });
   const { mutate: patchActiveTeam } = usePatchActiveTeam({ silent: true });
   const { mutate: readNotification } = useReadNotification();
   const queryClient = useQueryClient();
