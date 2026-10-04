@@ -3,7 +3,7 @@ import { queryClient } from '@/app/providers/queryClient';
 import { getFeeds } from '@/shared/api/feed/api';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { feedDetailQueryOptions } from '@/shared/api/feed/queries';
-import { unwrap } from '@/shared/api/request';
+import { requestResult } from '@/shared/api/request';
 import { openConfirmDialog } from '@/shared/ui/ConfirmDialog/openConfirmDialog';
 import { PATHS } from '../paths';
 import {
@@ -52,7 +52,7 @@ export const placeFeedsLoader = async ({ params }: LoaderFunctionArgs) => {
     await queryClient.prefetchInfiniteQuery({
       queryKey: feedKeys.infiniteListFiltered(activeTeamId, feedParams),
       queryFn: ({ pageParam }) =>
-        unwrap(() => getFeeds(activeTeamId, { ...feedParams, cursor: pageParam })),
+        requestResult(() => getFeeds(activeTeamId, { ...feedParams, cursor: pageParam })),
       initialPageParam: undefined as string | undefined,
       staleTime: 30 * 1000,
     });

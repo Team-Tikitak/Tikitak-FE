@@ -12,7 +12,7 @@ import {
 } from './api';
 import { invalidateTeamMembershipQueries } from './invalidateTeamMembership';
 import { teamKeys } from './keys';
-import { unwrap } from '../request';
+import { requestResult, requestVoid } from '../request';
 import { patchActiveTeam as patchActiveTeamApi } from '../user/api';
 import { userKeys } from '../user/keys';
 import type {
@@ -28,7 +28,7 @@ export const useCreateTeam = () => {
 
   return useMutation({
     meta: { errorMessage: '팀 생성에 실패했어요' },
-    mutationFn: (body: CreateTeamRequest) => unwrap(() => postTeam(body)),
+    mutationFn: (body: CreateTeamRequest) => requestResult(() => postTeam(body)),
     // 생성 응답에 teamId가 없어 최신 teamId 팀을 활성으로 설정
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: userKeys.teams(), type: 'all' });
@@ -52,7 +52,8 @@ export const useLeaveTeam = () => {
 
   return useMutation({
     meta: { errorMessage: '팀 나가기에 실패했어요' },
-    mutationFn: deleteTeamMemberMe,
+    mutationFn: (teamId: Parameters<typeof deleteTeamMemberMe>[0]) =>
+      requestVoid(() => deleteTeamMemberMe(teamId)),
     onSuccess: (_, teamId) => {
       queryClient.setQueryData(
         userKeys.teams(),
@@ -70,7 +71,7 @@ export const useTeamDelete = () => {
 
   return useMutation({
     meta: { errorMessage: '팀 삭제에 실패했어요' },
-    mutationFn: (teamId: number) => postTeamDeleteRequest(teamId),
+    mutationFn: (teamId: number) => requestVoid(() => postTeamDeleteRequest(teamId)),
     onSuccess: () => {
       invalidateTeamMembershipQueries(queryClient);
       navigate(PATHS.HOME);
@@ -83,7 +84,8 @@ export const usePatchTeamProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     meta: { errorMessage: '프로필 수정에 실패했어요' },
-    mutationFn: (variables: PatchTeamProfileVariables) => patchTeamProfile(variables),
+    mutationFn: (variables: PatchTeamProfileVariables) =>
+      requestVoid(() => patchTeamProfile(variables)),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
       navigate(`/teams/${teamId}`, { replace: true });
@@ -95,7 +97,8 @@ export const useDeleteTeamMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
     meta: { errorMessage: '멤버 내보내기에 실패했어요' },
-    mutationFn: (variables: DeleteTeamMemberVariables) => deleteTeamMember(variables),
+    mutationFn: (variables: DeleteTeamMemberVariables) =>
+      requestVoid(() => deleteTeamMember(variables)),
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamKeys.detail(teamId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.members(teamId) });
@@ -112,7 +115,7 @@ export const useGetTeamDetail = (teamId: number | null | undefined) =>
 
 export const teamDetailQueryOptions = (teamId: number) => ({
   queryKey: teamKeys.detail(teamId),
-  queryFn: () => unwrap(() => getTeamDetail(teamId)),
+  queryFn: () => requestResult(() => getTeamDetail(teamId)),
   // 다른 기기에서 멤버가 합류해도 방장 캐시는 무효화되지 않으므로, 앱 포그라운드 복귀(focus) 시
   // 항상 최신화하고, 재진입 시엔 30초 지났으면 갱신(전역 5분보다 짧게, 매 마운트 강제 재조회는 X).
   staleTime: 30 * 1000,
@@ -122,7 +125,7 @@ export const teamDetailQueryOptions = (teamId: number) => ({
 export const useTeamMembers = (teamId: number | null | undefined) =>
   useQuery({
     queryKey: teamKeys.members(teamId ?? 0),
-    queryFn: () => unwrap(() => getTeamMembers(teamId as number)),
+    queryFn: () => requestResult(() => getTeamMembers(teamId as number)),
     enabled: typeof teamId === 'number',
     staleTime: 60 * 1000,
   });

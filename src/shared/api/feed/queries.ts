@@ -12,7 +12,7 @@ import { feedKeys } from './keys';
 import { dailyQuestionKeys } from '../dailyQuestion/keys';
 import { homeKeys } from '../home/keys';
 import { mapKeys } from '../map/keys';
-import { unwrap } from '../request';
+import { requestResult } from '../request';
 import type { FeedListResponse, FeedRequest, FeedListParams } from './types';
 
 type FeedListCacheData = FeedListResponse | InfiniteData<FeedListResponse>;
@@ -57,7 +57,7 @@ export const useCreateFeed = (teamId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: FeedRequest) => unwrap(() => postFeed(teamId, body)),
+    mutationFn: (body: FeedRequest) => requestResult(() => postFeed(teamId, body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
       queryClient.invalidateQueries({ queryKey: mapKeys.pins(teamId) });
@@ -68,9 +68,10 @@ export const useCreateFeed = (teamId: number) => {
 export const useFeeds = (teamId: number | null | undefined, params: FeedListParams = {}) =>
   useQuery({
     queryKey: feedKeys.listFiltered(teamId ?? 0, params),
-    queryFn: () => unwrap(() => getFeeds(teamId as number, params)),
+    queryFn: () => requestResult(() => getFeeds(teamId as number, params)),
     enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: FEED_LIST_STALE_TIME_MS,
+    refetchOnWindowFocus: true,
   });
 
 export const useInfiniteFeeds = (teamId: number | null | undefined, params: FeedListParams = {}) =>
@@ -83,19 +84,21 @@ export const useInfiniteFeeds = (teamId: number | null | undefined, params: Feed
   >({
     queryKey: feedKeys.infiniteListFiltered(teamId ?? 0, params),
     queryFn: ({ pageParam }) =>
-      unwrap(() => getFeeds(teamId as number, { ...params, cursor: pageParam })),
+      requestResult(() => getFeeds(teamId as number, { ...params, cursor: pageParam })),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) =>
       lastPage.pageInfo.hasNext ? (lastPage.pageInfo.nextCursor ?? undefined) : undefined,
     enabled: typeof teamId === 'number' && teamId > 0,
     staleTime: FEED_LIST_STALE_TIME_MS,
+    // 다른 사람이 올린 글은 푸시·폴링이 없어, 앱 포그라운드 복귀(focus) 시 stale이면 다시 불러온다
+    refetchOnWindowFocus: true,
   });
 
 export const usePatchFeed = (teamId: number, feedId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: FeedRequest) => unwrap(() => patchFeed(teamId, feedId, body)),
+    mutationFn: (body: FeedRequest) => requestResult(() => patchFeed(teamId, feedId, body)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feedKeys.detail(teamId, feedId) });
       queryClient.invalidateQueries({ queryKey: feedKeys.list(teamId) });
@@ -115,7 +118,7 @@ export const useDeleteFeed = (
 
   return useMutation({
     meta: { errorMessage: '삭제에 실패했어요' },
-    mutationFn: () => unwrap(() => deleteFeed(teamId, feedId)),
+    mutationFn: () => requestResult(() => deleteFeed(teamId, feedId)),
     onMutate: async () => {
       markFeedDeleting();
       await queryClient.cancelQueries({ queryKey: feedKeys.detail(teamId, feedId) });
@@ -149,7 +152,7 @@ export const useDeleteFeed = (
 
 export const feedDetailQueryOptions = (teamId: number, feedId: number) => ({
   queryKey: feedKeys.detail(teamId, feedId),
-  queryFn: () => getFeedDetail(teamId, feedId).then((res) => res.data.data),
+  queryFn: () => requestResult(() => getFeedDetail(teamId, feedId)),
   staleTime: FEED_DETAIL_STALE_TIME_MS,
 });
 

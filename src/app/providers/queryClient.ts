@@ -1,5 +1,5 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
+import { ApiError } from '@/shared/api/error';
 import { alertDialog } from '@/shared/lib/native/nativeDialog';
 
 declare module '@tanstack/react-query' {
@@ -9,11 +9,8 @@ declare module '@tanstack/react-query' {
   }
 }
 
-const getServerMessage = (error: unknown): string | undefined => {
-  if (!isAxiosError(error)) return undefined;
-  const data = error.response?.data as { message?: unknown } | undefined;
-  return typeof data?.message === 'string' ? data.message : undefined;
-};
+const getServerMessage = (error: unknown): string | undefined =>
+  error instanceof ApiError ? error.serverMessage : undefined;
 
 // meta.errorMessage 있는 mutation만 실패 시 다이얼로그 (share·백그라운드는 meta 미지정으로 제외)
 // useServerMessage면 서버 메시지 우선, 없으면 meta.errorMessage로 폴백

@@ -7,12 +7,16 @@ import {
   readStoredDeviceToken,
 } from '@/shared/lib/native/deviceTokenStorage';
 import { getDeviceTokenIfGranted } from '@/shared/lib/native/getDeviceToken';
+import {
+  clearStoredRefreshToken,
+  storeRefreshToken,
+} from '@/shared/lib/native/refreshTokenStorage';
 import { consumeRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin';
 import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys, LOGIN_CODE_EXCHANGE_MUTATION_KEY } from './keys';
 import { sessionQueryOptions } from './sessionQuery';
 import { deleteDeviceToken } from '../notification/api';
-import { unwrap } from '../request';
+import { requestResult, requestVoid } from '../request';
 import { userKeys } from '../user/keys';
 
 export const useAuthInit = () => useQuery(sessionQueryOptions);
@@ -24,9 +28,10 @@ export const useLoginCodeExchange = () => {
   return useMutation({
     mutationKey: LOGIN_CODE_EXCHANGE_MUTATION_KEY,
     meta: { errorMessage: '로그인에 실패했어요. 다시 시도해주세요.' },
-    mutationFn: (loginCode: string) => unwrap(() => postLoginCodeExchange({ loginCode })),
+    mutationFn: (loginCode: string) => requestResult(() => postLoginCodeExchange({ loginCode })),
     onSuccess: (data) => {
       setAccessToken(data.accessToken);
+      void storeRefreshToken(data.refreshToken);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
       queryClient.invalidateQueries({ queryKey: userKeys.all });
       navigate(consumeRedirectAfterLogin() ?? PATHS.HOME, { replace: true });
@@ -50,13 +55,14 @@ export const useLogout = () => {
           // 해제 실패 시 토큰을 보존
         }
       }
-      return postLogout();
+      return requestVoid(() => postLogout());
     },
     onMutate: () => {
       startLogout();
     },
     onSettled: () => {
       clearAccessToken();
+      void clearStoredRefreshToken();
       queryClient.removeQueries({ queryKey: authKeys.all });
       queryClient.removeQueries({ queryKey: userKeys.all });
       endLogout();
