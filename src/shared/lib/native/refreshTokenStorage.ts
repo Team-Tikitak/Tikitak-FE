@@ -8,13 +8,13 @@ const REFRESH_TOKEN_KEY = 'tikitak:refresh-token';
 const STORAGE_TIMEOUT_MS = 3000;
 
 // 네이티브 브리지가 응답하지 않아도 세션 복구·로그아웃이 멈추지 않도록 시간 제한을 둔다
-const withTimeout = <T>(promise: Promise<T>): Promise<T> =>
-  Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('secure storage timeout')), STORAGE_TIMEOUT_MS),
-    ),
-  ]);
+const withTimeout = <T>(promise: Promise<T>): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('secure storage timeout')), STORAGE_TIMEOUT_MS);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+};
 
 const loadSecureStorage = async () => {
   try {
