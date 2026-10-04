@@ -90,6 +90,15 @@ export const setupKeyboardInsets = async (platform: string): Promise<void> => {
   Keyboard.addListener('keyboardWillHide', onHide);
   Keyboard.addListener('keyboardDidHide', onHide);
 
+  // Android는 뒤로가기로 키보드만 내려도 입력창 포커스가 남아, 포커스를 키보드 표시로 보는 UI
+  // (키보드 중 숨김 처리되는 제출 버튼 등)가 복구되지 않는다. 키보드가 내려가면 포커스도 해제한다.
+  if (platform === 'android') {
+    Keyboard.addListener('keyboardDidHide', () => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && isEditableElement(active)) active.blur();
+    });
+  }
+
   window.visualViewport?.addEventListener('resize', syncFromViewport);
   window.visualViewport?.addEventListener('scroll', syncFromViewport);
   document.addEventListener('focusin', syncFromViewport);
