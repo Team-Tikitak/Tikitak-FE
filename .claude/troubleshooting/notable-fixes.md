@@ -24,6 +24,10 @@
   `git diff`로 "이 리팩터링은 로직을 안 바꿨다"를 먼저 증명하는 게 더 빠르고 확실하다.
 - **온보딩/약관처럼 멀티스텝 가입 플로우를 가로지르는 컨텍스트(예: 초대 토큰)는 `location.state`
   로 살아남지 않는다.** 진입점에서 `sessionStorage`에 핀하고 종료점에서 복귀한다.
+- **앱 전역에 마운트된 훅이 인증 없이 API를 쏘면, 비로그인 진입 때마다 401 → refresh 실패 →
+  강제 `location.replace`(전체 새로고침)로 화면이 깜빡이고 라우터 state(`fromSplash` 등)가
+  사라진다.** 스플래시처럼 토큰이 아직 없는 구간에서 도는 훅은 `enabled: Boolean(accessToken)`
+  으로 막고, 인터셉터의 강제 이동은 SPA 이동이 아니라는 점을 기억한다.
 
 ## 2. 히어로/공유요소 전환 (ssgoi)
 
@@ -74,6 +78,11 @@
   반드시 수행**해야 한다(안 하면 영구 false로 굳는 ref가 생길 수 있음).
 - **async submit 버튼은 항상 in-flight 플래그로 disabled 강제** — 안 그러면 빠른 연타로 중복
   실행된다.
+- **Android 네이티브 카메라 프리뷰가 흰 화면이면 웹뷰 배경 CSS 우선순위를 먼저 본다.** 프리뷰는
+  웹뷰 뒤에 그려지므로 `html`/`body`가 투명해야 한다. `html.cap-android body`(흰 배경)가
+  `body.native-camera-active`(투명)보다 specificity가 높아 body가 흰색으로 남아 있었다. 투명
+  규칙에 `html.cap-android.native-camera-active`까지 명시해 해결. UI는 정상으로 보이므로 CameraX
+  문제로 오해하기 쉽다.
 
 ## 4. 바텀시트 / 키보드 / 제스처
 
@@ -173,3 +182,9 @@
 - **App Store 심사는 정책 변경/리뷰어 재량 여지가 있어 한 번 통과했다고 영구 안전하지 않다.**
   UGC 신고/차단처럼 과거 거절 이력이 있는 항목은 `tasks/app-store-guideline-checklist.md`에서
   지속 재검토.
+- **Capacitor 플러그인 객체를 async 함수에서 그대로 반환·resolve하면 안 된다.** 플러그인 프록시는
+  `then`을 네이티브 메서드로 취급해, Promise 해석 중 `then()`이 호출되면 `"X.then()" is not
+implemented on ios` 오류가 나고 반환 Promise가 영원히 settle되지 않는다. 앱이 스플래시에서
+  멈추는 식으로 나타나며, `try/catch`나 개별 호출의 timeout으로는 못 잡는다. `{ plugin }`처럼
+  객체로 감싸 반환한다. 실제 기기 콘솔(Safari 원격 인스펙터, Xcode Run 디버그 빌드 필요 —
+  TestFlight는 검사 불가)에서 이 오류 문구로 바로 확인된다.
