@@ -129,6 +129,17 @@ OpenAPI 스펙 기반 자동 생성 도구. Tikitak 현재 규모(엔드포인�
 - 상태: accepted
 - 기록일: 2026-08
 
+> **구현 상태 (2026-10-04): 구현됨.** `src/shared/api/error.ts`에 `ApiError`(status, code, serverMessage)·
+> `NetworkError`·`toApiError`·`assertEnvelopeSuccess`를 두고, `instance`와 `publicInstance` 응답 인터셉터에
+> 연결했다. `request.ts`는 `requestResult`/`requestVoid`로 교체했고(`unwrap` 제거) `.data.data` 직접 접근 4곳도
+> 정리했다. `isAxiosError`로 에러를 해석하던 곳(`queryClient.ts`, `loaders/shared.ts`, `invitation/queries.ts`,
+> `useFeedDetail.ts`, `checkApiReachable`)은 `ApiError` 기준으로 바꿨다. 세부 동작:
+>
+> - envelope는 `success === false`일 때만 실패로 본다. `success` 필드가 없는 응답(예: 일부 refresh 응답)은 그대로 통과한다.
+> - `serverMessage`는 서버가 내려준 `message`일 때만 채워진다. 사용자 노출 문구는 `error-handling.md`의 FE 하드코딩 정책 그대로다.
+> - 401 재발급·로그아웃 판단은 원본 axios 오류로 먼저 끝내고, 최종 호출자에게 가는 오류만 정규화한다. refresh 실패의 세션 만료 판단(400/401/403)은 `ApiError.status`로 한다.
+> - 실기기·실서버 검증은 하지 않았고, 단위·인터셉터 통합 테스트(`instance.test.ts`, `error.test.ts`)와 빌드로만 확인했다.
+
 **결정**: `instance`의 성공 응답 인터셉터에서 envelope의 `success === false`를 실패로 전환하고,
 모든 API 실패를 `ApiError` 또는 `NetworkError`로 정규화한다. HTTP 상태가 2xx여도 `success: false`면
 성공으로 취급하지 않는다.
