@@ -16,19 +16,23 @@ const withTimeout = <T>(promise: Promise<T>): Promise<T> => {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 };
 
+// Capacitor 플러그인 프록시는 `then`을 네이티브 메서드로 취급한다. async 함수가 프록시를 그대로 반환하면
+// Promise 해석 과정에서 `then`이 호출돼 "then() is not implemented"로 반환 Promise가 영원히 settle되지 않으므로
+// 프록시를 객체로 감싸 반환한다.
 const loadSecureStorage = async () => {
   try {
     if (!Capacitor.isNativePlatform()) return null;
     const { SecureStorage } = await withTimeout(import('@aparajita/capacitor-secure-storage'));
-    return SecureStorage;
+    return { storage: SecureStorage };
   } catch {
     return null;
   }
 };
 
 export const storeRefreshToken = async (token: string): Promise<void> => {
-  const storage = await loadSecureStorage();
-  if (!storage) return;
+  const loaded = await loadSecureStorage();
+  if (!loaded) return;
+  const { storage } = loaded;
 
   try {
     await withTimeout(storage.set(REFRESH_TOKEN_KEY, token, false, false));
@@ -38,8 +42,9 @@ export const storeRefreshToken = async (token: string): Promise<void> => {
 };
 
 export const readStoredRefreshToken = async (): Promise<string | null> => {
-  const storage = await loadSecureStorage();
-  if (!storage) return null;
+  const loaded = await loadSecureStorage();
+  if (!loaded) return null;
+  const { storage } = loaded;
 
   try {
     const value = await withTimeout(storage.get(REFRESH_TOKEN_KEY, false, false));
@@ -50,8 +55,9 @@ export const readStoredRefreshToken = async (): Promise<string | null> => {
 };
 
 export const clearStoredRefreshToken = async (): Promise<void> => {
-  const storage = await loadSecureStorage();
-  if (!storage) return;
+  const loaded = await loadSecureStorage();
+  if (!loaded) return;
+  const { storage } = loaded;
 
   try {
     await withTimeout(storage.remove(REFRESH_TOKEN_KEY, false));
