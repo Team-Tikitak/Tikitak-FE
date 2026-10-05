@@ -110,19 +110,22 @@ TanStack Query 캐시를 localStorage에 일부 저장해 앱 콜드 스타트 �
 - **전역 `gcTime`을 24시간으로 상향** — 영속과 무관한 쿼리까지 메모리에 오래 남는다. 영속 대상 prefix에만 적용한다.
 - **복원된 `me`를 항상 신뢰** — 미완료 상태가 오래된 값이면 사용자를 잘못된 화면으로 보낸다.
 
-## 패키지 버전은 5.96.2 고정
+## TanStack 패키지 3종을 5.96.2로 함께 고정
 
 - 상태: accepted
 - 기록일: 2026-10-05
 
-**결정**: `@tanstack/react-query-persist-client`, `@tanstack/query-sync-storage-persister`를 `5.96.2`로 고정한다(`react-query`와 동일).
+**결정**: `@tanstack/react-query`, `@tanstack/react-query-persist-client`, `@tanstack/query-sync-storage-persister`를 모두 `5.96.2` 정확한 버전으로 고정한다.
 
 **근거**:
 
-- 최신(5.104.x)을 설치하면 `@tanstack/query-core`가 `react-query` 내부 버전과 둘로 갈라져 `QueryClient` 타입이 호환되지 않는다.
-- `react-query`를 올리면 앱 전체 데이터 레이어가 영향을 받아 이번 작업 범위를 넘는다.
+- 세 패키지의 `@tanstack/query-core` 버전이 다르면 core가 둘로 갈라져 `QueryClient`·`Query` 타입이 호환되지 않는다(`#private` 오류).
+- 처음에는 persist 두 개만 고정하고 `react-query`는 `^5.96.2`로 뒀다. 로컬(Yarn 4, lockfile 존중)에서는 문제가 없었지만 Vercel 빌드에서 실패했다. Vercel이 Yarn 1.22(classic)로 설치하면서 Yarn 4의 `yarn.lock`을 읽지 못하고 범위를 새로 해석해, `react-query`만 5.104.x로 올라갔기 때문이다.
+- 세 개 모두 정확한 버전이면 어떤 패키지 매니저로 설치해도 core가 하나로 맞는다. Yarn classic으로 재현해 확인했다.
 
-**후속**: `react-query`를 올릴 때 두 persist 패키지도 같은 버전으로 함께 올리고 고정을 `^`로 푼다. `yarn dedupe @tanstack/query-core`로 core가 하나인지 확인한다.
+**후속**: 올릴 때는 세 패키지를 같은 버전으로 함께 올린다. 설치 후 `@tanstack/query-core`가 하나인지 확인한다(`find node_modules -path '*@tanstack/query-core/package.json'`).
+
+**⚠️ 주의**: Vercel이 Yarn 4 lockfile을 무시하는 것은 이 작업과 무관한 기존 설정이다. 다른 의존성도 범위(`^`)대로 최신으로 해석되므로 로컬과 배포 결과가 어긋날 수 있다. 근본 해결은 Vercel에서 Corepack을 켜는 것(`ENABLE_EXPERIMENTAL_COREPACK=1`)이며, 별도로 결정한다.
 
 ## 미확인 사항
 
