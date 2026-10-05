@@ -58,6 +58,7 @@
 | `records/native-media.md`                | 네이티브 미디어(카메라/갤러리)                   |
 | `records/native-oauth.md`                | 네이티브 OAuth                                   |
 | `records/performance.md`                 | 성능 최적화 결정                                 |
+| `records/query-cache-persist.md`         | 쿼리 캐시 영속화 (콜드 스타트 개선)              |
 | `records/photo-aspect-ratio.md`          | 사진 비율 처리                                   |
 | `records/route-loaders.md`               | 라우트 loader 전략                               |
 | `records/swipe-back-navigation.md`       | 스와이프 백 네비게이션                           |

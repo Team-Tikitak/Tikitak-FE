@@ -74,3 +74,14 @@ export const someLoader = async ({ request }: LoaderFunctionArgs) => {
 loader 파일이 컴포넌트 함께 export하면 `react-refresh/only-export-components` 경고. HMR 성능 영향. **loader 전용 파일은 컴포넌트 export 금지**, 인스턴스(`queryClient` 등)도 별도 파일로 분리.
 
 예: `queryClient.ts` 분리 (QueryProviders.tsx에서 export하면 워닝).
+
+## 영속화 대상 쿼리는 ensureQueryData + revalidateIfStale (2026-10)
+
+- 상태: accepted
+- 기록일: 2026-10-05
+
+**문제**: 위 "Loader 작성 패턴"의 `fetchQuery`는 `staleTime`이 지난 캐시를 다시 요청하며 기다린다. 쿼리 캐시를 영속화해도(`query-cache-persist.md`) 콜드 스타트에서 복원된 캐시는 대부분 stale이라 `setupFlowLoader`가 여전히 `/me`를 기다렸다.
+
+**해결**: 영속화 대상을 읽는 loader(`ensureMe`, `setupFlowLoader`의 agreements)는 `ensureQueryData` + `revalidateIfStale: true`로 캐시를 즉시 쓰고 stale이면 백그라운드에서 갱신한다. 약관·온보딩이 미완료로 보이면 `fetchQuery`로 최신 값을 다시 받아 판단한다. 정확한 값이 필요한 `inviteAcceptLoader`는 `fetchQuery`를 유지한다.
+
+**⚠️ 주의**: 이 방식은 stale 캐시로 redirect를 판단할 수 있다. 판단에 쓰는 값이 한번 바뀌면 되돌아가지 않는 값(약관·온보딩 완료)인지 확인하고, "완료"일 때만 캐시를 신뢰하는 패턴을 따른다.
