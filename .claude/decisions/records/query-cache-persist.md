@@ -56,21 +56,34 @@ TanStack Query 캐시를 localStorage에 일부 저장해 앱 콜드 스타트 �
 
 **⚠️ 주의**: `me.activeTeamId`는 다른 기기에서 바뀌었을 수 있다. 피드 loader(`ensureActiveTeamId`)가 한 번은 이전 팀으로 동작할 수 있고, 백그라운드 갱신이 캐시를 고쳐도 그 loader 결과는 되돌리지 않는다. 앱 내 팀 전환은 `setQueryData`로 캐시를 갱신하므로 영향이 없고, 다른 기기에서 전환한 경우에만 해당해 허용했다.
 
-## 계정이 바뀔 수 있는 모든 지점에서 영속 캐시를 비움
+## 세션이 시작·끝나는 모든 지점에서 영속 캐시를 비움
 
 - 상태: accepted
 - 기록일: 2026-10-05
 
-**결정**: 로그아웃(`useLogout`), 탈퇴(`useDeleteMe`), 로그인 성공(`useLoginCodeExchange`), 세션 만료(`instance.ts` refresh 실패 분기)에서 `clearPersistedQueryCache`를 호출한다. 앞의 세 곳은 `queryClient`를 넘겨 영속 대상을 메모리에서도 지운다.
+**결정**: 아래 지점에서 `clearPersistedQueryCache`를 호출한다. `queryClient`를 넘길 수 있는 곳은 영속 대상을 메모리에서도 지운다.
+
+| 지점                                                                 | 이유                                                     |
+| -------------------------------------------------------------------- | -------------------------------------------------------- |
+| 로그아웃 `useLogout`, 탈퇴 `useDeleteMe`                             | 세션 종료                                                |
+| 세션 만료 `instance.ts` refresh 실패 분기                            | 세션 종료 (React 밖이라 저장소만 삭제, 이후 전체 리로드) |
+| 로그인 코드 교환 `useLoginCodeExchange`                              | 새 세션 시작                                             |
+| OAuth 콜백 `authCallbackLoader`                                      | 새 세션 시작                                             |
+| 세션 복구 4xx 실패 `ensureAuthenticatedForLoader`, `setupFlowLoader` | 세션 없음 → 남은 캐시는 이전 계정 것                     |
+
+**불변식**: 세션이 시작되는 경로는 `setAccessToken` 호출처(코드 교환, OAuth 콜백, refresh)뿐이고, 새 로그인 두 곳은 시작 전에 비운다. refresh는 같은 계정의 복구다. 그래서 다른 계정의 세션이 이전 계정의 영속 캐시를 읽을 수 없다. 새 로그인 경로를 추가하면 반드시 비우기를 같이 넣는다(테스트: `loaderCacheClear.test.ts`).
 
 **근거**:
 
 - `me`에 이름·이메일이 들어 있어 다음 계정에 이전 사용자 데이터가 복원되면 안 된다.
+- 로그아웃 경로 하나만 믿으면 앱 강제 종료, 세션 만료 후 재로그인, OAuth 콜백 같은 경로가 구멍이 된다. 세션이 "끝나는" 지점과 "시작되는" 지점을 둘 다 막아 한쪽이 실패해도 다른 쪽이 막는다.
 - persister는 1초 throttle이고 발화 시점에 마지막 이벤트의 스냅샷을 쓴다. 저장소만 `removeClient()`하면 대기 중인 쓰기나 메모리에 남은 영속 대상 쿼리가 곧바로 다시 기록한다. 메모리를 먼저 지우면 이후 스냅샷에 영속 대상이 없어 이 경합이 사라진다(테스트로 고정).
-- 로그인 성공 시에도 비우는 이유는 `ensureMe`가 stale 캐시를 반환하므로, 같은 페이지 세션에서 계정을 바꿔 로그인하면 이전 계정의 `me`가 loader에 쓰이기 때문이다.
-- 세션 만료 분기는 React 밖이라 `queryClient`가 없다. 저장소만 지우고, 이후 `window.location.replace`로 전체 리로드되어 메모리 캐시는 버려진다.
+- 5xx·네트워크 오류로 세션 복구가 실패한 경우는 비우지 않는다. 일시 장애로 캐시를 잃으면 영속화 이득이 사라진다.
 
-**⚠️ 주의**: 토큰은 캐시에 없고 네이티브 보안 저장소(`refreshTokenStorage`)에 따로 있다. 다만 `me`를 영속화하면 PII(이름·이메일)가 localStorage에 남는다. 원치 않으면 allowlist에서 `userKeys.me()`만 빼면 되지만 콜드 스타트 효과가 줄어든다.
+**⚠️ 주의**:
+
+- 토큰은 캐시에 없고 네이티브 보안 저장소(`refreshTokenStorage`)에 따로 있다. 다만 `me`를 영속화하면 PII(이름·이메일)가 localStorage에 남는다. 원치 않으면 allowlist에서 `userKeys.me()`만 빼면 되지만 콜드 스타트 효과가 줄어든다.
+- 같은 오리진의 브라우저 탭이 둘 이상인 웹(PWA)에서는 한 탭이 로그아웃해도 다른 탭의 메모리 캐시가 저장소에 다시 쓸 수 있다. 네이티브 앱은 WebView 하나라 해당 없고, 웹은 별도로 확인하지 않았다.
 
 ## buster는 빌드 ID
 
