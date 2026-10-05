@@ -18,6 +18,8 @@ export const ensureMe = () =>
     queryKey: userKeys.me(),
     queryFn: () => requestResult(() => getMe()),
     staleTime: 5 * 60 * 1000,
+    // 복원된 캐시를 즉시 쓰고, stale이면 백그라운드에서 갱신
+    revalidateIfStale: true,
   });
 
 export const ensureSessionAccessToken = () =>

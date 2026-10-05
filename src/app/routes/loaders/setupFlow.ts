@@ -8,7 +8,7 @@ import { getAgreements, getMe, getTeams } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
 import { safeSessionRemove, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 import { PATHS } from '../paths';
-import { ensureSessionAccessToken, getHttpStatus } from './shared';
+import { ensureMe, ensureSessionAccessToken, getHttpStatus } from './shared';
 
 export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
 
@@ -82,17 +82,36 @@ export const setupFlowLoader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  const [me, agreements] = await Promise.all([
-    queryClient.fetchQuery({
-      queryKey: userKeys.me(),
-      queryFn: () => requestResult(() => getMe()),
-    }),
-    queryClient.fetchQuery({
-      queryKey: userKeys.agreements(),
-      queryFn: () => requestResult(() => getAgreements()),
-      staleTime: 5 * 60 * 1000,
-    }),
-  ]);
+  // 복원된 캐시가 있으면 기다리지 않고 쓰고, stale이면 백그라운드에서 갱신(revalidateIfStale)
+  const loadCached = () =>
+    Promise.all([
+      ensureMe(),
+      queryClient.ensureQueryData({
+        queryKey: userKeys.agreements(),
+        queryFn: () => requestResult(() => getAgreements()),
+        staleTime: 5 * 60 * 1000,
+        revalidateIfStale: true,
+      }),
+    ]);
+  const loadFresh = () =>
+    Promise.all([
+      queryClient.fetchQuery({
+        queryKey: userKeys.me(),
+        queryFn: () => requestResult(() => getMe()),
+      }),
+      queryClient.fetchQuery({
+        queryKey: userKeys.agreements(),
+        queryFn: () => requestResult(() => getAgreements()),
+        staleTime: 5 * 60 * 1000,
+      }),
+    ]);
+
+  // 약관·온보딩 완료는 되돌아가지 않으므로 "완료" 상태일 때만 복원된 값을 믿는다.
+  // 미완료면 이전 값일 수 있어 기존처럼 최신 값으로 다시 판단한다.
+  let [me, agreements] = await loadCached();
+  if (!agreements.termsAgreed || !agreements.privacyAgreed || !me.onboardingCompleted) {
+    [me, agreements] = await loadFresh();
+  }
 
   const hasAgreedAll = agreements.termsAgreed && agreements.privacyAgreed;
   const url = new URL(request.url);
