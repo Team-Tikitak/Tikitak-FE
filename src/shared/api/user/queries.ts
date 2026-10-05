@@ -14,6 +14,7 @@ import {
 import { userKeys } from './keys';
 import { authKeys } from '../auth/keys';
 import { clearAccessToken } from '../instance';
+import { clearPersistedQueryCache } from '../queryCachePersist';
 import { requestResult, requestVoid } from '../request';
 import type { AgreementsResponse, MeResponse, OnboardingPatchRequest, Team } from './types';
 
@@ -94,6 +95,7 @@ export const useDeleteMe = () => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: userKeys.all });
       queryClient.removeQueries({ queryKey: authKeys.all });
+      clearPersistedQueryCache(queryClient);
       clearAccessToken();
       void clearStoredRefreshToken();
       navigate(PATHS.LOGIN, { replace: true });
