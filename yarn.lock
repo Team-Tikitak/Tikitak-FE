@@ -3989,7 +3989,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.96.2":
+"@tanstack/react-query@npm:5.96.2":
   version: 5.96.2
   resolution: "@tanstack/react-query@npm:5.96.2"
   dependencies:
@@ -4914,7 +4914,7 @@ __metadata:
     "@tailwindcss/vite": "npm:^4.2.2"
     "@tanstack/eslint-plugin-query": "npm:^5.101.2"
     "@tanstack/query-sync-storage-persister": "npm:5.96.2"
-    "@tanstack/react-query": "npm:^5.96.2"
+    "@tanstack/react-query": "npm:5.96.2"
     "@tanstack/react-query-persist-client": "npm:5.96.2"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
