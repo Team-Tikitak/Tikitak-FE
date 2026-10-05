@@ -14,6 +14,12 @@ import { userKeys } from './user/keys';
 
 const STORAGE_KEY = 'tikitak-query-cache';
 
+// 구독을 해제하지 않으면 이전 테스트 클라이언트의 gc 이벤트가 전역 throttle을 다시 예약해 다음 테스트를 오염시킨다
+const stopPersisting: Array<() => void> = [];
+const startPersist = (queryClient: QueryClient) => {
+  stopPersisting.push(startQueryCachePersist(queryClient));
+};
+
 const readPersistedKeys = () => {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
@@ -43,11 +49,15 @@ describe('영속 캐시 저장·복원·삭제', () => {
     localStorage.clear();
     vi.useFakeTimers();
   });
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    stopPersisting.splice(0).forEach((stop) => stop());
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
 
   it('영속 대상만 저장한다', () => {
     const queryClient = new QueryClient();
-    startQueryCachePersist(queryClient);
+    startPersist(queryClient);
     queryClient.setQueryData(userKeys.me(), { memberId: 1 });
     queryClient.setQueryData(authKeys.session(), 'token');
     queryClient.setQueryData(teamKeys.detail(1), { teamId: 1 });
@@ -58,7 +68,7 @@ describe('영속 캐시 저장·복원·삭제', () => {
 
   it('저장된 캐시를 새 QueryClient로 복원한다', async () => {
     const first = new QueryClient();
-    startQueryCachePersist(first);
+    startPersist(first);
     first.setQueryData(userKeys.me(), { memberId: 1 });
     vi.advanceTimersByTime(1000);
 
@@ -103,7 +113,7 @@ describe('영속 캐시 저장·복원·삭제', () => {
 
   it('복원된 쿼리는 관찰자가 없어도 gcTime(기본 10분) 뒤 사라지지 않는다', async () => {
     const first = new QueryClient();
-    startQueryCachePersist(first);
+    startPersist(first);
     first.setQueryData(userKeys.agreements(), { termsAgreed: true });
     vi.advanceTimersByTime(1000);
 
@@ -116,7 +126,7 @@ describe('영속 캐시 저장·복원·삭제', () => {
 
   it('clear 후 대기 중인 throttle 쓰기가 이전 데이터를 다시 쓰지 않는다', () => {
     const queryClient = new QueryClient();
-    startQueryCachePersist(queryClient);
+    startPersist(queryClient);
     queryClient.setQueryData(userKeys.me(), { memberId: 1 });
     queryClient.setQueryData(homeKeys.regions(1), []);
     vi.advanceTimersByTime(1000);
