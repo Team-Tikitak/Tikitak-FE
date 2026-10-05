@@ -3,6 +3,7 @@ import { queryClient } from '@/app/providers/queryClient';
 import { authKeys } from '@/shared/api/auth/keys';
 import { ApiError } from '@/shared/api/error';
 import { getAccessToken, refreshAccessToken } from '@/shared/api/instance';
+import { clearPersistedQueryCache } from '@/shared/api/queryCachePersist';
 import { requestResult } from '@/shared/api/request';
 import { getMe } from '@/shared/api/user/api';
 import { userKeys } from '@/shared/api/user/keys';
@@ -40,6 +41,8 @@ export const ensureAuthenticatedForLoader = async () => {
   } catch (error) {
     const status = getHttpStatus(error);
     if (status !== undefined && status >= 400 && status < 500) {
+      // 세션이 없으면 남은 영속 캐시는 이전 계정 것이므로 비운다
+      clearPersistedQueryCache(queryClient);
       throw redirect(PATHS.LOGIN);
     }
     throw error;
