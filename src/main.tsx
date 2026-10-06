@@ -8,6 +8,8 @@ import { checkRequiredAppUpdate, showRequiredAppUpdateDialog } from './app/lib/a
 import { clearLegacyPwaRuntimeCaches } from './app/lib/clearLegacyPwaCaches';
 import { initNativeBridge } from './app/lib/initNativeBridge';
 import { prefetchTabRoutes } from './app/lib/prefetchRoutes';
+import { queryClient } from './app/providers/queryClient';
+import { restoreQueryCache, startQueryCachePersist } from './shared/api/queryCachePersist';
 
 void initNativeBridge();
 
@@ -48,6 +50,10 @@ const bootstrap = async () => {
     await showRequiredAppUpdateDialog(requiredAppUpdate);
     return;
   }
+
+  // loader가 돌기 전에 캐시 복원을 끝내야 첫 진입에서 /me 등을 기다리지 않는다
+  await restoreQueryCache(queryClient);
+  startQueryCachePersist(queryClient);
 
   root.render(
     <StrictMode>

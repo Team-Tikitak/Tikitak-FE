@@ -38,6 +38,6 @@ React + Vite + Tailwind CSS 기반 모임 서비스 웹앱. Capacitor 웹뷰로 
 
 ### Boot Loader
 
-@.claude/manifest.md
+@.claude/README.md
 
-상세 rule, reference, skill 로딩 기준은 `.claude/manifest.md`에서 관리합니다.
+상세 rule, reference, skill 로딩 기준은 `.claude/README.md`에서 관리합니다.

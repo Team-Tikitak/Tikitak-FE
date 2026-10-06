@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => {
   const mediaCdnBaseUrl = env.VITE_MEDIA_CDN_BASE_URL;
 
   return {
+    // 영속 쿼리 캐시 buster: 빌드(=웹 배포)마다 달라져 구조가 바뀐 옛 캐시를 자동 폐기
+    define: { __BUILD_ID__: JSON.stringify(Date.now().toString(36)) },
     plugins: [
       react(),
       babel({ presets: [reactCompiler] }),

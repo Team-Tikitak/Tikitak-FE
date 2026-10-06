@@ -10,6 +10,7 @@ import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin'
 import { useAuthStore } from '../stores/authStore';
 import { AUTH_ENDPOINTS } from './auth/endpoints';
 import { ApiError, assertEnvelopeSuccess, toApiError } from './error';
+import { clearPersistedQueryCache } from './queryCachePersist';
 import type { ApiResponse } from './type';
 
 export const instance = axios.create({
@@ -182,6 +183,7 @@ instance.interceptors.response.use(assertEnvelopeSuccess, async (error) => {
       if (isSessionExpiredRefreshStatus(refreshStatus)) {
         clearAccessToken();
         await clearStoredRefreshToken();
+        clearPersistedQueryCache();
         await invalidateDeviceToken();
 
         if (window.location.pathname !== PATHS.LOGIN) {

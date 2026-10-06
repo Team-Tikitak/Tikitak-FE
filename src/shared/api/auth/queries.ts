@@ -16,6 +16,7 @@ import { postLoginCodeExchange, postLogout } from './api';
 import { authKeys, LOGIN_CODE_EXCHANGE_MUTATION_KEY } from './keys';
 import { sessionQueryOptions } from './sessionQuery';
 import { deleteDeviceToken } from '../notification/api';
+import { clearPersistedQueryCache } from '../queryCachePersist';
 import { requestResult, requestVoid } from '../request';
 import { userKeys } from '../user/keys';
 
@@ -32,6 +33,8 @@ export const useLoginCodeExchange = () => {
     onSuccess: (data) => {
       setAccessToken(data.accessToken);
       void storeRefreshToken(data.refreshToken);
+      // 이전 계정의 me·홈 캐시가 loader에 쓰이지 않도록 비운다
+      clearPersistedQueryCache(queryClient);
       queryClient.invalidateQueries({ queryKey: authKeys.all });
       queryClient.invalidateQueries({ queryKey: userKeys.all });
       navigate(consumeRedirectAfterLogin() ?? PATHS.HOME, { replace: true });
@@ -66,6 +69,7 @@ export const useLogout = () => {
       clearAccessToken();
       queryClient.removeQueries({ queryKey: authKeys.all });
       queryClient.removeQueries({ queryKey: userKeys.all });
+      clearPersistedQueryCache(queryClient);
       endLogout();
       navigate(PATHS.LOGIN, { replace: true });
     },
