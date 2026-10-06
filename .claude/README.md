@@ -1,11 +1,11 @@
-# Manifest — Claude Code Boot Sequence
+# README — Claude Code Boot Sequence
 
 이 문서는 Claude Code가 대화 시작 시 어떤 파일을 어떤 순서로 읽어야 하는지를 정의한다.
 
 ## 부트 순서
 
 1. `CLAUDE.md`에서 프로젝트 개요를 읽는다.
-2. 이 manifest를 읽는다.
+2. 이 문서(`.claude/README.md`)를 읽는다.
 3. 코드 변경 작업에서는 Tier 1 규칙을 로드한다.
 4. Tier 2, Tier 3 규칙과 도메인 reference는 작업에 필요한 경우에만 로드한다.
 
@@ -18,7 +18,7 @@
 | `.claude/rules/workflow.md`      | 기본 inspect-edit-verify 작업 흐름     |
 | `.claude/rules/verification.md`  | 검증 명령 선택 기준                    |
 
-Tier 1은 코드 변경, 리뷰, 리팩터링처럼 실제 작업이 시작될 때만 로드한다. 단순 질문이나 설명 요청에서는 `CLAUDE.md`와 이 manifest만으로 답한다.
+Tier 1은 코드 변경, 리뷰, 리팩터링처럼 실제 작업이 시작될 때만 로드한다. 단순 질문이나 설명 요청에서는 `CLAUDE.md`와 이 문서만으로 답한다.
 
 ## Tier 2: 필요 시 로드
 
