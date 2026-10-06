@@ -58,6 +58,9 @@ describe('setupFlowLoader의 복원 캐시 사용', () => {
     getAgreementsMock.mockReturnValue(new Promise(() => undefined));
 
     await expect(runLoader('/home')).resolves.toBeNull();
+    // 기다리지는 않지만 stale 캐시는 백그라운드에서 갱신한다
+    expect(getMeMock).toHaveBeenCalledTimes(1);
+    expect(getAgreementsMock).toHaveBeenCalledTimes(1);
   });
 
   it('온보딩 미완료로 복원된 캐시는 최신 값을 받아 다시 판단한다', async () => {
