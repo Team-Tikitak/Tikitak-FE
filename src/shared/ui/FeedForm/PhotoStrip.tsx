@@ -38,7 +38,10 @@ export const PhotoStrip = ({
       </span>
     </button>
     {items.map((item) => (
-      <div key={item.key} className="relative size-[112px] shrink-0 overflow-hidden rounded-lg">
+      <div
+        key={item.key}
+        className="animate-card-enter relative size-[112px] shrink-0 overflow-hidden rounded-lg motion-reduce:animate-none"
+      >
         <img src={item.src} alt="" className="no-native-image size-full object-cover" />
         <button
           type="button"

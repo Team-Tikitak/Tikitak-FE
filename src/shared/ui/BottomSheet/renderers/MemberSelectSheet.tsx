@@ -66,7 +66,7 @@ export function MemberSelectSheet({
             <button
               key={member.id}
               type="button"
-              className={cn('h-fit shrink-0', !locked && 'disabled:opacity-40')}
+              className={cn('press-feedback h-fit shrink-0', !locked && 'disabled:opacity-40')}
               aria-pressed={selected}
               disabled={disabled}
               onClick={() => toggle(member.id)}

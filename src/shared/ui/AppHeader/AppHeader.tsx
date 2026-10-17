@@ -35,7 +35,7 @@ export const AppHeader = ({
         <TikiTakLogo className="h-[29px] w-[76px]" />
         <button
           type="button"
-          className="body-9 flex items-center gap-1 text-black"
+          className="body-9 press-feedback flex items-center gap-1 text-black"
           onClick={onTeamSelect}
           disabled={teamNameLoading}
         >
@@ -53,7 +53,7 @@ export const AppHeader = ({
         type="button"
         onClick={onBellClick}
         aria-label={showNotificationDot ? '알림 (읽지 않은 알림 있음)' : '알림'}
-        className="relative flex size-6 items-center justify-center text-black"
+        className="press-feedback relative flex size-6 items-center justify-center text-black"
       >
         <BellIcon />
         {showNotificationDot && (
