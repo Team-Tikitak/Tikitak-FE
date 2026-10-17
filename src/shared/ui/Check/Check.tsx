@@ -12,7 +12,7 @@ export function Check({ checked = false, className, ref, ...props }: CheckProps)
       ref={ref}
       aria-hidden="true"
       className={cn(
-        'inline-flex size-6 items-center justify-center',
+        'inline-flex size-6 items-center justify-center transition-colors duration-150 motion-reduce:transition-none',
         checked ? 'text-main-001' : 'text-gray-400',
         className,
       )}

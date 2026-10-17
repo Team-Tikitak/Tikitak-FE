@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
 export const userChipVariants = tv({
-  base: 'inline-flex items-center overflow-hidden rounded-max border py-[6px] pr-3',
+  base: 'inline-flex items-center overflow-hidden rounded-max border py-[6px] pr-3 transition-colors duration-150 motion-reduce:transition-none',
   variants: {
     size: {
       md: 'gap-2 pl-[10px]',

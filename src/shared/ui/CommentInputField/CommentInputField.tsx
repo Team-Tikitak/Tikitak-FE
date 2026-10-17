@@ -126,7 +126,7 @@ export const CommentInputField = (props: CommentInputFieldProps) => {
           }}
           className={cn(
             'rounded-max bg-main-001 flex size-10 shrink-0 items-center justify-center text-white',
-            'active:bg-main-002 transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+            'press-feedback active:bg-main-002 disabled:cursor-not-allowed disabled:opacity-50',
             submitButtonClassName,
           )}
           {...restSubmitButtonProps}

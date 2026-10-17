@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import CameraIcon from '@/shared/assets/Icon/CameraIcon.svg?react';
 import CloseIcon from '@/shared/assets/Icon/CloseIcon2.svg?react';
+import { cn } from '@/shared/lib';
 
 export interface PhotoStripItem {
   key: string;
@@ -24,39 +26,50 @@ export const PhotoStrip = ({
   canAddMore,
   onAddPhoto,
   pendingCount = 0,
-}: PhotoStripProps) => (
-  <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
-    <button
-      type="button"
-      onClick={onAddPhoto}
-      disabled={!canAddMore}
-      className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900 disabled:opacity-50"
-    >
-      <CameraIcon className="size-6" aria-hidden="true" />
-      <span className="button-6 text-gray-900">
-        {count}/{maxPhotoCount}
-      </span>
-    </button>
-    {items.map((item) => (
-      <div key={item.key} className="relative size-[112px] shrink-0 overflow-hidden rounded-lg">
-        <img src={item.src} alt="" className="no-native-image size-full object-cover" />
-        <button
-          type="button"
-          aria-label="사진 제거"
-          onClick={item.onRemove}
-          className="press-feedback absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-black/80 text-white"
+}: PhotoStripProps) => {
+  // 마운트 시점에 이미 있던 사진은 애니메이션 제외 (이후 추가분만 페이드인)
+  const [initialKeys] = useState(() => new Set(items.map((item) => item.key)));
+
+  return (
+    <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5">
+      <button
+        type="button"
+        onClick={onAddPhoto}
+        disabled={!canAddMore}
+        className="press-feedback flex size-[112px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-300 text-gray-900 disabled:opacity-50"
+      >
+        <CameraIcon className="size-6" aria-hidden="true" />
+        <span className="button-6 text-gray-900">
+          {count}/{maxPhotoCount}
+        </span>
+      </button>
+      {items.map((item) => (
+        <div
+          key={item.key}
+          className={cn(
+            'relative size-[112px] shrink-0 overflow-hidden rounded-lg',
+            !initialKeys.has(item.key) && 'animate-card-enter motion-reduce:animate-none',
+          )}
         >
-          <CloseIcon className="size-2.5" />
-        </button>
-      </div>
-    ))}
-    {Array.from({ length: pendingCount }, (_, index) => (
-      <div
-        key={`pending-${index}`}
-        role="status"
-        aria-label="사진 처리 중"
-        className="size-[112px] shrink-0 animate-pulse rounded-lg bg-gray-200"
-      />
-    ))}
-  </div>
-);
+          <img src={item.src} alt="" className="no-native-image size-full object-cover" />
+          <button
+            type="button"
+            aria-label="사진 제거"
+            onClick={item.onRemove}
+            className="press-feedback absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-black/80 text-white"
+          >
+            <CloseIcon className="size-2.5" />
+          </button>
+        </div>
+      ))}
+      {Array.from({ length: pendingCount }, (_, index) => (
+        <div
+          key={`pending-${index}`}
+          role="status"
+          aria-label="사진 처리 중"
+          className="size-[112px] shrink-0 animate-pulse rounded-lg bg-gray-200"
+        />
+      ))}
+    </div>
+  );
+};

@@ -38,6 +38,14 @@
   &:active {
     transform: scale(0.97);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:active {
+      transform: none;
+    }
+  }
 }
 
 @utility no-native-image {
