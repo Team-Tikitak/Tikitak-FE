@@ -45,7 +45,7 @@ test.describe('마이페이지 팀 카드', () => {
             const duration = Number(effect.getTiming().duration);
             return (
               duration >= 500 &&
-              duration <= 600 &&
+              duration <= 501 &&
               effect.getKeyframes().some((frame) => String(frame.transform).includes('translate3d'))
             );
           }),

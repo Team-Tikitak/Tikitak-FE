@@ -49,7 +49,12 @@ test.describe('바텀 네비게이션', () => {
         page.locator('[data-ssgoi-transition="/feed"]').evaluate((element) =>
           element.getAnimations().some((animation) => {
             const effect = animation.effect as KeyframeEffect;
-            return effect.getKeyframes().some((frame) => frame.opacity !== undefined);
+            const duration = Number(effect.getTiming().duration);
+            return (
+              duration >= 80 &&
+              duration <= 85 &&
+              effect.getKeyframes().some((frame) => frame.opacity !== undefined)
+            );
           }),
         ),
       )

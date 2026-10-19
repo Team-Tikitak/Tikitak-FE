@@ -7,6 +7,8 @@ import type { PropsWithChildren } from 'react';
 
 const TAB_FADE_DURATION_MS = 80;
 const SLIDE_DURATION_MS = 500;
+// WebAnimation samples at 60 Hz and adds two settled frames after reaching the target.
+const SETTLE_OVERHEAD_MS = (2 * 1000) / 60;
 const tabPaths = [PATHS.HOME, PATHS.FEED, PATHS.ACTIVITY, PATHS.MY_PAGE];
 
 const timedTransition = (duration: number, direction?: number) => ({
@@ -20,10 +22,11 @@ const timedTransition = (duration: number, direction?: number) => ({
         position:
           position +
           Math.sign(target - position) *
-            Math.min(Math.abs(target - position), (dt * 1000) / duration),
+            Math.min(Math.abs(target - position), (dt * 1000) / (duration - SETTLE_OVERHEAD_MS)),
         velocity: 0,
       }),
-      isSettled: ({ position }: { position: number }, target: number) => position === target,
+      isSettled: ({ position }: { position: number }, target: number) =>
+        Math.abs(position - target) < 1e-9,
     });
     outgoing.inert = true;
     incoming.inert = false;
