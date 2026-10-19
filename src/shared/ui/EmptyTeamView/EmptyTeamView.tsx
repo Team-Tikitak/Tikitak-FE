@@ -8,7 +8,10 @@ interface EmptyTeamViewProps {
 export const EmptyTeamView = ({ onCreateTeam }: EmptyTeamViewProps) => {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-5">
-      <TakLeader className="h-[150px] w-[165px]" aria-hidden="true" />
+      <TakLeader
+        className="h-[150px] w-[165px] motion-safe:animate-[empty-character_600ms_ease-out]"
+        aria-hidden="true"
+      />
       <div className="mt-8 flex flex-col items-center gap-2">
         <p className="body-2 text-black">아직 참여한 팀이 없어요.</p>
         <p className="body-2 whitespace-nowrap text-black">

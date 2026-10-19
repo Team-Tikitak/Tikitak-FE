@@ -2,7 +2,7 @@ import TakBurner from '@/shared/assets/Character/TakBurner.svg?react';
 
 export const EmptyFeedView = () => (
   <div className="flex w-[232px] flex-col items-center gap-[7px]">
-    <div className="flex size-[168px] items-center justify-center">
+    <div className="flex size-[168px] items-center justify-center motion-safe:animate-[empty-character_600ms_ease-out]">
       <TakBurner className="w-[112px]" aria-hidden="true" />
     </div>
     <p className="text-center text-[16px] leading-normal font-semibold tracking-[0.064px] text-gray-700">
