@@ -1,13 +1,19 @@
+import { type ComponentPropsWithRef } from 'react';
 import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
+import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
-interface EmptyTeamViewProps {
+interface EmptyTeamViewProps extends ComponentPropsWithRef<'div'> {
   onCreateTeam: () => void;
 }
 
-export const EmptyTeamView = ({ onCreateTeam }: EmptyTeamViewProps) => {
+export const EmptyTeamView = ({ onCreateTeam, className, ref, ...props }: EmptyTeamViewProps) => {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-5">
+    <div
+      ref={ref}
+      className={cn('flex flex-1 flex-col items-center justify-center px-5', className)}
+      {...props}
+    >
       <TakLeader
         className="h-[150px] w-[165px] motion-safe:animate-[empty-character_600ms_ease-out]"
         aria-hidden="true"
