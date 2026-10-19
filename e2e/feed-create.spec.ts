@@ -62,13 +62,9 @@ test.describe('피드 작성', () => {
           feedback.boundingBox(),
           toolbar.boundingBox(),
         ]);
-        return toastBox && toolbarBox ? toastBox.y - (toolbarBox.y + toolbarBox.height) : -1;
+        const gap = toastBox && toolbarBox ? toastBox.y - (toolbarBox.y + toolbarBox.height) : -1;
+        return gap >= 8 && gap <= 12;
       })
-      .toBeGreaterThanOrEqual(8);
-    const [toastBox, toolbarBox] = await Promise.all([
-      feedback.boundingBox(),
-      toolbar.boundingBox(),
-    ]);
-    expect(toastBox!.y - (toolbarBox!.y + toolbarBox!.height)).toBeLessThanOrEqual(12);
+      .toBe(true);
   });
 });
