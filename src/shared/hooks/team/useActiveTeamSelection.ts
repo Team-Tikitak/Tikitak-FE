@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/queries';
+import { showToast } from '@/shared/ui/Toast/showToast';
 import { useTeamPickerSheet } from './useTeamPickerSheet';
 
 export const useActiveTeamSelection = () => {
@@ -39,7 +40,9 @@ export const useActiveTeamSelection = () => {
     selectedTeamId: activeTeam?.teamId,
     onSelectTeam: (teamId) => {
       setSelectedTeamId(teamId);
-      patchActiveTeam(teamId);
+      patchActiveTeam(teamId, {
+        onSuccess: () => showToast('팀을 변경했어요'),
+      });
     },
     onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
   });

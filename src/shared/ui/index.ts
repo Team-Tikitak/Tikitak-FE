@@ -38,4 +38,5 @@ export * from './Radio';
 export * from './Skeleton';
 export * from './StoredHero';
 export * from './Switch';
+export * from './Toast';
 export * from './UserChip';

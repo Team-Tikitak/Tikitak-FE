@@ -37,8 +37,10 @@ test.describe('피드 작성', () => {
   });
 
   test('사진을 추가하고 공유하면 목록으로 돌아간다', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/feed');
-    await page.goto('/feed/new');
+    await page.getByRole('button', { name: '추가' }).click();
+    await page.waitForURL(/\/feed\/new$/);
 
     await page.locator('input[type="file"]').setInputFiles({
       name: 'photo.jpg',
@@ -51,5 +53,22 @@ test.describe('피드 작성', () => {
     await shareButton.click();
 
     await page.waitForURL(/\/feed$/, { timeout: 10_000 });
+    const feedback = page.getByRole('status').filter({ hasText: '피드를 올렸어요' });
+    await expect(feedback).toBeVisible();
+    const toolbar = page.getByText(/총 .*개의 기록/).locator('..');
+    await expect
+      .poll(async () => {
+        const [toastBox, toolbarBox] = await Promise.all([
+          feedback.boundingBox(),
+          toolbar.boundingBox(),
+        ]);
+        return toastBox && toolbarBox ? toastBox.y - (toolbarBox.y + toolbarBox.height) : -1;
+      })
+      .toBeGreaterThanOrEqual(8);
+    const [toastBox, toolbarBox] = await Promise.all([
+      feedback.boundingBox(),
+      toolbar.boundingBox(),
+    ]);
+    expect(toastBox!.y - (toolbarBox!.y + toolbarBox!.height)).toBeLessThanOrEqual(12);
   });
 });
