@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTeamInvite } from './useTeamInvite';
 
@@ -41,15 +41,19 @@ describe('useTeamInvite', () => {
   it('handleCopy 는 inviteUrl 로 clipboard.writeText 를 호출한다', async () => {
     const { result } = renderHook(() => useTeamInvite());
 
-    await result.current.handleCopy();
+    await act(async () => result.current.handleCopy());
 
     expect(writeText).toHaveBeenCalledWith(result.current.inviteUrl);
+    expect(result.current.copyStatus).toBe('success');
   });
 
   it('writeText 가 실패해도 에러를 throw 하지 않는다', async () => {
     writeText.mockRejectedValueOnce(new Error('denied'));
     const { result } = renderHook(() => useTeamInvite());
 
-    await expect(result.current.handleCopy()).resolves.toBeUndefined();
+    await act(async () => {
+      await expect(result.current.handleCopy()).resolves.toBeUndefined();
+    });
+    expect(result.current.copyStatus).toBe('error');
   });
 });
