@@ -6,6 +6,7 @@ import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import type { TeamMember } from '@/shared/api/team/types';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
+import { showToast } from '@/shared/ui/Toast/showToast';
 
 interface UseFeedShareParams {
   teamId: number | null;
@@ -48,6 +49,7 @@ export const useFeedShare = ({
         throw error;
       }
       navigate(-1);
+      showToast('피드를 올렸어요');
     });
   };
 

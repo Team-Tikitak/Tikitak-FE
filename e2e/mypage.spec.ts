@@ -25,6 +25,35 @@ const makeTeam = (overrides: Record<string, unknown> = {}) => ({
 });
 
 test.describe('마이페이지 팀 카드', () => {
+  test('팀 상세로 이동할 때 500ms 슬라이드가 재생된다', async ({ page }) => {
+    await mockApi(page, {
+      me: { hasTeam: true, activeTeamId: 100 },
+      teams: [makeTeam()],
+    });
+    await page.route(/\/api\/v1\/teams\/100\/members$/, async (route) =>
+      route.fulfill(json(wrap({ members: makeMembers(3) }))),
+    );
+
+    await page.goto('/mypage');
+    await page.getByText('티키탁 전시회').click();
+    await expect(page).toHaveURL(/\/teams\/100$/);
+    await expect
+      .poll(() =>
+        page.locator('[data-ssgoi-transition="/teams/:teamId"]').evaluate((element) =>
+          element.getAnimations().some((animation) => {
+            const effect = animation.effect as KeyframeEffect;
+            const duration = Number(effect.getTiming().duration);
+            return (
+              duration >= 500 &&
+              duration <= 501 &&
+              effect.getKeyframes().some((frame) => String(frame.transform).includes('translate3d'))
+            );
+          }),
+        ),
+      )
+      .toBe(true);
+  });
+
   test('멤버가 많으면 아바타 일부와 초과 인원 +N 칩이 표시된다', async ({ page }) => {
     await mockApi(page, {
       me: { hasTeam: true, activeTeamId: 100 },

@@ -3,7 +3,7 @@ import TakLeader from '@/shared/assets/Character/TakLeader.svg?react';
 export const EmptyActiveView = () => {
   return (
     <div className="flex w-[232px] flex-col items-center gap-[7px]">
-      <div className="flex size-[168px] items-center justify-center">
+      <div className="flex size-[168px] items-center justify-center motion-safe:animate-[empty-character_600ms_ease-out]">
         <TakLeader className="w-[128px]" aria-hidden="true" />
       </div>
       <p className="text-center text-[16px] leading-normal font-semibold tracking-[0.064px] text-gray-700">

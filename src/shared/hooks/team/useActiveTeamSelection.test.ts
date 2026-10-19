@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MeResponse, Team } from '@/shared/api/user/types';
 import { useActiveTeamSelection } from './useActiveTeamSelection';
@@ -12,6 +12,8 @@ const { useMeMock, useGetTeamsMock, patchActiveTeamMock, useTeamPickerSheetMock,
     navigateMock: vi.fn(),
   }));
 
+const showToastMock = vi.hoisted(() => vi.fn());
+
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
 }));
@@ -22,6 +24,9 @@ vi.mock('@/shared/api/user/queries', () => ({
 }));
 vi.mock('./useTeamPickerSheet', () => ({
   useTeamPickerSheet: useTeamPickerSheetMock,
+}));
+vi.mock('@/shared/ui/Toast/showToast', () => ({
+  showToast: showToastMock,
 }));
 
 const makeTeam = (teamId: number): Team => ({ teamId, name: `팀${teamId}` }) as unknown as Team;
@@ -57,6 +62,18 @@ describe('useActiveTeamSelection', () => {
     renderHook(() => useActiveTeamSelection());
 
     expect(patchActiveTeamMock).not.toHaveBeenCalled();
+  });
+
+  it('팀 변경 성공 후에만 완료 피드백을 표시한다', () => {
+    setMe(1);
+    setTeams([makeTeam(1), makeTeam(2)]);
+    renderHook(() => useActiveTeamSelection());
+
+    act(() => useTeamPickerSheetMock.mock.lastCall?.[0].onSelectTeam(2));
+    expect(showToastMock).not.toHaveBeenCalled();
+
+    act(() => patchActiveTeamMock.mock.lastCall?.[1].onSuccess());
+    expect(showToastMock).toHaveBeenCalledWith('팀을 변경했어요');
   });
 
   it('teams가 비어있으면 patch하지 않는다', () => {

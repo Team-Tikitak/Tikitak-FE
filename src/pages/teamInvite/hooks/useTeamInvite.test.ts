@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTeamInvite } from './useTeamInvite';
 
@@ -25,6 +25,7 @@ describe('useTeamInvite', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     Object.defineProperty(navigator, 'clipboard', {
       value: originalClipboard,
       configurable: true,
@@ -41,15 +42,35 @@ describe('useTeamInvite', () => {
   it('handleCopy 는 inviteUrl 로 clipboard.writeText 를 호출한다', async () => {
     const { result } = renderHook(() => useTeamInvite());
 
-    await result.current.handleCopy();
+    await act(async () => result.current.handleCopy());
 
     expect(writeText).toHaveBeenCalledWith(result.current.inviteUrl);
+    expect(result.current.copyStatus).toBe('success');
   });
 
   it('writeText 가 실패해도 에러를 throw 하지 않는다', async () => {
     writeText.mockRejectedValueOnce(new Error('denied'));
     const { result } = renderHook(() => useTeamInvite());
 
-    await expect(result.current.handleCopy()).resolves.toBeUndefined();
+    await act(async () => {
+      await expect(result.current.handleCopy()).resolves.toBeUndefined();
+    });
+    expect(result.current.copyStatus).toBe('error');
   });
+
+  it.each(['success', 'error'] as const)(
+    '연속 복사 %s 시 피드백을 2초 더 유지한다',
+    async (status) => {
+      vi.useFakeTimers();
+      if (status === 'error') writeText.mockRejectedValue(new Error('denied'));
+      const { result } = renderHook(() => useTeamInvite());
+      await act(async () => result.current.handleCopy());
+      act(() => vi.advanceTimersByTime(1500));
+      await act(async () => result.current.handleCopy());
+      act(() => vi.advanceTimersByTime(500));
+      expect(result.current.copyStatus).toBe(status);
+      act(() => vi.advanceTimersByTime(1500));
+      expect(result.current.copyStatus).toBe('idle');
+    },
+  );
 });
