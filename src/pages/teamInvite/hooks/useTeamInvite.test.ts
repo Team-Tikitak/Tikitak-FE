@@ -25,6 +25,7 @@ describe('useTeamInvite', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     Object.defineProperty(navigator, 'clipboard', {
       value: originalClipboard,
       configurable: true,
@@ -56,4 +57,20 @@ describe('useTeamInvite', () => {
     });
     expect(result.current.copyStatus).toBe('error');
   });
+
+  it.each(['success', 'error'] as const)(
+    '연속 복사 %s 시 피드백을 2초 더 유지한다',
+    async (status) => {
+      vi.useFakeTimers();
+      if (status === 'error') writeText.mockRejectedValue(new Error('denied'));
+      const { result } = renderHook(() => useTeamInvite());
+      await act(async () => result.current.handleCopy());
+      act(() => vi.advanceTimersByTime(1500));
+      await act(async () => result.current.handleCopy());
+      act(() => vi.advanceTimersByTime(500));
+      expect(result.current.copyStatus).toBe(status);
+      act(() => vi.advanceTimersByTime(1500));
+      expect(result.current.copyStatus).toBe('idle');
+    },
+  );
 });

@@ -11,25 +11,28 @@ export const useTeamInvite = (): {
 } => {
   const { teamId } = useParams();
   const { data, isPending } = useInvitationLink(Number(teamId));
-  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [copyFeedback, setCopyFeedback] = useState<{ status: 'idle' | 'success' | 'error' }>({
+    status: 'idle',
+  });
+  const copyStatus = copyFeedback.status;
   const teamName = data?.teamName || '';
   const inviteUrl = data?.inviteToken
     ? `${window.location.origin}/invite/${data.inviteToken}`
     : null;
 
   useEffect(() => {
-    if (copyStatus === 'idle') return;
-    const timer = window.setTimeout(() => setCopyStatus('idle'), 2000);
+    if (copyFeedback.status === 'idle') return;
+    const timer = window.setTimeout(() => setCopyFeedback({ status: 'idle' }), 2000);
     return () => window.clearTimeout(timer);
-  }, [copyStatus]);
+  }, [copyFeedback]);
 
   const handleCopy = async () => {
     if (!inviteUrl) return;
     try {
       await navigator.clipboard.writeText(inviteUrl);
-      setCopyStatus('success');
+      setCopyFeedback({ status: 'success' });
     } catch {
-      setCopyStatus('error');
+      setCopyFeedback({ status: 'error' });
     }
   };
 

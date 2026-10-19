@@ -28,6 +28,7 @@ test('초대 링크 복사 전후 QR과 링크 위치가 유지되고 체크가 
   const after = await Promise.all([qr.boundingBox(), link.boundingBox(), button.boundingBox()]);
   expect(after).toEqual(before);
   await expect(button.locator('svg')).toHaveCSS('animation-name', 'check-reveal');
+  await expect(page.getByRole('status').locator('span')).toHaveCSS('animation-name', 'card-enter');
 });
 
 test('동작 줄이기 설정에서는 체크가 애니메이션 없이 표시된다', async ({ page }) => {
@@ -37,4 +38,5 @@ test('동작 줄이기 설정에서는 체크가 애니메이션 없이 표시�
   await button.click();
   await expect(page.getByRole('status')).toHaveText('초대 링크를 복사했어요');
   await expect(button.locator('svg')).toHaveCSS('animation-name', 'none');
+  await expect(page.getByRole('status').locator('span')).toHaveCSS('animation-name', 'none');
 });

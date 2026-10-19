@@ -65,7 +65,11 @@ export const TeamInvitePage = () => {
           role="status"
           className="body-1 absolute top-full left-1/2 mt-3 w-[min(80vw,320px)] -translate-x-1/2 text-center text-gray-700"
         >
-          {copyStatus === 'success' && '초대 링크를 복사했어요'}
+          {copyStatus === 'success' && (
+            <span className="animate-card-enter block motion-reduce:animate-none">
+              초대 링크를 복사했어요
+            </span>
+          )}
           {copyStatus === 'error' && '복사하지 못했어요. 링크를 직접 선택해 복사해주세요'}
         </p>
       </div>
