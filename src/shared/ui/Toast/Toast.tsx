@@ -16,6 +16,16 @@ const toastVariants = tv({
   },
 });
 
+const toastContentVariants = tv({
+  base: 'border-main-000 flex max-w-full items-center gap-2 rounded-full border bg-white py-2 pr-5 pl-3 text-gray-900 shadow-lg',
+  variants: {
+    leaving: {
+      false: 'animate-card-enter motion-reduce:animate-none',
+      true: 'motion-safe:animate-[toast-exit_200ms_ease-in_both] motion-reduce:opacity-0',
+    },
+  },
+});
+
 interface ToastProps extends ComponentPropsWithRef<'div'> {
   message: string;
   unmount: () => void;
@@ -42,10 +52,7 @@ export function Toast({ message, unmount, className, ref, ...props }: ToastProps
       className={toastVariants({ position: isFeedPage ? 'feed' : 'default', className })}
       {...props}
     >
-      <div
-        role="status"
-        className={`border-main-000 flex max-w-full items-center gap-2 rounded-full border bg-white py-2 pr-5 pl-3 text-gray-900 shadow-lg motion-reduce:animate-none ${isLeaving ? 'motion-safe:animate-[toast-exit_200ms_ease-in_both]' : 'animate-card-enter'}`}
-      >
+      <div role="status" className={toastContentVariants({ leaving: isLeaving })}>
         <TakLeader aria-hidden="true" className="size-8 shrink-0" />
         <span className="body-2">{message}</span>
       </div>
