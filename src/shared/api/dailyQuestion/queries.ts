@@ -5,13 +5,14 @@ import { feedKeys } from '../feed/keys';
 import { requestResult } from '../request';
 import type { PatchDailyQuestionRequest, PostDailyQuestionRequest } from './types';
 
+export const dailyQuestionQueryOptions = (teamId: number) => ({
+  queryKey: dailyQuestionKeys.today(teamId),
+  queryFn: () => requestResult(() => getDailyQuestion(teamId)),
+  staleTime: 30 * 1000,
+});
+
 export const useGetDailyQuestion = (teamId: number) =>
-  useQuery({
-    queryKey: dailyQuestionKeys.today(teamId),
-    queryFn: () => requestResult(() => getDailyQuestion(teamId)),
-    enabled: teamId > 0,
-    staleTime: 30 * 1000,
-  });
+  useQuery({ ...dailyQuestionQueryOptions(teamId), enabled: teamId > 0 });
 
 export const usePostDailyQuestion = (teamId: number, questionId: number) => {
   const queryClient = useQueryClient();

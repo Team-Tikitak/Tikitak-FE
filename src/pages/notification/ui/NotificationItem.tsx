@@ -51,11 +51,7 @@ export const NotificationItem = ({
         heroPreviewUrl: heroPreviewUrl ?? undefined,
         heroKey,
       }}
-      className={cn(
-        'flex w-full items-center gap-3',
-        unread && 'bg-main-000 motion-safe:animate-[card-enter_200ms_ease-out_both]',
-        className,
-      )}
+      className={cn('flex w-full items-center gap-3', unread && 'bg-main-000', className)}
       {...props}
     >
       {unread && <span className="sr-only">안 읽은 알림</span>}
