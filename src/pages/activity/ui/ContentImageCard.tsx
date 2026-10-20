@@ -42,7 +42,7 @@ export const ContentImageCard = ({
       }
       className={cn(
         'relative flex h-[204px] flex-1 flex-col items-start gap-1.5 overflow-hidden rounded-lg bg-gray-300 px-3 py-4',
-        onClick && 'cursor-pointer',
+        onClick && 'press-feedback cursor-pointer',
         className,
       )}
     >

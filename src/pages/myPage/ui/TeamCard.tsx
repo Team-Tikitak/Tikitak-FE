@@ -27,6 +27,7 @@ export const TeamCard = ({
     <div
       className={cn(
         'flex items-end justify-between gap-2 rounded-[12px] p-[18px]',
+        props.onClick && 'press-feedback cursor-pointer',
         isLeader ? 'bg-main-000' : 'bg-gray-200',
         className,
       )}
