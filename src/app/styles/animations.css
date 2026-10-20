@@ -25,6 +25,13 @@
   }
 }
 
+@keyframes toast-exit {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 @keyframes empty-character {
   0%,
   100% {
