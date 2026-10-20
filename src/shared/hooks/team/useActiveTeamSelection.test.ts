@@ -50,9 +50,9 @@ describe('useActiveTeamSelection', () => {
     useTeamPickerSheetMock.mockReturnValue({ openSheet: vi.fn() });
   });
 
-  it('팀 시트를 열면 현재 팀을 제외한 팀의 데일리 질문을 미리 불러온다', () => {
+  it('팀 시트를 열면 현재 팀을 제외하고 앞쪽 3개 팀의 데일리 질문만 미리 불러온다', () => {
     setMe(1);
-    setTeams([makeTeam(1), makeTeam(2), makeTeam(3)]);
+    setTeams([1, 2, 3, 4, 5].map(makeTeam));
 
     const { result } = renderHook(() => useActiveTeamSelection());
     act(() => {
@@ -63,6 +63,7 @@ describe('useActiveTeamSelection', () => {
     expect(prefetchedKeys).toEqual([
       ['dailyQuestion', 'today', 2],
       ['dailyQuestion', 'today', 3],
+      ['dailyQuestion', 'today', 4],
     ]);
   });
 

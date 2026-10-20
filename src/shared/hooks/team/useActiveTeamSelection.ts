@@ -7,6 +7,9 @@ import { useGetTeams, useMe, usePatchActiveTeam } from '@/shared/api/user/querie
 import { showToast } from '@/shared/ui/Toast/showToast';
 import { useTeamPickerSheet } from './useTeamPickerSheet';
 
+// 팀 시트 접힌 높이에서 보이는 팀 수
+const PREFETCH_TEAM_LIMIT = 3;
+
 export const useActiveTeamSelection = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -50,13 +53,15 @@ export const useActiveTeamSelection = () => {
     onCreateTeam: () => navigate(PATHS.TEAM_CREATE),
   });
 
-  // 시트를 고르는 동안 다른 팀 데일리 질문을 미리 받아 전환 직후 배너가 늦게 뜨지 않게 함
+  // 시트를 고르는 동안 다른 팀 데일리 질문을 미리 받아 전환 직후 배너가 늦게 뜨지 않게 함.
+  // 팀 수 상한이 없으므로 시트를 처음 열었을 때 보이는 팀까지만 받는다.
   const openTeamSheet = () => {
-    teamItems.forEach((team) => {
-      if (team.teamId !== activeTeam?.teamId) {
+    teamItems
+      .filter((team) => team.teamId !== activeTeam?.teamId)
+      .slice(0, PREFETCH_TEAM_LIMIT)
+      .forEach((team) => {
         void queryClient.prefetchQuery(dailyQuestionQueryOptions(team.teamId));
-      }
-    });
+      });
     openSheet();
   };
 
