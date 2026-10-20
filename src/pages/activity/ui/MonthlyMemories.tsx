@@ -72,46 +72,50 @@ export const MonthlyMemories = ({
         ) : (
           <>
             {firstPick && (
-              <ContentImageCard
-                title="모두의 PICK"
-                description="반응과 댓글이 가장 많은 사진"
-                imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
-                sourceId={String(firstPick.feedId)}
-                heroKey={`pin-${firstPick.feedId}`}
-                suppressed={suppressedItemId === String(firstPick.feedId)}
-                onClick={(event) =>
-                  captureAndNavigate(
-                    event,
-                    {
-                      id: String(firstPick.feedId),
-                      heroKey: `pin-${firstPick.feedId}`,
-                      thumbnailUrl: normalizeImageUrl(firstPick.thumbnailImageUrl) ?? '',
-                    },
-                    PATHS.ACTIVITY_EVERYONE_PICK,
-                  )
-                }
-              />
+              <div className="motion-safe:animate-[card-enter_300ms_ease-out_both]">
+                <ContentImageCard
+                  title="모두의 PICK"
+                  description="반응과 댓글이 가장 많은 사진"
+                  imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
+                  sourceId={String(firstPick.feedId)}
+                  heroKey={`pin-${firstPick.feedId}`}
+                  suppressed={suppressedItemId === String(firstPick.feedId)}
+                  onClick={(event) =>
+                    captureAndNavigate(
+                      event,
+                      {
+                        id: String(firstPick.feedId),
+                        heroKey: `pin-${firstPick.feedId}`,
+                        thumbnailUrl: normalizeImageUrl(firstPick.thumbnailImageUrl) ?? '',
+                      },
+                      PATHS.ACTIVITY_EVERYONE_PICK,
+                    )
+                  }
+                />
+              </div>
             )}
             {firstRegion && (
-              <ContentImageCard
-                title={`${firstRegion.region}에서`}
-                description="지역별로 모아보는 사진"
-                imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
-                sourceId={String(firstRegion.feedId)}
-                heroKey={`pin-${firstRegion.feedId}`}
-                suppressed={suppressedItemId === String(firstRegion.feedId)}
-                onClick={(event) =>
-                  captureAndNavigate(
-                    event,
-                    {
-                      id: String(firstRegion.feedId),
-                      heroKey: `pin-${firstRegion.feedId}`,
-                      thumbnailUrl: normalizeImageUrl(firstRegion.thumbnailImageUrl) ?? '',
-                    },
-                    PATHS.ACTIVITY_REGION_FEEDS,
-                  )
-                }
-              />
+              <div className="motion-safe:animate-[card-enter_300ms_ease-out_60ms_both]">
+                <ContentImageCard
+                  title={`${firstRegion.region}에서`}
+                  description="지역별로 모아보는 사진"
+                  imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
+                  sourceId={String(firstRegion.feedId)}
+                  heroKey={`pin-${firstRegion.feedId}`}
+                  suppressed={suppressedItemId === String(firstRegion.feedId)}
+                  onClick={(event) =>
+                    captureAndNavigate(
+                      event,
+                      {
+                        id: String(firstRegion.feedId),
+                        heroKey: `pin-${firstRegion.feedId}`,
+                        thumbnailUrl: normalizeImageUrl(firstRegion.thumbnailImageUrl) ?? '',
+                      },
+                      PATHS.ACTIVITY_REGION_FEEDS,
+                    )
+                  }
+                />
+              </div>
             )}
           </>
         )}

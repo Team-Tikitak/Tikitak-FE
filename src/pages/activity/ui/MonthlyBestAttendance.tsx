@@ -67,9 +67,17 @@ export const MonthlyBestAttendance = ({ teamId }: MonthlyBestAttendanceProps) =>
 
 const PodiumColumn = ({ member }: { member: HomeBestAttendanceMember }) => {
   return (
-    <div className={cn('flex w-[76px] flex-col items-center gap-3', PODIUM_ORDER[member.rank])}>
+    <div
+      className={cn(
+        'flex w-[76px] flex-col items-center gap-3 motion-safe:animate-[card-enter_300ms_ease-out_both]',
+        PODIUM_ORDER[member.rank],
+      )}
+      style={{ animationDelay: `${(member.rank - 1) * 60}ms` }}
+    >
       <div className="flex flex-col items-center gap-1.5">
-        {member.rank === 1 && <CrownIcon className="size-6 text-[#ff4d4d]" />}
+        {member.rank === 1 && (
+          <CrownIcon className="size-6 text-[#ff4d4d] motion-safe:animate-[card-enter_240ms_ease-out_both]" />
+        )}
         <img
           src={normalizeImageUrl(member.profileImgUrl)}
           alt={member.nickname}
