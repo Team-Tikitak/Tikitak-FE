@@ -13,7 +13,11 @@ const { useMeMock, useGetTeamsMock, patchActiveTeamMock, useTeamPickerSheetMock,
   }));
 
 const showToastMock = vi.hoisted(() => vi.fn());
+const prefetchQueryMock = vi.hoisted(() => vi.fn());
 
+vi.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ prefetchQuery: prefetchQueryMock }),
+}));
 vi.mock('react-router', () => ({
   useNavigate: () => navigateMock,
 }));
@@ -44,6 +48,22 @@ describe('useActiveTeamSelection', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     useTeamPickerSheetMock.mockReturnValue({ openSheet: vi.fn() });
+  });
+
+  it('팀 시트를 열면 현재 팀을 제외한 팀의 데일리 질문을 미리 불러온다', () => {
+    setMe(1);
+    setTeams([makeTeam(1), makeTeam(2), makeTeam(3)]);
+
+    const { result } = renderHook(() => useActiveTeamSelection());
+    act(() => {
+      result.current.openTeamSheet();
+    });
+
+    const prefetchedKeys = prefetchQueryMock.mock.calls.map(([options]) => options.queryKey);
+    expect(prefetchedKeys).toEqual([
+      ['dailyQuestion', 'today', 2],
+      ['dailyQuestion', 'today', 3],
+    ]);
   });
 
   it('activeTeamId가 teams에 없으면 첫 번째 팀으로 patch한다', () => {

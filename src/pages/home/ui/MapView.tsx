@@ -61,7 +61,7 @@ export const MapView = ({ teamId }: MapViewProps) => {
       />
       {showDailyQuestion && (
         <div
-          className="pointer-events-auto absolute inset-x-0 top-0 z-10"
+          className="motion-safe:animate-question-banner-enter pointer-events-auto absolute inset-x-0 top-0 z-10"
           data-daily-question-banner
         >
           <DailyQuestion
