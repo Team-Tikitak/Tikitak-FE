@@ -13,6 +13,11 @@ import { openAppSettings } from '@/shared/lib/native/openAppSettings';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { usePushSyncStore } from '@/shared/stores/pushSyncStore';
 
+// 콜드스타트(푸시 진입 등)의 첫 화면 요청과 경합하지 않도록 앱 시작 시 동기화를 늦춘다
+const STARTUP_SYNC_DELAY_MS = 5000;
+
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
 export const usePushNotificationSync = () => {
   const isLoggedIn = useAuthStore((state) => Boolean(state.accessToken));
   const resyncNonce = usePushSyncStore((state) => state.resyncNonce);
@@ -31,11 +36,13 @@ export const usePushNotificationSync = () => {
     let latestToken: string | undefined;
 
     const register = async (fcmToken: string) => {
+      // 앱 시작마다 tokenReceived가 같은 토큰으로 한 번 더 오므로 중복 등록하지 않는다
+      if (fcmToken === latestToken) return;
+      latestToken = fcmToken;
       // 앱 내에서 알림을 꺼둔 경우 재등록하지 않음(끈 설정을 앱 재실행이 되돌리는 것 방지)
       if (!(await readPushEnabled())) return;
       const platform = resolvePlatform();
-      if (!platform) return;
-      latestToken = fcmToken;
+      if (!platform || cancelled) return;
       registerDeviceToken(
         { fcmToken, platform },
         {
@@ -47,6 +54,10 @@ export const usePushNotificationSync = () => {
     };
 
     void (async () => {
+      if (resyncNonce === 0) {
+        await wait(STARTUP_SYNC_DELAY_MS);
+        if (cancelled) return;
+      }
       const token = await getDeviceTokenIfGranted();
       if (cancelled) return;
 

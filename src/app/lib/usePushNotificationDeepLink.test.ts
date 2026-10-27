@@ -16,6 +16,7 @@ const {
   openConfirmDialogMock,
   activeTeamIdMock,
   warmFeedDetailMock,
+  clearFeedPushNotificationsMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   isNativePlatformMock: vi.fn(),
@@ -26,6 +27,7 @@ const {
   openConfirmDialogMock: vi.fn(),
   activeTeamIdMock: vi.fn(),
   warmFeedDetailMock: vi.fn(),
+  clearFeedPushNotificationsMock: vi.fn(),
 }));
 
 vi.mock('react-router', () => ({
@@ -82,6 +84,10 @@ vi.mock('@/shared/ui/ConfirmDialog/openConfirmDialog', () => ({
   openConfirmDialog: openConfirmDialogMock,
 }));
 
+vi.mock('@/shared/lib/native/clearFeedPushNotifications', () => ({
+  clearFeedPushNotifications: clearFeedPushNotificationsMock,
+}));
+
 describe('getPushNotificationTargetPath', () => {
   it('피드 알림 데이터에서 피드 상세 경로를 만든다', () => {
     expect(getPushNotificationTargetPath({ type: 'FEED_COMMENT', feedId: '12' })).toBe('/feed/12');
@@ -132,6 +138,7 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     vi.clearAllMocks();
     pushHandler = undefined;
     isNativePlatformMock.mockReturnValue(true);
+    clearFeedPushNotificationsMock.mockResolvedValue(undefined);
     activeTeamIdMock.mockReturnValue(1);
     addListenerMock.mockImplementation((_event: string, handler: PushHandler) => {
       pushHandler = handler;
@@ -199,5 +206,41 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     expect(patchActiveTeamMock).not.toHaveBeenCalled();
     expect(warmFeedDetailMock).toHaveBeenCalledWith(expect.anything(), 1, '12');
     expect(navigateMock).toHaveBeenCalledWith('/feed/12');
+  });
+
+  it('알림 읽음 처리는 상세 이동이 끝난 뒤에 보낸다', async () => {
+    let finishNavigation: () => void = () => {};
+    navigateMock.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishNavigation = resolve;
+      }),
+    );
+
+    await renderDeepLinkWithListener();
+    await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1', notificationId: '7' });
+
+    expect(navigateMock).toHaveBeenCalledWith('/feed/12');
+    expect(readNotificationMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      finishNavigation();
+    });
+
+    expect(readNotificationMock).toHaveBeenCalledWith(7);
+  });
+
+  it('이동할 경로가 없는 알림은 바로 읽음 처리한다', async () => {
+    await renderDeepLinkWithListener();
+    await emitPush({ type: 'UNKNOWN', notificationId: '7' });
+
+    expect(navigateMock).not.toHaveBeenCalled();
+    expect(readNotificationMock).toHaveBeenCalledWith(7);
+  });
+
+  it('알림을 탭하면 같은 피드의 다른 푸시 알림을 정리한다', async () => {
+    await renderDeepLinkWithListener();
+    await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1' });
+
+    expect(clearFeedPushNotificationsMock).toHaveBeenCalledWith({ feedId: '12', teamId: '1' });
   });
 });
