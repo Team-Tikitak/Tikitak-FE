@@ -60,6 +60,18 @@ describe('appVersionPolicy', () => {
     });
   });
 
+  it('버전명이 같아도 빌드 번호가 최소 빌드보다 낮으면 업데이트를 요구한다', () => {
+    const policy = { minimumVersion: '1.0', minimumBuild: 4 };
+
+    expect(getRequiredAppUpdate('1.0.1', policy, '3')).not.toBeNull();
+    expect(getRequiredAppUpdate('1.0.1', policy, '4')).toBeNull();
+  });
+
+  it('빌드 번호를 알 수 없으면 최소 빌드로 막지 않는다', () => {
+    expect(getRequiredAppUpdate('1.0.1', { minimumBuild: 4 })).toBeNull();
+    expect(getRequiredAppUpdate('1.0.1', { minimumBuild: 4 }, '')).toBeNull();
+  });
+
   describe('checkRequiredAppUpdate', () => {
     afterEach(() => {
       vi.unstubAllGlobals();
@@ -88,6 +100,31 @@ describe('appVersionPolicy', () => {
       await expect(checkRequiredAppUpdate()).resolves.toEqual({
         message: '업데이트해주세요',
         storeUrl: 'https://play.google.com/store/apps/details?id=app.tikitak.space',
+      });
+    });
+
+    it('안드로이드 앱 정보의 빌드 번호로 최소 빌드를 판단한다', async () => {
+      isNativePlatformMock.mockReturnValue(true);
+      getPlatformMock.mockReturnValue('android');
+      getInfoMock.mockResolvedValue({ version: '1.0.1', build: '3' });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              android: {
+                minimumVersion: '1.0',
+                minimumBuild: 4,
+                updateMessage: '업데이트해주세요',
+              },
+            }),
+        }),
+      );
+
+      await expect(checkRequiredAppUpdate()).resolves.toEqual({
+        message: '업데이트해주세요',
+        storeUrl: undefined,
       });
     });
 
