@@ -1,3 +1,4 @@
+import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useEffect } from 'react';
 import { useRegisterDeviceToken } from '@/shared/api/notification/queries';
@@ -32,7 +33,7 @@ export const usePushNotificationSync = () => {
     if (!isLoggedIn || !Capacitor.isNativePlatform()) return;
 
     let cancelled = false;
-    let removeListener: (() => void) | undefined;
+    const removeListeners: Array<() => void> = [];
     let latestToken: string | undefined;
 
     const register = async (fcmToken: string) => {
@@ -49,6 +50,10 @@ export const usePushNotificationSync = () => {
           onSuccess: () => {
             if (fcmToken === latestToken) void storeDeviceToken(fcmToken);
           },
+          // 실패한 토큰이 다시 오면 재등록할 수 있도록 중복 검사 대상에서 제외
+          onError: () => {
+            if (fcmToken === latestToken) latestToken = undefined;
+          },
         },
       );
     };
@@ -58,6 +63,20 @@ export const usePushNotificationSync = () => {
         await wait(STARTUP_SYNC_DELAY_MS);
         if (cancelled) return;
       }
+
+      // 설정 앱에서 권한을 허용하고 돌아왔거나 등록이 실패한 경우를 포그라운드 복귀 때 다시 맞춘다
+      const appStateHandle = await App.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive || latestToken) return;
+        void getDeviceTokenIfGranted().then((token) => {
+          if (token && !cancelled) void register(token.fcmToken);
+        });
+      });
+      if (cancelled) {
+        void appStateHandle.remove();
+        return;
+      }
+      removeListeners.push(() => void appStateHandle.remove());
+
       const token = await getDeviceTokenIfGranted();
       if (cancelled) return;
 
@@ -93,12 +112,12 @@ export const usePushNotificationSync = () => {
         void handle.remove();
         return;
       }
-      removeListener = () => void handle.remove();
+      removeListeners.push(() => void handle.remove());
     })();
 
     return () => {
       cancelled = true;
-      removeListener?.();
+      removeListeners.forEach((remove) => remove());
     };
   }, [isLoggedIn, registerDeviceToken, resyncNonce, hasAgreedTerms]);
 };
