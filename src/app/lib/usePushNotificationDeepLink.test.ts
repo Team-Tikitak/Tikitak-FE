@@ -220,13 +220,21 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     expect(navigateMock).toHaveBeenCalledWith('/feed/12');
   });
 
-  it('알림 읽음 처리는 상세 이동이 끝난 뒤에 보낸다', async () => {
+  const deferNavigation = (landedPath: string) => {
     let finishNavigation: () => void = () => {};
     navigateMock.mockReturnValueOnce(
       new Promise<void>((resolve) => {
-        finishNavigation = resolve;
+        finishNavigation = () => {
+          window.history.pushState({}, '', landedPath);
+          resolve();
+        };
       }),
     );
+    return () => finishNavigation();
+  };
+
+  it('알림 읽음 처리는 상세 이동이 끝난 뒤에 보낸다', async () => {
+    const finishNavigation = deferNavigation('/feed/12');
 
     await renderDeepLinkWithListener();
     await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1', notificationId: '7' });
@@ -250,12 +258,7 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
   });
 
   it('같은 피드의 다른 푸시 알림은 상세 이동이 끝난 뒤에 정리한다', async () => {
-    let finishNavigation: () => void = () => {};
-    navigateMock.mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        finishNavigation = resolve;
-      }),
-    );
+    const finishNavigation = deferNavigation('/feed/12');
 
     await renderDeepLinkWithListener();
     await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1' });
@@ -267,5 +270,19 @@ describe('usePushNotificationDeepLink 팀 전환', () => {
     });
 
     expect(clearFeedPushNotificationsMock).toHaveBeenCalledWith({ feedId: '12', teamId: '1' });
+  });
+
+  it('상세 조회 실패로 목록으로 redirect되면 읽음 처리와 알림 정리를 하지 않는다', async () => {
+    const finishNavigation = deferNavigation('/feed');
+
+    await renderDeepLinkWithListener();
+    await emitPush({ type: 'FEED_COMMENT', feedId: '12', teamId: '1', notificationId: '7' });
+
+    await act(async () => {
+      finishNavigation();
+    });
+
+    expect(readNotificationMock).not.toHaveBeenCalled();
+    expect(clearFeedPushNotificationsMock).not.toHaveBeenCalled();
   });
 });

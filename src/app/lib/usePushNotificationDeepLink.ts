@@ -97,6 +97,8 @@ export const usePushNotificationDeepLink = () => {
     const navigateToTarget = () => {
       // 읽음 처리가 상세 로딩 요청과 경합하지 않도록 이동이 끝난 뒤 보낸다
       void Promise.resolve(navigate(targetPath)).then(() => {
+        // 상세 조회에 실패하면 로더가 목록으로 redirect하므로 실제로 상세에 들어간 경우만 처리
+        if (window.location.pathname !== targetPath) return;
         markRead();
         clearSameFeedPushes();
       });
