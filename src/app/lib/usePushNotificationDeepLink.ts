@@ -87,16 +87,25 @@ export const usePushNotificationDeepLink = () => {
     // 팀 전환(네트워크 왕복)과 병렬로 상세 데이터를 미리 받아, 이동 후 로더가 캐시를 바로 쓰게 한다
     if (data.feedId) warmFeedDetail(queryClient, targetTeamId ?? activeTeamId, data.feedId);
 
+    const clearSameFeedPushes = () => {
+      if (!data.feedId) return;
+      void clearFeedPushNotifications({ feedId: data.feedId, teamId: data.teamId }).catch(
+        () => undefined,
+      );
+    };
+
     const navigateToTarget = () => {
       // 읽음 처리가 상세 로딩 요청과 경합하지 않도록 이동이 끝난 뒤 보낸다
-      void Promise.resolve(navigate(targetPath)).then(markRead);
+      void Promise.resolve(navigate(targetPath)).then(() => {
+        markRead();
+        clearSameFeedPushes();
+      });
     };
     if (targetTeamId && targetTeamId !== activeTeamId) {
       patchActiveTeam(targetTeamId, {
         onSuccess: navigateToTarget,
         // 전환 실패 상태로 상세에 진입하면 옛 팀 기준 404로 삭제 안내가 오탐되므로 이동하지 않는다
         onError: () => {
-          markRead();
           openConfirmDialog({
             title: '오류',
             description: '팀 전환에 실패했어요',
@@ -147,11 +156,6 @@ export const usePushNotificationDeepLink = () => {
       const handle = await FirebaseMessaging.addListener('notificationActionPerformed', (event) => {
         const data = event.notification?.data as PushNotificationData | undefined;
         if (!data) return;
-        if (data.feedId) {
-          void clearFeedPushNotifications({ feedId: data.feedId, teamId: data.teamId }).catch(
-            () => undefined,
-          );
-        }
         if (isReadyForDeepLink()) {
           handleRef.current(data);
           return;
