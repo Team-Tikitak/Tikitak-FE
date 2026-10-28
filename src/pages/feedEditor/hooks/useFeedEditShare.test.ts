@@ -108,6 +108,7 @@ describe('useFeedEditShare', () => {
     );
     expect(navigateMock).toHaveBeenCalledWith(-1);
     expect(showToastMock).toHaveBeenCalledWith('피드를 수정했어요');
+    expect(navigateMock).toHaveBeenCalledBefore(showToastMock);
   });
 
   it('patch 실패 시 신규 media만 삭제하고 기존은 보존한다', async () => {
