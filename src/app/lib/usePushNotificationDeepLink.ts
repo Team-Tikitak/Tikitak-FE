@@ -10,6 +10,7 @@ import { feedCommentKeys } from '@/shared/api/feedComment/keys';
 import { useReadNotification } from '@/shared/api/notification/queries';
 import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
+import { clearFeedPushNotifications } from '@/shared/lib/native/clearFeedPushNotifications';
 import {
   hasPendingPushDeepLink,
   setPendingPushDeepLink,
@@ -70,8 +71,13 @@ export const usePushNotificationDeepLink = () => {
     const notificationId = getNotificationId(data);
     const targetTeamId = getTargetTeamId(data);
 
-    if (notificationId) readNotification(notificationId);
-    if (!targetPath) return;
+    const markRead = () => {
+      if (notificationId) readNotification(notificationId);
+    };
+    if (!targetPath) {
+      markRead();
+      return;
+    }
 
     if (shouldInvalidateFeedQueries(data, location.pathname, targetPath)) {
       void queryClient.invalidateQueries({ queryKey: feedCommentKeys.all });
@@ -81,7 +87,22 @@ export const usePushNotificationDeepLink = () => {
     // 팀 전환(네트워크 왕복)과 병렬로 상세 데이터를 미리 받아, 이동 후 로더가 캐시를 바로 쓰게 한다
     if (data.feedId) warmFeedDetail(queryClient, targetTeamId ?? activeTeamId, data.feedId);
 
-    const navigateToTarget = () => navigate(targetPath);
+    const clearSameFeedPushes = () => {
+      if (!data.feedId) return;
+      void clearFeedPushNotifications({ feedId: data.feedId, teamId: data.teamId }).catch(
+        () => undefined,
+      );
+    };
+
+    const navigateToTarget = () => {
+      // 읽음 처리가 상세 로딩 요청과 경합하지 않도록 이동이 끝난 뒤 보낸다
+      void Promise.resolve(navigate(targetPath)).then(() => {
+        // 상세 조회에 실패하면 로더가 목록으로 redirect하므로 실제로 상세에 들어간 경우만 처리
+        if (window.location.pathname !== targetPath) return;
+        markRead();
+        clearSameFeedPushes();
+      });
+    };
     if (targetTeamId && targetTeamId !== activeTeamId) {
       patchActiveTeam(targetTeamId, {
         onSuccess: navigateToTarget,

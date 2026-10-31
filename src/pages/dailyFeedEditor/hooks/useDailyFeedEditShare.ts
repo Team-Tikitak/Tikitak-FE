@@ -5,6 +5,7 @@ import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
 import type { CapturedPhoto } from '@/shared/types/photo';
+import { showToast } from '@/shared/ui/Toast/showToast';
 
 interface UseDailyFeedEditShareParams {
   teamId: number;
@@ -53,6 +54,7 @@ export const useDailyFeedEditShare = ({
         throw error;
       }
       navigate(-1);
+      showToast('피드를 수정했어요');
     });
   };
 

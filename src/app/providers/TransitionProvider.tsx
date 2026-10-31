@@ -1,4 +1,10 @@
-import { MultiAnimation, Ssgoi, WebAnimation, type SsgoiConfig } from '@ssgoi/react';
+import {
+  MultiAnimation,
+  Ssgoi,
+  WebAnimation,
+  type SsgoiConfig,
+  type SsgoiPathTransition,
+} from '@ssgoi/react';
 import { fade, hero, sheet, slide } from '@ssgoi/react/view-transitions';
 import { PATHS } from '@/app/routes/paths';
 import { consumeFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
@@ -66,6 +72,40 @@ const fastSlide = (paths: [string, string]) =>
     transition: timedTransition(SLIDE_DURATION_MS, rule.from === paths[0] ? 1 : -1),
   }));
 
+// 끝난 전환 남겨두면 다음 전환이 이 페이지를 inline opacity로 숨기지 못해 히어로 중 이전 화면이 비침
+const isSettled = (animation: Animation) =>
+  animation.playState === 'finished' || animation.effect?.getComputedTiming().progress === 1;
+
+const releaseFinishedAnimations = (element: HTMLElement) => {
+  for (const animation of element.getAnimations?.() ?? []) {
+    if (isSettled(animation)) animation.cancel();
+  }
+};
+
+// 나가는 페이지는 다시 붙거나, 복제되면서 CSS 애니메이션이 처음부터 다시 재생됨
+const finishReplayedCssAnimations = (element: HTMLElement) => {
+  for (const animation of element.getAnimations?.({ subtree: true }) ?? []) {
+    if (!('animationName' in animation)) continue;
+    if (animation.effect?.getComputedTiming().endTime === Infinity) continue;
+    animation.finish();
+  }
+};
+
+const withReleasedAnimations = (rule: SsgoiPathTransition): SsgoiPathTransition => {
+  const { animation } = rule.transition;
+  return {
+    ...rule,
+    transition: {
+      ...rule.transition,
+      animation: (args) => {
+        releaseFinishedAnimations(args.from);
+        finishReplayedCssAnimations(args.from);
+        return animation(args);
+      },
+    },
+  };
+};
+
 const ssgoiConfig: SsgoiConfig = {
   transitions: [
     ...tabTransitions,
@@ -124,7 +164,7 @@ const ssgoiConfig: SsgoiConfig = {
     ...fastSlide([PATHS.ACTIVITY, '/feed/*']),
 
     ...fade({ paths: ['*'] }),
-  ],
+  ].map(withReleasedAnimations),
   middleware: (from, to) => {
     if (from.startsWith('/feed/') && to === PATHS.FEED && consumeFeedDeleting()) {
       return { from: '__feed-delete__', to: PATHS.FEED };

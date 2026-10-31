@@ -3,6 +3,7 @@
  */
 
 export * from './cameraSystemBars';
+export * from './clearFeedPushNotifications';
 export * from './deviceTokenStorage';
 export * from './getDeviceToken';
 export * from './keyboardResize';

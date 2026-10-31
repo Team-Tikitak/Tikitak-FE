@@ -12,6 +12,7 @@ const {
   deleteMediaMock,
   submitMock,
   alertDialogMock,
+  showToastMock,
 } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   patchFeedMock: vi.fn(),
@@ -19,6 +20,7 @@ const {
   deleteMediaMock: vi.fn(),
   submitMock: vi.fn(),
   alertDialogMock: vi.fn(),
+  showToastMock: vi.fn(),
 }));
 
 vi.mock('react-router', () => ({
@@ -41,6 +43,9 @@ vi.mock('@/shared/hooks/useShareSubmit', () => ({
 }));
 vi.mock('@/shared/lib/native/nativeDialog', () => ({
   alertDialog: alertDialogMock,
+}));
+vi.mock('@/shared/ui/Toast/showToast', () => ({
+  showToast: showToastMock,
 }));
 
 const makePhoto = (id: string): CapturedPhoto => ({ id, url: `blob:${id}`, blob: new Blob() });
@@ -102,6 +107,8 @@ describe('useFeedEditShare', () => {
       }),
     );
     expect(navigateMock).toHaveBeenCalledWith(-1);
+    expect(showToastMock).toHaveBeenCalledWith('피드를 수정했어요');
+    expect(navigateMock).toHaveBeenCalledBefore(showToastMock);
   });
 
   it('patch 실패 시 신규 media만 삭제하고 기존은 보존한다', async () => {
@@ -120,6 +127,7 @@ describe('useFeedEditShare', () => {
     expect(deleteMediaMock).toHaveBeenCalledWith('new-1');
     expect(deleteMediaMock).not.toHaveBeenCalledWith('old-1');
     expect(navigateMock).not.toHaveBeenCalled();
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 
   it('신규 사진이 없으면 업로드를 건너뛴다', async () => {

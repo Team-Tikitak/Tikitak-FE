@@ -10,6 +10,8 @@ const UPDATE_DIALOG_BUTTON = '업데이트';
 interface PlatformVersionPolicy {
   latestVersion?: string;
   minimumVersion?: string;
+  // Android는 버전명이 같아도 versionCode로 구분해야 할 때가 있어 빌드 번호로도 막는다
+  minimumBuild?: number;
   forceUpdate?: boolean;
   updateMessage?: string;
   storeUrl?: string;
@@ -50,6 +52,7 @@ export const compareAppVersion = (currentVersion: string, targetVersion: string)
 export const getRequiredAppUpdate = (
   currentVersion: string,
   policy?: PlatformVersionPolicy,
+  currentBuild?: string,
 ): RequiredAppUpdate | null => {
   if (!policy) return null;
 
@@ -59,10 +62,15 @@ export const getRequiredAppUpdate = (
   const isBelowMinimum = minimumVersion
     ? compareAppVersion(currentVersion, minimumVersion) < 0
     : false;
+  const build = Number.parseInt(currentBuild ?? '', 10);
+  const isBelowMinimumBuild =
+    typeof policy.minimumBuild === 'number' && Number.isFinite(build)
+      ? build < policy.minimumBuild
+      : false;
   const isBelowLatest =
     forceUpdate && latestVersion ? compareAppVersion(currentVersion, latestVersion) < 0 : false;
 
-  if (!isBelowMinimum && !isBelowLatest) return null;
+  if (!isBelowMinimum && !isBelowMinimumBuild && !isBelowLatest) return null;
 
   return {
     message: policy.updateMessage?.trim() || '최신 버전으로 업데이트한 뒤 다시 이용해 주세요.',
@@ -90,7 +98,7 @@ export const checkRequiredAppUpdate = async (): Promise<RequiredAppUpdate | null
 
   const [appInfo, versionPolicy] = await Promise.all([App.getInfo(), fetchAppVersionPolicy()]);
 
-  return getRequiredAppUpdate(appInfo.version, versionPolicy?.[platform]);
+  return getRequiredAppUpdate(appInfo.version, versionPolicy?.[platform], appInfo.build);
 };
 
 export const showRequiredAppUpdateDialog = async (update: RequiredAppUpdate): Promise<void> => {
