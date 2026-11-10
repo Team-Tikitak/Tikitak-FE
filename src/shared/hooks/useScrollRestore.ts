@@ -2,6 +2,7 @@ import { type UIEvent, useCallback, useEffect, useLayoutEffect, useRef, useState
 import { safeSessionGet, safeSessionSet } from '@/shared/lib/storage/sessionStore';
 
 const MAX_RESTORE_ATTEMPTS = 30;
+const SCROLL_KEY_ATTRIBUTE = 'data-scroll-restore-key';
 
 const readScrollTop = (key: string) => {
   const value = safeSessionGet(key);
@@ -12,6 +13,15 @@ const readScrollTop = (key: string) => {
 
 const storeScrollTop = (key: string, scrollTop: number) => {
   safeSessionSet(key, String(Math.max(0, Math.round(scrollTop))));
+};
+
+// 화면 전환 라이브러리가 나가는 페이지를 cloneNode로 복제하면 내부 컨테이너 scrollTop이 0으로
+// 초기화돼 맨 위로 튄 채 전환된다. 복제본에 저장해둔 위치를 다시 적용한다.
+export const restoreClonedScrollPositions = (root: HTMLElement) => {
+  root.querySelectorAll<HTMLElement>(`[${SCROLL_KEY_ATTRIBUTE}]`).forEach((container) => {
+    const key = container.getAttribute(SCROLL_KEY_ATTRIBUTE);
+    if (key) container.scrollTop = readScrollTop(key);
+  });
 };
 
 interface UseScrollRestoreOptions {
@@ -55,6 +65,13 @@ export const useScrollRestore = (
     }
     storeScrollTop(key, scrollTop);
   };
+
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    if (key) container.setAttribute(SCROLL_KEY_ATTRIBUTE, key);
+    else container.removeAttribute(SCROLL_KEY_ATTRIBUTE);
+  });
 
   const isRestored = useCallback(() => !key || restoredKeyRef.current === key, [key]);
 

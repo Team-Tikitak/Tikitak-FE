@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, it, expect } from 'vitest';
-import { useScrollRestore } from './useScrollRestore';
+import { restoreClonedScrollPositions, useScrollRestore } from './useScrollRestore';
 
 describe('useScrollRestore', () => {
   beforeEach(() => {
@@ -65,5 +65,23 @@ describe('useScrollRestore', () => {
     });
 
     expect(sessionStorage.getItem('scroll-key')).toBe('372');
+  });
+});
+
+describe('restoreClonedScrollPositions', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('복제된 페이지의 스크롤 컨테이너에 저장된 위치를 다시 적용한다', () => {
+    sessionStorage.setItem('my-page-scroll', '240');
+    const page = document.createElement('div');
+    const container = document.createElement('div');
+    container.setAttribute('data-scroll-restore-key', 'my-page-scroll');
+    page.appendChild(container);
+
+    restoreClonedScrollPositions(page);
+
+    expect(container.scrollTop).toBe(240);
   });
 });
