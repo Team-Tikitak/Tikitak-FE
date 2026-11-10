@@ -7,6 +7,7 @@ import {
 } from '@ssgoi/react';
 import { fade, hero, sheet, slide } from '@ssgoi/react/view-transitions';
 import { PATHS } from '@/app/routes/paths';
+import { restoreClonedScrollPositions } from '@/shared/hooks/useScrollRestore';
 import { consumeFeedDeleting } from '@/shared/lib/storage/deleteContextStorage';
 import { topSheet } from './topSheet';
 import type { PropsWithChildren } from 'react';
@@ -100,6 +101,7 @@ const withReleasedAnimations = (rule: SsgoiPathTransition): SsgoiPathTransition 
       animation: (args) => {
         releaseFinishedAnimations(args.from);
         finishReplayedCssAnimations(args.from);
+        restoreClonedScrollPositions(args.from);
         return animation(args);
       },
     },

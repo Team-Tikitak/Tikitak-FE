@@ -4,6 +4,7 @@ import { PATHS, toTermsDetail } from '@/app/routes/paths';
 import { useLogout } from '@/shared/api/auth/queries';
 import { useDeleteMe, useGetTeams } from '@/shared/api/user/queries';
 import PlusIcon from '@/shared/assets/Icon/PlusIcon.svg?react';
+import { useScrollRestore } from '@/shared/hooks';
 import {
   alertDialog,
   confirmExactTextDialog,
@@ -15,11 +16,17 @@ import { MyPageSkeleton } from './MyPageSkeleton';
 import { MyPageTeamCard } from './MyPageTeamCard';
 import { EXTERNAL_LINKS } from '../constants/externalLinks';
 
+const MY_PAGE_SCROLL_STORAGE_KEY = 'my-page-scroll';
+
 export const MyPage = () => {
   const navigate = useNavigate();
   const { data: teams = [], isPending: isTeamsPending } = useGetTeams();
   const { mutate: logout } = useLogout();
   const { mutate: deleteMe } = useDeleteMe();
+  const { scrollRef, handleScroll } = useScrollRestore(MY_PAGE_SCROLL_STORAGE_KEY, {
+    ready: !isTeamsPending,
+    contentSignal: teams.length,
+  });
 
   const handleWithdraw = async () => {
     if (teams.some((team) => team.role === 'OWNER')) {
@@ -55,7 +62,11 @@ export const MyPage = () => {
       contentClassName="flex flex-col overflow-hidden"
     >
       {/* min-h 100%+1px: 콘텐츠가 화면보다 짧아도 항상 넘치게 해 iOS 바운스 스크롤 유지 */}
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="no-scrollbar min-h-0 flex-1 overflow-y-auto"
+      >
         <div className="flex min-h-[calc(100%+1px)] flex-col gap-8 px-5 pt-7 pb-[calc(var(--bottom-nav-clearance)+env(safe-area-inset-bottom))]">
           {isTeamsPending ? (
             <MyPageSkeleton />

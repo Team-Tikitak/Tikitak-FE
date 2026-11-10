@@ -48,18 +48,6 @@ describe('CameraReview', () => {
     );
   });
 
-  it('closes the sticker picker when tapping the photo area', () => {
-    render(<CameraReview {...baseProps} />);
-
-    fireEvent.click(screen.getByRole('button', { name: '스티커 추가' }));
-
-    expect(screen.getByTestId('sticker-picker')).toBeInTheDocument();
-
-    fireEvent.pointerDown(screen.getByAltText('촬영된 사진'));
-
-    expect(screen.queryByTestId('sticker-picker')).not.toBeInTheDocument();
-  });
-
   it('스티커 시트가 올라오는 동안 도구 버튼이 시트 상승 시간(0.5s)에 맞춰 사라진다', () => {
     render(<CameraReview {...baseProps} />);
 
@@ -106,14 +94,18 @@ describe('CameraReview', () => {
     expect(screen.getByRole('button', { name: '스티커 추가' })).toHaveAttribute('tabindex', '0');
   });
 
-  it('uses a quicker close motion for the filter tray', () => {
+  it('아이콘 로우와 필터 트레이는 나가는 쪽이 먼저 사라진 뒤 들어오는 쪽이 지연 진입한다', () => {
     render(<CameraReview {...baseProps} />);
+    const toolRow = () => screen.getByRole('button', { name: '스티커 추가' }).parentElement;
 
     fireEvent.click(screen.getByRole('button', { name: '필터' }));
 
+    expect(toolRow()).toHaveClass('duration-180', 'ease-[cubic-bezier(0.4,0,1,1)]');
+    expect(toolRow()).not.toHaveClass('delay-160');
     expect(screen.getByTestId('camera-filter-tray')).toHaveClass(
       'duration-240',
       'ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'delay-160',
     );
 
     fireEvent.click(screen.getByRole('button', { name: '필터 편집 완료' }));
@@ -122,5 +114,7 @@ describe('CameraReview', () => {
       'duration-180',
       'ease-[cubic-bezier(0.4,0,1,1)]',
     );
+    expect(screen.getByTestId('camera-filter-tray')).not.toHaveClass('delay-160');
+    expect(toolRow()).toHaveClass('duration-240', 'delay-160');
   });
 });

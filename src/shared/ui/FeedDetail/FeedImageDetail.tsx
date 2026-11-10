@@ -35,6 +35,10 @@ type FeedImageDetailProps = ComponentPropsWithRef<'figure'> & {
 const LONG_PRESS_DELAY = 800;
 const MOVE_CANCEL_THRESHOLD = 6;
 const DETAIL_FRAME_ASPECT_RATIO = 3 / 4;
+// 고화질 크로스페이드(160ms)가 끝나갈 즈음 핀이 하나씩 튀어나온다
+const PIN_ENTER_DELAY_MS = 120;
+const PIN_STAGGER_MS = 50;
+const PIN_STAGGER_MAX_MS = 400;
 
 const getInitialFit = (aspectRatio?: number): 'cover' | 'contain' =>
   aspectRatio && aspectRatio > DETAIL_FRAME_ASPECT_RATIO ? 'contain' : 'cover';
@@ -62,6 +66,9 @@ export function FeedImageDetail({
     initialAspectRatio ? { width: initialAspectRatio, height: 1 } : null,
   );
   const [loaded, setLoaded] = useState(false);
+  // 로드 실패 시에도 핀은 보여야 하므로 표시 여부는 별도로 둔다
+  const [settledSrc, setSettledSrc] = useState<string | null>(null);
+  const imageSettled = settledSrc === src;
   // 이미지가 프레임(3:4)보다 넓으면(1:1·가로) contain으로 레터박스, 세로로 길면 cover로 꽉 채움
   const [fit, setFit] = useState<'cover' | 'contain'>(() => getInitialFit(initialAspectRatio));
 
@@ -88,6 +95,7 @@ export function FeedImageDetail({
     (node: HTMLImageElement | null) => {
       if (node?.complete && node.naturalWidth > 0) {
         setLoaded(true);
+        setSettledSrc(node.getAttribute('src'));
         captureNatural(node);
       }
     },
@@ -193,8 +201,10 @@ export function FeedImageDetail({
           fetchPriority={fetchPriority}
           onLoad={(event) => {
             setLoaded(true);
+            setSettledSrc(src);
             captureNatural(event.currentTarget);
           }}
+          onError={() => setSettledSrc(src)}
           className={cn(
             'no-native-image h-full w-full',
             fitClassName,
@@ -212,18 +222,28 @@ export function FeedImageDetail({
         onPointerLeave={cancelLongPress}
         onPointerCancel={cancelLongPress}
       />
-      {pins.map((pin) => (
-        <Picker
-          key={pin.id}
-          {...(pin.count === 'multiple'
-            ? { count: 'multiple', avatars: pin.avatars }
-            : { avatars: pin.avatars })}
-          variant={pin.variant}
-          onClick={pin.onClick}
-          className="absolute -translate-y-full"
-          style={{ left: `${pin.x}%`, top: `${pin.y}%`, zIndex: 1 }}
-        />
-      ))}
+      {imageSettled &&
+        pins.map((pin, index) => (
+          <Picker
+            key={pin.id}
+            {...(pin.count === 'multiple'
+              ? { count: 'multiple', avatars: pin.avatars }
+              : { avatars: pin.avatars })}
+            variant={pin.variant}
+            onClick={pin.onClick}
+            className="motion-safe:animate-pin-pop absolute origin-bottom-left -translate-y-full"
+            style={{
+              left: `${pin.x}%`,
+              top: `${pin.y}%`,
+              zIndex: 1,
+              // 길게 눌러 새로 단 핀은 즉시 반응한다
+              animationDelay:
+                pin.variant === 'new'
+                  ? undefined
+                  : `${PIN_ENTER_DELAY_MS + Math.min(index * PIN_STAGGER_MS, PIN_STAGGER_MAX_MS)}ms`,
+            }}
+          />
+        ))}
     </figure>
   );
 }

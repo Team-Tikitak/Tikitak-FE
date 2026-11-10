@@ -120,7 +120,12 @@ jobs:
               return `❌ **${name}**: ${failureLabel}\n`;
             };
 
-            let comment = '## PR 검증 결과\n\n';
+            // 이 표식이 달린 댓글 하나만 매 실행마다 갱신한다
+            const marker = '<!-- frontend-ci-result -->';
+            const runSha = context.payload.pull_request?.head.sha ?? context.sha;
+            const sha = runSha.slice(0, 7);
+
+            let comment = `${marker}\n## PR 검증 결과\n\n`;
             comment += line(results.typeCheck, 'TypeScript');
             comment += line(results.format, 'Prettier', '통과', '포맷 필요');
             comment += line(results.lint, 'ESLint');
@@ -128,14 +133,40 @@ jobs:
             comment += line(results.build, 'Build', '성공', '실패');
             comment += line(results.barrel, 'Barrel', '동기화', '비동기화');
             comment += line(results.tokens, 'Design Tokens', '동기화', '비동기화');
+            comment += `\n<sub>마지막 실행: \`${sha}\`</sub>\n`;
 
             try {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
+              const target = {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: comment,
+                issue_number: context.issue.number,
+              };
+              // 이전 커밋 실행을 재실행해도 원래 SHA를 유지하므로, 최신 결과를 덮어쓰지 않게 막는다
+              const { data: pr } = await github.rest.pulls.get({
+                owner: target.owner,
+                repo: target.repo,
+                pull_number: target.issue_number,
               });
+              if (pr.head.sha !== runSha) {
+                core.info(`Skip comment: ${sha} is not the PR head.`);
+                return;
+              }
+
+              const comments = await github.paginate(github.rest.issues.listComments, target);
+              const existing = comments.find(
+                (item) => item.user?.login === 'github-actions[bot]' && item.body?.includes(marker),
+              );
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: target.owner,
+                  repo: target.repo,
+                  comment_id: existing.id,
+                  body: comment,
+                });
+              } else {
+                await github.rest.issues.createComment({ ...target, body: comment });
+              }
             } catch (error) {
               console.log('Failed to comment:', error.message);
             }

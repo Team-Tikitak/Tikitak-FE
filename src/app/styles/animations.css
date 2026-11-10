@@ -363,3 +363,18 @@
     transform: translateY(0) rotate(0) scale(1);
   }
 }
+
+@keyframes pin-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
