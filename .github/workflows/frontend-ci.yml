@@ -122,7 +122,8 @@ jobs:
 
             // 이 표식이 달린 댓글 하나만 매 실행마다 갱신한다
             const marker = '<!-- frontend-ci-result -->';
-            const sha = (context.payload.pull_request?.head.sha ?? context.sha).slice(0, 7);
+            const runSha = context.payload.pull_request?.head.sha ?? context.sha;
+            const sha = runSha.slice(0, 7);
 
             let comment = `${marker}\n## PR 검증 결과\n\n`;
             comment += line(results.typeCheck, 'TypeScript');
@@ -140,9 +141,20 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
               };
+              // 이전 커밋 실행을 재실행해도 원래 SHA를 유지하므로, 최신 결과를 덮어쓰지 않게 막는다
+              const { data: pr } = await github.rest.pulls.get({
+                owner: target.owner,
+                repo: target.repo,
+                pull_number: target.issue_number,
+              });
+              if (pr.head.sha !== runSha) {
+                core.info(`Skip comment: ${sha} is not the PR head.`);
+                return;
+              }
+
               const comments = await github.paginate(github.rest.issues.listComments, target);
               const existing = comments.find(
-                (item) => item.user?.type === 'Bot' && item.body?.includes(marker),
+                (item) => item.user?.login === 'github-actions[bot]' && item.body?.includes(marker),
               );
 
               if (existing) {
