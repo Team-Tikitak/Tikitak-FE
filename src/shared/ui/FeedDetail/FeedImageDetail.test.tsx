@@ -144,7 +144,7 @@ describe('FeedImageDetail', () => {
     ];
     render(<FeedImageDetail src="/detail.jpg" alt="피드 사진" pins={pins} />);
 
-    expect(screen.queryByAltText('첫 댓글')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
 
     fireEvent.load(screen.getByAltText('피드 사진'));
 
@@ -159,6 +159,21 @@ describe('FeedImageDetail', () => {
     render(<FeedImageDetail src="/broken.jpg" alt="피드 사진" pins={pins} />);
 
     fireEvent.error(screen.getByAltText('피드 사진'));
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('사진이 바뀌면 새 사진이 로드될 때까지 댓글 핀을 숨긴다', () => {
+    const pins: Pin[] = [{ id: 'a', x: 10, y: 20, avatars: [{ id: '1', src: '/a.jpg' }] }];
+    const { rerender } = render(<FeedImageDetail src="/first.jpg" alt="피드 사진" pins={pins} />);
+    fireEvent.load(screen.getByAltText('피드 사진'));
+    expect(screen.getByRole('button')).toBeInTheDocument();
+
+    rerender(<FeedImageDetail src="/second.jpg" alt="피드 사진" pins={pins} />);
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+
+    fireEvent.load(screen.getByAltText('피드 사진'));
 
     expect(screen.getByRole('button')).toBeInTheDocument();
   });

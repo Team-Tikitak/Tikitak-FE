@@ -67,7 +67,8 @@ export function FeedImageDetail({
   );
   const [loaded, setLoaded] = useState(false);
   // 로드 실패 시에도 핀은 보여야 하므로 표시 여부는 별도로 둔다
-  const [imageSettled, setImageSettled] = useState(false);
+  const [settledSrc, setSettledSrc] = useState<string | null>(null);
+  const imageSettled = settledSrc === src;
   // 이미지가 프레임(3:4)보다 넓으면(1:1·가로) contain으로 레터박스, 세로로 길면 cover로 꽉 채움
   const [fit, setFit] = useState<'cover' | 'contain'>(() => getInitialFit(initialAspectRatio));
 
@@ -94,7 +95,7 @@ export function FeedImageDetail({
     (node: HTMLImageElement | null) => {
       if (node?.complete && node.naturalWidth > 0) {
         setLoaded(true);
-        setImageSettled(true);
+        setSettledSrc(node.getAttribute('src'));
         captureNatural(node);
       }
     },
@@ -200,10 +201,10 @@ export function FeedImageDetail({
           fetchPriority={fetchPriority}
           onLoad={(event) => {
             setLoaded(true);
-            setImageSettled(true);
+            setSettledSrc(src);
             captureNatural(event.currentTarget);
           }}
-          onError={() => setImageSettled(true)}
+          onError={() => setSettledSrc(src)}
           className={cn(
             'no-native-image h-full w-full',
             fitClassName,
