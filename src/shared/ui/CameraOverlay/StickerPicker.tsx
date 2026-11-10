@@ -33,6 +33,8 @@ export const StickerPicker = ({ open, onClose, onSelect, className }: StickerPic
     >
       <Drawer.Portal>
         <Drawer.Content
+          // non-modal이라 vaul이 바깥 탭 닫힘을 막으므로 직접 닫는다
+          onPointerDownOutside={onClose}
           className={cn(
             'fixed inset-x-0 bottom-0 z-70 mx-auto flex h-full w-full flex-col rounded-t-2xl bg-black/80 outline-none sm:max-w-[393px]',
             className,
