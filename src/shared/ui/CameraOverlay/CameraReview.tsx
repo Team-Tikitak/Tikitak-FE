@@ -14,12 +14,16 @@ import { Button } from '@/shared/ui';
 import { PlacedStickerView } from './PlacedStickerView';
 import { StickerPicker } from './StickerPicker';
 
+// 아이콘(36px)은 그대로 두고 터치 영역만 44px로 넓힌다
+const HIT_AREA_CLASS = "after:absolute after:-inset-1 after:content-['']";
 const MOTION_ENTER_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
 const MOTION_EXIT_CLASS = 'duration-180 ease-[cubic-bezier(0.4,0,1,1)]';
 const STICKER_DRAG_EXIT_CLASS = 'duration-220 ease-[cubic-bezier(0.2,0.8,0.2,1)]';
 const TRASH_MOTION_CLASS = 'duration-240 ease-[cubic-bezier(0.16,1,0.3,1)]';
 // vaul 바텀시트가 올라오는 시간(0.5s, cubic-bezier(.32,.72,0,1))과 맞춰 같이 사라지게 한다
 const STICKER_SHEET_EXIT_CLASS = 'duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]';
+// 아이콘 로우와 필터 트레이가 같은 칸을 쓰므로, 나가는 쪽이 거의 사라진 뒤 들어오는 쪽을 시작한다
+const SWAP_ENTER_CLASS = `${MOTION_ENTER_CLASS} delay-160`;
 
 interface CameraReviewProps {
   imageUrl: string;
@@ -73,7 +77,7 @@ export const CameraReview = ({
   const isStickerDragging = Boolean(draggingId);
   const isToolButtonsCollapsed = isPickerOpen || isFilterOpen || isStickerDragging;
   const shouldShowUploadButton = !isPickerOpen && !isFilterOpen && !isStickerDragging;
-  const filterMotionClass = isFilterOpen ? MOTION_ENTER_CLASS : MOTION_EXIT_CLASS;
+  const filterMotionClass = isFilterOpen ? SWAP_ENTER_CLASS : MOTION_EXIT_CLASS;
   const uploadMotionClass = shouldShowUploadButton
     ? MOTION_ENTER_CLASS
     : isStickerDragging
@@ -84,8 +88,8 @@ export const CameraReview = ({
       ? STICKER_DRAG_EXIT_CLASS
       : isPickerOpen
         ? STICKER_SHEET_EXIT_CLASS
-        : filterMotionClass
-    : MOTION_ENTER_CLASS;
+        : MOTION_EXIT_CLASS
+    : SWAP_ENTER_CLASS;
 
   return (
     <div
@@ -97,15 +101,6 @@ export const CameraReview = ({
       <div
         ref={photoRef}
         {...stickerGestureProps}
-        onPointerDown={(event) => {
-          if (isPickerOpen) {
-            const target = event.target;
-            if (!(target instanceof Element) || !target.closest('[data-sticker-control]')) {
-              setIsPickerOpen(false);
-            }
-          }
-          stickerGestureProps.onPointerDown(event);
-        }}
         className="relative mt-(--safe-top) aspect-3/4 w-full shrink-0 touch-none overflow-hidden rounded-[20px] bg-black"
       >
         <img
@@ -128,7 +123,7 @@ export const CameraReview = ({
           aria-label="재촬영"
           data-sticker-control
           onClick={onRetake}
-          className="press-feedback absolute top-4 left-5 z-10"
+          className={cn('press-feedback absolute top-4 left-5 z-10', HIT_AREA_CLASS)}
         >
           <CancelIcon className="size-9" />
         </button>
@@ -179,7 +174,10 @@ export const CameraReview = ({
               setIsFilterOpen(false);
               setIsPickerOpen((prev) => !prev);
             }}
-            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+            className={cn(
+              'press-feedback relative flex flex-col items-center gap-1 text-gray-700',
+              HIT_AREA_CLASS,
+            )}
           >
             <StickerIcon className="size-9" />
             <span className="text-xs">스티커</span>
@@ -193,7 +191,10 @@ export const CameraReview = ({
               setIsPickerOpen(false);
               setIsFilterOpen((prev) => !prev);
             }}
-            className="press-feedback flex flex-col items-center gap-1 text-gray-700"
+            className={cn(
+              'press-feedback relative flex flex-col items-center gap-1 text-gray-700',
+              HIT_AREA_CLASS,
+            )}
           >
             <span className="flex size-9 items-center justify-center rounded-full bg-[rgba(30,31,31,0.6)]">
               <FilterIcon className="size-5 text-white" aria-hidden="true" />
@@ -222,7 +223,10 @@ export const CameraReview = ({
               aria-label="필터 편집 완료"
               tabIndex={isFilterOpen ? 0 : -1}
               onClick={() => setIsFilterOpen(false)}
-              className="press-feedback col-start-3 flex size-9 items-center justify-center justify-self-end"
+              className={cn(
+                'press-feedback relative col-start-3 flex size-9 items-center justify-center justify-self-end',
+                HIT_AREA_CLASS,
+              )}
             >
               <CheckIcon className="size-6 text-black" />
             </button>
