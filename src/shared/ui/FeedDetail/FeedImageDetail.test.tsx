@@ -1,6 +1,6 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { FeedImageDetail } from './FeedImageDetail';
+import { FeedImageDetail, type Pin } from './FeedImageDetail';
 
 describe('FeedImageDetail', () => {
   it('uses the initial image aspect ratio for fit without changing the fixed hero frame', () => {
@@ -135,5 +135,31 @@ describe('FeedImageDetail', () => {
         Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', naturalHeightDescriptor);
       }
     }
+  });
+
+  it('고화질 사진이 로드된 뒤에 댓글 핀이 순서대로 등장한다', () => {
+    const pins: Pin[] = [
+      { id: 'a', x: 10, y: 20, avatars: [{ id: '1', src: '/a.jpg', alt: '첫 댓글' }] },
+      { id: 'b', x: 30, y: 40, avatars: [{ id: '2', src: '/b.jpg', alt: '둘째 댓글' }] },
+    ];
+    render(<FeedImageDetail src="/detail.jpg" alt="피드 사진" pins={pins} />);
+
+    expect(screen.queryByAltText('첫 댓글')).not.toBeInTheDocument();
+
+    fireEvent.load(screen.getByAltText('피드 사진'));
+
+    const [first, second] = screen.getAllByRole('button');
+    expect(first).toHaveClass('motion-safe:animate-pin-pop');
+    expect(first).toHaveStyle({ animationDelay: '120ms' });
+    expect(second).toHaveStyle({ animationDelay: '170ms' });
+  });
+
+  it('사진 로드에 실패해도 댓글 핀은 표시된다', () => {
+    const pins: Pin[] = [{ id: 'a', x: 10, y: 20, avatars: [{ id: '1', src: '/a.jpg' }] }];
+    render(<FeedImageDetail src="/broken.jpg" alt="피드 사진" pins={pins} />);
+
+    fireEvent.error(screen.getByAltText('피드 사진'));
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 });
