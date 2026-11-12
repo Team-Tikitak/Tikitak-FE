@@ -3,6 +3,7 @@ import { usePostDailyQuestion } from '@/shared/api/dailyQuestion/queries';
 import { deleteMedia } from '@/shared/api/media/api';
 import { uploadMediaBlobs } from '@/shared/api/media/helpers';
 import { useShareSubmit } from '@/shared/hooks/useShareSubmit';
+import { burstConfetti } from '@/shared/lib/burstConfetti';
 import type { CapturedPhoto } from '@/shared/types/photo';
 import { showToast } from '@/shared/ui/Toast/showToast';
 
@@ -42,6 +43,7 @@ export const useDailyQuestionShare = ({
       }
       navigate(-1);
       showToast('피드를 올렸어요');
+      burstConfetti();
     });
   };
 
