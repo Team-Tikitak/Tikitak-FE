@@ -1,7 +1,9 @@
+import { useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { toDailyFeedEdit, toFeedEdit } from '@/app/routes/paths';
 import { useDeleteFeed, useGetFeedDetail } from '@/shared/api/feed/queries';
 import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
+import { disintegrateImage } from '@/shared/lib/disintegrateImage';
 import { ActiveMenu } from '../ActiveMenu/ActiveMenu';
 import { openConfirmDialog } from '../ConfirmDialog';
 
@@ -12,22 +14,43 @@ interface FeedActionMenuProps {
   stayOnDelete?: boolean;
 }
 
+// 캐러셀은 한 장씩 스냅되므로 화면 안에 들어온 첫 사진이 지금 보고 있는 사진이다
+const findVisibleImageFrame = (anchor: HTMLElement | null) =>
+  [
+    ...(anchor
+      ?.closest('[data-feed-detail]')
+      ?.querySelectorAll<HTMLElement>('[data-feed-detail-image-frame]') ?? []),
+  ].find((frame) => {
+    const rect = frame.getBoundingClientRect();
+    return rect.right > 0 && rect.left < window.innerWidth;
+  });
+
 export const FeedActionMenu = ({ teamId, feedId, stayOnDelete = false }: FeedActionMenuProps) => {
   const navigate = useNavigate();
   const { data } = useGetFeedDetail(teamId, feedId);
-  const { mutate: deleteFeed } = useDeleteFeed(teamId, feedId, { navigateBack: !stayOnDelete });
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const { mutate: deleteFeed, isPending: isDeleting } = useDeleteFeed(teamId, feedId, {
+    navigateBack: !stayOnDelete,
+  });
 
   if (!data?.isMine) return null;
 
   const canEdit = data.type !== 'DAILY_QUESTION';
 
+  const handleConfirmDelete = () => {
+    const frame = findVisibleImageFrame(anchorRef.current);
+    const restoreImage = frame ? disintegrateImage(frame) : undefined;
+    deleteFeed(undefined, { onError: restoreImage });
+  };
+
   const handleDeleteClick = () => {
+    if (isDeleting) return;
     openConfirmDialog({
       title: '정말 삭제하시겠어요?',
       description: '삭제 후 복구가 불가능해요.',
       confirmLabel: '삭제하기',
       destructive: true,
-      onConfirm: () => deleteFeed(),
+      onConfirm: handleConfirmDelete,
       overlayClassName: 'z-50',
     });
   };
@@ -37,10 +60,12 @@ export const FeedActionMenu = ({ teamId, feedId, stayOnDelete = false }: FeedAct
   };
 
   return (
-    <ActiveMenu
-      icon={<MoreIcon className="size-6 rotate-90 text-[#666]" />}
-      onDelete={handleDeleteClick}
-      onEdit={canEdit ? handleEditClick : undefined}
-    />
+    <span ref={anchorRef} className="contents">
+      <ActiveMenu
+        icon={<MoreIcon className="size-6 rotate-90 text-[#666]" />}
+        onDelete={handleDeleteClick}
+        onEdit={canEdit ? handleEditClick : undefined}
+      />
+    </span>
   );
 };
