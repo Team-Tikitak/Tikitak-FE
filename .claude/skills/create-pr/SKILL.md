@@ -3,7 +3,7 @@ name: create-pr
 description: 현재 브랜치를 분석하여 프로젝트 PR 템플릿에 맞는 풀 리퀘스트를 생성합니다.
 user-invocable: true
 argument-hint: [--append]
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Bash, Read, Grep, Glob, Agent
 ---
 
 # 워크플로우
@@ -15,6 +15,10 @@ git log main..HEAD --oneline
 git diff main..HEAD --stat
 git diff main..HEAD
 ```
+
+## 1-1단계: 리뷰 게이트
+
+`.claude/rules/workflow.md`의 "리뷰 게이트"를 따른다. 이번 대화의 `/commit-kr`에서 이미 본 변경은 다시 보내지 않고, 아직 안 본 `src/` 변경만 `tikitak-reviewer`에 커밋 범위(예: `main...HEAD`)와 함께 넘긴다. Critical·Major가 있으면 PR 초안 대신 결과부터 보여주고, 결과 한 줄은 `🔍 기타 참고사항`에 적는다.
 
 ## 2단계: 이슈 번호 추출
 

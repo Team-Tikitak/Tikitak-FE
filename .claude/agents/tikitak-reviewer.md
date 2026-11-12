@@ -26,7 +26,15 @@ tools: Read, Glob, Grep, Bash
 제약:
 
 - 파일을 수정하지 않는다.
-- 리뷰 범위는 `git diff` / `git diff --staged` 또는 호출자가 지정한 브랜치 범위를 사용한다.
+- 리뷰 범위: 호출자가 기준 범위(예: `main...HEAD`)를 주면 `git diff <범위>`와 `git log <범위>`로 커밋된 변경을 본다. 범위가 없으면 `git diff`와 `git diff --staged`로 작업 트리를 보고, untracked 새 파일은 diff에 안 나오므로 직접 읽는다.
+- diff도 untracked 새 파일도 없으면 통과로 쓰지 말고 `BLOCKED(리뷰할 변경 없음)`으로 답한다. 파일을 읽지 못하는 등 리뷰를 끝내지 못해도 `BLOCKED(사유)`로 답한다.
 - Findings를 심각도(Critical/Major/Minor/Suggestion) 순으로 먼저 나열하고, 각 항목에 file:line을 포함한다.
 - 이슈가 없으면 없다고 명시하고 남은 테스트 리스크를 적는다.
 - 실행하지 않은 검증 명령(lint/type-check/test/build)이 있으면 명시한다.
+
+게이트 모드 (`/commit-kr`, `/create-pr`에서 호출):
+
+- 호출자가 "게이트 모드: Critical·Major만"이라고 하면 Critical·Major만 보고, Minor·Suggestion은 쓰지 않는다.
+- Critical: 데이터 손실, 보안·개인정보 노출, 앱 크래시, 핵심 사용자 흐름이 막히는 문제.
+- Major: 특정 조건에서 잘못 동작하는 런타임 버그, FSD 경계 위반, 검증하지 못하는 테스트(항상 통과하는 단언 등).
+- 결과 첫 줄은 `문제 없음` / `Critical·Major N건` / `BLOCKED(사유)` 중 하나로 쓰고, 이어서 항목별로 file:line과 실패 시나리오를 적는다.

@@ -2,7 +2,7 @@
 name: commit-kr
 description: Udacity Git Commit Convention 기반으로 한국어 커밋 메시지와 git 명령어를 생성합니다. 직접 실행하지 않고 명령어만 출력합니다.
 user-invocable: true
-allowed-tools: Bash, Read, Grep
+allowed-tools: Bash, Read, Grep, Agent
 ---
 
 # 기반
@@ -12,9 +12,10 @@ Udacity Git Commit Message Style Guide를 따릅니다.
 # 워크플로우
 
 1. `git status`와 `git diff --staged`로 변경사항 분석
-2. `git log --oneline -10`으로 기존 커밋 패턴 참고
-3. 아래 형식에 맞는 커밋 메시지 생성
-4. **실행하지 않고** `git add`와 `git commit` 명령어를 출력
+2. **리뷰 게이트**: `.claude/rules/workflow.md`의 "리뷰 게이트"를 따른다. `src/` 코드가 바뀌었을 때만 `tikitak-reviewer`로 작업 트리의 Critical·Major를 확인하고, 있으면 커밋 명령 대신 결과부터 보여준다.
+3. `git log --oneline -10`으로 기존 커밋 패턴 참고
+4. 아래 형식에 맞는 커밋 메시지 생성
+5. **실행하지 않고** `git add`와 `git commit` 명령어를 출력하고, 마지막에 리뷰 결과를 한 줄로 적는다
 
 # 커밋 명령어 형식
 
