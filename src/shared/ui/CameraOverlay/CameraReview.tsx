@@ -133,7 +133,7 @@ export const CameraReview = ({
           aria-hidden={!draggingId}
           data-testid="camera-trash-drop-zone"
           className={cn(
-            'pointer-events-none absolute bottom-4 left-1/2 z-30 flex size-14 -translate-x-1/2 items-center justify-center rounded-full backdrop-blur-md transition-[opacity,transform,background-color,box-shadow] will-change-transform motion-reduce:transition-none',
+            'pointer-events-none absolute bottom-4 left-1/2 z-30 flex size-14 -translate-x-1/2 items-center justify-center rounded-full backdrop-blur-md transition-[opacity,transform,translate,scale,background-color,box-shadow] will-change-transform motion-reduce:transition-none',
             TRASH_MOTION_CLASS,
             draggingId
               ? 'translate-y-0 scale-100 opacity-100 shadow-[0_12px_32px_rgba(0,0,0,0.24)]'
@@ -156,7 +156,7 @@ export const CameraReview = ({
       <div className="grid w-full min-w-0 overflow-hidden">
         <div
           className={cn(
-            'col-start-1 row-start-1 flex w-full min-w-0 items-center justify-center gap-8 self-start transition-[filter,opacity,transform] motion-reduce:transition-none',
+            'col-start-1 row-start-1 flex w-full min-w-0 items-center justify-center gap-8 self-start transition-[filter,opacity,transform,translate,scale] motion-reduce:transition-none',
             isToolButtonsCollapsed
               ? isFilterOpen
                 ? 'pointer-events-none -translate-x-8 scale-[0.98] opacity-0 blur-[1px]'
@@ -207,7 +207,7 @@ export const CameraReview = ({
           data-testid="camera-filter-tray"
           aria-hidden={!isFilterOpen}
           className={cn(
-            'col-start-1 row-start-1 flex w-full min-w-0 flex-col gap-6 transition-[opacity,transform] motion-reduce:transition-none',
+            'col-start-1 row-start-1 flex w-full min-w-0 flex-col gap-6 transition-[opacity,transform,translate,scale] motion-reduce:transition-none',
             isFilterOpen
               ? `translate-x-0 opacity-100 ${filterMotionClass}`
               : `pointer-events-none translate-x-full opacity-0 ${filterMotionClass}`,
@@ -244,7 +244,7 @@ export const CameraReview = ({
               >
                 <span
                   className={cn(
-                    'size-[72px] overflow-hidden rounded-xl border-2 transition-[border-color,transform] duration-160 ease-out',
+                    'size-[72px] overflow-hidden rounded-xl border-2 transition-[border-color,transform,translate,scale] duration-160 ease-out',
                     activeFilterId === filter.id ? 'border-main-001' : 'border-transparent',
                   )}
                 >
@@ -273,7 +273,7 @@ export const CameraReview = ({
         data-testid="camera-upload-action"
         aria-hidden={!shouldShowUploadButton}
         className={cn(
-          'absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10 transition-[filter,opacity,transform] motion-reduce:transition-none',
+          'absolute right-5 bottom-[calc(24px+env(safe-area-inset-bottom))] left-5 z-10 transition-[filter,opacity,transform,translate,scale] motion-reduce:transition-none',
           shouldShowUploadButton
             ? 'translate-y-0 opacity-100'
             : 'pointer-events-none translate-y-4 scale-95 opacity-0 blur-[1px]',
