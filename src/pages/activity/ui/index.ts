@@ -8,3 +8,4 @@ export * from './ContentImageCard';
 export * from './EmptyActiveView';
 export * from './MonthlyBestAttendance';
 export * from './MonthlyMemories';
+export * from './MonthlyTitles';
