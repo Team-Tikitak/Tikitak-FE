@@ -3,6 +3,8 @@ import { expect, test } from './fixtures/auth';
 import type { Page } from '@playwright/test';
 
 const CACHE_KEY = 'tikitak-query-cache';
+const SLOW_RESPONSE_MS = 10_000;
+const CACHED_RENDER_TIMEOUT_MS = 6_000;
 
 const team = (id: number, name: string) => ({
   teamId: id,
@@ -67,15 +69,16 @@ test.describe('쿼리 캐시 영속화', () => {
     });
     await waitUntilPersisted(page);
 
-    // 콜드 스타트에서 /me, 약관 응답이 오래 걸리는 상황
+    // 콜드 스타트에서 /me, 약관 응답이 오래 걸리는 상황.
+    // 확인 시간(6초)은 앱 부팅 시간을 포함하므로 느린 WebKit 러너에서도 여유를 두되, 응답 지연보다는 확실히 짧게 둔다
     await page.route('**/api/v1/me', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 6_000));
+      await new Promise((resolve) => setTimeout(resolve, SLOW_RESPONSE_MS));
       await route
         .fulfill(json(wrap({ ...DEFAULT_ME, hasTeam: true, activeTeamId: 100 })))
         .catch(() => undefined);
     });
     await page.route('**/api/v1/me/agreements', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 6_000));
+      await new Promise((resolve) => setTimeout(resolve, SLOW_RESPONSE_MS));
       await route
         .fulfill(
           json(
@@ -88,7 +91,7 @@ test.describe('쿼리 캐시 영속화', () => {
     await page.reload();
 
     await expect(page.getByRole('button', { name: '알파팀', exact: true })).toBeVisible({
-      timeout: 3_000,
+      timeout: CACHED_RENDER_TIMEOUT_MS,
     });
   });
 
