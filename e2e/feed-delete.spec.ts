@@ -100,7 +100,7 @@ test.describe('피드 삭제', () => {
     await page.waitForURL(/\/feed$/, { timeout: 10_000 });
   });
 
-  test('넓은 화면에서 두 번째 사진을 보고 삭제하면 그 사진이 흩날린다', async ({ page }) => {
+  test('넓은 화면에서 두 번째 사진을 보고 삭제하면 그 사진이 깨진다', async ({ page }) => {
     // 콘텐츠가 가운데 정렬되는 폭 — 이전 사진이 왼쪽 여백에 걸쳐 뷰포트 안에 남는 조건
     await page.setViewportSize({ width: 700, height: 900 });
     await stubImages(page);
@@ -111,7 +111,7 @@ test.describe('피드 삭제', () => {
     });
     await page.route('**/api/v1/teams/100/feeds/1', async (route) => {
       if (route.request().method() === 'DELETE') {
-        // 흩날림 상태를 확인할 때까지 삭제 응답(→ 목록 복귀)을 보류한다
+        // 깨지는 상태를 확인할 때까지 삭제 응답(→ 목록 복귀)을 보류한다
         await deleteHeld;
         await route.fulfill(json(wrap(null))).catch(() => undefined);
         return;
