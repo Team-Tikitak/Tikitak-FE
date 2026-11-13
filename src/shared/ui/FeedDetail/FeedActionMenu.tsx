@@ -14,16 +14,20 @@ interface FeedActionMenuProps {
   stayOnDelete?: boolean;
 }
 
-// 캐러셀은 한 장씩 스냅되므로 화면 안에 들어온 첫 사진이 지금 보고 있는 사진이다
-const findVisibleImageFrame = (anchor: HTMLElement | null) =>
-  [
-    ...(anchor
-      ?.closest('[data-feed-detail]')
-      ?.querySelectorAll<HTMLElement>('[data-feed-detail-image-frame]') ?? []),
-  ].find((frame) => {
-    const rect = frame.getBoundingClientRect();
-    return rect.right > 0 && rect.left < window.innerWidth;
-  });
+// 캐러셀은 한 장씩 스냅되므로, 피드 영역 안에 중심이 들어온 사진이 지금 보고 있는 사진이다.
+// 넓은 화면에선 콘텐츠가 가운데 정렬돼 이웃 사진도 뷰포트 안에 걸칠 수 있어 피드 영역을 기준으로 본다
+const findVisibleImageFrame = (anchor: HTMLElement | null) => {
+  const detail = anchor?.closest('[data-feed-detail]');
+  if (!detail) return undefined;
+  const bounds = detail.getBoundingClientRect();
+  return [...detail.querySelectorAll<HTMLElement>('[data-feed-detail-image-frame]')].find(
+    (frame) => {
+      const rect = frame.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      return centerX >= bounds.left && centerX <= bounds.right;
+    },
+  );
+};
 
 export const FeedActionMenu = ({ teamId, feedId, stayOnDelete = false }: FeedActionMenuProps) => {
   const navigate = useNavigate();
