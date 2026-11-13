@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { disintegrateImage } from './disintegrateImage';
+import { shatterImage } from './shatterImage';
 
 const mockReducedMotion = (reduce: boolean) => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: reduce }) as typeof window.matchMedia;
@@ -29,7 +29,7 @@ const createFrame = (loaded = true, preview?: HTMLImageElement) => {
 
 const drawImage = vi.fn();
 
-describe('disintegrateImage', () => {
+describe('shatterImage', () => {
   let frames: FrameRequestCallback[] = [];
 
   beforeEach(() => {
@@ -41,11 +41,19 @@ describe('disintegrateImage', () => {
     vi.spyOn(performance, 'now').mockReturnValue(0);
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
       scale: vi.fn(),
+      setTransform: vi.fn(),
       clearRect: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
       translate: vi.fn(),
       rotate: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      clip: vi.fn(),
+      rect: vi.fn(),
+      stroke: vi.fn(),
       drawImage,
     } as unknown as CanvasRenderingContext2D);
   });
@@ -56,24 +64,39 @@ describe('disintegrateImage', () => {
     document.body.innerHTML = '';
   });
 
-  it('원본 사진을 숨기고 흩날림이 끝나면 캔버스를 제거한다', () => {
+  it('원본 사진을 숨기고 깨지는 연출이 끝나면 캔버스를 제거한다', () => {
     mockReducedMotion(false);
     const frame = createFrame();
 
-    disintegrateImage(frame);
+    shatterImage(frame);
 
     expect(frame.style.visibility).toBe('hidden');
     expect(document.querySelector('body > canvas')).toBeInTheDocument();
 
-    frames.shift()?.(1200);
+    frames.shift()?.(3000);
     expect(document.querySelector('body > canvas')).not.toBeInTheDocument();
+  });
+
+  it('금이 가는 동안은 사진을 통째로, 이후에는 조각마다 그린다', () => {
+    mockReducedMotion(false);
+    const frame = createFrame();
+
+    shatterImage(frame);
+    drawImage.mockClear();
+
+    frames.shift()?.(100);
+    expect(drawImage).toHaveBeenCalledTimes(1);
+
+    drawImage.mockClear();
+    frames.shift()?.(500);
+    expect(drawImage.mock.calls.length).toBeGreaterThan(1);
   });
 
   it('복원 함수를 부르면 원본 사진이 다시 보인다', () => {
     mockReducedMotion(false);
     const frame = createFrame();
 
-    const restore = disintegrateImage(frame);
+    const restore = shatterImage(frame);
     restore();
 
     expect(frame.style.visibility).toBe('');
@@ -82,22 +105,22 @@ describe('disintegrateImage', () => {
   it('동작 줄이기 설정이거나 사진이 로드되지 않았으면 아무것도 하지 않는다', () => {
     mockReducedMotion(true);
     const reducedFrame = createFrame();
-    disintegrateImage(reducedFrame);
+    shatterImage(reducedFrame);
     expect(reducedFrame.style.visibility).toBe('');
 
     mockReducedMotion(false);
     const unloadedFrame = createFrame(false);
-    disintegrateImage(unloadedFrame);
+    shatterImage(unloadedFrame);
     expect(unloadedFrame.style.visibility).toBe('');
     expect(document.querySelector('body > canvas')).not.toBeInTheDocument();
   });
 
-  it('미리보기와 원본이 모두 로드됐으면 화면에 보이는 원본을 흩날린다', () => {
+  it('미리보기와 원본이 모두 로드됐으면 화면에 보이는 원본을 깨뜨린다', () => {
     mockReducedMotion(false);
     const preview = createImage(40, true);
     const frame = createFrame(true, preview);
 
-    disintegrateImage(frame);
+    shatterImage(frame);
 
     const [snapshotSource] = drawImage.mock.calls[0];
     expect(snapshotSource).not.toBe(preview);

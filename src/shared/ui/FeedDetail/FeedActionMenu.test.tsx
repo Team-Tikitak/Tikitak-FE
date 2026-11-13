@@ -2,10 +2,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FeedActionMenu } from './FeedActionMenu';
 
-const { deleteFeed, deleteState, disintegrate, restoreImage, openDialog } = vi.hoisted(() => ({
+const { deleteFeed, deleteState, shatter, restoreImage, openDialog } = vi.hoisted(() => ({
   deleteFeed: vi.fn(),
   deleteState: { isPending: false },
-  disintegrate: vi.fn(),
+  shatter: vi.fn(),
   restoreImage: vi.fn(),
   openDialog: vi.fn(),
 }));
@@ -15,7 +15,7 @@ vi.mock('@/shared/api/feed/queries', () => ({
   useGetFeedDetail: () => ({ data: { isMine: true, type: 'GENERAL' } }),
   useDeleteFeed: () => ({ mutate: deleteFeed, isPending: deleteState.isPending }),
 }));
-vi.mock('@/shared/lib/disintegrateImage', () => ({ disintegrateImage: disintegrate }));
+vi.mock('@/shared/lib/shatterImage', () => ({ shatterImage: shatter }));
 vi.mock('../ConfirmDialog', () => ({ openConfirmDialog: openDialog }));
 vi.mock('../ActiveMenu/ActiveMenu', () => ({
   ActiveMenu: ({ onDelete }: { onDelete: () => void }) => (
@@ -45,7 +45,7 @@ describe('FeedActionMenu', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     deleteState.isPending = false;
-    disintegrate.mockReturnValue(restoreImage);
+    shatter.mockReturnValue(restoreImage);
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
       this: HTMLElement,
     ) {
@@ -54,13 +54,13 @@ describe('FeedActionMenu', () => {
     });
   });
 
-  it('삭제를 확정하면 넓은 화면에서도 지금 보고 있는 사진을 흩날리고 실패 시 되돌린다', () => {
+  it('삭제를 확정하면 넓은 화면에서도 지금 보고 있는 사진을 깨뜨리고 실패 시 되돌린다', () => {
     renderInFeed();
 
     fireEvent.click(screen.getByRole('button', { name: '삭제' }));
     openDialog.mock.calls[0][0].onConfirm();
 
-    expect(disintegrate).toHaveBeenCalledWith(screen.getByTestId('current-frame'));
+    expect(shatter).toHaveBeenCalledWith(screen.getByTestId('current-frame'));
     expect(deleteFeed).toHaveBeenCalledWith(undefined, { onError: restoreImage });
   });
 
