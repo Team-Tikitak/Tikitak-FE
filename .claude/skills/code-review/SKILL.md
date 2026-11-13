@@ -23,9 +23,12 @@ allowed-tools: Bash, Read, Grep, Glob, Agent
 ```bash
 git diff --name-only
 git diff --staged --name-only
+git ls-files --others --exclude-standard
 git diff
 git diff --staged
 ```
+
+새로 만든 파일(untracked)은 `git diff`에 나오지 않으므로 `git ls-files --others --exclude-standard`로 찾아 직접 읽고 리뷰 범위에 포함합니다.
 
 브랜치 비교가 필요한 경우:
 
@@ -49,7 +52,7 @@ git diff main...HEAD
 
 ### 2-1. 프로젝트 리뷰어 호출
 
-`src/` 변경이 있으면 `tikitak-reviewer` 에이전트에 1단계에서 정한 리뷰 범위(작업 트리 또는 `main...HEAD` 같은 브랜치 범위)를 넘겨 부르고, 이 스킬의 리뷰와 결과를 합칩니다.
+`src/` 변경(untracked 새 파일 포함)이 있으면 `tikitak-reviewer` 에이전트에 1단계에서 정한 리뷰 범위(작업 트리 또는 `main...HEAD` 같은 브랜치 범위)를 넘겨 부르고, 이 스킬의 리뷰와 결과를 합칩니다.
 
 - 이 스킬은 전체 리뷰라 게이트와 달리 Minor·Suggestion까지 봅니다. 리뷰어에게 "게이트 모드"라고 넘기지 않습니다.
 - 같은 항목이 겹치면 하나로 합치고, 심각도가 다르면 근거가 더 구체적인 쪽을 따릅니다.
