@@ -20,7 +20,12 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
   const form = useFeedForm({ initialMembers: myMember ? [myMember] : [] });
   const { content, photos, selectedPlace, selectedMembers, removePhoto, isShareDisabled } = form;
 
-  const { discardDraft } = useFeedDraft({ teamId, form, teamMembers });
+  const { discardDraft } = useFeedDraft({
+    teamId,
+    form,
+    teamMembers,
+    defaultMemberIds: myMember ? [myMember.teamMemberId] : [],
+  });
   const { share, isSharing } = useFeedShare({
     teamId,
     content,
