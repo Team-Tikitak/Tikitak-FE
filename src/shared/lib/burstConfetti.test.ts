@@ -5,6 +5,8 @@ const mockReducedMotion = (reduce: boolean) => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: reduce }) as typeof window.matchMedia;
 };
 
+const translate = vi.fn();
+
 describe('burstConfetti', () => {
   let frames: FrameRequestCallback[] = [];
 
@@ -20,13 +22,14 @@ describe('burstConfetti', () => {
       clearRect: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      translate: vi.fn(),
+      translate,
       rotate: vi.fn(),
       fillRect: vi.fn(),
     } as unknown as CanvasRenderingContext2D);
   });
 
   afterEach(() => {
+    translate.mockClear();
     vi.restoreAllMocks();
     document.body.innerHTML = '';
   });
@@ -56,5 +59,22 @@ describe('burstConfetti', () => {
     burstConfetti();
 
     expect(document.querySelector('canvas')).not.toBeInTheDocument();
+  });
+
+  it('주사율과 관계없이 같은 시점에는 같은 위치에 그린다', () => {
+    mockReducedMotion(false);
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+    // 600ms 시점까지 주어진 주사율로 프레임을 돌린 뒤 마지막으로 그린 위치
+    const positionAt600ms = (fps: number) => {
+      translate.mockClear();
+      frames = [];
+      burstConfetti();
+      const frameCount = (600 * fps) / 1000;
+      for (let frame = 1; frame <= frameCount; frame += 1) runFrame((frame * 1000) / fps);
+      return translate.mock.calls.at(-1);
+    };
+
+    expect(positionAt600ms(120)).toEqual(positionAt600ms(60));
   });
 });
