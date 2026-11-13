@@ -47,7 +47,8 @@ export const MonthlyTitles = ({ teamId }: MonthlyTitlesProps) => {
             >
               {title.title}
             </span>
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-black">
+            {/* 공동 수상자가 여러 명이어도 이름이 잘리지 않게 줄바꿈한다 */}
+            <span className="min-w-0 flex-1 text-sm font-semibold break-keep text-black">
               {title.holder}
             </span>
             <span className="shrink-0 text-xs text-gray-600">{title.detail}</span>

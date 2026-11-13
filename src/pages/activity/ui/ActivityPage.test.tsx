@@ -51,6 +51,7 @@ vi.mock('@/shared/api/home/queries', () => ({
   useHomeBestAttendance: (teamId?: number) => mockUseHomeBestAttendance(teamId),
   useHomeEveryonePick: (teamId?: number) => mockUseHomeEveryonePick(teamId),
   useHomeRegions: (teamId?: number) => mockUseHomeRegions(teamId),
+  useHomeCombinations: () => ({ data: undefined, isPending: false }),
 }));
 
 vi.mock('./MonthlyBestAttendance', () => ({
