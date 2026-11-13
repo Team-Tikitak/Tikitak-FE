@@ -3,4 +3,5 @@
  */
 
 export * from './deleteContextStorage';
+export * from './feedDraftStore';
 export * from './sessionStore';

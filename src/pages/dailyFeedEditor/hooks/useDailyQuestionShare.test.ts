@@ -19,6 +19,8 @@ vi.mock('@/shared/api/media/api', () => ({ deleteMedia: remove }));
 vi.mock('@/shared/hooks/useShareSubmit', () => ({
   useShareSubmit: () => ({ submit: (task: () => Promise<void>) => task(), isSharing: false }),
 }));
+const confetti = vi.hoisted(() => vi.fn());
+vi.mock('@/shared/lib/burstConfetti', () => ({ burstConfetti: confetti }));
 vi.mock('@/shared/ui/Toast/showToast', () => ({
   showToast: feedback,
 }));
@@ -46,6 +48,7 @@ describe('useDailyQuestionShare', () => {
     await act(async () => result.current.share());
     expect(navigate).toHaveBeenCalledWith(-1);
     expect(feedback).toHaveBeenCalledWith('피드를 올렸어요');
+    expect(confetti).toHaveBeenCalledTimes(1);
   });
 
   it('작성에 실패하면 업로드를 정리하고 완료 피드백을 표시하지 않는다', async () => {
@@ -54,6 +57,7 @@ describe('useDailyQuestionShare', () => {
     await act(async () => expect(result.current.share()).rejects.toThrow('failed'));
     expect(remove).toHaveBeenCalledWith('photo');
     expect(feedback).not.toHaveBeenCalled();
+    expect(confetti).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
 });

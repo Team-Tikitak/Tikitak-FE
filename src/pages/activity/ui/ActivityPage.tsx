@@ -10,6 +10,7 @@ import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
+import { MonthlyTitles } from './MonthlyTitles';
 import { useActivityPage } from '../hooks/useActivityPage';
 
 const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
@@ -75,6 +76,7 @@ export const ActivityPage = () => {
     content = (
       <div className="flex flex-col gap-9 px-5">
         <MonthlyBestAttendance teamId={teamId} />
+        <MonthlyTitles teamId={teamId} />
         <MonthlyMemories
           teamId={teamId}
           suppressedItemId={suppressedItemId}

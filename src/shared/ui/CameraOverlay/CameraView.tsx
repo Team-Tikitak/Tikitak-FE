@@ -112,7 +112,7 @@ export const CameraView = ({
                       aria-pressed={selected}
                       onClick={() => onZoomChange?.(level)}
                       className={cn(
-                        'press-feedback relative z-10 flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-[color,transform] duration-200 ease-out active:scale-95',
+                        'press-feedback relative z-10 flex size-10 items-center justify-center rounded-full text-[15px] leading-none font-semibold text-white transition-[color,transform,translate,scale] duration-200 ease-out active:scale-95',
                         selected && 'text-main-001 scale-105',
                       )}
                     >

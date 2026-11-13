@@ -14,6 +14,7 @@ interface UseFeedShareParams {
   photos: CapturedPhoto[];
   selectedPlace: FeedPlace | null;
   selectedMembers: TeamMember[];
+  onShared?: () => void;
 }
 
 export const useFeedShare = ({
@@ -22,6 +23,7 @@ export const useFeedShare = ({
   photos,
   selectedPlace,
   selectedMembers,
+  onShared,
 }: UseFeedShareParams) => {
   const navigate = useNavigate();
   const createFeedMutation = useCreateFeed(teamId ?? 0);
@@ -48,6 +50,7 @@ export const useFeedShare = ({
         await Promise.all(mediaPublicIds.map((id) => deleteMedia(id).catch(() => undefined)));
         throw error;
       }
+      onShared?.();
       navigate(-1);
       showToast('피드를 올렸어요');
     });

@@ -5,7 +5,7 @@ const OnboardingCardVariants = tv({
   base: [
     'flex h-21 w-full cursor-pointer flex-col items-start justify-center gap-1 rounded-sm border p-[18px]',
     'touch-manipulation select-none',
-    'transition-[background-color,border-color,transform] duration-150 ease-out',
+    'transition-[background-color,border-color,transform,translate,scale] duration-150 ease-out',
     'active:scale-[0.97]',
   ],
   variants: {

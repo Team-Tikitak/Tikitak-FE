@@ -159,7 +159,7 @@ const FEED_LIST_ITEM = {
   createdAt: '2026-05-01T00:00:00.000Z',
 };
 
-// 활동 페이지 데이터 mock — daily(배너 숨김) + best-attendance + everyone-pick + regions
+// 활동 페이지 데이터 mock — daily(배너 숨김) + best-attendance + everyone-pick + regions + combinations
 export const mockActivityHome = async (page: Page, teamId: number): Promise<void> => {
   const base = `**/api/v1/teams/${teamId}`;
 
@@ -209,6 +209,22 @@ export const mockActivityHome = async (page: Page, teamId: number): Promise<void
         wrap({
           month: 5,
           regions: [{ region: '서울', feedCount: 4, thumbnailImageUrl: 'r.jpg' }],
+        }),
+      ),
+    ),
+  );
+
+  // 이달의 칭호(베스트 콤비)용 — mock이 없으면 실제 요청 실패·재시도 타이밍에 따라 섹션 노출이 흔들린다
+  await page.route(`${base}/home/combinations`, async (route) =>
+    route.fulfill(
+      json(
+        wrap({
+          month: 5,
+          combination: [
+            { teamMemberId: 200, nickname: '테스터', profileImageUrl: 'm.jpg' },
+            { teamMemberId: 201, nickname: '동행', profileImageUrl: 'm.jpg' },
+          ],
+          feeds: [FEED_LIST_ITEM],
         }),
       ),
     ),

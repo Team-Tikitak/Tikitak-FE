@@ -30,6 +30,7 @@ describe('useFeedShare', () => {
     remove.mockResolvedValue(undefined);
   });
 
+  const onShared = vi.fn();
   const renderShare = () =>
     renderHook(() =>
       useFeedShare({
@@ -38,6 +39,7 @@ describe('useFeedShare', () => {
         photos: [{ id: 'photo', url: 'blob:photo', blob: new Blob() }],
         selectedPlace: null,
         selectedMembers: [],
+        onShared,
       }),
     );
 
@@ -47,6 +49,7 @@ describe('useFeedShare', () => {
     await act(async () => result.current.share());
     expect(navigate).toHaveBeenCalledWith(-1);
     expect(feedback).toHaveBeenCalledWith('피드를 올렸어요');
+    expect(onShared).toHaveBeenCalledTimes(1);
   });
 
   it('작성에 실패하면 업로드를 정리하고 완료 피드백을 표시하지 않는다', async () => {
@@ -56,5 +59,6 @@ describe('useFeedShare', () => {
     expect(remove).toHaveBeenCalledWith('photo');
     expect(feedback).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
+    expect(onShared).not.toHaveBeenCalled();
   });
 });

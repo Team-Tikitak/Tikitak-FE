@@ -6,6 +6,7 @@ import { useGetTeams, useMe } from '@/shared/api/user/queries';
 import { useFeedForm } from '@/shared/hooks/feed/useFeedForm';
 import { EmptyTeamView, Header, PageState } from '@/shared/ui';
 import { FeedFormView } from './FeedFormView';
+import { useFeedDraft } from '../hooks/useFeedDraft';
 import { useFeedShare } from '../hooks/useFeedShare';
 
 interface FeedCreateFormProps {
@@ -19,12 +20,14 @@ const FeedCreateForm = ({ teamId, teamMembers, myMember }: FeedCreateFormProps) 
   const form = useFeedForm({ initialMembers: myMember ? [myMember] : [] });
   const { content, photos, selectedPlace, selectedMembers, removePhoto, isShareDisabled } = form;
 
+  const { discardDraft } = useFeedDraft({ teamId, form, teamMembers });
   const { share, isSharing } = useFeedShare({
     teamId,
     content,
     photos,
     selectedPlace,
     selectedMembers,
+    onShared: discardDraft,
   });
 
   const photoItems = photos.map((photo) => ({
@@ -73,7 +76,15 @@ export const FeedCreatePage = () => {
       isError={!isLoading && !teamId}
       errorSlot={<EmptyTeamView onCreateTeam={() => navigate(PATHS.TEAM_CREATE)} />}
     >
-      {teamId && <FeedCreateForm teamId={teamId} teamMembers={teamMembers} myMember={myMember} />}
+      {teamId && (
+        // 팀이 바뀌면 폼과 임시저장 상태를 새 팀 기준으로 다시 시작한다
+        <FeedCreateForm
+          key={teamId}
+          teamId={teamId}
+          teamMembers={teamMembers}
+          myMember={myMember}
+        />
+      )}
     </PageState>
   );
 };

@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-query-persist-client';
 import { homeKeys } from './home/keys';
 import { userKeys } from './user/keys';
+import { clearFeedDrafts } from '../lib/storage/feedDraftStore';
 import type { Query, QueryClient } from '@tanstack/react-query';
 
 const QUERY_CACHE_STORAGE_KEY = 'tikitak-query-cache';
@@ -69,4 +70,6 @@ export const startQueryCachePersist = (queryClient: QueryClient) =>
 export const clearPersistedQueryCache = (queryClient?: QueryClient) => {
   PERSISTED_KEY_PREFIXES.forEach((queryKey) => queryClient?.removeQueries({ queryKey }));
   persister.removeClient();
+  // 계정이 바뀌면 이전 계정의 작성 중인 글(사진 포함)이 보이면 안 된다
+  void clearFeedDrafts();
 };

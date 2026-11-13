@@ -56,6 +56,9 @@ vi.mock('@/shared/api/home/queries', () => ({
 vi.mock('./MonthlyBestAttendance', () => ({
   MonthlyBestAttendance: () => <div data-testid="monthly-best-attendance" />,
 }));
+vi.mock('./MonthlyTitles', () => ({
+  MonthlyTitles: () => <div data-testid="monthly-titles" />,
+}));
 vi.mock('./MonthlyMemories', () => ({
   MonthlyMemories: () => (
     <div data-testid="monthly-memories">

@@ -39,7 +39,12 @@ export function FeedDetail({
   ...props
 }: FeedDetailProps) {
   return (
-    <div className={cn('flex min-h-full w-full flex-col gap-5', className)} ref={ref} {...props}>
+    <div
+      className={cn('flex min-h-full w-full flex-col gap-5', className)}
+      ref={ref}
+      data-feed-detail
+      {...props}
+    >
       <div className="flex min-h-9 w-full justify-center px-[18px]">
         {participants && participants.length > 0 && (
           <ParticipantChipList

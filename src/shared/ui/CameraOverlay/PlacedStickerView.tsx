@@ -36,7 +36,7 @@ export const PlacedStickerView = ({
     >
       <Component
         className={cn(
-          'size-full transition-[filter,opacity,transform] duration-180 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform',
+          'size-full transition-[filter,opacity,transform,translate,scale] duration-180 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform',
           isActive && !isDropping && 'scale-[1.03]',
           isDropping && 'scale-75 opacity-70 saturate-75',
         )}

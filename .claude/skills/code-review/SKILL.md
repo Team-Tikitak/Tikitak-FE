@@ -3,7 +3,7 @@ name: code-review
 description: 변경된 코드를 프로젝트 규칙 기준으로 리뷰하고 심각도별 이슈를 보고합니다.
 user-invocable: true
 argument-hint: [file-or-branch]
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Bash, Read, Grep, Glob, Agent
 ---
 
 # Code Review
@@ -46,6 +46,14 @@ git diff main...HEAD
 - `.claude/skills/react-performance/AGENTS.md`
 
 필요한 규칙만 읽고, 읽지 않은 규칙을 근거로 단정하지 않습니다.
+
+### 2-1. 프로젝트 리뷰어 호출
+
+`src/` 변경이 있으면 `tikitak-reviewer` 에이전트에 1단계에서 정한 리뷰 범위(작업 트리 또는 `main...HEAD` 같은 브랜치 범위)를 넘겨 부르고, 이 스킬의 리뷰와 결과를 합칩니다.
+
+- 이 스킬은 전체 리뷰라 게이트와 달리 Minor·Suggestion까지 봅니다. 리뷰어에게 "게이트 모드"라고 넘기지 않습니다.
+- 같은 항목이 겹치면 하나로 합치고, 심각도가 다르면 근거가 더 구체적인 쪽을 따릅니다.
+- 리뷰어가 `BLOCKED(사유)`를 돌려주면 그 사유를 리포트에 적고 이 스킬의 리뷰만으로 진행합니다.
 
 ### 3. 리뷰 기준
 
