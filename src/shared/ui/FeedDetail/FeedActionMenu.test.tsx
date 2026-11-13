@@ -25,10 +25,18 @@ vi.mock('../ActiveMenu/ActiveMenu', () => ({
   ),
 }));
 
+// 넓은 화면: 피드 영역(400~793)이 가운데 정렬되고, 이전 사진은 왼쪽 여백(7~400)에 걸쳐 있다
+const RECTS: Record<string, { left: number; width: number }> = {
+  feed: { left: 400, width: 393 },
+  'previous-frame': { left: 7, width: 393 },
+  'current-frame': { left: 400, width: 393 },
+};
+
 const renderInFeed = () =>
   render(
-    <div data-feed-detail>
-      <figure data-feed-detail-image-frame data-testid="frame" />
+    <div data-feed-detail data-testid="feed">
+      <figure data-feed-detail-image-frame data-testid="previous-frame" />
+      <figure data-feed-detail-image-frame data-testid="current-frame" />
       <FeedActionMenu teamId={1} feedId={2} />
     </div>,
   );
@@ -38,19 +46,21 @@ describe('FeedActionMenu', () => {
     vi.resetAllMocks();
     deleteState.isPending = false;
     disintegrate.mockReturnValue(restoreImage);
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-      left: 0,
-      right: 390,
-    } as DOMRect);
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const { left, width } = RECTS[this.dataset.testid ?? ''] ?? { left: 0, width: 0 };
+      return { left, width, right: left + width } as DOMRect;
+    });
   });
 
-  it('삭제를 확정하면 보이는 사진을 흩날리고 실패 시 원래대로 되돌린다', () => {
+  it('삭제를 확정하면 넓은 화면에서도 지금 보고 있는 사진을 흩날리고 실패 시 되돌린다', () => {
     renderInFeed();
 
     fireEvent.click(screen.getByRole('button', { name: '삭제' }));
     openDialog.mock.calls[0][0].onConfirm();
 
-    expect(disintegrate).toHaveBeenCalledWith(screen.getByTestId('frame'));
+    expect(disintegrate).toHaveBeenCalledWith(screen.getByTestId('current-frame'));
     expect(deleteFeed).toHaveBeenCalledWith(undefined, { onError: restoreImage });
   });
 

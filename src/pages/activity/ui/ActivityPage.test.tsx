@@ -47,10 +47,12 @@ vi.mock('@/shared/api/user/queries', () => ({
 const mockUseHomeBestAttendance = vi.fn();
 const mockUseHomeEveryonePick = vi.fn();
 const mockUseHomeRegions = vi.fn();
+const mockUseHomeCombinations = vi.fn(() => ({ data: undefined, isPending: false }));
 vi.mock('@/shared/api/home/queries', () => ({
   useHomeBestAttendance: (teamId?: number) => mockUseHomeBestAttendance(teamId),
   useHomeEveryonePick: (teamId?: number) => mockUseHomeEveryonePick(teamId),
   useHomeRegions: (teamId?: number) => mockUseHomeRegions(teamId),
+  useHomeCombinations: () => mockUseHomeCombinations(),
 }));
 
 vi.mock('./MonthlyBestAttendance', () => ({
@@ -107,6 +109,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  mockUseHomeCombinations.mockReturnValue({ data: undefined, isPending: false });
   scrollRestoreMocks.handleScroll.mockReset();
   scrollRestoreMocks.saveScrollPosition.mockReset();
   scrollRestoreMocks.useScrollRestore.mockReset();
@@ -259,6 +262,28 @@ describe('ActivityPage - 빈 상태 판별', () => {
     renderPage();
 
     expect(screen.queryByText(/아직 우리 팀의 활동이 없어요/)).toBeNull();
+  });
+
+  it('콘텐츠가 있으면 칭호용 조합 조회가 끝날 때까지 스켈레톤을 유지한다', () => {
+    setHomeQueries({ members: [{ teamMemberId: 1 }], picks: [], regions: [] });
+    mockUseHomeCombinations.mockReturnValue({ data: undefined, isPending: true });
+    const { unmount } = renderPage();
+
+    expect(screen.queryByTestId('monthly-best-attendance')).toBeNull();
+
+    unmount();
+    mockUseHomeCombinations.mockReturnValue({ data: undefined, isPending: false });
+    renderPage();
+
+    expect(screen.getByTestId('monthly-best-attendance')).toBeInTheDocument();
+  });
+
+  it('빈 상태에서는 조합 조회를 기다리지 않고 바로 빈 화면을 보여준다', () => {
+    setHomeQueries({ members: [], picks: [], regions: [] });
+    mockUseHomeCombinations.mockReturnValue({ data: undefined, isPending: true });
+    renderPage();
+
+    expect(screen.getByText(/아직 우리 팀의 활동이 없어요/)).toBeInTheDocument();
   });
 });
 

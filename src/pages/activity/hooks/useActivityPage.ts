@@ -7,6 +7,7 @@ import {
 } from '@/shared/api/dailyQuestion/selectors';
 import {
   useHomeBestAttendance,
+  useHomeCombinations,
   useHomeEveryonePick,
   useHomeRegions,
 } from '@/shared/api/home/queries';
@@ -24,18 +25,12 @@ export const useActivityPage = () => {
     useHomeBestAttendance(teamId);
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(teamId);
   const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(teamId);
+  const { isPending: isCombinationsPending } = useHomeCombinations(teamId);
   const hasUnreadNotifications = useHasUnreadNotifications();
 
   const showDailyQuestion = shouldShowDailyQuestion(question);
   const dailyQuestionAnswered = isDailyQuestionAnswered(question);
   const hasActiveTeam = Boolean(teamId);
-
-  const isLoading =
-    isMePending ||
-    isTeamsPending ||
-    (hasActiveTeam &&
-      (isQuestionPending || isBestAttendancePending || isPickPending || isRegionsPending));
-  const isHeaderLoading = isMePending || isTeamsPending;
 
   // 빈 상태 판별은 isPending 기준 — isFetching을 쓰면 백그라운드 리패치마다 isEmpty가 토글돼 깜빡인다
   const hasNoAttendance =
@@ -47,6 +42,19 @@ export const useActivityPage = () => {
   const hasNoRegions =
     !isRegionsPending && regionsData !== undefined && (regionsData.regions ?? []).length === 0;
   const isEmpty = hasNoAttendance && hasNoPicks && hasNoRegions;
+
+  const isLoading =
+    isMePending ||
+    isTeamsPending ||
+    (hasActiveTeam &&
+      (isQuestionPending ||
+        isBestAttendancePending ||
+        isPickPending ||
+        isRegionsPending ||
+        // 칭호 섹션이 늦게 끼어들어 복원한 스크롤 위치가 밀리지 않도록 조합 조회도 기다린다.
+        // 빈 상태에선 칭호를 그리지 않으므로 기다리지 않는다
+        (isCombinationsPending && !isEmpty)));
+  const isHeaderLoading = isMePending || isTeamsPending;
 
   const goToTeamCreate = () => navigate(PATHS.TEAM_CREATE);
   const goToDailyFeedCreate = () => navigate(PATHS.DAILY_FEED_CREATE);

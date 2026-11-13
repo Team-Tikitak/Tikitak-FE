@@ -25,6 +25,12 @@ export const buildMonthlyTitles = ({
   combinations,
   regions,
 }: MonthlyTitleSources): MonthlyTitle[] => {
+  // 월이 쿼리 키에 없어 재조회 실패 시 서로 다른 달의 응답이 섞일 수 있다 → 모두 같은 달일 때만 칭호를 만든다
+  const months = new Set(
+    [bestAttendance, combinations, regions].flatMap((source) => (source ? [source.month] : [])),
+  );
+  if (months.size > 1) return [];
+
   const titles: MonthlyTitle[] = [];
 
   // 공동 1위가 있으면 함께 칭호를 받는다

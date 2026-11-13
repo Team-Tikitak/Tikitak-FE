@@ -60,4 +60,16 @@ describe('buildMonthlyTitles', () => {
       }),
     ).toEqual([]);
   });
+
+  it('응답의 월이 서로 다르면 칭호를 만들지 않는다', () => {
+    expect(
+      buildMonthlyTitles({
+        bestAttendance: { month: 11, members: [member(1, '경준', 7)] },
+        regions: {
+          month: 12,
+          regions: [{ region: '서울 마포구', feedCount: 4, feedId: 1, thumbnailImageUrl: '' }],
+        },
+      }),
+    ).toEqual([]);
+  });
 });

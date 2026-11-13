@@ -27,15 +27,31 @@ interface UseFeedDraftParams {
   teamId: number;
   form: FeedDraftForm;
   teamMembers: TeamMember[];
+  /** 폼에 기본으로 들어가는 함께한 멤버(본인). 이 선택 그대로면 저장할 내용으로 보지 않는다 */
+  defaultMemberIds: number[];
 }
 
 type DraftValues = Omit<FeedDraft, 'updatedAt'>;
 
-// 함께한 멤버는 기본으로 본인이 들어가 있어서 내용 판단에서 뺀다
-const hasDraftContent = ({ content, place, photos }: DraftValues) =>
-  content.trim().length > 0 || place !== null || photos.length > 0;
+const isSameMembers = (a: number[], b: number[]) =>
+  a.length === b.length && a.every((id) => b.includes(id));
 
-export const useFeedDraft = ({ teamId, form, teamMembers }: UseFeedDraftParams) => {
+// 함께한 멤버는 기본으로 본인이 들어가 있어서, 사용자가 바꿨을 때만 내용으로 본다
+const hasDraftContent = (
+  { content, place, photos, memberIds }: DraftValues,
+  defaultMemberIds: number[],
+) =>
+  content.trim().length > 0 ||
+  place !== null ||
+  photos.length > 0 ||
+  !isSameMembers(memberIds, defaultMemberIds);
+
+export const useFeedDraft = ({
+  teamId,
+  form,
+  teamMembers,
+  defaultMemberIds,
+}: UseFeedDraftParams) => {
   // 이어쓰기 여부를 정하기 전에는 저장하지 않는다. 빈 폼으로 기존 임시저장본을 덮어쓰지 않기 위해서다
   const [isDecided, setIsDecided] = useState(false);
   const finishedRef = useRef(false);
@@ -59,11 +75,16 @@ export const useFeedDraft = ({ teamId, form, teamMembers }: UseFeedDraftParams) 
     );
   });
 
+  const isWorthRestoring = useEffectEvent(
+    (saved: FeedDraft | null): saved is FeedDraft =>
+      saved !== null && hasDraftContent(saved, defaultMemberIds),
+  );
+
   useEffect(() => {
     let cancelled = false;
     void loadFeedDraft(teamId).then((saved) => {
       if (cancelled) return;
-      if (!saved || !hasDraftContent(saved)) {
+      if (!isWorthRestoring(saved)) {
         setIsDecided(true);
         return;
       }
@@ -91,7 +112,7 @@ export const useFeedDraft = ({ teamId, form, teamMembers }: UseFeedDraftParams) 
     pendingRef.current = false;
     const latest = draftRef.current;
     if (finishedRef.current || !latest) return;
-    if (hasDraftContent(latest)) {
+    if (hasDraftContent(latest, defaultMemberIds)) {
       ownsDraftRef.current = true;
       void saveFeedDraft(teamId, { ...latest, updatedAt: Date.now() });
     } else if (ownsDraftRef.current) {

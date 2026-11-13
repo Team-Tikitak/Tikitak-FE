@@ -48,7 +48,10 @@ const snapshotImage = (image: HTMLImageElement, width: number, height: number, r
 export const disintegrateImage = (frame: HTMLElement): (() => void) => {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return NOOP;
 
-  const image = [...frame.querySelectorAll('img')].find((item) => item.naturalWidth > 0);
+  // 원본이 로드되면 흐린 미리보기(aria-hidden)는 투명하게 남아 있으므로 원본을 우선한다
+  const loadedImages = [...frame.querySelectorAll('img')].filter((item) => item.naturalWidth > 0);
+  const image =
+    loadedImages.find((item) => item.getAttribute('aria-hidden') !== 'true') ?? loadedImages[0];
   if (!image) return NOOP;
 
   const rect = frame.getBoundingClientRect();

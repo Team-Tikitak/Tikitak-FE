@@ -34,7 +34,12 @@ const savedDraft: FeedDraft = {
 const renderDraft = () =>
   renderHook(() => {
     const form = useFeedForm({ initialMembers: [me] });
-    const draft = useFeedDraft({ teamId: 7, form, teamMembers: [me, friend] });
+    const draft = useFeedDraft({
+      teamId: 7,
+      form,
+      teamMembers: [me, friend],
+      defaultMemberIds: [1],
+    });
     return { form, draft };
   });
 
@@ -81,6 +86,25 @@ describe('useFeedDraft', () => {
     expect(deleteDraft).not.toHaveBeenCalled();
   });
 
+  it('함께한 멤버만 바꿔도 임시저장한다', async () => {
+    loadDraft.mockResolvedValue(null);
+    const { result } = renderDraft();
+    await flushLoad();
+
+    act(() => result.current.form.commitMembers([me, friend]));
+    act(() => vi.advanceTimersByTime(500));
+
+    expect(saveDraft).toHaveBeenCalledWith(7, expect.objectContaining({ memberIds: [1, 2] }));
+  });
+
+  it('멤버만 바꾼 임시저장본도 이어쓰기를 묻는다', async () => {
+    loadDraft.mockResolvedValue({ ...savedDraft, content: '', place: null, photos: [] });
+    renderDraft();
+    await flushLoad();
+
+    expect(openDialog).toHaveBeenCalled();
+  });
+
   it('이어쓰기를 고르면 글·장소·멤버·사진을 복원한다', async () => {
     loadDraft.mockResolvedValue(savedDraft);
     const { result } = renderDraft();
@@ -118,7 +142,8 @@ describe('useFeedDraft', () => {
   });
 
   it('이어쓴 내용을 모두 지우면 임시저장본도 지운다', async () => {
-    loadDraft.mockResolvedValue({ ...savedDraft, place: null });
+    // 멤버도 기본값(본인)이라, 글·사진을 지우면 남는 내용이 없다
+    loadDraft.mockResolvedValue({ ...savedDraft, place: null, memberIds: [1] });
     const { result } = renderDraft();
     await flushLoad();
     act(() => openDialog.mock.calls[0][0].onConfirm());

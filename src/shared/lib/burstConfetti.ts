@@ -3,6 +3,8 @@ const CONFETTI_COLORS = ['#ff6fa8', '#3cc4ff', '#ffd43b', '#ff7a1a', '#6ee7b7'];
 const PIECE_COUNT = 90;
 const DURATION_MS = 1800;
 const FADE_OUT_MS = 400;
+// 속도·중력은 60fps 한 프레임(약 16.7ms) 기준 값
+const FRAME_MS = 1000 / 60;
 const GRAVITY = 0.12;
 
 interface ConfettiPiece {
@@ -56,14 +58,12 @@ export const burstConfetti = () => {
 
     context.clearRect(0, 0, width, height);
     context.globalAlpha = Math.min(1, (DURATION_MS - elapsed) / FADE_OUT_MS);
+    // 프레임마다 누적하지 않고 경과 시간으로 위치를 계산해 주사율(60·120Hz)과 무관하게 같은 궤적을 그린다
+    const t = elapsed / FRAME_MS;
     for (const piece of pieces) {
-      piece.vy += GRAVITY;
-      piece.x += piece.vx;
-      piece.y += piece.vy;
-      piece.rotation += piece.spin;
       context.save();
-      context.translate(piece.x, piece.y);
-      context.rotate(piece.rotation);
+      context.translate(piece.x + piece.vx * t, piece.y + piece.vy * t + (GRAVITY * t * t) / 2);
+      context.rotate(piece.rotation + piece.spin * t);
       context.fillStyle = piece.color;
       context.fillRect(-piece.size / 2, -piece.size / 4, piece.size, piece.size / 2);
       context.restore();

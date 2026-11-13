@@ -3,6 +3,7 @@ import { expect, test } from './fixtures/auth';
 import type { Page } from '@playwright/test';
 
 const CACHE_KEY = 'tikitak-query-cache';
+const STALE_AGE_MS = 10 * 60 * 1000;
 
 const team = (id: number, name: string) => ({
   teamId: id,
@@ -47,6 +48,21 @@ const readPersistedMemberId = (page: Page) =>
     return me?.state.data.memberId ?? null;
   }, CACHE_KEY);
 
+// 저장된 쿼리를 staleTime(5분)보다 오래된 것으로 만들어, 복원 후 /me 재검증 요청이 나가게 한다
+const markPersistedAsStale = (page: Page) =>
+  page.evaluate(
+    ({ key, age }) => {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) return;
+      const cache = JSON.parse(raw);
+      for (const query of cache.clientState.queries) {
+        query.state.dataUpdatedAt = Date.now() - age;
+      }
+      window.localStorage.setItem(key, JSON.stringify(cache));
+    },
+    { key: CACHE_KEY, age: STALE_AGE_MS },
+  );
+
 // persister가 1초 throttle이라 저장될 때까지 기다린다
 const waitUntilPersisted = (page: Page) =>
   expect.poll(() => readPersistedKeys(page), { timeout: 5_000 }).toContain('user/me');
@@ -67,15 +83,22 @@ test.describe('쿼리 캐시 영속화', () => {
     });
     await waitUntilPersisted(page);
 
-    // 콜드 스타트에서 /me, 약관 응답이 오래 걸리는 상황
+    // 콜드 스타트에서 /me, 약관 응답이 오지 않는 상황 — 화면 확인이 끝날 때까지 응답을 붙잡아 둔다.
+    // 고정 지연이 아니라 보류라서, 앱 부팅이 느린 러너에서도 "응답 전에 그려졌다"를 정확히 검증한다
+    let releaseResponses = () => {};
+    const responsesHeld = new Promise<void>((resolve) => {
+      releaseResponses = resolve;
+    });
+    let meRequested = false;
     await page.route('**/api/v1/me', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 6_000));
+      meRequested = true;
+      await responsesHeld;
       await route
         .fulfill(json(wrap({ ...DEFAULT_ME, hasTeam: true, activeTeamId: 100 })))
         .catch(() => undefined);
     });
     await page.route('**/api/v1/me/agreements', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 6_000));
+      await responsesHeld;
       await route
         .fulfill(
           json(
@@ -85,11 +108,15 @@ test.describe('쿼리 캐시 영속화', () => {
         .catch(() => undefined);
     });
 
+    await markPersistedAsStale(page);
     await page.reload();
 
     await expect(page.getByRole('button', { name: '알파팀', exact: true })).toBeVisible({
-      timeout: 3_000,
+      timeout: 10_000,
     });
+    // 캐시가 stale이라 /me 재검증은 나갔지만 아직 응답 전이다
+    await expect.poll(() => meRequested).toBe(true);
+    releaseResponses();
   });
 
   test('로그아웃하면 저장된 영속 캐시가 비워진다', async ({ page }) => {

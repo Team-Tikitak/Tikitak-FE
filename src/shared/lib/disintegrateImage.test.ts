@@ -5,12 +5,18 @@ const mockReducedMotion = (reduce: boolean) => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: reduce }) as typeof window.matchMedia;
 };
 
-const createFrame = (loaded = true) => {
-  const frame = document.createElement('figure');
+const createImage = (naturalWidth: number, ariaHidden = false) => {
   const image = document.createElement('img');
-  Object.defineProperty(image, 'naturalWidth', { value: loaded ? 400 : 0 });
+  Object.defineProperty(image, 'naturalWidth', { value: naturalWidth });
   Object.defineProperty(image, 'naturalHeight', { value: 300 });
-  frame.appendChild(image);
+  if (ariaHidden) image.setAttribute('aria-hidden', 'true');
+  return image;
+};
+
+const createFrame = (loaded = true, preview?: HTMLImageElement) => {
+  const frame = document.createElement('figure');
+  if (preview) frame.appendChild(preview);
+  frame.appendChild(createImage(loaded ? 400 : 0));
   document.body.appendChild(frame);
   vi.spyOn(frame, 'getBoundingClientRect').mockReturnValue({
     left: 0,
@@ -20,6 +26,8 @@ const createFrame = (loaded = true) => {
   } as DOMRect);
   return frame;
 };
+
+const drawImage = vi.fn();
 
 describe('disintegrateImage', () => {
   let frames: FrameRequestCallback[] = [];
@@ -38,11 +46,12 @@ describe('disintegrateImage', () => {
       restore: vi.fn(),
       translate: vi.fn(),
       rotate: vi.fn(),
-      drawImage: vi.fn(),
+      drawImage,
     } as unknown as CanvasRenderingContext2D);
   });
 
   afterEach(() => {
+    drawImage.mockClear();
     vi.restoreAllMocks();
     document.body.innerHTML = '';
   });
@@ -81,5 +90,17 @@ describe('disintegrateImage', () => {
     disintegrateImage(unloadedFrame);
     expect(unloadedFrame.style.visibility).toBe('');
     expect(document.querySelector('body > canvas')).not.toBeInTheDocument();
+  });
+
+  it('미리보기와 원본이 모두 로드됐으면 화면에 보이는 원본을 흩날린다', () => {
+    mockReducedMotion(false);
+    const preview = createImage(40, true);
+    const frame = createFrame(true, preview);
+
+    disintegrateImage(frame);
+
+    const [snapshotSource] = drawImage.mock.calls[0];
+    expect(snapshotSource).not.toBe(preview);
+    expect(snapshotSource).toBe(frame.querySelector('img:not([aria-hidden])'));
   });
 });
