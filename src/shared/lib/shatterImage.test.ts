@@ -21,6 +21,8 @@ const createFrame = (loaded = true, preview?: HTMLImageElement) => {
   vi.spyOn(frame, 'getBoundingClientRect').mockReturnValue({
     left: 0,
     top: 100,
+    right: 390,
+    bottom: 620,
     width: 390,
     height: 520,
   } as DOMRect);
@@ -97,9 +99,12 @@ describe('shatterImage', () => {
     const frame = createFrame();
 
     const restore = shatterImage(frame);
+    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
     restore();
 
     expect(frame.style.visibility).toBe('');
+    expect(document.querySelector('body > canvas')).not.toBeInTheDocument();
+    expect(cancel).toHaveBeenCalled();
   });
 
   it('동작 줄이기 설정이거나 사진이 로드되지 않았으면 아무것도 하지 않는다', () => {

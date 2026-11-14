@@ -146,6 +146,7 @@ export const shatterImage = (frame: HTMLElement): (() => void) => {
   frame.style.visibility = 'hidden';
   document.body.appendChild(canvas);
   const startedAt = performance.now();
+  let frameId = 0;
 
   const drawSnapshot = () =>
     context.drawImage(snapshot, rect.left, rect.top, rect.width, rect.height);
@@ -200,12 +201,15 @@ export const shatterImage = (frame: HTMLElement): (() => void) => {
       }
     }
     context.restore();
-    requestAnimationFrame(draw);
+    frameId = requestAnimationFrame(draw);
   };
 
-  requestAnimationFrame(draw);
+  frameId = requestAnimationFrame(draw);
 
   return () => {
+    // 삭제 실패로 복원할 때 진행 중인 연출이 복원된 사진 위에 남지 않게 끝낸다
+    cancelAnimationFrame(frameId);
+    canvas.remove();
     frame.style.visibility = previousVisibility;
   };
 };
