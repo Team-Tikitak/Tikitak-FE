@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { toDailyFeedEdit, toFeedEdit } from '@/app/routes/paths';
 import { useDeleteFeed, useGetFeedDetail } from '@/shared/api/feed/queries';
 import MoreIcon from '@/shared/assets/Icon/MoreIcon.svg?react';
-import { disintegrateImage } from '@/shared/lib/disintegrateImage';
+import { shatterImage } from '@/shared/lib/shatterImage';
 import { ActiveMenu } from '../ActiveMenu/ActiveMenu';
 import { openConfirmDialog } from '../ConfirmDialog';
 
@@ -43,7 +43,7 @@ export const FeedActionMenu = ({ teamId, feedId, stayOnDelete = false }: FeedAct
 
   const handleConfirmDelete = () => {
     const frame = findVisibleImageFrame(anchorRef.current);
-    const restoreImage = frame ? disintegrateImage(frame) : undefined;
+    const restoreImage = frame ? shatterImage(frame) : undefined;
     deleteFeed(undefined, { onError: restoreImage });
   };
 
