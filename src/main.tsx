@@ -7,6 +7,7 @@ import { AppUpdateRequired } from './app/AppUpdateRequired';
 import { checkRequiredAppUpdate, showRequiredAppUpdateDialog } from './app/lib/appVersionPolicy';
 import { clearLegacyPwaRuntimeCaches } from './app/lib/clearLegacyPwaCaches';
 import { initNativeBridge } from './app/lib/initNativeBridge';
+import { hideNativeSplash } from './app/lib/native/splash';
 import { prefetchTabRoutes } from './app/lib/prefetchRoutes';
 import { queryClient } from './app/providers/queryClient';
 import { restoreQueryCache, startQueryCachePersist } from './shared/api/queryCachePersist';
@@ -47,6 +48,7 @@ const bootstrap = async () => {
         <AppUpdateRequired message={requiredAppUpdate.message} onUpdate={openUpdate} />
       </StrictMode>,
     );
+    void hideNativeSplash();
     await showRequiredAppUpdateDialog(requiredAppUpdate);
     return;
   }
@@ -60,6 +62,7 @@ const bootstrap = async () => {
       <App />
     </StrictMode>,
   );
+  void hideNativeSplash();
 };
 
 void bootstrap();
