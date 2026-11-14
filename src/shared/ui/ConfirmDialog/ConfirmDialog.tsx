@@ -1,5 +1,6 @@
 import { useId, type ComponentPropsWithRef } from 'react';
 import { cn } from '@/shared/lib';
+import { triggerHaptic } from '@/shared/lib/native/haptics';
 
 interface ConfirmDialogProps extends Omit<ComponentPropsWithRef<'div'>, 'children' | 'title'> {
   title: string;
@@ -28,6 +29,11 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const titleId = useId();
   const descId = useId();
+
+  const handleConfirm = () => {
+    triggerHaptic(destructive ? 'medium' : 'light');
+    onConfirm();
+  };
 
   return (
     <div
@@ -71,7 +77,7 @@ export function ConfirmDialog({
           )}
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className={cn(
               'press-feedback py-1 text-center text-[16px] leading-normal font-semibold tracking-[0.0912px] whitespace-nowrap',
               destructive ? 'text-[#ff383c]' : 'text-main-002',

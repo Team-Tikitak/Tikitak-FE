@@ -6,6 +6,7 @@ export * from './cameraSystemBars';
 export * from './clearFeedPushNotifications';
 export * from './deviceTokenStorage';
 export * from './getDeviceToken';
+export * from './haptics';
 export * from './keyboardResize';
 export * from './nativeCamera';
 export * from './nativeDialog';
