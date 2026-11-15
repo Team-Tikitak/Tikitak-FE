@@ -77,6 +77,11 @@ jobs:
             fi
           fi
 
+          # 문자 제거 뒤에 `..` 등이 새로 생길 수 있어, 최종 이름을 Git 규칙으로 검사하고 실패하면 기본 이름을 쓴다
+          if ! git check-ref-format --branch "$BRANCH_NAME" > /dev/null 2>&1; then
+            BRANCH_NAME="issue-${ISSUE_NUMBER}"
+          fi
+
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           echo "new_issue_title=$NEW_ISSUE_TITLE" >> $GITHUB_OUTPUT
           echo "branch_type=$BRANCH_TYPE" >> $GITHUB_OUTPUT
