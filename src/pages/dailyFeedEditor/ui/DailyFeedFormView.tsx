@@ -54,6 +54,7 @@ export const DailyFeedFormView = ({
             variant="primary"
             disabled={submitDisabled || isPhotoPending}
             onClick={onSubmit}
+            haptic={false}
             className="disabled:bg-gray-300 disabled:text-gray-400"
           >
             {submitLabel}

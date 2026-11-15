@@ -6,6 +6,8 @@ import type { VariantProps } from 'tailwind-variants';
 
 interface ButtonProps extends ComponentPropsWithRef<'button'>, VariantProps<typeof ButtonVariants> {
   buttonIcon?: ReactNode;
+  /** 완료 토스트 등 다른 피드백이 따로 울리는 버튼은 false */
+  haptic?: boolean;
 }
 
 export function Button({
@@ -15,10 +17,11 @@ export function Button({
   ref,
   children,
   onClick,
+  haptic = true,
   ...props
 }: ButtonProps) {
   const handleClick: ButtonProps['onClick'] = (event) => {
-    triggerHaptic('light');
+    if (haptic) triggerHaptic('light');
     onClick?.(event);
   };
 
