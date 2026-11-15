@@ -19,12 +19,13 @@ jobs:
 
       - name: Extract branch name from issue form
         id: extract
+        # 이슈 제목/본문은 외부 입력이라 ${{ }}를 run에 직접 쓰지 않고 env로만 전달한다 (스크립트 인젝션 방지)
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          cat << 'EOF' > issue_body.txt
-          ${{ github.event.issue.body }}
-          EOF
-
-          ISSUE_TITLE="${{ github.event.issue.title }}"
+          printf '%s\n' "$ISSUE_BODY" > issue_body.txt
 
           BRANCH_NAME=$(grep -A 2 "브랜치명\|Branch" issue_body.txt | tail -1 | xargs)
 
@@ -38,10 +39,15 @@ jobs:
             BRANCH_TYPE=$(sed -n '/브랜치 타입/,/###/{/브랜치 타입/n; /###/!p;}' issue_body.txt | grep -v "^$" | head -1 | xargs)
           fi
 
+          case "$BRANCH_TYPE" in
+            feat|fix|hotfix|refactor|test|docs|chore|style) ;;
+            *) BRANCH_TYPE="" ;;
+          esac
+
           if [ -n "$BRANCH_TYPE" ] && [ -n "$ISSUE_TITLE" ]; then
             if [[ ! "$ISSUE_TITLE" =~ ^\[.*\] ]]; then
               BRANCH_TYPE_PASCAL=$(echo "$BRANCH_TYPE" | sed 's/\b\(.\)/\u\1/')
-              NEW_ISSUE_TITLE="[${BRANCH_TYPE_PASCAL}] #${{ github.event.issue.number }} - ${ISSUE_TITLE}"
+              NEW_ISSUE_TITLE="[${BRANCH_TYPE_PASCAL}] #${ISSUE_NUMBER} - ${ISSUE_TITLE}"
             else
               NEW_ISSUE_TITLE="$ISSUE_TITLE"
             fi
@@ -50,15 +56,16 @@ jobs:
           fi
 
           if [ -z "$BRANCH_NAME" ]; then
-            BRANCH_NAME="issue-${{ github.event.issue.number }}"
+            BRANCH_NAME="issue-${ISSUE_NUMBER}"
           else
             BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/ /-/g')
             BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[:^~?*\[\\]//g; s/\.\.//g; s/@{//g')
+            BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^A-Za-z0-9._\/-]//g')
             BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/--*/-/g; s/\/\/*\//\//g')
             BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/^[-\/\.]*//; s/[-\/\.]*$//')
 
             if [ -z "$BRANCH_NAME" ]; then
-              BRANCH_NAME="issue-${{ github.event.issue.number }}"
+              BRANCH_NAME="issue-${ISSUE_NUMBER}"
             else
               if [ -n "$BRANCH_TYPE" ]; then
                 if [[ ! "$BRANCH_NAME" =~ ^$BRANCH_TYPE/ ]]; then
@@ -66,8 +73,13 @@ jobs:
                 fi
               fi
 
-              BRANCH_NAME="${{ github.event.issue.number }}-$BRANCH_NAME"
+              BRANCH_NAME="${ISSUE_NUMBER}-$BRANCH_NAME"
             fi
+          fi
+
+          # 문자 제거 뒤에 `..` 등이 새로 생길 수 있어, 최종 이름을 Git 규칙으로 검사하고 실패하면 기본 이름을 쓴다
+          if ! git check-ref-format --branch "$BRANCH_NAME" > /dev/null 2>&1; then
+            BRANCH_NAME="issue-${ISSUE_NUMBER}"
           fi
 
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
@@ -77,9 +89,13 @@ jobs:
           rm -f issue_body.txt
 
       - name: Update issue title and labels
+        env:
+          NEW_TITLE: ${{ steps.extract.outputs.new_issue_title }}
+          BRANCH_TYPE: ${{ steps.extract.outputs.branch_type }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEW_TITLE="${{ steps.extract.outputs.new_issue_title }}"
-          BRANCH_TYPE="${{ steps.extract.outputs.branch_type }}"
 
           case "$BRANCH_TYPE" in
             "feat")     LABEL="✨ Feature" ;;
@@ -93,17 +109,19 @@ jobs:
           esac
 
           if [ -n "$NEW_TITLE" ] && [ -n "$LABEL" ]; then
-            curl -X PATCH \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
-              -d "{\"title\":\"$NEW_TITLE\",\"labels\":[\"$LABEL\"],\"assignees\":[\"${{ github.event.issue.user.login }}\"]}"
+            jq -n --arg title "$NEW_TITLE" --arg label "$LABEL" --arg user "$ISSUE_USER" \
+              '{title: $title, labels: [$label], assignees: [$user]}' |
+              curl -X PATCH \
+                -H "Authorization: token $GH_TOKEN" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER" \
+                -d @-
           fi
 
       - name: Create branch
+        env:
+          BRANCH_NAME: ${{ steps.extract.outputs.branch_name }}
         run: |
-          BRANCH_NAME="${{ steps.extract.outputs.branch_name }}"
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
