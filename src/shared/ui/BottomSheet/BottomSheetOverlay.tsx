@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'vaul';
 import { useKeyboardVisible } from '@/shared/hooks/useKeyboardVisible';
 import { cn } from '@/shared/lib';
+import { triggerHaptic } from '@/shared/lib/native/haptics';
 import { setKeyboardResizeMode } from '@/shared/lib/native/keyboardResize';
 import { popStatusBarDim, pushStatusBarDim } from '@/shared/lib/native/statusBarDim';
 
@@ -61,6 +62,7 @@ export function BottomSheetOverlay({
     if (open && !dimmedRef.current) {
       dimmedRef.current = true;
       pushStatusBarDim();
+      triggerHaptic('light');
     }
   }, [open]);
   useEffect(

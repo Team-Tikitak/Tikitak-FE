@@ -1677,6 +1677,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/haptics@npm:^8":
+  version: 8.0.2
+  resolution: "@capacitor/haptics@npm:8.0.2"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/cf6c9c0c6035dc66cf6e483aa513d69a147cafde70d9c3bf8792704322478eb0cc7cee6a4179ebea7c5b6effce85a4753ab10a7f0007375527676bf4e2827c6b
+  languageName: node
+  linkType: hard
+
 "@capacitor/ios@npm:^8.0.2, @capacitor/ios@npm:^8.3.4":
   version: 8.3.4
   resolution: "@capacitor/ios@npm:8.3.4"
@@ -4895,6 +4904,7 @@ __metadata:
     "@capacitor/dialog": "npm:^8.0.1"
     "@capacitor/filesystem": "npm:^8.1.2"
     "@capacitor/geolocation": "npm:^8.2.0"
+    "@capacitor/haptics": "npm:^8"
     "@capacitor/ios": "npm:^8.3.4"
     "@capacitor/keyboard": "npm:^8.0.3"
     "@capacitor/preferences": "npm:^8.0.0"

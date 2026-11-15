@@ -114,6 +114,7 @@ export const FeedFormView = ({
             variant="primary"
             disabled={submitDisabled || pendingPhotoCount > 0}
             onClick={onSubmit}
+            haptic={false}
             className="disabled:bg-gray-300 disabled:text-gray-400"
           >
             {submitLabel}

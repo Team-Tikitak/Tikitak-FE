@@ -1,6 +1,7 @@
 import { type ComponentPropsWithRef, type ComponentType, type SVGProps } from 'react';
 import { tv } from 'tailwind-variants';
 import { cn } from '@/shared/lib';
+import { triggerHaptic } from '@/shared/lib/native/haptics';
 import { type BottomNavigationTab } from './BottomNavigation.types';
 
 const bottomNavigationButtonVariants = tv({
@@ -61,7 +62,10 @@ export function BottomNavigationItem({
         type="button"
         ref={ref}
         aria-current={selected ? 'page' : undefined}
-        onClick={() => onSelect?.(value)}
+        onClick={() => {
+          triggerHaptic('selection');
+          onSelect?.(value);
+        }}
         className={bottomNavigationButtonVariants({ selected, className })}
         {...props}
       >
