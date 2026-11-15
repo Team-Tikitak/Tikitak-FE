@@ -20,7 +20,10 @@ export const triggerHaptic = (kind: HapticKind = 'light'): void => {
         case 'medium':
           return Haptics.impact({ style: ImpactStyle.Medium });
         case 'selection':
-          return Haptics.selectionChanged();
+          // iOS는 selectionStart 없이 selectionChanged만 부르면 진동이 나지 않는다
+          await Haptics.selectionStart();
+          await Haptics.selectionChanged();
+          return Haptics.selectionEnd();
         case 'success':
           return Haptics.notification({ type: NotificationType.Success });
         case 'error':

@@ -1,19 +1,41 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { triggerHaptic } from './haptics';
 
-const { isNativePlatform, isPluginAvailable, impact, notification, selectionChanged } = vi.hoisted(
-  () => ({
+const {
+  isNativePlatform,
+  isPluginAvailable,
+  impact,
+  notification,
+  selectionStart,
+  selectionChanged,
+  selectionEnd,
+  calls,
+} = vi.hoisted(() => {
+  const calls: string[] = [];
+  return {
     isNativePlatform: vi.fn(),
     isPluginAvailable: vi.fn(),
     impact: vi.fn(),
     notification: vi.fn(),
-    selectionChanged: vi.fn(),
-  }),
-);
+    selectionStart: vi.fn(() => {
+      calls.push('start');
+      return Promise.resolve();
+    }),
+    selectionChanged: vi.fn(() => {
+      calls.push('changed');
+      return Promise.resolve();
+    }),
+    selectionEnd: vi.fn(() => {
+      calls.push('end');
+      return Promise.resolve();
+    }),
+    calls,
+  };
+});
 
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform, isPluginAvailable } }));
 vi.mock('@capacitor/haptics', () => ({
-  Haptics: { impact, notification, selectionChanged },
+  Haptics: { impact, notification, selectionStart, selectionChanged, selectionEnd },
   ImpactStyle: { Light: 'LIGHT', Medium: 'MEDIUM' },
   NotificationType: { Success: 'SUCCESS', Error: 'ERROR' },
 }));
@@ -23,12 +45,12 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('triggerHaptic', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+    calls.length = 0;
     isNativePlatform.mockReturnValue(true);
     isPluginAvailable.mockReturnValue(true);
     impact.mockResolvedValue(undefined);
     notification.mockResolvedValue(undefined);
-    selectionChanged.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -59,7 +81,7 @@ describe('triggerHaptic', () => {
     triggerHaptic('medium');
     await vi.waitFor(() => expect(impact).toHaveBeenCalledTimes(2));
     triggerHaptic('selection');
-    await vi.waitFor(() => expect(selectionChanged).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(selectionEnd).toHaveBeenCalledTimes(1));
     triggerHaptic('success');
     await vi.waitFor(() => expect(notification).toHaveBeenCalledTimes(1));
     triggerHaptic('error');
@@ -67,7 +89,7 @@ describe('triggerHaptic', () => {
 
     expect(impact).toHaveBeenNthCalledWith(1, { style: 'LIGHT' });
     expect(impact).toHaveBeenNthCalledWith(2, { style: 'MEDIUM' });
-    expect(selectionChanged).toHaveBeenCalledTimes(1);
+    expect(calls).toEqual(['start', 'changed', 'end']);
     expect(notification).toHaveBeenNthCalledWith(1, { type: 'SUCCESS' });
     expect(notification).toHaveBeenNthCalledWith(2, { type: 'ERROR' });
   });
