@@ -206,11 +206,18 @@ const drawFlower = (
   y: number,
   angle: number,
 ) => {
-  if (!isReady(flower)) return;
   context.save();
   context.translate(x, y);
   context.rotate(angle);
-  drawCentered(context, flower, FLOWER_SIZE);
+  if (isReady(flower)) {
+    drawCentered(context, flower, FLOWER_SIZE);
+  } else {
+    // 꽃 이미지를 아직 못 불러왔어도 줄기가 끝나는 자리에 충돌 경계를 보여주는 동그라미를 둔다
+    context.fillStyle = COLOR.sun;
+    context.beginPath();
+    context.arc(0, 0, FLOWER_SIZE * 0.3, 0, Math.PI * 2);
+    context.fill();
+  }
   context.restore();
 };
 

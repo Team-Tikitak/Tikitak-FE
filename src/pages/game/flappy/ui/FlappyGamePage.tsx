@@ -13,13 +13,15 @@ export const FlappyGamePage = () => {
   const { entries } = useGameLeaderboard('flappy', teamId);
   const { mutate: submitScore } = useSubmitGameScore();
 
+  // 팀이 없으면 저장할 곳이 없으니 이번 달 최고 점수도 보여주지 않는다
+  const canTrackScore = isGameServerConfigured && Boolean(teamId && teamMemberId);
   const myEntry = entries.find((entry) => entry.teamMemberId === teamMemberId);
   const myBest = myEntry?.score ?? 0;
 
   const { canvasRef, status, score, press, restart } = useFlappyGame((finalScore) => {
-    // 서버 저장은 부가 기능이라 실패해도 게임 흐름을 막지 않는다
-    if (!isGameServerConfigured || !teamId || !teamMemberId) return;
-    if (finalScore <= myBest) return;
+    // 서버 저장은 부가 기능이라 실패해도 게임 흐름을 막지 않는다.
+    // 최고 점수 비교는 서버(greatest)에 맡긴다. 화면의 월과 제출 시점의 월이 달라도 점수가 사라지지 않는다.
+    if (!canTrackScore || !teamId || !teamMemberId || finalScore <= 0) return;
     submitScore({ gameId: 'flappy', teamId, teamMemberId, score: finalScore });
   });
 
@@ -32,17 +34,22 @@ export const FlappyGamePage = () => {
           rightSlot={<SoundToggle />}
         />
       }
-      contentClassName="flex flex-col overflow-hidden bg-main-000"
+      contentClassName="bg-tak-ink flex flex-col overflow-hidden"
     >
-      <div
-        onPointerDown={press}
-        className="relative flex min-h-0 flex-1 touch-none items-center justify-center select-none"
-      >
-        <canvas
-          ref={canvasRef}
-          aria-label="티키 날기 게임 화면"
-          className="size-full object-cover"
-        />
+      <div className="relative flex min-h-0 flex-1 items-center justify-center select-none">
+        {/* 터치와 마우스는 누르는 순간에, 키보드(Space·Enter)는 click으로 날갯짓한다 */}
+        <button
+          type="button"
+          aria-label="날갯짓하기. 화면을 탭하거나 Space, Enter 키를 눌러요"
+          onPointerDown={press}
+          onClick={(event) => {
+            if (event.detail === 0) press();
+          }}
+          className="absolute inset-0 touch-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
+        >
+          {/* 비율을 지켜 게임판 전체(천장과 바닥)가 보이게 한다 */}
+          <canvas ref={canvasRef} aria-hidden="true" className="size-full object-contain" />
+        </button>
 
         <p aria-live="polite" className="sr-only">
           {status === 'ready' ? '' : `${score}점`}
@@ -50,7 +57,7 @@ export const FlappyGamePage = () => {
 
         {status === 'ready' && (
           <p className="pointer-events-none absolute bottom-24 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-gray-700">
-            화면을 탭해서 시작
+            화면을 탭하거나 Space 키를 눌러 시작
           </p>
         )}
 
@@ -58,7 +65,7 @@ export const FlappyGamePage = () => {
           <GameOverCard
             className="absolute inset-x-6"
             score={score}
-            bestScore={isGameServerConfigured ? myBest : undefined}
+            bestScore={canTrackScore ? myBest : undefined}
             rank={myEntry?.rank}
             onRestart={restart}
           />

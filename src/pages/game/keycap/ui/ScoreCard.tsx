@@ -1,7 +1,7 @@
-import { type ComponentType, type SVGProps } from 'react';
+import { type ComponentPropsWithRef, type ComponentType, type SVGProps } from 'react';
 import { cn } from '@/shared/lib';
 
-interface ScoreCardProps {
+interface ScoreCardProps extends ComponentPropsWithRef<'div'> {
   label: string;
   score: number;
   tone: 'me' | 'bot';
@@ -13,13 +13,16 @@ const TONE_CLASS = {
   bot: 'bg-tak-orange',
 } satisfies Record<ScoreCardProps['tone'], string>;
 
-export function ScoreCard({ label, score, tone, Icon }: ScoreCardProps) {
+export function ScoreCard({ label, score, tone, Icon, className, ref, ...props }: ScoreCardProps) {
   return (
     <div
+      ref={ref}
       className={cn(
         'flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-3 py-2',
         TONE_CLASS[tone],
+        className,
       )}
+      {...props}
     >
       <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white">
         <Icon aria-hidden="true" className="h-auto w-8" />
