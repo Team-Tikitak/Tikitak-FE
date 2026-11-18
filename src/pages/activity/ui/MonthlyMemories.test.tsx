@@ -62,49 +62,20 @@ describe('MonthlyMemories', () => {
     expect(mockNavigate).toHaveBeenCalledWith(PATHS.ACTIVITY_REGION_FEEDS);
   });
 
-  it('PICK 카드를 누르면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
-    const onHeroCapture = vi.fn();
-    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
-
-    fireEvent.click(screen.getByRole('button', { name: '모두의 PICK' }));
-
-    expect(onHeroCapture).toHaveBeenCalledWith(
-      {
-        id: '1',
-        heroKey: 'pin-1',
-        thumbnailUrl: 'https://example.com/pick.jpg',
-      },
-      expect.any(HTMLElement),
-    );
-  });
-
-  it('상세로 이동하기 전에 현재 활동 스크롤 위치를 저장할 수 있게 알린다', () => {
+  it('이동하기 전에 현재 활동 스크롤 위치를 저장할 수 있게 알린다', () => {
     const onBeforeNavigate = vi.fn();
-    const onHeroCapture = vi.fn();
-    render(
-      <MonthlyMemories
-        teamId={1}
-        onBeforeNavigate={onBeforeNavigate}
-        onHeroCapture={onHeroCapture}
-      />,
-    );
+    render(<MonthlyMemories teamId={1} onBeforeNavigate={onBeforeNavigate} />);
 
     fireEvent.click(screen.getByRole('button', { name: '모두의 PICK' }));
 
     expect(onBeforeNavigate).toHaveBeenCalledTimes(1);
     const [beforeNavigateOrder] = onBeforeNavigate.mock.invocationCallOrder;
-    const [heroCaptureOrder] = onHeroCapture.mock.invocationCallOrder;
     const [navigateOrder] = mockNavigate.mock.invocationCallOrder;
-    expect(beforeNavigateOrder).toBeDefined();
-    expect(heroCaptureOrder).toBeDefined();
-    expect(navigateOrder).toBeDefined();
-    expect(beforeNavigateOrder!).toBeLessThan(heroCaptureOrder!);
-    expect(beforeNavigateOrder!).toBeLessThan(navigateOrder!);
+    expect(beforeNavigateOrder).toBeLessThan(navigateOrder);
   });
 
-  it('PICK 카드를 키보드로 활성화하면 히어로 캡처 후 이동하고 기본 스크롤을 막는다', () => {
-    const onHeroCapture = vi.fn();
-    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+  it('카드를 키보드로 활성화하면 이동하고 기본 스크롤을 막는다', () => {
+    render(<MonthlyMemories teamId={1} />);
 
     const card = screen.getByRole('button', { name: '모두의 PICK' });
     const event = createEvent.keyDown(card, { key: ' ' });
@@ -112,54 +83,23 @@ describe('MonthlyMemories', () => {
     fireEvent(card, event);
 
     expect(preventDefault).toHaveBeenCalledTimes(1);
-    expect(onHeroCapture).toHaveBeenCalledWith(
-      {
-        id: '1',
-        heroKey: 'pin-1',
-        thumbnailUrl: 'https://example.com/pick.jpg',
-      },
-      expect.any(HTMLElement),
-    );
     expect(mockNavigate).toHaveBeenCalledWith(PATHS.ACTIVITY_EVERYONE_PICK);
   });
 
-  it('지역 카드를 누르면 히어로 캡처 콜백이 올바른 정보로 호출된다', () => {
-    const onHeroCapture = vi.fn();
-    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
-
-    fireEvent.click(screen.getByRole('button', { name: '서울에서' }));
-
-    expect(onHeroCapture).toHaveBeenCalledWith(
-      {
-        id: '145',
-        heroKey: 'pin-145',
-        thumbnailUrl: 'https://example.com/seoul.jpg',
-      },
-      expect.any(HTMLElement),
-    );
-  });
-
-  it('카드를 터치만 한 상태에서는 히어로 캡처를 시작하지 않는다', () => {
-    const onHeroCapture = vi.fn();
-    render(<MonthlyMemories teamId={1} onHeroCapture={onHeroCapture} />);
+  it('카드를 터치만 한 상태에서는 이동하지 않는다', () => {
+    render(<MonthlyMemories teamId={1} />);
 
     fireEvent.pointerDown(screen.getByRole('button', { name: '모두의 PICK' }));
 
-    expect(onHeroCapture).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('suppressedItemId가 PICK 카드의 feedId와 일치하면 그 카드의 이미지만 숨긴다', () => {
-    const { container } = render(<MonthlyMemories teamId={1} suppressedItemId="1" />);
+  it('회귀: 카드 이미지에 히어로 전환용 속성을 붙이지 않는다', () => {
+    const { container } = render(<MonthlyMemories teamId={1} />);
 
-    const images = container.querySelectorAll('img');
-    const pickImage = Array.from(images).find((img) => img.src.includes('pick.jpg'));
-    const regionImage = Array.from(images).find((img) => img.src.includes('seoul.jpg'));
-
-    expect(pickImage).toHaveClass('opacity-0');
-    expect(pickImage).toHaveAttribute('data-activity-hero-source-id', '1');
-    expect(pickImage).not.toHaveAttribute('data-hero-exit-key');
-    expect(regionImage).not.toHaveClass('opacity-0');
-    expect(regionImage).toHaveAttribute('data-activity-hero-source-id', '145');
-    expect(regionImage).toHaveAttribute('data-hero-exit-key', 'pin-145');
+    for (const image of container.querySelectorAll('img')) {
+      expect(image).not.toHaveAttribute('data-hero-exit-key');
+      expect(image).not.toHaveAttribute('data-hero-radius');
+    }
   });
 });
