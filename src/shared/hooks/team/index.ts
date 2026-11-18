@@ -4,4 +4,5 @@
 
 export * from './useActiveTeamId';
 export * from './useActiveTeamSelection';
+export * from './useMyTeamMember';
 export * from './useTeamPickerSheet';

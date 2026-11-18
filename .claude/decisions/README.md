@@ -54,6 +54,7 @@
 | `records/feed-view-mode.md`              | 피드 보기 모드                                   |
 | `records/library-recommendations.md`     | 라이브러리 선정 근거                             |
 | `records/map-clustering.md`              | 지도 클러스터링                                  |
+| `records/minigame-supabase.md`           | 미니게임 점수 저장 (Supabase)                    |
 | `records/native-deep-links.md`           | 네이티브 딥링크                                  |
 | `records/native-media.md`                | 네이티브 미디어(카메라/갤러리)                   |
 | `records/native-oauth.md`                | 네이티브 OAuth                                   |
