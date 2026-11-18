@@ -150,12 +150,26 @@ test.describe('피드 삭제', () => {
     await page.goto('/feed');
     await page.goto('/feed/1');
 
+    const frames = page.locator('[data-feed-detail-image-frame]');
+
     await page.getByRole('button', { name: '2번째 사진' }).click({ timeout: 10_000 });
+    // 캐러셀 이동 애니메이션이 끝나 첫 사진이 영역 왼쪽으로 완전히 빠질 때까지 기다린다.
+    // 기다리지 않으면 빠른 환경에서 삭제 확정이 이동 도중에 일어나 첫 사진이 깨진다
+    await expect
+      .poll(() =>
+        frames.nth(0).evaluate((frame) => {
+          const detail = frame.closest('[data-feed-detail]');
+          if (!detail) return false;
+          const rect = frame.getBoundingClientRect();
+          return rect.left + rect.width / 2 < detail.getBoundingClientRect().left;
+        }),
+      )
+      .toBe(true);
+
     await page.getByRole('button', { name: '더보기' }).click();
     await page.getByRole('button', { name: '삭제하기' }).click();
     await page.getByRole('alertdialog').getByRole('button', { name: '삭제하기' }).click();
 
-    const frames = page.locator('[data-feed-detail-image-frame]');
     const visibilityOf = (index: number) =>
       frames.nth(index).evaluate((frame) => (frame as HTMLElement).style.visibility);
     await expect.poll(() => visibilityOf(1)).toBe('hidden');
