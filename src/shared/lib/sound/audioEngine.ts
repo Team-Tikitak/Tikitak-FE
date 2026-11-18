@@ -11,15 +11,28 @@ export const getAudioContext = (): AudioContext | null => {
       window.AudioContext ??
       (window as unknown as { webkitAudioContext?: AudioContextConstructor }).webkitAudioContext;
     if (!Constructor) return null;
-    audioContext = new Constructor();
+    try {
+      audioContext = new Constructor();
+    } catch {
+      // 기기가 오디오 컨텍스트를 만들어 주지 않으면 소리만 없이 넘어간다
+      return null;
+    }
   }
   return audioContext;
 };
 
-/** iOS는 사용자의 터치 안에서 한 번 깨워야 소리가 난다. 게임의 첫 입력에서 부른다. */
+/**
+ * iOS는 사용자의 터치 안에서 한 번 깨워야 소리가 난다. 게임의 첫 입력에서 부른다.
+ * 백그라운드에 갔다 오면 suspended 말고 interrupted(타입에는 없는 값)가 되기도 해서,
+ * 실행 중이 아니면 모두 다시 깨운다.
+ */
 export const unlockAudio = () => {
   const context = getAudioContext();
-  if (context && context.state === 'suspended') void context.resume();
+  if (context && context.state !== 'running') {
+    context.resume().catch(() => {
+      // 이미 닫혔거나 재개할 수 없으면 무시한다
+    });
+  }
 };
 
 interface ToneOptions {
