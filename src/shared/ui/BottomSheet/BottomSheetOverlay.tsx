@@ -33,6 +33,8 @@ interface BottomSheetOverlayProps {
   fadeFromIndex?: number;
   avoidKeyboard?: boolean;
   repositionInputs?: boolean;
+  /** 열릴 때 가볍게 진동한다. 목록에서 고르기만 하는 시트(예: 팀 선택)는 끈다 */
+  haptic?: boolean;
 }
 
 export function BottomSheetOverlay({
@@ -48,6 +50,7 @@ export function BottomSheetOverlay({
   fadeFromIndex,
   avoidKeyboard = false,
   repositionInputs = false,
+  haptic = true,
 }: BottomSheetOverlayProps) {
   const [activeSnapPoint, setActiveSnapPoint] = useState<BottomSheetSnapPoint | null>(
     defaultSnapPoint ?? snapPoints?.[0] ?? null,
@@ -62,9 +65,9 @@ export function BottomSheetOverlay({
     if (open && !dimmedRef.current) {
       dimmedRef.current = true;
       pushStatusBarDim();
-      triggerHaptic('light');
+      if (haptic) triggerHaptic('light');
     }
-  }, [open]);
+  }, [open, haptic]);
   useEffect(
     () => () => {
       if (dimmedRef.current) {

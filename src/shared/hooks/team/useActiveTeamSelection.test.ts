@@ -94,7 +94,7 @@ describe('useActiveTeamSelection', () => {
     expect(showToastMock).not.toHaveBeenCalled();
 
     act(() => patchActiveTeamMock.mock.lastCall?.[1].onSuccess());
-    expect(showToastMock).toHaveBeenCalledWith('팀을 변경했어요');
+    expect(showToastMock).toHaveBeenCalledWith('팀을 변경했어요', { haptic: false });
   });
 
   it('teams가 비어있으면 patch하지 않는다', () => {
