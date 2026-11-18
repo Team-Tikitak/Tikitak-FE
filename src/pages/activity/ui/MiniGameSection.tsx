@@ -148,12 +148,8 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
         )}
       >
         <div className="overflow-hidden">
-          <button
-            type="button"
-            onClick={handlePlay}
-            aria-label={`${game.title} 플레이`}
-            className="flex w-full gap-4 px-4 pt-1 pb-4 text-left active:scale-[0.99] motion-safe:transition-transform"
-          >
+          {/* 설명과 순위는 일반 요소로 두고, 실제 버튼은 "플레이" 하나다. 버튼의 클릭 영역만 카드 전체로 넓힌다 */}
+          <div className="relative flex w-full gap-4 px-4 pt-1 pb-4 active:scale-[0.99] motion-safe:transition-transform">
             {/* 실제 게임 화면을 캡처한 이미지 */}
             <img
               src={game.thumbnailUrl}
@@ -165,7 +161,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
               <p className="body-10 text-gray-600">{game.description}</p>
 
               {showRanking && (
-                <ul className="flex flex-col gap-2">
+                <ul aria-label={`${game.title} 이번 달 순위`} className="flex flex-col gap-2">
                   {top.length === 0 ? (
                     <li className="body-10 text-gray-600">첫 기록의 주인공이 되어보세요!</li>
                   ) : (
@@ -187,11 +183,16 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
                 </ul>
               )}
 
-              <span className="bg-main-001 button-1 mt-auto flex h-11 items-center justify-center rounded-full text-white">
+              <button
+                type="button"
+                onClick={handlePlay}
+                aria-label={`${game.title} 플레이`}
+                className="bg-main-001 button-1 mt-auto flex h-11 items-center justify-center rounded-full text-white after:absolute after:inset-0 after:content-['']"
+              >
                 플레이
-              </span>
+              </button>
             </div>
-          </button>
+          </div>
         </div>
       </div>
     </div>

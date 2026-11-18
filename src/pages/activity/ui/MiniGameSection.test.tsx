@@ -3,6 +3,13 @@ import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MiniGameSection } from './MiniGameSection';
 
+const mockNavigate = vi.fn();
+
+vi.mock('react-router', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('react-router')),
+  useNavigate: () => mockNavigate,
+}));
+
 vi.mock('@/shared/api/game/queries', () => ({
   useGameLeaderboard: () => ({ entries: [], isPending: false }),
 }));
@@ -21,6 +28,7 @@ const header = (title: string) => screen.getByRole('button', { name: title });
 describe('MiniGameSection 카드 접기', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    mockNavigate.mockClear();
   });
 
   it('모든 카드가 처음에는 펼쳐져 있다', () => {
@@ -82,5 +90,24 @@ describe('MiniGameSection 카드 접기', () => {
     expect(header('티키 날기')).toHaveAttribute('aria-expanded', 'true');
 
     getItem.mockRestore();
+  });
+
+  it('회귀: 버튼 안에 문단이나 목록을 넣지 않고 플레이 버튼만 상호작용 요소다', () => {
+    renderSection();
+
+    const play = screen.getByRole('button', { name: '티키 날기 플레이' });
+
+    // 버튼 안에는 글자만 들어 있어야 한다 (p, ul, li, img 같은 블록 요소가 없어야 한다)
+    expect(play.querySelector('p, ul, li, img, div')).toBeNull();
+    // 설명은 일반 요소라 스크린 리더가 읽을 수 있다
+    expect(screen.getByText('팀원들과 이번 달 최고 점수에 도전해요')).toBeInTheDocument();
+  });
+
+  it('플레이 버튼을 누르면 해당 게임으로 이동한다', () => {
+    renderSection();
+
+    fireEvent.click(screen.getByRole('button', { name: '탁 잡기 플레이' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/game/whack');
   });
 });
