@@ -183,6 +183,8 @@ export const useKeycapGame = (onGameOver: (score: number) => void) => {
     (index: number) => {
       if (status !== 'playing') return;
       const now = performance.now();
+      // 종료 틱이 오기 전이라도 제한 시간이 지난 입력은 점수에 넣지 않는다
+      if (isKeycapOver(stateRef.current, now)) return;
       const result = pressKeycap(stateRef.current, index, now);
       if (result) heldKeysRef.current.add(index);
       if (result === 'hit') {

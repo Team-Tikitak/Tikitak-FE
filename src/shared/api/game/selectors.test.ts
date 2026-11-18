@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildGameLeaderboard, getGameMonth } from './selectors';
+import { buildGameLeaderboard, clampGameScore, getGameMonth } from './selectors';
 import type { TeamMember } from '../team/types';
 
 const member = (teamMemberId: number, nickname: string): TeamMember => ({
@@ -45,5 +45,17 @@ describe('getGameMonth', () => {
   it('한국 시간 기준 YYYY-MM을 돌려준다', () => {
     expect(getGameMonth(new Date('2026-11-30T16:00:00Z'))).toBe('2026-12');
     expect(getGameMonth(new Date('2026-11-15T00:00:00Z'))).toBe('2026-11');
+  });
+});
+
+describe('clampGameScore', () => {
+  it('서버 상한(999)을 넘는 점수는 상한으로 맞춘다', () => {
+    expect(clampGameScore(1500)).toBe(999);
+    expect(clampGameScore(999)).toBe(999);
+  });
+
+  it('음수나 소수는 정수 0 이상으로 맞춘다', () => {
+    expect(clampGameScore(-5)).toBe(0);
+    expect(clampGameScore(12.9)).toBe(12);
   });
 });

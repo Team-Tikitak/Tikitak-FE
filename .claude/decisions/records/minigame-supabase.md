@@ -160,6 +160,10 @@ $$;
 - `(game_id, team_id, member_id, month)` 기본키라 월이 바뀌면 새 행이 생겨 별도 초기화 작업이 필요 없다.
 - `greatest`로 최고 점수만 남기고, 상한(999)과 월 형식을 서버에서 검증한다.
 - 월 키는 프론트의 `getGameMonth`(Asia/Seoul)와 같은 값을 쓴다.
+- 서버 상한(999)을 넘는 점수는 거부되어 기록이 사라지므로, 제출 전에 `clampGameScore`로 상한에 맞춘다(`shared/api/game/selectors.ts`).
+- 순위 조회는 **현재 팀원의 `member_id`만** 서버에서 걸러서(`member_id=in.(...)`) 가져온다. 탈퇴한 사람의 기록이 상위 50개를
+  차지해도 현재 팀원의 기록이 밀려나지 않는다.
+- 최고 점수 비교는 클라이언트가 아니라 서버의 `greatest`에 맡긴다. 화면의 월과 제출 시점의 월이 달라도 점수가 사라지지 않는다.
 - 새 게임을 추가하면 SQL의 `game_id` 허용 목록과 `shared/api/game/types.ts`의 `GAME_IDS`를 같이 늘린다.
 
 ## 미니게임 효과음: 기본은 합성, 키 소리만 실제 녹음

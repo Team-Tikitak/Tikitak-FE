@@ -19,13 +19,14 @@ export const WhackGamePage = () => {
   const { entries } = useGameLeaderboard('whack', teamId);
   const { mutate: submitScore } = useSubmitGameScore();
 
+  // 팀이 없으면 저장할 곳이 없으니 이번 달 최고 점수도 보여주지 않는다
+  const canTrackScore = isGameServerConfigured && Boolean(teamId && teamMemberId);
   const myEntry = entries.find((entry) => entry.teamMemberId === teamMemberId);
   const myBest = myEntry?.score ?? 0;
 
   const { status, holes, effects, score, remaining, start, whack } = useWhackGame((finalScore) => {
     // 서버 저장은 부가 기능이라 실패해도 게임 흐름을 막지 않는다
-    if (!isGameServerConfigured || !teamId || !teamMemberId) return;
-    if (finalScore <= myBest) return;
+    if (!canTrackScore || !teamId || !teamMemberId || finalScore <= 0) return;
     submitScore({ gameId: 'whack', teamId, teamMemberId, score: finalScore });
   });
 
@@ -96,7 +97,7 @@ export const WhackGamePage = () => {
           <GameOverCard
             className="absolute inset-x-6"
             score={score}
-            bestScore={isGameServerConfigured ? myBest : undefined}
+            bestScore={canTrackScore ? myBest : undefined}
             rank={myEntry?.rank}
             onRestart={start}
           />

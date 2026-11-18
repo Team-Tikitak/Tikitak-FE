@@ -26,4 +26,9 @@ describe('keycapScore', () => {
     expect(formatKeycapScore(231)).toBe('중수 클리어 · 31점');
     expect(formatKeycapScore(450)).toBe('초고수 클리어 · 50점');
   });
+
+  it('단계 수를 넘는 잘못된 점수도 마지막 단계로 보여준다', () => {
+    expect(formatKeycapScore(500)).toBe('초고수 클리어 · 0점');
+    expect(formatKeycapScore(999)).toBe('초고수 클리어 · 99점');
+  });
 });

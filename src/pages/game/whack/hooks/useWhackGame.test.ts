@@ -67,4 +67,26 @@ describe('useWhackGame', () => {
 
     expect(result.current.score).toBe(before);
   });
+
+  it('회귀: 종료 틱이 오기 전이라도 30초가 지난 입력은 점수에 넣지 않는다', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const startedAt = performance.now();
+    const { result } = renderHook(() => useWhackGame(vi.fn()));
+    act(() => result.current.start());
+
+    // Tak가 나올 때까지 진행한다 (아직 게임 중)
+    for (let elapsed = 0; elapsed < 5_000; elapsed += 50) {
+      advance(50);
+      if (result.current.holes.some((mole) => mole?.kind === 'tak')) break;
+    }
+    const index = result.current.holes.findIndex((mole) => mole?.kind === 'tak');
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(result.current.status).toBe('playing');
+
+    // 아직 playing 상태지만 시계는 이미 30초를 넘겼다고 가정한다
+    vi.spyOn(performance, 'now').mockReturnValue(startedAt + 30_010);
+    act(() => result.current.whack(index));
+
+    expect(result.current.score).toBe(0);
+  });
 });

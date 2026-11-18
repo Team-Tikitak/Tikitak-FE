@@ -118,6 +118,8 @@ export const useWhackGame = (onGameOver: (score: number) => void) => {
   const whack = useCallback(
     (index: number) => {
       if (status !== 'playing') return;
+      // 종료 틱이 오기 전이라도 제한 시간이 지난 입력은 점수에 넣지 않는다
+      if (isWhackOver(stateRef.current, performance.now())) return;
       const kind = hitHole(stateRef.current, index);
       if (!kind) return;
 

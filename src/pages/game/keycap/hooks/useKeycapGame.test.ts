@@ -34,6 +34,7 @@ describe('useKeycapGame', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it('도전하기를 누르면 초보 단계가 시작된다', () => {
@@ -109,5 +110,27 @@ describe('useKeycapGame', () => {
 
     expect(result.current.run).toEqual({ clearedStages: 0, points: 0 });
     expect(result.current.stageIndex).toBe(0);
+  });
+
+  it('회귀: 종료 틱이 오기 전이라도 제한 시간이 지난 입력은 점수에 넣지 않는다', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const startedAt = performance.now();
+    const { result } = renderHook(() => useKeycapGame(vi.fn()));
+    act(() => result.current.start());
+
+    // 켜진 키가 나올 때까지 진행한다
+    let index = -1;
+    for (let elapsed = 0; elapsed < 5_000 && index < 0; elapsed += STEP_MS) {
+      act(() => {
+        vi.advanceTimersByTime(STEP_MS);
+      });
+      index = result.current.keys.findIndex((key) => key.phase === 'lit');
+    }
+    expect(index).toBeGreaterThanOrEqual(0);
+
+    vi.spyOn(performance, 'now').mockReturnValue(startedAt + 20_010);
+    act(() => result.current.press(index));
+
+    expect(result.current.me).toBe(0);
   });
 });

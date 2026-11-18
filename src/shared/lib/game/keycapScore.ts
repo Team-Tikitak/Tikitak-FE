@@ -17,9 +17,11 @@ export const decodeKeycapScore = (score: number) => ({
 
 export const formatKeycapScore = (score: number) => {
   const { clearedStages, points } = decodeKeycapScore(score);
+  // 잘못되었거나 조작된 점수가 와도 "undefined 클리어"가 보이지 않게 마지막 단계까지만 쓴다
+  const clearedIndex = Math.min(clearedStages, KEYCAP_STAGE_LABELS.length) - 1;
   const label =
-    clearedStages === 0
+    clearedIndex < 0
       ? `${KEYCAP_STAGE_LABELS[0]} 도전`
-      : `${KEYCAP_STAGE_LABELS[clearedStages - 1]} 클리어`;
+      : `${KEYCAP_STAGE_LABELS[clearedIndex]} 클리어`;
   return `${label} · ${points}점`;
 };
