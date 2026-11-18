@@ -1,0 +1,113 @@
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useKeycapGame } from './useKeycapGame';
+
+vi.mock('@/shared/lib/sound', () => ({ playSound: vi.fn(), unlockAudio: vi.fn() }));
+vi.mock('@/shared/lib/native/haptics', () => ({ triggerHaptic: vi.fn() }));
+
+const STEP_MS = 50;
+const ROUND_MS = 21_000;
+
+/** 한 단계(20초)를 끝까지 진행한다. press가 true면 켜진 키를 보이는 즉시 누른다. */
+const playRound = (
+  result: { current: ReturnType<typeof useKeycapGame> },
+  { press }: { press: boolean },
+) => {
+  for (let elapsed = 0; elapsed < ROUND_MS; elapsed += STEP_MS) {
+    act(() => {
+      vi.advanceTimersByTime(STEP_MS);
+    });
+    if (!press) continue;
+    const index = result.current.keys.findIndex((key) => key.phase === 'lit');
+    if (index >= 0) {
+      act(() => {
+        result.current.press(index);
+      });
+    }
+  }
+};
+
+describe('useKeycapGame', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('도전하기를 누르면 초보 단계가 시작된다', () => {
+    const { result } = renderHook(() => useKeycapGame(vi.fn()));
+    expect(result.current.status).toBe('ready');
+
+    act(() => result.current.start());
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.stageIndex).toBe(0);
+    expect(result.current.stage.label).toBe('초보');
+  });
+
+  it('컴퓨터를 이기면 끝나지 않고 다음 단계로 올라갈 수 있다', () => {
+    const onGameOver = vi.fn();
+    const { result } = renderHook(() => useKeycapGame(onGameOver));
+    act(() => result.current.start());
+
+    playRound(result, { press: true });
+
+    expect(result.current.status).toBe('stageClear');
+    expect(result.current.outcome).toBe('win');
+    expect(onGameOver).not.toHaveBeenCalled();
+
+    act(() => result.current.nextStage());
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.stageIndex).toBe(1);
+  });
+
+  it('지면 끝나고 클리어한 단계 0개로 점수를 낸다', () => {
+    const onGameOver = vi.fn();
+    const { result } = renderHook(() => useKeycapGame(onGameOver));
+    act(() => result.current.start());
+
+    playRound(result, { press: false });
+
+    expect(result.current.status).toBe('over');
+    expect(result.current.outcome).toBe('lose');
+    expect(onGameOver).toHaveBeenCalledTimes(1);
+    // 한 번도 못 이겼으므로 100의 자리가 0이다
+    expect(onGameOver.mock.calls[0][0]).toBeLessThan(100);
+  });
+
+  it('초고수까지 모두 이기면 4단계 클리어 점수로 끝난다', () => {
+    const onGameOver = vi.fn();
+    const { result } = renderHook(() => useKeycapGame(onGameOver));
+    act(() => result.current.start());
+
+    for (let stage = 0; stage < 4; stage += 1) {
+      playRound(result, { press: true });
+      if (stage < 3) {
+        expect(result.current.status).toBe('stageClear');
+        act(() => result.current.nextStage());
+      }
+    }
+
+    expect(result.current.status).toBe('over');
+    expect(result.current.run.clearedStages).toBe(4);
+    expect(onGameOver).toHaveBeenCalledTimes(1);
+    const score = onGameOver.mock.calls[0][0] as number;
+    expect(score).toBeGreaterThanOrEqual(400);
+    expect(score).toBeLessThanOrEqual(499);
+  });
+
+  it('다시 시작하면 이전 도전의 성과가 초기화된다', () => {
+    const { result } = renderHook(() => useKeycapGame(vi.fn()));
+    act(() => result.current.start());
+    playRound(result, { press: true });
+    expect(result.current.run.clearedStages).toBe(1);
+
+    act(() => result.current.start());
+
+    expect(result.current.run).toEqual({ clearedStages: 0, points: 0 });
+    expect(result.current.stageIndex).toBe(0);
+  });
+});
