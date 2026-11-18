@@ -1,12 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
-import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { clearStoredHero, storeHero } from '@/shared/lib/hero/heroStorage';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { ActivityPage } from './ActivityPage';
 
 const LocationDisplay = () => <div data-testid="location-display">{useLocation().pathname}</div>;
-
-const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
 
 const scrollRestoreMocks = vi.hoisted(() => ({
   handleScroll: vi.fn(),
@@ -58,15 +55,21 @@ vi.mock('@/shared/api/home/queries', () => ({
 vi.mock('./MonthlyBestAttendance', () => ({
   MonthlyBestAttendance: () => <div data-testid="monthly-best-attendance" />,
 }));
+vi.mock('./MiniGameSection', () => ({
+  MiniGameSection: () => <div data-testid="mini-game-section" />,
+}));
 vi.mock('./MonthlyTitles', () => ({
   MonthlyTitles: () => <div data-testid="monthly-titles" />,
 }));
+const monthlyMemoriesProps = vi.hoisted(() => ({
+  onBeforeNavigate: undefined as (() => void) | undefined,
+}));
+
 vi.mock('./MonthlyMemories', () => ({
-  MonthlyMemories: () => (
-    <div data-testid="monthly-memories">
-      <img data-activity-hero-source-id="1" src="https://example.com/pick.jpg" alt="" />
-    </div>
-  ),
+  MonthlyMemories: (props: { onBeforeNavigate?: () => void }) => {
+    monthlyMemoriesProps.onBeforeNavigate = props.onBeforeNavigate;
+    return <div data-testid="monthly-memories" />;
+  },
 }));
 
 const setDailyQuestion = (data: { content: string; answerFeedId: number | null } | undefined) => {
@@ -287,169 +290,12 @@ describe('ActivityPage - 빈 상태 판별', () => {
   });
 });
 
-describe('ActivityPage - 히어로 핸드오프', () => {
+describe('ActivityPage - 스크롤 복원', () => {
   beforeEach(() => {
     setDailyQuestion(undefined);
   });
 
-  afterEach(() => {
-    clearStoredHero(ACTIVITY_HERO_STORAGE_KEY);
-  });
-
-  it('복귀(POP) 시 저장된 히어로가 있고 대상이 여전히 첫 PICK이면 사본을 렌더한다', () => {
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    const clone = container.querySelector('[data-stored-hero]');
-    expect(clone).toBeInTheDocument();
-    expect(clone).toHaveAttribute('data-hero-exit-key', 'pin-1');
-    expect(clone).toHaveAttribute('data-hero-radius', '8');
-    expect(clone).toHaveAttribute('style', expect.stringContaining('border-radius: 8px'));
-  });
-
-  it('회귀: 저장된 히어로 사본은 스크롤 컨테이너 바깥에서 화면 기준 좌표를 유지한다', () => {
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    const scrollContainer = getScrollContainer(container);
-    const clone = container.querySelector('[data-stored-hero]');
-
-    expect(scrollContainer).toHaveClass('relative');
-    expect(clone?.parentElement).not.toBe(scrollContainer);
-  });
-
-  it('스크롤 복원 전에는 저장 히어로 사본을 렌더하지 않아 상단 기준 좌표 캡처를 막는다', () => {
-    scrollRestoreMocks.useScrollRestore.mockReturnValueOnce({
-      scrollRef: { current: null },
-      handleScroll: scrollRestoreMocks.handleScroll,
-      saveScrollPosition: scrollRestoreMocks.saveScrollPosition,
-      isRestored: () => false,
-      restored: false,
-    });
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    expect(container.querySelector('[data-stored-hero]')).toBeNull();
-    expect(container.querySelector('[data-activity-hero-source-id="1"]')).toBeInTheDocument();
-  });
-
-  it('복귀(POP) 시 저장된 화면 기준 좌표를 그대로 히어로 타겟으로 사용한다', () => {
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 1, thumbnailImageUrl: 'https://example.com/pick.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
-
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    expect(container.querySelector('[data-stored-hero]')).toHaveStyle({
-      left: '10px',
-      top: '20px',
-      width: '90px',
-      height: '90px',
-    });
-  });
-
-  it('회귀: 활동 스크롤 복원 상태와 스크롤 이벤트를 히어로 컨테이너에 연결한다', () => {
+  it('회귀: 활동 스크롤 복원 상태와 스크롤 이벤트를 스크롤 컨테이너에 연결한다', () => {
     const { container } = renderPage();
 
     expect(scrollRestoreMocks.useScrollRestore).toHaveBeenCalledWith('activity-scroll', {
@@ -463,44 +309,9 @@ describe('ActivityPage - 히어로 핸드오프', () => {
     expect(scrollRestoreMocks.handleScroll).toHaveBeenCalledTimes(1);
   });
 
-  it('저장된 히어로 대상이 더 이상 첫 PICK/지역이 아니면 그레이스 타임 안에 핸드오프되지 않는다', () => {
-    vi.useFakeTimers();
-    mockUseHomeBestAttendance.mockReturnValue({
-      data: { members: [{ teamMemberId: 1 }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeEveryonePick.mockReturnValue({
-      data: { picks: [{ feedId: 999, thumbnailImageUrl: 'https://example.com/other.jpg' }] },
-      isPending: false,
-      isFetching: false,
-    });
-    mockUseHomeRegions.mockReturnValue({
-      data: { regions: [] },
-      isPending: false,
-      isFetching: false,
-    });
+  it('회귀: 추억 카드 이동 전에 스크롤 위치를 저장하도록 연결한다', () => {
+    renderPage();
 
-    storeHero(ACTIVITY_HERO_STORAGE_KEY, {
-      itemId: '1',
-      heroKey: 'pin-1',
-      thumbnailUrl: 'https://example.com/pick.jpg',
-      heroPreviewUrl: 'https://example.com/pick.jpg',
-      left: 10,
-      top: 20,
-      width: 90,
-      height: 90,
-    });
-
-    const { container } = renderPage();
-
-    // 정상 핸드오프(그레이스 300ms + 페이드 120ms + 클리어 260ms = 680ms)가 지나도
-    // 대상 불일치라 dismiss가 트리거되지 않아 사본이 그대로 남아있어야 한다
-    act(() => {
-      vi.advanceTimersByTime(680);
-    });
-
-    expect(container.querySelector('[data-stored-hero]')).toBeInTheDocument();
-    vi.useRealTimers();
+    expect(monthlyMemoriesProps.onBeforeNavigate).toBe(scrollRestoreMocks.saveScrollPosition);
   });
 });

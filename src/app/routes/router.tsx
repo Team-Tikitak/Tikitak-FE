@@ -111,6 +111,21 @@ export const router = createBrowserRouter([
                   import('@/pages/teamInvite/ui').then((m) => ({ Component: m.TeamInvitePage })),
               },
               {
+                path: PATHS.FLAPPY_GAME,
+                lazy: () =>
+                  import('@/pages/game/flappy/ui').then((m) => ({ Component: m.FlappyGamePage })),
+              },
+              {
+                path: PATHS.WHACK_GAME,
+                lazy: () =>
+                  import('@/pages/game/whack/ui').then((m) => ({ Component: m.WhackGamePage })),
+              },
+              {
+                path: PATHS.KEYCAP_GAME,
+                lazy: () =>
+                  import('@/pages/game/keycap/ui').then((m) => ({ Component: m.KeycapGamePage })),
+              },
+              {
                 path: PATHS.GALLERY,
                 lazy: () =>
                   import('@/pages/gallery/ui').then((m) => ({ Component: m.GalleryPage })),

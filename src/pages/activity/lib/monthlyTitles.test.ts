@@ -72,4 +72,63 @@ describe('buildMonthlyTitles', () => {
       }),
     ).toEqual([]);
   });
+
+  describe('이달의 게임왕', () => {
+    const entry = (teamMemberId: number, nickname: string, rank: number) => ({
+      rank,
+      teamMemberId,
+      nickname,
+      profileImgUrl: '',
+      score: 10,
+    });
+
+    it('여러 게임의 순위를 점수로 합쳐 가장 높은 사람이 받는다', () => {
+      const titles = buildMonthlyTitles({
+        gameLeaderboards: [
+          [entry(1, '경준', 1), entry(2, '민지', 2)],
+          [entry(2, '민지', 1), entry(1, '경준', 2)],
+          [entry(1, '경준', 1), entry(3, '수아', 2)],
+        ],
+      });
+
+      expect(titles).toEqual([
+        { id: 'gameKing', title: '이달의 게임왕', holder: '경준', detail: '2개 게임에서 1위' },
+      ]);
+    });
+
+    it('점수가 같으면 1위를 더 많이 한 사람이 앞선다', () => {
+      // 경준: 1위(3) + 3위(1) = 4점, 1위 1번 / 민지: 2위(2) + 2위(2) = 4점, 1위 0번
+      const [title] = buildMonthlyTitles({
+        gameLeaderboards: [
+          [entry(1, '경준', 1), entry(2, '민지', 2)],
+          [entry(2, '민지', 2), entry(1, '경준', 3)],
+        ],
+      });
+
+      expect(title.holder).toBe('경준');
+    });
+
+    it('점수와 1위 횟수가 모두 같으면 함께 받는다', () => {
+      const [title] = buildMonthlyTitles({
+        gameLeaderboards: [[entry(1, '경준', 1)], [entry(2, '민지', 1)]],
+      });
+
+      expect(title.holder).toBe('경준, 민지');
+    });
+
+    it('4위 이하만 있거나 기록이 없으면 만들지 않는다', () => {
+      expect(buildMonthlyTitles({ gameLeaderboards: [[entry(1, '경준', 4)], []] })).toEqual([]);
+      expect(buildMonthlyTitles({ gameLeaderboards: [] })).toEqual([]);
+      expect(buildMonthlyTitles({})).toEqual([]);
+    });
+
+    it('다른 칭호들 뒤에 붙는다', () => {
+      const titles = buildMonthlyTitles({
+        bestAttendance: { month: 11, members: [member(1, '경준', 7)] },
+        gameLeaderboards: [[entry(1, '경준', 1)]],
+      });
+
+      expect(titles.map((title) => title.id)).toEqual(['attendance', 'gameKing']);
+    });
+  });
 });

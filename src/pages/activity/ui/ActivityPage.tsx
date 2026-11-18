@@ -1,23 +1,19 @@
 import { type ReactNode } from 'react';
-import { useNavigationType } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { useScrollRestore } from '@/shared/hooks';
-import { useHeroHandoff } from '@/shared/hooks/useHeroHandoff';
 import { cn } from '@/shared/lib/cn';
 import { AppHeader, DailyQuestion, EmptyTeamView } from '@/shared/ui';
-import { StoredHero } from '@/shared/ui/StoredHero';
 import { ActivitySkeleton } from './ActivitySkeleton';
 import { EmptyActiveView } from './EmptyActiveView';
+import { MiniGameSection } from './MiniGameSection';
 import { MonthlyBestAttendance } from './MonthlyBestAttendance';
 import { MonthlyMemories } from './MonthlyMemories';
 import { MonthlyTitles } from './MonthlyTitles';
 import { useActivityPage } from '../hooks/useActivityPage';
 
-const ACTIVITY_HERO_STORAGE_KEY = 'tikitak:last-activity-hero';
 const ACTIVITY_SCROLL_STORAGE_KEY = 'activity-scroll';
 
 export const ActivityPage = () => {
-  const navigationType = useNavigationType();
   const {
     activeTeam,
     teamId,
@@ -34,27 +30,15 @@ export const ActivityPage = () => {
     goToTeamCreate,
     goToDailyFeedCreate,
     goToDailyQuestionFeed,
-    isHeroItemLoaded,
   } = useActivityPage();
 
-  const {
-    scrollRef,
-    handleScroll,
-    saveScrollPosition,
-    restored: scrollRestored,
-  } = useScrollRestore(ACTIVITY_SCROLL_STORAGE_KEY, {
-    ready: !isLoading,
-    contentSignal: `${teamId}:${isEmpty}`,
-  });
-  const { storedHero, storedHeroVisible, suppressedItemId, captureHero } = useHeroHandoff({
-    storageKey: ACTIVITY_HERO_STORAGE_KEY,
-    navigationType,
-    scrollRestored,
-    isItemLoaded: isHeroItemLoaded,
-    scrollFrameRef: scrollRef,
-    renderCapturedHero: false,
-  });
-
+  const { scrollRef, handleScroll, saveScrollPosition } = useScrollRestore(
+    ACTIVITY_SCROLL_STORAGE_KEY,
+    {
+      ready: !isLoading,
+      contentSignal: `${teamId}:${isEmpty}`,
+    },
+  );
   if (!isLoading && !hasActiveTeam) {
     return (
       <PageShell contentClassName="flex flex-1 flex-col">
@@ -77,12 +61,8 @@ export const ActivityPage = () => {
       <div className="flex flex-col gap-9 px-5">
         <MonthlyBestAttendance teamId={teamId} />
         <MonthlyTitles teamId={teamId} />
-        <MonthlyMemories
-          teamId={teamId}
-          suppressedItemId={suppressedItemId}
-          onHeroCapture={captureHero}
-          onBeforeNavigate={saveScrollPosition}
-        />
+        <MiniGameSection teamId={teamId} myTeamMemberId={activeTeam?.teamMemberId} />
+        <MonthlyMemories teamId={teamId} onBeforeNavigate={saveScrollPosition} />
       </div>
     );
   }
@@ -110,14 +90,6 @@ export const ActivityPage = () => {
       }
       contentClassName="relative isolate flex flex-col overflow-hidden bg-white"
     >
-      {storedHero && scrollRestored && (
-        <StoredHero
-          storedHero={storedHero}
-          visible={storedHeroVisible}
-          radius="8"
-          instanceKey={ACTIVITY_HERO_STORAGE_KEY}
-        />
-      )}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
