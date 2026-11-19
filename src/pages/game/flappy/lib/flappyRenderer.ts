@@ -3,7 +3,6 @@ import {
   GAME_HEIGHT,
   GAME_WIDTH,
   GROUND_HEIGHT,
-  PIPE_GAP,
   PIPE_SPEED,
   PIPE_WIDTH,
   type GameState,
@@ -128,9 +127,10 @@ export const triggerDeathFx = (fx: FxState, birdY: number) => {
 // 화면 밖으로 나가면 반대편에서 다시 나오게 감싼다
 const wrap = (value: number, range: number) => ((value % range) + range) % range;
 
-const drawSky = (context: CanvasRenderingContext2D) => {
+// overscanY: 화면이 길어 게임판 위·아래로 더 보이는 높이. 하늘·기둥·땅을 그만큼 이어 그린다
+const drawSky = (context: CanvasRenderingContext2D, overscanY: number) => {
   context.fillStyle = COLOR.sky;
-  context.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  context.fillRect(0, -overscanY, GAME_WIDTH, GAME_HEIGHT + overscanY * 2);
 
   context.fillStyle = COLOR.sun;
   context.beginPath();
@@ -226,15 +226,16 @@ const drawPipes = (
   state: GameState,
   assets: GameAssets,
   time: number,
+  overscanY: number,
 ) => {
   for (const pipe of state.pipes) {
-    const gapTop = pipe.gapY - PIPE_GAP / 2;
-    const gapBottom = pipe.gapY + PIPE_GAP / 2;
+    const gapTop = pipe.gapY - pipe.gap / 2;
+    const gapBottom = pipe.gapY + pipe.gap / 2;
     const centerX = pipe.x + PIPE_WIDTH / 2;
     const flowers = assets.flowers;
     const sway = Math.sin(time * 2 + pipe.seed * 10) * 0.12;
 
-    drawStem(context, pipe.x, -10, gapTop - FLOWER_SIZE / 2);
+    drawStem(context, pipe.x, -overscanY - 10, gapTop - FLOWER_SIZE / 2);
     drawStem(context, pipe.x, gapBottom + FLOWER_SIZE / 2, GROUND_TOP);
 
     if (flowers.length > 0) {
@@ -246,9 +247,9 @@ const drawPipes = (
   }
 };
 
-const drawGround = (context: CanvasRenderingContext2D, scroll: number) => {
+const drawGround = (context: CanvasRenderingContext2D, scroll: number, overscanY: number) => {
   context.fillStyle = COLOR.soil;
-  context.fillRect(0, GROUND_TOP, GAME_WIDTH, GROUND_HEIGHT);
+  context.fillRect(0, GROUND_TOP, GAME_WIDTH, GROUND_HEIGHT + overscanY);
 
   context.fillStyle = COLOR.soilStripe;
   const offset = wrap(scroll, 24);
@@ -376,6 +377,7 @@ export const drawGame = (
   assets: GameAssets,
   fx: FxState,
   status: GameStatus,
+  overscanY = 0,
 ) => {
   context.save();
   if (fx.shake > 0) {
@@ -383,11 +385,11 @@ export const drawGame = (
     context.translate((Math.random() - 0.5) * amount, (Math.random() - 0.5) * amount);
   }
 
-  drawSky(context);
+  drawSky(context, overscanY);
   drawClouds(context, fx.scroll);
   drawHills(context, fx.scroll);
-  drawPipes(context, state, assets, fx.time);
-  drawGround(context, fx.scroll);
+  drawPipes(context, state, assets, fx.time, overscanY);
+  drawGround(context, fx.scroll, overscanY);
   drawBird(context, state, assets.bird, fx, status);
   drawParticles(context, fx);
   if (status !== 'ready') drawScore(context, state.score, fx);
@@ -395,6 +397,6 @@ export const drawGame = (
 
   if (fx.flash > 0) {
     context.fillStyle = `rgba(255, 255, 255, ${(fx.flash / FLASH_SECONDS) * 0.7})`;
-    context.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    context.fillRect(0, -overscanY, GAME_WIDTH, GAME_HEIGHT + overscanY * 2);
   }
 };

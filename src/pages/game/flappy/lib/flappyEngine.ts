@@ -12,9 +12,25 @@ export const PIPE_SPEED = 150;
 export const PIPE_SPAWN_INTERVAL = 1.5;
 const GAP_MARGIN = 90;
 
+// 점수가 오를수록 빨라지고 틈이 좁아진다. 파이프 사이의 가로 거리는 일정하게 두어, 빨라진 만큼 간격 시간이 짧아진다.
+const PIPE_SPACING = PIPE_SPEED * PIPE_SPAWN_INTERVAL;
+const MAX_PIPE_SPEED = 230;
+const SPEED_PER_SCORE = 4;
+const MIN_PIPE_GAP = 140;
+const GAP_PER_SCORE = 2;
+// 앞 파이프와 틈 높이가 너무 크게 어긋나면 빨라진 뒤에는 닿을 수 없어서, 위아래 이동 폭을 제한한다
+export const MAX_GAP_SHIFT = 240;
+
+export const getPipeSpeed = (score: number) =>
+  Math.min(MAX_PIPE_SPEED, PIPE_SPEED + score * SPEED_PER_SCORE);
+export const getPipeGap = (score: number) =>
+  Math.max(MIN_PIPE_GAP, PIPE_GAP - score * GAP_PER_SCORE);
+
 export interface Pipe {
   x: number;
   gapY: number;
+  /** 이 파이프가 나올 때 정해진 틈 크기. 점수가 올라도 이미 나온 파이프의 틈은 그대로다 */
+  gap: number;
   passed: boolean;
   /** 0~1. 장애물마다 붙는 스티커를 정하는 값 (규칙과 무관한 연출용) */
   seed: number;
@@ -44,8 +60,8 @@ export const flap = (state: GameState) => {
 const hitsPipe = (state: GameState, pipe: Pipe) => {
   const overlapsX = BIRD_X + BIRD_RADIUS > pipe.x && BIRD_X - BIRD_RADIUS < pipe.x + PIPE_WIDTH;
   if (!overlapsX) return false;
-  const gapTop = pipe.gapY - PIPE_GAP / 2;
-  const gapBottom = pipe.gapY + PIPE_GAP / 2;
+  const gapTop = pipe.gapY - pipe.gap / 2;
+  const gapBottom = pipe.gapY + pipe.gap / 2;
   return state.y - BIRD_RADIUS < gapTop || state.y + BIRD_RADIUS > gapBottom;
 };
 
@@ -55,16 +71,31 @@ export const stepGame = (state: GameState, dt: number, random: () => number = Ma
   state.y += state.velocity * dt;
 
   state.sinceSpawn += dt;
-  if (state.sinceSpawn >= PIPE_SPAWN_INTERVAL) {
+  const speed = getPipeSpeed(state.score);
+  if (state.sinceSpawn >= PIPE_SPACING / speed) {
     state.sinceSpawn = 0;
     // 땅 위에서만 틈이 생기도록 범위에서 땅 높이를 뺀다
     const range = GAME_HEIGHT - GROUND_HEIGHT - GAP_MARGIN * 2;
-    const gapY = GAP_MARGIN + random() * range;
-    state.pipes.push({ x: GAME_WIDTH, gapY, passed: false, seed: random() });
+    const randomGapY = GAP_MARGIN + random() * range;
+    const previousGapY = state.pipes.at(-1)?.gapY;
+    const gapY =
+      previousGapY === undefined
+        ? randomGapY
+        : Math.min(
+            previousGapY + MAX_GAP_SHIFT,
+            Math.max(previousGapY - MAX_GAP_SHIFT, randomGapY),
+          );
+    state.pipes.push({
+      x: GAME_WIDTH,
+      gapY,
+      gap: getPipeGap(state.score),
+      passed: false,
+      seed: random(),
+    });
   }
 
   for (const pipe of state.pipes) {
-    pipe.x -= PIPE_SPEED * dt;
+    pipe.x -= speed * dt;
     if (!pipe.passed && pipe.x + PIPE_WIDTH < BIRD_X - BIRD_RADIUS) {
       pipe.passed = true;
       state.score += 1;
