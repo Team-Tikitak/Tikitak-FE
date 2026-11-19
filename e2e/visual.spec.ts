@@ -78,7 +78,8 @@ test.describe('@visual 시각 회귀', () => {
 
   test('활동 페이지 — 월간 섹션', async ({ page }) => {
     // 앱이 h-dvh + 내부 스크롤이라 fullPage가 뷰포트까지만 잡힘 → 전 섹션 담기게 뷰포트를 키운다.
-    await page.setViewportSize({ width: 393, height: 1400 });
+    // 미니게임 카드 3개가 더해져 1400으로는 마지막 카드와 추억 섹션이 잘려서 높였다.
+    await page.setViewportSize({ width: 393, height: 2000 });
     await skipSplash(page);
     await blockThirdParty(page);
     await stubImages(page);
