@@ -52,7 +52,7 @@ export const ImpossibleOffer = ({ profileImgUrl, onChallenge, onFinish }: Imposs
       role="dialog"
       aria-modal="true"
       aria-label="불가능 도전"
-      className="bg-tak-ink absolute inset-0 z-30 overflow-hidden"
+      className="bg-tak-ink absolute inset-0 z-30 overflow-hidden motion-safe:animate-[vs-overlay-in_600ms_ease-out_both]"
     >
       {/* 사선으로 나뉜 푸른쪽(나)과 붉은쪽(컴퓨터). 햇살 모양 줄무늬로 대결 분위기를 낸다 */}
       <div className="absolute inset-0 motion-safe:animate-[vs-slide-left_450ms_ease-out_both]">
