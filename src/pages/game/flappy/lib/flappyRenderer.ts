@@ -266,6 +266,34 @@ const drawGround = (context: CanvasRenderingContext2D, scroll: number) => {
   context.fillRect(0, GROUND_TOP, GAME_WIDTH, 16);
 };
 
+// 파란 광륜이 파란 하늘에 묻히지 않게 스티커처럼 흰 윤곽을 두른다.
+// 번짐(shadowBlur)을 매 프레임 계산하면 끊기므로 한 번만 따로 그려 두고 재사용한다
+const BIRD_HALO_PX = 8;
+const birdSprites = new WeakMap<HTMLImageElement, HTMLCanvasElement>();
+
+const getBirdSprite = (bird: HTMLImageElement) => {
+  const cached = birdSprites.get(bird);
+  if (cached) return cached;
+  const height = BIRD_WIDTH * (bird.naturalHeight / bird.naturalWidth);
+  const sprite = document.createElement('canvas');
+  sprite.width = Math.ceil(BIRD_WIDTH + BIRD_HALO_PX * 2);
+  sprite.height = Math.ceil(height + BIRD_HALO_PX * 2);
+  const spriteContext = sprite.getContext('2d');
+  if (spriteContext) {
+    spriteContext.shadowColor = '#ffffff';
+    spriteContext.shadowBlur = 6;
+    spriteContext.drawImage(
+      bird,
+      (sprite.width - BIRD_WIDTH) / 2,
+      (sprite.height - height) / 2,
+      BIRD_WIDTH,
+      height,
+    );
+  }
+  birdSprites.set(bird, sprite);
+  return sprite;
+};
+
 const drawBird = (
   context: CanvasRenderingContext2D,
   state: GameState,
@@ -280,12 +308,9 @@ const drawBird = (
   context.save();
   context.translate(BIRD_X, state.y + bob);
   context.rotate(status === 'over' ? Math.min(1.4, tilt + 0.9) : tilt);
-  // 파란 광륜이 파란 하늘에 묻히지 않게 스티커처럼 흰 윤곽을 두른다
-  context.shadowColor = '#ffffff';
-  context.shadowBlur = 6;
   if (isReady(bird)) {
-    const height = BIRD_WIDTH * (bird.naturalHeight / bird.naturalWidth);
-    context.drawImage(bird, -BIRD_WIDTH / 2, -height / 2, BIRD_WIDTH, height);
+    const sprite = getBirdSprite(bird);
+    context.drawImage(sprite, -sprite.width / 2, -sprite.height / 2);
   } else {
     context.fillStyle = COLOR.stem;
     context.beginPath();
