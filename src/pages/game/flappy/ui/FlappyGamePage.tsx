@@ -34,7 +34,8 @@ export const FlappyGamePage = () => {
           rightSlot={<SoundToggle />}
         />
       }
-      contentClassName="bg-tak-ink flex flex-col overflow-hidden"
+      // 화면이 9:16보다 길면 남는 위아래가 비는데, 위는 하늘색·아래는 땅색으로 이어 붙여 검은 줄이 보이지 않게 한다
+      contentClassName="bg-[linear-gradient(to_bottom,var(--color-tak-blue)_50%,var(--color-tak-yellow)_50%)] flex flex-col overflow-hidden"
     >
       <div className="relative flex min-h-0 flex-1 items-center justify-center select-none">
         {/* 터치와 마우스는 누르는 순간에, 키보드(Space·Enter)는 click으로 날갯짓한다 */}

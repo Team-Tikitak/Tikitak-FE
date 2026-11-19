@@ -269,7 +269,8 @@ const drawGround = (context: CanvasRenderingContext2D, scroll: number) => {
 // 파란 광륜이 파란 하늘에 묻히지 않게 스티커처럼 흰 윤곽을 두른다.
 // 번짐(shadowBlur)을 매 프레임 계산하면 끊기므로 한 번만 따로 그려 두고 재사용한다.
 // 스프라이트는 화면 배율(scale)에 맞춰 만들어야 배율 2 기기에서 흐려지지 않는다
-const BIRD_HALO_PX = 8;
+// 번짐(shadowBlur 6)이 퍼지는 범위보다 여백이 작으면 가장자리에서 잘려 네모 테두리가 생긴다
+const BIRD_HALO_PX = 16;
 const birdSprites = new WeakMap<HTMLImageElement, { scale: number; canvas: HTMLCanvasElement }>();
 
 const getBirdSprite = (bird: HTMLImageElement, scale: number) => {
@@ -284,15 +285,18 @@ const getBirdSprite = (bird: HTMLImageElement, scale: number) => {
   // 컨텍스트를 못 만들면 빈 캔버스를 저장하지 않고, 호출한 쪽이 원본 이미지를 직접 그린다
   if (!spriteContext) return null;
 
+  // 사파리는 SVG 이미지에 그림자를 줄 때 모양이 아니라 사각형 전체에 번지게 그린다.
+  // 그래서 먼저 그림자 없이 비트맵으로 옮긴 뒤, 그 비트맵에 그림자를 입힌다
+  const flat = document.createElement('canvas');
+  flat.width = Math.ceil(BIRD_WIDTH * scale);
+  flat.height = Math.ceil(height * scale);
+  const flatContext = flat.getContext('2d');
+  if (!flatContext) return null;
+  flatContext.drawImage(bird, 0, 0, flat.width, flat.height);
+
   spriteContext.shadowColor = '#ffffff';
   spriteContext.shadowBlur = 6 * scale;
-  spriteContext.drawImage(
-    bird,
-    (sprite.width - BIRD_WIDTH * scale) / 2,
-    (sprite.height - height * scale) / 2,
-    BIRD_WIDTH * scale,
-    height * scale,
-  );
+  spriteContext.drawImage(flat, (sprite.width - flat.width) / 2, (sprite.height - flat.height) / 2);
   birdSprites.set(bird, { scale, canvas: sprite });
   return sprite;
 };
@@ -312,7 +316,9 @@ const drawBird = (
   context.translate(BIRD_X, state.y + bob);
   context.rotate(status === 'over' ? Math.min(1.4, tilt + 0.9) : tilt);
   if (isReady(bird)) {
-    const scale = context.getTransform().a || 1;
+    // 새를 기울여도(회전) 배율이 변하지 않도록 변환 행렬의 첫 열 길이로 구한다
+    const { a, b } = context.getTransform();
+    const scale = Math.hypot(a, b) || 1;
     const sprite = getBirdSprite(bird, scale);
     if (sprite) {
       // 그릴 때는 화면 배율을 되돌려 논리 크기(BIRD_WIDTH 기준)를 유지한다
