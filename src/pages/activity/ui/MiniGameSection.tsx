@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useGameLeaderboard } from '@/shared/api/game/queries';
 import { isGameServerConfigured } from '@/shared/api/game/supabase';
-import type { GameId } from '@/shared/api/game/types';
+import type { GameId, GameLeaderboardEntry } from '@/shared/api/game/types';
 import flappyThumbnailUrl from '@/shared/assets/Game/FlappyThumbnail.jpg';
 import keycapThumbnailUrl from '@/shared/assets/Game/KeycapThumbnail.jpg';
 import whackThumbnailUrl from '@/shared/assets/Game/WhackThumbnail.jpg';
 import ChevronDownIcon from '@/shared/assets/Icon/ChevronDownIcon.svg?react';
-import { cn } from '@/shared/lib';
+import { cn, openOverlay } from '@/shared/lib';
 import { formatKeycapScore } from '@/shared/lib/game/keycapScore';
 import { triggerHaptic } from '@/shared/lib/native/haptics';
 import { Avatar } from '@/shared/ui';
+import { BottomSheetOverlay } from '@/shared/ui/BottomSheet';
+import { GameRankingSheet } from './GameRankingSheet';
 
 interface GameCardConfig {
   id: GameId;
@@ -49,6 +51,8 @@ const GAME_CARDS = [
 ] satisfies GameCardConfig[];
 
 const TOP_COUNT = 3;
+
+const formatPlainScore = (score: number) => `${score}점`;
 
 interface MiniGameSectionProps {
   teamId: number | null | undefined;
@@ -89,6 +93,32 @@ interface GameCardProps extends MiniGameSectionProps {
   game: GameCardConfig;
 }
 
+interface LiveGameRankingSheetProps {
+  game: GameCardConfig;
+  teamId: number | null | undefined;
+  fallbackEntries: GameLeaderboardEntry[];
+  myTeamMemberId: number | null | undefined;
+}
+
+// 시트를 연 채로 월이 바뀌거나 순위가 갱신돼도 최신 순위를 보여주도록 시트 안에서 다시 구독한다
+const LiveGameRankingSheet = ({
+  game,
+  teamId,
+  fallbackEntries,
+  myTeamMemberId,
+}: LiveGameRankingSheetProps) => {
+  const { entries, isPending } = useGameLeaderboard(game.id, teamId);
+
+  return (
+    <GameRankingSheet
+      title={game.title}
+      entries={isPending ? fallbackEntries : entries}
+      myTeamMemberId={myTeamMemberId}
+      formatScore={game.formatScore ?? formatPlainScore}
+    />
+  );
+};
+
 const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
   const navigate = useNavigate();
   const { entries, isPending } = useGameLeaderboard(game.id, teamId);
@@ -96,12 +126,31 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
   const contentId = useId();
   const top = entries.slice(0, TOP_COUNT);
   const myEntry = entries.find((entry) => entry.teamMemberId === myTeamMemberId);
+  const formatScore = game.formatScore ?? formatPlainScore;
   const showRanking = isGameServerConfigured && !isPending;
 
   const toggle = () => {
     const next = !collapsed;
     setCollapsed(next);
     writeCollapsed(game.id, next);
+  };
+
+  const openRanking = () => {
+    openOverlay(({ isOpen, close, unmount }) => (
+      <BottomSheetOverlay
+        open={isOpen}
+        onClose={close}
+        onExitComplete={unmount}
+        ariaTitle={`${game.title} 이번 달 순위`}
+      >
+        <LiveGameRankingSheet
+          game={game}
+          teamId={teamId}
+          fallbackEntries={entries}
+          myTeamMemberId={myTeamMemberId}
+        />
+      </BottomSheetOverlay>
+    ));
   };
 
   const handlePlay = () => {
@@ -158,7 +207,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
             />
 
             <div className="flex min-w-0 flex-1 flex-col gap-3">
-              <p className="body-10 text-gray-600">{game.description}</p>
+              <p className="body-10 break-keep text-gray-600">{game.description}</p>
 
               {showRanking && (
                 <ul aria-label={`${game.title} 이번 달 순위`} className="flex flex-col gap-2">
@@ -166,21 +215,34 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
                     <li className="body-10 text-gray-600">첫 기록의 주인공이 되어보세요!</li>
                   ) : (
                     top.map((entry) => (
-                      <li key={entry.teamMemberId} className="flex items-center gap-2">
+                      <li
+                        key={entry.teamMemberId}
+                        className="flex flex-wrap items-center gap-x-2 gap-y-0.5"
+                      >
                         <span className="w-4 text-center text-xs font-bold text-gray-600">
                           {entry.rank}
                         </span>
                         <Avatar src={entry.profileImgUrl} alt="" size="xs" />
-                        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-black">
+                        <span className="min-w-16 flex-1 truncate text-sm font-semibold text-black">
                           {entry.nickname}
                         </span>
-                        <span className="text-xs text-gray-600">
-                          {(game.formatScore ?? ((score: number) => `${score}점`))(entry.score)}
+                        <span className="ml-auto text-xs text-gray-600">
+                          {formatScore(entry.score)}
                         </span>
                       </li>
                     ))
                   )}
                 </ul>
+              )}
+
+              {showRanking && entries.length > 0 && (
+                <button
+                  type="button"
+                  onClick={openRanking}
+                  className="relative z-10 -mt-1 self-start text-xs font-semibold text-gray-600 underline underline-offset-2"
+                >
+                  전체 순위 보기 ({entries.length}명)
+                </button>
               )}
 
               <button

@@ -266,6 +266,37 @@ const drawGround = (context: CanvasRenderingContext2D, scroll: number) => {
   context.fillRect(0, GROUND_TOP, GAME_WIDTH, 16);
 };
 
+// 파란 광륜이 파란 하늘에 묻히지 않게 스티커처럼 흰 윤곽을 두른다.
+// 번짐(shadowBlur)을 매 프레임 계산하면 끊기므로 한 번만 따로 그려 두고 재사용한다.
+// 스프라이트는 화면 배율(scale)에 맞춰 만들어야 배율 2 기기에서 흐려지지 않는다
+const BIRD_HALO_PX = 8;
+const birdSprites = new WeakMap<HTMLImageElement, { scale: number; canvas: HTMLCanvasElement }>();
+
+const getBirdSprite = (bird: HTMLImageElement, scale: number) => {
+  const cached = birdSprites.get(bird);
+  if (cached && cached.scale === scale) return cached.canvas;
+
+  const height = BIRD_WIDTH * (bird.naturalHeight / bird.naturalWidth);
+  const sprite = document.createElement('canvas');
+  sprite.width = Math.ceil((BIRD_WIDTH + BIRD_HALO_PX * 2) * scale);
+  sprite.height = Math.ceil((height + BIRD_HALO_PX * 2) * scale);
+  const spriteContext = sprite.getContext('2d');
+  // 컨텍스트를 못 만들면 빈 캔버스를 저장하지 않고, 호출한 쪽이 원본 이미지를 직접 그린다
+  if (!spriteContext) return null;
+
+  spriteContext.shadowColor = '#ffffff';
+  spriteContext.shadowBlur = 6 * scale;
+  spriteContext.drawImage(
+    bird,
+    (sprite.width - BIRD_WIDTH * scale) / 2,
+    (sprite.height - height * scale) / 2,
+    BIRD_WIDTH * scale,
+    height * scale,
+  );
+  birdSprites.set(bird, { scale, canvas: sprite });
+  return sprite;
+};
+
 const drawBird = (
   context: CanvasRenderingContext2D,
   state: GameState,
@@ -280,12 +311,22 @@ const drawBird = (
   context.save();
   context.translate(BIRD_X, state.y + bob);
   context.rotate(status === 'over' ? Math.min(1.4, tilt + 0.9) : tilt);
-  // 파란 광륜이 파란 하늘에 묻히지 않게 스티커처럼 흰 윤곽을 두른다
-  context.shadowColor = '#ffffff';
-  context.shadowBlur = 6;
   if (isReady(bird)) {
-    const height = BIRD_WIDTH * (bird.naturalHeight / bird.naturalWidth);
-    context.drawImage(bird, -BIRD_WIDTH / 2, -height / 2, BIRD_WIDTH, height);
+    const scale = context.getTransform().a || 1;
+    const sprite = getBirdSprite(bird, scale);
+    if (sprite) {
+      // 그릴 때는 화면 배율을 되돌려 논리 크기(BIRD_WIDTH 기준)를 유지한다
+      context.drawImage(
+        sprite,
+        -sprite.width / scale / 2,
+        -sprite.height / scale / 2,
+        sprite.width / scale,
+        sprite.height / scale,
+      );
+    } else {
+      const height = BIRD_WIDTH * (bird.naturalHeight / bird.naturalWidth);
+      context.drawImage(bird, -BIRD_WIDTH / 2, -height / 2, BIRD_WIDTH, height);
+    }
   } else {
     context.fillStyle = COLOR.stem;
     context.beginPath();

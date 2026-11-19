@@ -22,7 +22,7 @@ import {
 export type GameStatus = 'ready' | 'playing' | 'over';
 
 // 탭 전환 등으로 프레임이 길게 끊겨도 새가 순간이동하지 않게 한다
-const MAX_FRAME_SECONDS = 0.033;
+const MAX_FRAME_SECONDS = 0.05;
 
 export const useFlappyGame = (onGameOver: (score: number) => void) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -44,10 +44,11 @@ export const useFlappyGame = (onGameOver: (score: number) => void) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas?.getContext('2d');
+    const context = canvas?.getContext('2d', { alpha: false });
     if (!canvas || !context) return;
 
-    const ratio = window.devicePixelRatio || 1;
+    // 3배 해상도는 픽셀이 너무 많아 느려지므로 2배까지만 쓴다
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = GAME_WIDTH * ratio;
     canvas.height = GAME_HEIGHT * ratio;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);

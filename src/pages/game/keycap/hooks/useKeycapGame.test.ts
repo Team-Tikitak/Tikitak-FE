@@ -76,7 +76,7 @@ describe('useKeycapGame', () => {
     expect(result.current.outcome).toBe('lose');
     expect(onGameOver).toHaveBeenCalledTimes(1);
     // 한 번도 못 이겼으므로 100의 자리가 0이다
-    expect(onGameOver.mock.calls[0][0]).toBeLessThan(100);
+    expect(onGameOver.mock.calls[0][0]).toBeLessThan(1000);
   });
 
   it('초고수까지 모두 이기면 4단계 클리어 점수로 끝난다', () => {
@@ -96,8 +96,8 @@ describe('useKeycapGame', () => {
     expect(result.current.run.clearedStages).toBe(4);
     expect(onGameOver).toHaveBeenCalledTimes(1);
     const score = onGameOver.mock.calls[0][0] as number;
-    expect(score).toBeGreaterThanOrEqual(400);
-    expect(score).toBeLessThanOrEqual(499);
+    expect(score).toBeGreaterThanOrEqual(4000);
+    expect(score).toBeLessThanOrEqual(4999);
   });
 
   it('다시 시작하면 이전 도전의 성과가 초기화된다', () => {

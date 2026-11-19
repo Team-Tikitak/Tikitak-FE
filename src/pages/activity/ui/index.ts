@@ -6,6 +6,7 @@ export * from './ActivityPage';
 export * from './ActivitySkeleton';
 export * from './ContentImageCard';
 export * from './EmptyActiveView';
+export * from './GameRankingSheet';
 export * from './MiniGameSection';
 export * from './MonthlyBestAttendance';
 export * from './MonthlyMemories';
