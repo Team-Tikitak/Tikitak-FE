@@ -3,4 +3,5 @@
  */
 
 export * from './audioEngine';
+export * from './bgm';
 export * from './sounds';
