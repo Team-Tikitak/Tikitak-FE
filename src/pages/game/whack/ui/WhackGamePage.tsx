@@ -79,13 +79,12 @@ export const WhackGamePage = () => {
             {score}점
           </p>
         </div>
-        <div role="radiogroup" aria-label="난이도" className="flex gap-2">
+        <div role="group" aria-label="난이도" className="flex gap-2">
           {WHACK_DIFFICULTIES.map((level) => (
             <button
               key={level}
               type="button"
-              role="radio"
-              aria-checked={difficulty === level}
+              aria-pressed={difficulty === level}
               disabled={status === 'playing'}
               onClick={() => setDifficulty(level)}
               className={cn(
