@@ -79,6 +79,17 @@ describe('flappyEngine', () => {
     expect(stepGame(top, 0.016, () => 0.5)).toBe(true);
   });
 
+  it('천장을 더 위로 옮기면 그 높이까지는 날 수 있다', () => {
+    const state = createGameState();
+    state.y = -40;
+    // 기본 천장(0)에서는 끝나고, 화면이 길어 천장이 -80으로 옮겨지면 계속 난다
+    expect(stepGame(structuredClone(state), 0.001, () => 0.5)).toBe(true);
+    expect(stepGame(structuredClone(state), 0.001, () => 0.5, -80)).toBe(false);
+
+    state.y = -80;
+    expect(stepGame(state, 0.001, () => 0.5, -80)).toBe(true);
+  });
+
   it('파이프 틈 밖에서 부딪히면 끝나고 틈 안이면 통과한다', () => {
     const blocked = createGameState();
     blocked.sinceSpawn = 0;

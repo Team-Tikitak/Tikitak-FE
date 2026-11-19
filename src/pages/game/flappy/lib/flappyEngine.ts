@@ -66,7 +66,13 @@ const hitsPipe = (state: GameState, pipe: Pipe) => {
 };
 
 /** 한 프레임을 진행하고 게임이 끝났으면 true. random은 테스트에서 고정값을 넣기 위해 받는다. */
-export const stepGame = (state: GameState, dt: number, random: () => number = Math.random) => {
+export const stepGame = (
+  state: GameState,
+  dt: number,
+  random: () => number = Math.random,
+  /** 천장의 높이(게임판 좌표). 화면이 길어 하늘이 위로 더 이어져 보이면 그 보이는 맨 위로 맞춘다 */
+  ceiling = 0,
+) => {
   state.velocity += GRAVITY * dt;
   state.y += state.velocity * dt;
 
@@ -103,7 +109,9 @@ export const stepGame = (state: GameState, dt: number, random: () => number = Ma
   }
   state.pipes = state.pipes.filter((pipe) => pipe.x + PIPE_WIDTH > 0);
 
-  if (state.y - BIRD_RADIUS < 0 || state.y + BIRD_RADIUS > GAME_HEIGHT - GROUND_HEIGHT) return true;
+  if (state.y - BIRD_RADIUS < ceiling || state.y + BIRD_RADIUS > GAME_HEIGHT - GROUND_HEIGHT) {
+    return true;
+  }
   return state.pipes.some((pipe) => hitsPipe(state, pipe));
 };
 

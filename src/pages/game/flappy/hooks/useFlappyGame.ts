@@ -90,7 +90,8 @@ export const useFlappyGame = (onGameOver: (score: number) => void) => {
       const fx = fxRef.current;
 
       if (statusRef.current === 'playing') {
-        const isOver = stepGame(state, dt);
+        // 화면이 길어 하늘이 위로 이어져 보이면, 보이지 않는 천장에 부딪히지 않도록 보이는 화면의 맨 위를 천장으로 쓴다
+        const isOver = stepGame(state, dt, Math.random, -overscanY);
         if (state.score !== shownScore) {
           shownScore = state.score;
           fx.scorePop = SCORE_POP_SECONDS;
