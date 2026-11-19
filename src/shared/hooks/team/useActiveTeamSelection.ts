@@ -47,7 +47,7 @@ export const useActiveTeamSelection = () => {
     onSelectTeam: (teamId) => {
       setSelectedTeamId(teamId);
       patchActiveTeam(teamId, {
-        onSuccess: () => showToast('팀을 변경했어요'),
+        onSuccess: () => showToast('팀을 변경했어요', { haptic: false }),
       });
     },
     onCreateTeam: () => navigate(PATHS.TEAM_CREATE),

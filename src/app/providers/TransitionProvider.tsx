@@ -161,8 +161,8 @@ const ssgoiConfig: SsgoiConfig = {
 
     ...hero({ paths: [PATHS.NOTIFICATION, '/feed/*'], type: 'static' }),
 
-    ...hero({ paths: [PATHS.ACTIVITY, '/activity/*'], type: 'static' }),
-
+    // 활동의 추억 카드(모두의 PICK·지역별)는 사진이 커지는 hero 대신 오른쪽에서 밀려 들어오는 푸시 전환을 쓴다
+    ...fastSlide([PATHS.ACTIVITY, '/activity/*']),
     ...fastSlide([PATHS.ACTIVITY, '/feed/*']),
 
     ...fade({ paths: ['*'] }),

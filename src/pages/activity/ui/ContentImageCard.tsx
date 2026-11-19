@@ -5,9 +5,6 @@ interface ContentImageCardProps {
   title: string;
   description: string;
   imageUrl?: string;
-  sourceId?: string;
-  heroKey?: string;
-  suppressed?: boolean;
   onClick?: (event: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>) => void;
   onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void;
   className?: string;
@@ -17,9 +14,6 @@ export const ContentImageCard = ({
   title,
   description,
   imageUrl,
-  sourceId,
-  heroKey,
-  suppressed = false,
   onClick,
   onPointerDown,
   className,
@@ -48,15 +42,11 @@ export const ContentImageCard = ({
     >
       {imageUrl && (
         <img
-          {...(sourceId ? { 'data-activity-hero-source-id': sourceId } : {})}
-          {...(heroKey && !suppressed
-            ? { 'data-hero-exit-key': heroKey, 'data-hero-radius': '8' }
-            : {})}
           src={imageUrl}
           alt=""
           loading="lazy"
           decoding="async"
-          className={cn('absolute inset-0 size-full object-cover', suppressed && 'opacity-0')}
+          className="absolute inset-0 size-full object-cover"
         />
       )}
       <div className="absolute inset-0 rounded-lg bg-linear-to-b from-black/45 from-30% to-transparent" />

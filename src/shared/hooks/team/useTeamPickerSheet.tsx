@@ -39,6 +39,7 @@ export const useTeamPickerSheet = ({
         onClose={close}
         onExitComplete={unmount}
         ariaTitle="팀 목록"
+        haptic={false}
         ariaDescription="표시할 팀을 선택하세요"
         snapPoints={snapPoints}
         defaultSnapPoint={collapsedSnap}

@@ -26,6 +26,9 @@ export const PATHS = {
   PLACE_FEEDS: '/place/:placeId',
   AUTH_CALLBACK: '/oauth/callback',
   NOTIFICATION: '/notification',
+  FLAPPY_GAME: '/game/flappy',
+  WHACK_GAME: '/game/whack',
+  KEYCAP_GAME: '/game/keycap',
 } as const;
 
 export const toTermsDetail = (docType: LegalDocType) => `/terms/${docType}`;

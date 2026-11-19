@@ -79,6 +79,7 @@ spread(`...preset()`)는 동일하게 동작하지만 nested 형태가 코드 �
 | Home/MyPage ↔ /teams/\*                         | slide              |
 | /teams/\* ↔ TeamInvite / TeamProfileSetup       | slide              |
 | Home ↔ /place/\*                                | **hero (static)**  |
+| Activity ↔ /activity/\* (추억 카드)             | slide (push)       |
 | Feed ↔ /feed/\*                                 | **hero (static)**  |
 | 그 외 미등록                                    | fade fallback      |
 
@@ -170,3 +171,21 @@ spread(`...preset()`)는 동일하게 동작하지만 nested 형태가 코드 �
 
 - `index.html` viewport: `width=device-width, initial-scale=1.0, interactive-widget=resizes-content` (`maximum-scale=1.0` 제거 — 접근성 회귀 방지)
 - iOS Safari input focus 시 auto-zoom은 디자인 폰트 사이즈 유지 위해 별도 처리 안 함 (blur 시 자동 복원되는 표준 동작)
+
+## 2026-11 조정 — 활동 추억 카드는 hero 대신 slide
+
+- 상태: accepted
+- 기록일: 2026-11-19
+
+**결정**: 활동 탭의 "모두의 PICK"·지역별 추억 카드에서 `/activity/*`로 갈 때(와 돌아올 때) hero 전환을 쓰지 않고
+오른쪽에서 밀려 들어오는 푸시 전환(`fastSlide([PATHS.ACTIVITY, '/activity/*'])`)을 쓴다.
+
+**근거**:
+
+- 카드 사진이 커지며 넘어가는 hero는 도착 화면이 사진 목록이라 효과가 크지 않았고, 복귀 때마다 착지 위치를 맞추는 보정 코드가
+  따라붙었다.
+- 같은 활동 탭의 "활동 → 게시물"이 이미 slide라 전환이 통일된다.
+
+**정리한 것**: `ActivityPage`/`MonthlyMemories`/`ContentImageCard`의 hero 핸드오프(캡처, 저장된 사본, 원본 숨김)와
+`useActivityPage`의 `isHeroItemLoaded`를 제거했다. 공용 `useHeroHandoff`·`StoredHero`는 피드 화면이 계속 쓰므로 남겨 둔다.
+이전 "히어로 왕복 핸드오프 공용화 (2026-07)" 중 활동 페이지에 적용한 부분은 이 결정으로 대체된다.

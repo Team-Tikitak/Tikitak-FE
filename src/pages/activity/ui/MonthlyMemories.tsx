@@ -2,24 +2,16 @@ import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useHomeEveryonePick, useHomeRegions } from '@/shared/api/home/queries';
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
-import type { HeroSourceItem } from '@/shared/hooks/useHeroHandoff';
 import { normalizeImageUrl } from '@/shared/lib';
 import { ContentImageCard } from './ContentImageCard';
-import type { KeyboardEvent, MouseEvent } from 'react';
 
 interface MonthlyMemoriesProps {
   teamId: number | null | undefined;
-  suppressedItemId?: string | null;
-  onHeroCapture?: (item: HeroSourceItem, source: HTMLElement | null) => void;
+  /** 이동하기 전에 현재 스크롤 위치를 저장할 수 있게 알린다 */
   onBeforeNavigate?: () => void;
 }
 
-export const MonthlyMemories = ({
-  teamId,
-  suppressedItemId = null,
-  onHeroCapture,
-  onBeforeNavigate,
-}: MonthlyMemoriesProps) => {
+export const MonthlyMemories = ({ teamId, onBeforeNavigate }: MonthlyMemoriesProps) => {
   const navigate = useNavigate();
   const { data: pickData, isPending: isPickPending } = useHomeEveryonePick(teamId);
   const { data: regionsData, isPending: isRegionsPending } = useHomeRegions(teamId);
@@ -45,14 +37,9 @@ export const MonthlyMemories = ({
     );
   }
 
-  const captureAndNavigate = (
-    event: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>,
-    item: HeroSourceItem,
-    path: string,
-  ) => {
-    const source = event.currentTarget.querySelector<HTMLElement>('[data-hero-exit-key]');
+  // 추억 카드는 오른쪽에서 밀려 들어오는 푸시 전환으로 넘어간다 (hero 전환 없음)
+  const goTo = (path: string) => {
     onBeforeNavigate?.();
-    onHeroCapture?.(item, source);
     navigate(path);
   };
 
@@ -77,20 +64,7 @@ export const MonthlyMemories = ({
                   title="모두의 PICK"
                   description="반응과 댓글이 가장 많은 사진"
                   imageUrl={normalizeImageUrl(firstPick.thumbnailImageUrl)}
-                  sourceId={String(firstPick.feedId)}
-                  heroKey={`pin-${firstPick.feedId}`}
-                  suppressed={suppressedItemId === String(firstPick.feedId)}
-                  onClick={(event) =>
-                    captureAndNavigate(
-                      event,
-                      {
-                        id: String(firstPick.feedId),
-                        heroKey: `pin-${firstPick.feedId}`,
-                        thumbnailUrl: normalizeImageUrl(firstPick.thumbnailImageUrl) ?? '',
-                      },
-                      PATHS.ACTIVITY_EVERYONE_PICK,
-                    )
-                  }
+                  onClick={() => goTo(PATHS.ACTIVITY_EVERYONE_PICK)}
                 />
               </div>
             )}
@@ -100,20 +74,7 @@ export const MonthlyMemories = ({
                   title={`${firstRegion.region}에서`}
                   description="지역별로 모아보는 사진"
                   imageUrl={normalizeImageUrl(firstRegion.thumbnailImageUrl)}
-                  sourceId={String(firstRegion.feedId)}
-                  heroKey={`pin-${firstRegion.feedId}`}
-                  suppressed={suppressedItemId === String(firstRegion.feedId)}
-                  onClick={(event) =>
-                    captureAndNavigate(
-                      event,
-                      {
-                        id: String(firstRegion.feedId),
-                        heroKey: `pin-${firstRegion.feedId}`,
-                        thumbnailUrl: normalizeImageUrl(firstRegion.thumbnailImageUrl) ?? '',
-                      },
-                      PATHS.ACTIVITY_REGION_FEEDS,
-                    )
-                  }
+                  onClick={() => goTo(PATHS.ACTIVITY_REGION_FEEDS)}
                 />
               </div>
             )}

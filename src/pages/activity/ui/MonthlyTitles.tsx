@@ -1,3 +1,4 @@
+import { useGameLeaderboard } from '@/shared/api/game/queries';
 import {
   useHomeBestAttendance,
   useHomeCombinations,
@@ -14,17 +15,32 @@ const TITLE_BADGE_CLASS = {
   attendance: 'bg-[#ffeea6] text-[#8a6a00]',
   combination: 'bg-[#ffc5de] text-[#a3245a]',
   hangout: 'bg-[#b2e7ff] text-[#0b6a93]',
+  gameKing: 'bg-[#c6f5e0] text-[#0b6b4c]',
 } satisfies Record<MonthlyTitleId, string>;
 
 export const MonthlyTitles = ({ teamId }: MonthlyTitlesProps) => {
   const { data: bestAttendance, isPending: isAttendancePending } = useHomeBestAttendance(teamId);
   const { data: combinations, isPending: isCombinationsPending } = useHomeCombinations(teamId);
   const { data: regions, isPending: isRegionsPending } = useHomeRegions(teamId);
+  const flappy = useGameLeaderboard('flappy', teamId);
+  const whack = useGameLeaderboard('whack', teamId);
+  const keycap = useGameLeaderboard('keycap', teamId);
 
   // 칭호가 하나씩 따로 튀어나오지 않도록 세 데이터가 모두 온 뒤 한 번에 보여준다
+  // 게임 순위표는 외부 서비스(Supabase)라 늦거나 실패해도 기존 칭호를 막지 않는다. 모두 도착하면 게임왕만 뒤늦게 붙는다.
   if (isAttendancePending || isCombinationsPending || isRegionsPending) return null;
 
-  const titles = buildMonthlyTitles({ bestAttendance, combinations, regions });
+  // 세 게임의 순위표가 모두 정상으로 도착했을 때만 게임왕을 계산한다.
+  // 일부가 실패했거나 아직 오는 중인데 빈 순위표로 합산하면 엉뚱한 사람이 왕이 될 수 있다.
+  const gameBoards = [flappy, whack, keycap];
+  const areGameBoardsReady = gameBoards.every((board) => !board.isPending && !board.isError);
+
+  const titles = buildMonthlyTitles({
+    bestAttendance,
+    combinations,
+    regions,
+    gameLeaderboards: areGameBoardsReady ? gameBoards.map((board) => board.entries) : undefined,
+  });
   if (titles.length === 0) return null;
 
   const month = bestAttendance?.month ?? combinations?.month ?? regions?.month;
