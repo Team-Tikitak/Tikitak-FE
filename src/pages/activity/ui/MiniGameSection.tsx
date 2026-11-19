@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
 import { useGameLeaderboard } from '@/shared/api/game/queries';
 import { isGameServerConfigured } from '@/shared/api/game/supabase';
-import type { GameId } from '@/shared/api/game/types';
+import type { GameId, GameLeaderboardEntry } from '@/shared/api/game/types';
 import flappyThumbnailUrl from '@/shared/assets/Game/FlappyThumbnail.jpg';
 import keycapThumbnailUrl from '@/shared/assets/Game/KeycapThumbnail.jpg';
 import whackThumbnailUrl from '@/shared/assets/Game/WhackThumbnail.jpg';
@@ -93,6 +93,32 @@ interface GameCardProps extends MiniGameSectionProps {
   game: GameCardConfig;
 }
 
+interface LiveGameRankingSheetProps {
+  game: GameCardConfig;
+  teamId: number | null | undefined;
+  fallbackEntries: GameLeaderboardEntry[];
+  myTeamMemberId: number | null | undefined;
+}
+
+// 시트를 연 채로 월이 바뀌거나 순위가 갱신돼도 최신 순위를 보여주도록 시트 안에서 다시 구독한다
+const LiveGameRankingSheet = ({
+  game,
+  teamId,
+  fallbackEntries,
+  myTeamMemberId,
+}: LiveGameRankingSheetProps) => {
+  const { entries, isPending } = useGameLeaderboard(game.id, teamId);
+
+  return (
+    <GameRankingSheet
+      title={game.title}
+      entries={isPending ? fallbackEntries : entries}
+      myTeamMemberId={myTeamMemberId}
+      formatScore={game.formatScore ?? formatPlainScore}
+    />
+  );
+};
+
 const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
   const navigate = useNavigate();
   const { entries, isPending } = useGameLeaderboard(game.id, teamId);
@@ -117,11 +143,11 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
         onExitComplete={unmount}
         ariaTitle={`${game.title} 이번 달 순위`}
       >
-        <GameRankingSheet
-          title={game.title}
-          entries={entries}
+        <LiveGameRankingSheet
+          game={game}
+          teamId={teamId}
+          fallbackEntries={entries}
           myTeamMemberId={myTeamMemberId}
-          formatScore={formatScore}
         />
       </BottomSheetOverlay>
     ));
