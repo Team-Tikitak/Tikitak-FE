@@ -173,7 +173,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
             <span className="title-2 text-black">{game.title}</span>
             {myEntry && (
               <span className="bg-main-000 text-main-002 rounded-full px-2.5 py-0.5 text-xs font-bold">
-                내 {myEntry.rank}위
+                내 순위 {myEntry.rank}위
               </span>
             )}
           </span>
