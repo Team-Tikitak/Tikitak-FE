@@ -97,7 +97,7 @@ describe('useKeycapGame', () => {
     expect(savedScore).toBeLessThan(5000);
   });
 
-  it('불가능 도전을 건너뛰고 마무리하면 점수를 다시 보내지 않고 끝난다', () => {
+  it('불가능 도전을 건너뛰고 마무리하면 같은 점수를 한 번 더 보내고 끝난다', () => {
     const onGameOver = vi.fn();
     const { result } = renderHook(() => useKeycapGame(onGameOver));
     act(() => result.current.start());
@@ -109,7 +109,9 @@ describe('useKeycapGame', () => {
     act(() => result.current.finish());
 
     expect(result.current.status).toBe('over');
-    expect(onGameOver).toHaveBeenCalledTimes(1);
+    // 초고수를 깬 순간 한 번, 마무리할 때 한 번(앞의 저장이 실패했어도 기록이 남게). 같은 점수다
+    expect(onGameOver).toHaveBeenCalledTimes(2);
+    expect(onGameOver.mock.calls[1][0]).toBe(onGameOver.mock.calls[0][0]);
   });
 
   it('불가능까지 이기면 5단계 클리어 점수로 끝난다', () => {

@@ -185,8 +185,15 @@ export const useKeycapGame = (onGameOver: (score: number) => void) => {
 
   const nextStage = useCallback(() => beginStage(stageIndex + 1), [beginStage, stageIndex]);
 
-  /** 불가능에 도전하지 않고 여기서 마무리한다. 점수는 초고수를 깬 순간 이미 저장했다 */
-  const finish = useCallback(() => setStatus('over'), []);
+  /**
+   * 불가능에 도전하지 않고 여기서 마무리한다. 초고수를 깬 순간 이미 한 번 저장했지만, 그 요청이 실패했을 수 있어
+   * 같은 점수를 한 번 더 보낸다(서버는 더 높은 점수만 남기므로 중복 전송은 안전하다)
+   */
+  const finish = useCallback(() => {
+    setStatus('over');
+    const { clearedStages, points } = runRef.current;
+    onGameOverRef.current(encodeKeycapScore(clearedStages, points));
+  }, []);
 
   const press = useCallback(
     (index: number) => {
