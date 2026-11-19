@@ -3,6 +3,8 @@ import {
   GAME_SECONDS,
   KEY_COUNT,
   KEY_LAYOUT,
+  IMPOSSIBLE_STAGE_INDEX,
+  LAST_REGULAR_STAGE_INDEX,
   STAGES,
   createKeycapState,
   getOutcome,
@@ -85,7 +87,7 @@ describe('keycapEngine', () => {
     expect(getOutcome(state)).toBe('lose');
   });
 
-  it('키 배열은 네 줄이고 한 줄의 칸 수 합이 10이다', () => {
+  it('키 배열은 다섯 줄이고 한 줄의 칸 수 합이 10이다', () => {
     expect(KEY_LAYOUT).toHaveLength(KEY_COUNT);
 
     const rows: number[] = [];
@@ -98,16 +100,18 @@ describe('keycapEngine', () => {
       }
       expect(current).toBeLessThan(10);
     }
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(5);
     expect(current).toBe(0);
   });
 
-  it('높은 단계일수록 컴퓨터가 빠르고 초고수가 가장 빠르다', () => {
+  it('높은 단계일수록 컴퓨터가 빠르고 불가능이 가장 빠르다', () => {
     for (let index = 1; index < STAGES.length; index += 1) {
       expect(STAGES[index].botStart).toBeLessThan(STAGES[index - 1].botStart);
       expect(STAGES[index].botMin).toBeLessThan(STAGES[index - 1].botMin);
     }
-    expect(STAGES.at(-1)?.label).toBe('초고수');
+    expect(STAGES.at(-1)?.label).toBe('불가능');
+    expect(STAGES[LAST_REGULAR_STAGE_INDEX].label).toBe('초고수');
+    expect(STAGES[IMPOSSIBLE_STAGE_INDEX].label).toBe('불가능');
   });
 
   it('같은 순간에 켜진 키를 단계가 높을수록 컴퓨터가 더 빨리 가져간다', () => {
@@ -118,6 +122,6 @@ describe('keycapEngine', () => {
       return state.keys[index].botAt;
     };
 
-    expect(claimedAt(3)).toBeLessThan(claimedAt(0));
+    expect(claimedAt(IMPOSSIBLE_STAGE_INDEX)).toBeLessThan(claimedAt(0));
   });
 });

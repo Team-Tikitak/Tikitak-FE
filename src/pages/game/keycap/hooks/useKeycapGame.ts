@@ -5,6 +5,7 @@ import { playSound, unlockAudio } from '@/shared/lib/sound';
 import {
   GAME_SECONDS,
   KEY_COUNT,
+  LAST_REGULAR_STAGE_INDEX,
   STAGES,
   createKeycapState,
   getOutcome,
@@ -146,6 +147,11 @@ export const useKeycapGame = (onGameOver: (score: number) => void) => {
         // 이기고 다음 단계가 남아 있을 때만 이어진다. 지거나 비기거나 마지막 단계를 넘으면 끝난다.
         if (result === 'win' && stageIndex < STAGES.length - 1) {
           setStatus('stageClear');
+          // 초고수를 깬 사람은 불가능에 도전할지 고르는 화면에서 앱을 나갈 수도 있다.
+          // 기록이 사라지지 않게 이 시점의 점수를 먼저 저장한다(서버는 더 높은 점수만 남긴다)
+          if (stageIndex === LAST_REGULAR_STAGE_INDEX) {
+            onGameOverRef.current(encodeKeycapScore(next.clearedStages, next.points));
+          }
         } else {
           setStatus('over');
           onGameOverRef.current(encodeKeycapScore(next.clearedStages, next.points));
@@ -178,6 +184,9 @@ export const useKeycapGame = (onGameOver: (score: number) => void) => {
   }, [beginStage]);
 
   const nextStage = useCallback(() => beginStage(stageIndex + 1), [beginStage, stageIndex]);
+
+  /** 불가능에 도전하지 않고 여기서 마무리한다. 점수는 초고수를 깬 순간 이미 저장했다 */
+  const finish = useCallback(() => setStatus('over'), []);
 
   const press = useCallback(
     (index: number) => {
@@ -217,6 +226,7 @@ export const useKeycapGame = (onGameOver: (score: number) => void) => {
     ...view,
     start,
     nextStage,
+    finish,
     press,
     release,
   };

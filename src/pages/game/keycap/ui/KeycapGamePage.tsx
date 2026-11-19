@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGameLeaderboard, useSubmitGameScore } from '@/shared/api/game/queries';
@@ -41,10 +41,6 @@ const LOW_TIME_SECONDS = 5;
 
 export const KeycapGamePage = () => {
   const navigate = useNavigate();
-  // 개발 서버(yarn dev)에서는 늘, 배포본에서는 ?preview=impossible 로 들어올 때 초고수를 깨지 않아도 불가능 단계를 확인해 볼 수 있다.
-  // 이 주소는 로그인·초기 설정 이동 중에 ?뒤가 사라질 수 있어 개발 서버에서는 주소 없이도 켠다. 이때는 기록하지 않는다
-  const [searchParams] = useSearchParams();
-  const isPreview = import.meta.env.DEV || searchParams.get('preview') === 'impossible';
   const { teamId, teamMemberId } = useMyTeamMember();
   const { entries } = useGameLeaderboard('keycap', teamId);
   const { data: members } = useTeamMembers(teamId);
@@ -79,12 +75,11 @@ export const KeycapGamePage = () => {
     start,
     nextStage,
     finish,
-    previewImpossible,
     press,
     release,
   } = useKeycapGame((finalScore) => {
     // 서버 저장은 부가 기능이라 실패해도 게임 흐름을 막지 않는다
-    if (isPreview || !canTrackScore || !teamId || !teamMemberId || finalScore <= 0) return;
+    if (!canTrackScore || !teamId || !teamMemberId || finalScore <= 0) return;
     submitScore({ gameId: 'keycap', teamId, teamMemberId, score: finalScore });
   });
 
@@ -211,15 +206,6 @@ export const KeycapGamePage = () => {
             <Button variant="primary" onClick={start}>
               도전하기
             </Button>
-            {isPreview && (
-              <button
-                type="button"
-                onClick={previewImpossible}
-                className="min-h-11 px-3 text-sm font-semibold text-gray-600 underline underline-offset-2"
-              >
-                불가능 바로 보기 (미리보기 · 기록되지 않아요)
-              </button>
-            )}
           </div>
         )}
 

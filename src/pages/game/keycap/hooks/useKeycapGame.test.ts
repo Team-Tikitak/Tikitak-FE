@@ -79,25 +79,56 @@ describe('useKeycapGame', () => {
     expect(onGameOver.mock.calls[0][0]).toBeLessThan(1000);
   });
 
-  it('초고수까지 모두 이기면 4단계 클리어 점수로 끝난다', () => {
+  it('초고수를 이기면 끝나지 않고 불가능 도전을 고르게 하며, 그 시점의 점수를 먼저 저장한다', () => {
     const onGameOver = vi.fn();
     const { result } = renderHook(() => useKeycapGame(onGameOver));
     act(() => result.current.start());
 
     for (let stage = 0; stage < 4; stage += 1) {
       playRound(result, { press: true });
-      if (stage < 3) {
-        expect(result.current.status).toBe('stageClear');
-        act(() => result.current.nextStage());
-      }
+      expect(result.current.status).toBe('stageClear');
+      if (stage < 3) act(() => result.current.nextStage());
     }
 
-    expect(result.current.status).toBe('over');
     expect(result.current.run.clearedStages).toBe(4);
     expect(onGameOver).toHaveBeenCalledTimes(1);
-    const score = onGameOver.mock.calls[0][0] as number;
-    expect(score).toBeGreaterThanOrEqual(4000);
-    expect(score).toBeLessThanOrEqual(4999);
+    const savedScore = onGameOver.mock.calls[0][0] as number;
+    expect(savedScore).toBeGreaterThanOrEqual(4000);
+    expect(savedScore).toBeLessThan(5000);
+  });
+
+  it('불가능 도전을 건너뛰고 마무리하면 점수를 다시 보내지 않고 끝난다', () => {
+    const onGameOver = vi.fn();
+    const { result } = renderHook(() => useKeycapGame(onGameOver));
+    act(() => result.current.start());
+    for (let stage = 0; stage < 4; stage += 1) {
+      playRound(result, { press: true });
+      if (stage < 3) act(() => result.current.nextStage());
+    }
+
+    act(() => result.current.finish());
+
+    expect(result.current.status).toBe('over');
+    expect(onGameOver).toHaveBeenCalledTimes(1);
+  });
+
+  it('불가능까지 이기면 5단계 클리어 점수로 끝난다', () => {
+    const onGameOver = vi.fn();
+    const { result } = renderHook(() => useKeycapGame(onGameOver));
+    act(() => result.current.start());
+    for (let stage = 0; stage < 4; stage += 1) {
+      playRound(result, { press: true });
+      act(() => result.current.nextStage());
+    }
+
+    playRound(result, { press: true });
+
+    expect(result.current.status).toBe('over');
+    expect(result.current.run.clearedStages).toBe(5);
+    expect(onGameOver).toHaveBeenCalledTimes(2);
+    const finalScore = onGameOver.mock.calls[1][0] as number;
+    expect(finalScore).toBeGreaterThanOrEqual(5000);
+    expect(finalScore).toBeLessThanOrEqual(5999);
   });
 
   it('다시 시작하면 이전 도전의 성과가 초기화된다', () => {

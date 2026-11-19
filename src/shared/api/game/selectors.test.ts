@@ -54,9 +54,9 @@ describe('clampGameScore', () => {
     expect(clampGameScore(999)).toBe(999);
   });
 
-  it('티키타닥은 단계 점수라 4999까지 허용한다', () => {
-    expect(clampGameScore(4999, 'keycap')).toBe(4999);
-    expect(clampGameScore(9000, 'keycap')).toBe(4999);
+  it('티키타닥은 단계 점수라 5999까지 허용한다', () => {
+    expect(clampGameScore(5999, 'keycap')).toBe(5999);
+    expect(clampGameScore(9000, 'keycap')).toBe(5999);
   });
 
   it('음수나 소수는 정수 0 이상으로 맞춘다', () => {
