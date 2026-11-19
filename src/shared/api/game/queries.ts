@@ -4,6 +4,7 @@ import { getGameScores, submitGameScore } from './api';
 import { gameKeys } from './keys';
 import { buildGameLeaderboard, clampGameScore, getGameMonth } from './selectors';
 import { isGameServerConfigured } from './supabase';
+import { useGameMonth } from './useGameMonth';
 import { useTeamMembers } from '../team/queries';
 import type { GameId, SubmitGameScoreVariables } from './types';
 
@@ -12,7 +13,8 @@ export const useGameScores = (
   teamId: number | null | undefined,
   memberIds: number[],
 ) => {
-  const month = getGameMonth();
+  // 월이 바뀌면 조회 키도 바뀌어 새 달의 순위를 가져온다 (화면을 열어 둔 채 월이 넘어가는 경우)
+  const month = useGameMonth();
   return useQuery({
     queryKey: gameKeys.leaderboard(gameId, teamId ?? 0, month, memberIds.join(',')),
     queryFn: () =>
