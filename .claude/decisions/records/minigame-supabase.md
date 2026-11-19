@@ -218,12 +218,23 @@ alter table public.game_scores add constraint game_scores_score_check
 
 update public.game_scores
 set score = (score / 100) * 1000 + (score % 100)
-where game_id = 'keycap' and score < 1000;
+where game_id = 'keycap' and score between 100 and 999;
 -- 위 update는 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 1000 미만의 새 기록이 있으면 잘못 바뀐다)
 
 -- submit_game_score의 점수 검사만 아래로 바꾼다
 --   or p_score < 0 or p_score > case when p_game_id = 'keycap' then 4999 else 999 end
 ```
+
+**전환 순서와 완료 조건**: 서버는 키캡 점수의 인코딩 버전을 구분하지 못한다. 변환(`update`) 뒤에도 옛 ×100 클라이언트가
+점수를 보내면(예: 3단계·키캡 42 → `342`) 새 클라이언트는 "초보 도전 · 342점"으로 잘못 보여준다. 이 기록은 기존 행의
+`greatest` 비교로도 막히지 않는다.
+
+- 앱은 Capacitor 원격 URL이라 웹 배포가 곧 모든 앱에 반영된다. 따라서 **새 코드를 배포한 직후에** SQL 변환을 실행해
+  옛 클라이언트가 남는 시간을 줄인다(SQL 상한 변경 → 배포 → 변환 순서).
+- 배포 전에 열려 있던 탭·캐시된 번들이 옛 점수를 보낼 수 있다. 완료 조건: 변환 뒤 `score`가 100~999인 키캡 행이
+  없고(`select count(*) from public.game_scores where game_id = 'keycap' and score between 100 and 999`가 0),
+  이후 며칠간 다시 생기지 않는다. 생기면 같은 `update`를 한 번 더 실행한다(`where` 조건을 `score between 100 and 999`로 좁혀 실행한다. 새 방식의 0단계 기록은 100점 미만이라 영향이 없고, 0단계 도전에서 100점 이상은 사실상 나오지 않는다).
+- 더 엄격하게 막으려면 RPC에 인코딩 버전 인자를 추가하는 방법이 있다. 현재는 사용자 수가 적어 위 절차로 충분하다고 판단했다.
 
 - 단계 난이도(컴퓨터의 반응 속도)는 `keycapEngine.ts`의 `STAGES`에서 조절한다.
 
