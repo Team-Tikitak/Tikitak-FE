@@ -3,9 +3,15 @@ import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGameLeaderboard, useSubmitGameScore } from '@/shared/api/game/queries';
 import { isGameServerConfigured } from '@/shared/api/game/supabase';
+import bgmUrl from '@/shared/assets/Sound/bgm-flowerbed-fields.mp3';
 import { useMyTeamMember } from '@/shared/hooks/team/useMyTeamMember';
+import { useGameBgm } from '@/shared/hooks/useGameBgm';
+import { createBgm } from '@/shared/lib/sound';
 import { GameOverCard, Header, SoundToggle } from '@/shared/ui';
 import { useFlappyGame } from '../hooks/useFlappyGame';
+
+// 효과음보다 작게 깔아 날갯짓·점수 소리가 묻히지 않게 한다
+const bgm = createBgm(bgmUrl, 0.1);
 
 export const FlappyGamePage = () => {
   const navigate = useNavigate();
@@ -25,6 +31,8 @@ export const FlappyGamePage = () => {
     submitScore({ gameId: 'flappy', teamId, teamMemberId, score: finalScore });
   });
 
+  useGameBgm(bgm, status === 'playing');
+
   return (
     <PageShell
       header={
@@ -34,7 +42,8 @@ export const FlappyGamePage = () => {
           rightSlot={<SoundToggle />}
         />
       }
-      contentClassName="bg-tak-ink flex flex-col overflow-hidden"
+      // 화면이 9:16보다 길면 남는 위아래가 비는데, 위는 하늘색·아래는 땅색으로 이어 붙여 검은 줄이 보이지 않게 한다
+      contentClassName="bg-[linear-gradient(to_bottom,var(--color-tak-blue)_50%,var(--color-tak-yellow)_50%)] flex flex-col overflow-hidden"
     >
       <div className="relative flex min-h-0 flex-1 items-center justify-center select-none">
         {/* 터치와 마우스는 누르는 순간에, 키보드(Space·Enter)는 click으로 날갯짓한다 */}
@@ -47,8 +56,12 @@ export const FlappyGamePage = () => {
           }}
           className="absolute inset-0 touch-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
         >
-          {/* 비율을 지켜 게임판 전체(천장과 바닥)가 보이게 한다 */}
-          <canvas ref={canvasRef} aria-hidden="true" className="size-full object-contain" />
+          {/* 게임판 전체(천장과 바닥)가 보이고, 화면이 더 길면 위아래를 이어 그린다 */}
+          <canvas
+            ref={canvasRef}
+            aria-hidden="true"
+            className="mx-auto block max-h-full max-w-full"
+          />
         </button>
 
         <p aria-live="polite" className="sr-only">
@@ -68,6 +81,7 @@ export const FlappyGamePage = () => {
             bestScore={canTrackScore ? myBest : undefined}
             rank={myEntry?.rank}
             onRestart={restart}
+            onExit={() => navigate(PATHS.ACTIVITY)}
           />
         )}
       </div>

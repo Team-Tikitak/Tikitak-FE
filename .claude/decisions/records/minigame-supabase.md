@@ -199,30 +199,31 @@ $$;
 - 기록일: 2026-11-19
 
 **결정**: 티키타닥(`game_id = 'keycap'`)은 초보 → 중수 → 고수 → 초고수 순서로 컴퓨터를 이기며 올라가는
-게임이다. 서버에는 한 판의 결과를 `클리어한 단계 수 × 1000 + 모든 단계에서 가져온 키캡 수(최대 999)` 한 숫자로
+게임이다. 서버에는 한 판의 결과를 `클리어한 단계 수 × 1000 + 모든 단계에서 가져온 키캡 수(최대 999)`(단계는 초보·중수·고수·초고수·불가능 5개) 한 숫자로
 저장한다(`shared/lib/game/keycapScore.ts`). 화면에서는 `formatKeycapScore`로 "중수 클리어 · 31점"처럼 바꿔 보여준다.
 
 **근거**:
 
 - 서버의 `game_scores`는 "높을수록 좋은 점수 하나"만 받는다. 이렇게 합치면 테이블과 SQL을 바꾸지 않고도
   "높은 단계까지 간 사람이 먼저, 같은 단계면 많이 가져온 사람이 먼저"로 순위가 매겨진다.
-- 최대 값이 4999라 키캡 점수만 서버 상한을 4999로 올린다(다른 게임은 999 그대로).
+- 최대 값이 5999라 키캡 점수만 서버 상한을 5999로 올린다(다른 게임은 999 그대로).
 - 처음엔 ×100(키캡 최대 99)이었는데 "99점"이 상한인지 실제 점수인지 구분되지 않아 ×1000으로 바꿨다. 상한에 닿으면 "999점 이상"으로 보여준다.
 - 단계를 더 늘려도 한 단계당 1000을 쓰므로 4단계를 넘어도 같은 방식으로 늘릴 수 있다.
 
 ```sql
--- 이미 ×100 방식으로 저장된 기록을 ×1000 방식으로 옮기고, 키캡만 상한을 4999로 올린다
+-- 1단계: 키캡만 상한을 5999로 올린다
 alter table public.game_scores drop constraint game_scores_score_check;
 alter table public.game_scores add constraint game_scores_score_check
-  check (score between 0 and (case when game_id = 'keycap' then 4999 else 999 end));
+  check (score between 0 and (case when game_id = 'keycap' then 5999 else 999 end));
 
+-- 2단계: 이미 ×100 방식으로 저장된 기록을 ×1000 방식으로 옮긴다. 이 update를 빠뜨리면 옛 기록이 그대로 남는다.
+-- 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 100~999 사이의 새 기록이 있으면 잘못 바뀐다)
 update public.game_scores
 set score = (score / 100) * 1000 + (score % 100)
 where game_id = 'keycap' and score between 100 and 999;
--- 위 update는 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 1000 미만의 새 기록이 있으면 잘못 바뀐다)
 
--- submit_game_score의 점수 검사만 아래로 바꾼다
---   or p_score < 0 or p_score > case when p_game_id = 'keycap' then 4999 else 999 end
+-- 3단계: submit_game_score의 점수 검사만 아래로 바꾼다
+--   or p_score < 0 or p_score > case when p_game_id = 'keycap' then 5999 else 999 end
 ```
 
 **전환 순서와 완료 조건**: 서버는 키캡 점수의 인코딩 버전을 구분하지 못한다. 변환(`update`) 뒤에도 옛 ×100 클라이언트가
@@ -252,3 +253,23 @@ where game_id = 'keycap' and score between 100 and 999;
 - 게임마다 점수 단위가 달라서(탁 잡기는 잡은 수, 티키타닥은 단계 점수) 점수를 합치지 않고 순위만 쓴다.
 - 서버에 새 API나 테이블이 필요 없다. 이미 불러오는 게임별 순위표(`useGameLeaderboard`)로 화면에서 계산한다.
 - 칭호가 따로따로 튀어나오지 않도록 기존 칭호와 같이 모든 데이터가 온 뒤 한 번에 보여준다.
+
+## 게임 난이도 확장 (2026-11)
+
+- 상태: accepted
+- 기록일: 2026-11-20
+
+**결정**:
+
+- **티키 날기**: 점수가 오를수록 파이프가 빨라지고(150 → 230) 틈이 좁아진다(180 → 140). 파이프 사이의 가로 거리는 일정하게 두고, 앞 파이프와 틈 높이 차이는 240px 이내로 제한해 빨라진 뒤에도 닿을 수 있게 한다. 점수 저장 방식은 그대로다.
+- **탁 잡기**: 기본/어려움 중 고른다. 둘은 같은 점수판(`game_id = 'whack'`)에 올라가고, 어려움은 Tak 한 마리에 2점(기본 1점)을 준다. 두더지가 더 짧게 머물고 더 자주 나오며 가시 별 감점도 4점으로 더 크다. 점수 저장 방식은 그대로다.
+- **티키타닥 불가능 단계**: 초고수를 이기면 끝나지 않고 "불가능에 도전하기"를 고르게 한다. 컴퓨터는 사람이 이기기 어려운 속도(반응 170~380ms)다. 초고수를 깬 순간 그 점수를 먼저 저장해 두어, 선택 화면에서 앱을 나가도 기록이 남는다. 점수는 `5 × 1000 + 키캡 수`까지라 키캡 서버 상한을 5999로 올린다.
+
+**서버 SQL (이미 4999로 올렸다면 한 번 더 실행한다)**:
+
+```sql
+alter table public.game_scores drop constraint game_scores_score_check;
+alter table public.game_scores add constraint game_scores_score_check
+  check (score between 0 and (case when game_id = 'keycap' then 5999 else 999 end));
+-- submit_game_score의 점수 검사: (p_game_id = 'keycap' and p_score > 5999) or (p_game_id <> 'keycap' and p_score > 999)
+```

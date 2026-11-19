@@ -29,6 +29,49 @@ describe('playSound', () => {
     useSoundStore.setState({ enabled: true, keySwitch: 'thock' });
   });
 
+  it('불가능 도전 효과음은 녹음이 준비돼 있으면 녹음을 통째로 낸다', () => {
+    getLoadedBuffer.mockReturnValue({ duration: 9 });
+
+    playSound('impossible');
+
+    expect(playSlice).toHaveBeenCalledWith(
+      expect.anything(),
+      { duration: 9 },
+      expect.objectContaining({ offset: 0, duration: 9, volume: 0.25 }),
+    );
+    expect(playTone).not.toHaveBeenCalled();
+  });
+
+  it('녹음이 아직 없으면 합성음으로 박동·쿵·불협화음을 시간 순서대로 낸다', () => {
+    const connect = vi.fn(() => ({ connect }));
+    const param = {
+      setValueAtTime: vi.fn(),
+      exponentialRampToValueAtTime: vi.fn(),
+    };
+    getAudioContext.mockReturnValue({
+      currentTime: 0,
+      destination: {},
+      createOscillator: () => ({
+        type: '',
+        frequency: param,
+        connect,
+        start: vi.fn(),
+        stop: vi.fn(),
+      }),
+      createBiquadFilter: () => ({ type: '', frequency: param, connect }),
+      createGain: () => ({ gain: param, connect }),
+    });
+
+    playSound('impossible');
+
+    const delays = playTone.mock.calls.map(([, options]) => options.delay ?? 0);
+    // 심장 박동 5번 + 쿵 1번 + 불협화음 3음
+    expect(playTone).toHaveBeenCalledTimes(9);
+    expect(Math.min(...delays)).toBe(0);
+    expect(Math.max(...delays)).toBeGreaterThanOrEqual(2.1);
+    expect(playNoise).toHaveBeenCalledTimes(1);
+  });
+
   it('소리가 꺼져 있으면 아무것도 재생하지 않는다', () => {
     useSoundStore.setState({ enabled: false });
     playSound('flap');
@@ -152,9 +195,9 @@ describe('playSound', () => {
     expect(playTone).toHaveBeenCalled();
   });
 
-  it('두 종류의 녹음을 모두 미리 불러온다', () => {
+  it('키 소리 두 종류와 불가능 효과음 녹음을 모두 미리 불러온다', () => {
     preloadKeySounds();
 
-    expect(loadAudioBuffer).toHaveBeenCalledTimes(2);
+    expect(loadAudioBuffer).toHaveBeenCalledTimes(3);
   });
 });

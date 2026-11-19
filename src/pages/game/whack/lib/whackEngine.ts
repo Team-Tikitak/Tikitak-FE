@@ -2,13 +2,53 @@
 export const HOLE_COUNT = 9;
 export const GAME_SECONDS = 30;
 export const TAK_VARIANTS = 6;
-export const BAD_PENALTY = 2;
 
-const BAD_CHANCE = 0.2;
-const START_LIFETIME = 1100;
-const MIN_LIFETIME = 600;
-const START_INTERVAL = 800;
-const MIN_INTERVAL = 350;
+export const WHACK_DIFFICULTIES = ['normal', 'hard'] as const;
+export type WhackDifficulty = (typeof WHACK_DIFFICULTIES)[number];
+
+export interface DifficultySettings {
+  label: string;
+  /** Tak를 잡았을 때 얻는 점수. 어려움은 더 많이 준다 */
+  takPoints: number;
+  /** 가시 별을 눌렀을 때 깎이는 점수 */
+  badPenalty: number;
+  badChance: number;
+  /** 두더지가 나와 있는 시간(ms): 처음 → 시간이 지날수록 최소까지 줄어든다 */
+  startLifetime: number;
+  minLifetime: number;
+  lifetimeShrinkPerSecond: number;
+  /** 새 두더지가 나오는 간격(ms) */
+  startInterval: number;
+  minInterval: number;
+  intervalShrinkPerSecond: number;
+}
+
+export const DIFFICULTY_SETTINGS = {
+  normal: {
+    label: '기본',
+    takPoints: 1,
+    badPenalty: 2,
+    badChance: 0.2,
+    startLifetime: 1100,
+    minLifetime: 600,
+    lifetimeShrinkPerSecond: 14,
+    startInterval: 800,
+    minInterval: 350,
+    intervalShrinkPerSecond: 14,
+  },
+  hard: {
+    label: '어려움',
+    takPoints: 2,
+    badPenalty: 4,
+    badChance: 0.3,
+    startLifetime: 800,
+    minLifetime: 420,
+    lifetimeShrinkPerSecond: 16,
+    startInterval: 600,
+    minInterval: 260,
+    intervalShrinkPerSecond: 16,
+  },
+} satisfies Record<WhackDifficulty, DifficultySettings>;
 
 export type MoleKind = 'tak' | 'bad';
 
@@ -23,6 +63,7 @@ export interface Mole {
 }
 
 export interface WhackState {
+  difficulty: WhackDifficulty;
   holes: (Mole | null)[];
   score: number;
   startedAt: number;
@@ -30,7 +71,11 @@ export interface WhackState {
   nextId: number;
 }
 
-export const createWhackState = (now: number): WhackState => ({
+export const createWhackState = (
+  now: number,
+  difficulty: WhackDifficulty = 'normal',
+): WhackState => ({
+  difficulty,
   holes: Array.from({ length: HOLE_COUNT }, () => null),
   score: 0,
   startedAt: now,
@@ -47,9 +92,16 @@ export const getRemainingSeconds = (state: WhackState, now: number) =>
 /** 시간이 지날수록 오래 머물지 않고 더 자주 나온다 */
 const difficulty = (state: WhackState, now: number) => {
   const elapsed = (now - state.startedAt) / 1000;
+  const settings = DIFFICULTY_SETTINGS[state.difficulty];
   return {
-    lifetime: Math.max(MIN_LIFETIME, START_LIFETIME - elapsed * 14),
-    interval: Math.max(MIN_INTERVAL, START_INTERVAL - elapsed * 14),
+    lifetime: Math.max(
+      settings.minLifetime,
+      settings.startLifetime - elapsed * settings.lifetimeShrinkPerSecond,
+    ),
+    interval: Math.max(
+      settings.minInterval,
+      settings.startInterval - elapsed * settings.intervalShrinkPerSecond,
+    ),
   };
 };
 
@@ -67,7 +119,7 @@ export const tickWhack = (state: WhackState, now: number, random: () => number =
   const hole = emptyHoles[Math.floor(random() * emptyHoles.length)];
   state.holes[hole] = {
     id: state.nextId,
-    kind: random() < BAD_CHANCE ? 'bad' : 'tak',
+    kind: random() < DIFFICULTY_SETTINGS[state.difficulty].badChance ? 'bad' : 'tak',
     variant: Math.floor(random() * TAK_VARIANTS),
     lifetime,
     expiresAt: now + lifetime,
@@ -81,6 +133,8 @@ export const hitHole = (state: WhackState, index: number): MoleKind | null => {
   if (!mole) return null;
 
   state.holes[index] = null;
-  state.score = mole.kind === 'tak' ? state.score + 1 : Math.max(0, state.score - BAD_PENALTY);
+  const { takPoints, badPenalty } = DIFFICULTY_SETTINGS[state.difficulty];
+  state.score =
+    mole.kind === 'tak' ? state.score + takPoints : Math.max(0, state.score - badPenalty);
   return mole.kind;
 };

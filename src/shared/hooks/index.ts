@@ -8,6 +8,7 @@ export * from './team';
 export * from './useDebounce';
 export * from './useEdgeSwipeBack';
 export * from './useFirstVisitHint';
+export * from './useGameBgm';
 export * from './useHasUnreadNotifications';
 export * from './useHeroHandoff';
 export * from './useImageFileInput';

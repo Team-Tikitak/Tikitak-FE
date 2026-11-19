@@ -4,22 +4,29 @@ import { PageShell } from '@/app/layout';
 import { PATHS } from '@/app/routes/paths';
 import { useGameLeaderboard, useSubmitGameScore } from '@/shared/api/game/queries';
 import { isGameServerConfigured } from '@/shared/api/game/supabase';
+import { useTeamMembers } from '@/shared/api/team/queries';
 import TakBuilder from '@/shared/assets/Character/TakBuilder.svg?react';
 import TakFree from '@/shared/assets/Character/TakFree.svg?react';
 import { useMyTeamMember } from '@/shared/hooks/team/useMyTeamMember';
 import { cn } from '@/shared/lib';
 import {
   encodeKeycapScore,
-  formatKeycapScore,
+  formatKeycapResult,
   KEYCAP_STAGE_LABELS,
 } from '@/shared/lib/game/keycapScore';
 import { playSound, preloadKeySounds, unlockAudio } from '@/shared/lib/sound';
 import { KEY_SWITCHES, useSoundStore, type KeySwitch } from '@/shared/stores/soundStore';
 import { Button, GameOverCard, Header, SoundToggle } from '@/shared/ui';
+import { ImpossibleOffer } from './ImpossibleOffer';
 import { KeycapBoard } from './KeycapBoard';
 import { ScoreCard } from './ScoreCard';
 import { useKeycapGame } from '../hooks/useKeycapGame';
-import { GAME_SECONDS, STAGES } from '../lib/keycapEngine';
+import {
+  GAME_SECONDS,
+  IMPOSSIBLE_STAGE_INDEX,
+  LAST_REGULAR_STAGE_INDEX,
+  STAGES,
+} from '../lib/keycapEngine';
 
 export const KEYCAP_GAME_TITLE = '티키타닥';
 
@@ -31,12 +38,15 @@ const SWITCH_LABEL = {
 } satisfies Record<KeySwitch, string>;
 
 const LOW_TIME_SECONDS = 5;
-const LAST_STAGE_INDEX = STAGES.length - 1;
 
 export const KeycapGamePage = () => {
   const navigate = useNavigate();
   const { teamId, teamMemberId } = useMyTeamMember();
   const { entries } = useGameLeaderboard('keycap', teamId);
+  const { data: members } = useTeamMembers(teamId);
+  const myProfileImgUrl = members?.members.find(
+    (member) => member.teamMemberId === teamMemberId,
+  )?.profileImgUrl;
   const { mutate: submitScore } = useSubmitGameScore();
   const keySwitch = useSoundStore((state) => state.keySwitch);
   const setKeySwitch = useSoundStore((state) => state.setKeySwitch);
@@ -64,6 +74,7 @@ export const KeycapGamePage = () => {
     remaining,
     start,
     nextStage,
+    finish,
     press,
     release,
   } = useKeycapGame((finalScore) => {
@@ -73,12 +84,19 @@ export const KeycapGamePage = () => {
   });
 
   const isLowTime = status === 'playing' && remaining <= LOW_TIME_SECONDS;
-  const isFinalStage = stageIndex === LAST_STAGE_INDEX;
+  // 초고수부터는 컴퓨터가 매우 빨라 단계 이름을 붉게 강조한다
+  const isFinalStage = stageIndex >= LAST_REGULAR_STAGE_INDEX;
   const clearedAll = run.clearedStages === STAGES.length;
+  // 초고수를 깬 사람에게만 불가능 도전을 고르게 한다
+  const isImpossibleOffer = stageIndex === LAST_REGULAR_STAGE_INDEX;
+  // 선택 화면이 떠 있는 동안 뒤의 게임 화면은 키보드·스크린리더로 닿지 않게 한다
+  const isOfferOpen = status === 'stageClear' && isImpossibleOffer;
 
   const overDescription = clearedAll
-    ? '초고수까지 모두 클리어!'
-    : `${stage.label}에서 ${outcome === 'draw' ? '비겨서' : '져서'} 끝났어요`;
+    ? '불가능 난이도까지 모두 클리어! 인간이 이겼어요'
+    : run.clearedStages === IMPOSSIBLE_STAGE_INDEX && outcome === 'win'
+      ? '초고수 난이도까지 클리어했어요'
+      : `${stage.label} 난이도에서 ${outcome === 'draw' ? '비겨서' : '져서'} 끝났어요`;
 
   return (
     <PageShell
@@ -91,7 +109,7 @@ export const KeycapGamePage = () => {
       }
       contentClassName="bg-tak-ink relative flex flex-col overflow-hidden"
     >
-      <div className="flex flex-col gap-3 px-5 pt-4">
+      <div className="flex flex-col gap-3 px-5 pt-4" inert={isOfferOpen}>
         <div className="flex justify-center">
           <span
             className={cn(
@@ -106,10 +124,11 @@ export const KeycapGamePage = () => {
         </div>
         <div className="flex items-stretch gap-2">
           <ScoreCard label="나" score={me} tone="me" Icon={TakFree} />
-          <div className="flex flex-col items-center justify-center px-1">
+          {/* 남은 시간 자릿수(10 → 9)가 바뀌어도 양쪽 카드 너비가 변하지 않도록 너비를 고정한다 */}
+          <div className="flex w-12 shrink-0 flex-col items-center justify-center">
             <p
               className={cn(
-                'text-2xl font-extrabold text-white',
+                'text-2xl font-extrabold text-white tabular-nums',
                 isLowTime && 'text-tak-yellow motion-safe:animate-pulse',
               )}
             >
@@ -134,7 +153,10 @@ export const KeycapGamePage = () => {
         </div>
       </div>
 
-      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-5">
+      <div
+        className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-5"
+        inert={isOfferOpen}
+      >
         <KeycapBoard keys={keys} effects={effects} onPress={press} onRelease={release} />
 
         <div role="radiogroup" aria-label="키 소리" className="flex gap-2">
@@ -169,12 +191,12 @@ export const KeycapGamePage = () => {
               꺼진 키캡을 누르면 1점이 깎여요.
             </p>
             <ol className="flex flex-wrap justify-center gap-1.5">
-              {KEYCAP_STAGE_LABELS.map((label, index) => (
+              {KEYCAP_STAGE_LABELS.slice(0, IMPOSSIBLE_STAGE_INDEX).map((label, index) => (
                 <li
                   key={label}
                   className={cn(
                     'rounded-full px-3 py-1 text-sm font-bold',
-                    index === LAST_STAGE_INDEX
+                    index === LAST_REGULAR_STAGE_INDEX
                       ? 'bg-tak-red text-white'
                       : 'bg-main-000 text-main-002',
                   )}
@@ -182,6 +204,9 @@ export const KeycapGamePage = () => {
                   {label}
                 </li>
               ))}
+              <li className="rounded-full bg-gray-100 px-3 py-1 text-sm font-bold text-gray-400">
+                ??? (초고수 클리어 후)
+              </li>
             </ol>
             <Button variant="primary" onClick={start}>
               도전하기
@@ -189,7 +214,7 @@ export const KeycapGamePage = () => {
           </div>
         )}
 
-        {status === 'stageClear' && (
+        {status === 'stageClear' && !isImpossibleOffer && (
           <div className="absolute inset-x-6 flex flex-col items-center gap-4 rounded-2xl bg-white px-6 py-7 shadow-lg">
             <p className="text-2xl font-extrabold text-black">{stage.label} 클리어!</p>
             <p className="text-main-002 text-lg font-bold">
@@ -197,7 +222,7 @@ export const KeycapGamePage = () => {
             </p>
             <p className="text-base font-medium text-gray-600">
               다음은 {STAGES[stageIndex + 1].label}
-              {stageIndex + 1 === LAST_STAGE_INDEX ? ' - 컴퓨터가 엄청 빨라요!' : ''}
+              {stageIndex + 1 === LAST_REGULAR_STAGE_INDEX ? ' - 컴퓨터가 엄청 빨라요!' : ''}
             </p>
             <Button variant="primary" onClick={nextStage}>
               다음 단계로
@@ -210,13 +235,22 @@ export const KeycapGamePage = () => {
             className="absolute inset-x-6"
             score={encodeKeycapScore(run.clearedStages, run.points)}
             description={overDescription}
-            formatScore={formatKeycapScore}
+            formatScore={formatKeycapResult}
             bestScore={canTrackScore ? myBest : undefined}
             rank={myEntry?.rank}
             onRestart={start}
+            onExit={() => navigate(PATHS.ACTIVITY)}
           />
         )}
       </div>
+
+      {isOfferOpen && (
+        <ImpossibleOffer
+          profileImgUrl={myProfileImgUrl}
+          onChallenge={nextStage}
+          onFinish={finish}
+        />
+      )}
     </PageShell>
   );
 };

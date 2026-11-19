@@ -13,6 +13,8 @@ interface GameOverCardProps extends Omit<ComponentPropsWithRef<'div'>, 'children
   /** 점수를 보여줄 문구로 바꾸는 함수. 기본은 "N점" */
   formatScore?: (score: number) => string;
   onRestart: () => void;
+  /** 주면 다시 하기 아래에 "나가기" 버튼을 보여준다 */
+  onExit?: () => void;
 }
 
 export function GameOverCard({
@@ -22,6 +24,7 @@ export function GameOverCard({
   rank,
   formatScore,
   onRestart,
+  onExit,
   className,
   ref,
   ...props
@@ -40,7 +43,12 @@ export function GameOverCard({
       <p className="text-2xl font-extrabold text-black">게임 끝!</p>
       {description && <p className="text-main-002 text-lg font-bold">{description}</p>}
       <div className="flex flex-col items-center gap-1">
-        <p className={cn('font-extrabold text-black', formatScore ? 'text-3xl' : 'text-5xl')}>
+        <p
+          className={cn(
+            'text-center font-extrabold whitespace-pre-line text-black',
+            formatScore ? 'text-3xl' : 'text-5xl',
+          )}
+        >
           {format(score)}
         </p>
         {bestScore !== undefined && (
@@ -53,6 +61,15 @@ export function GameOverCard({
       <Button variant="primary" onClick={onRestart}>
         다시 하기
       </Button>
+      {onExit && (
+        <button
+          type="button"
+          onClick={onExit}
+          className="-mt-1 min-h-11 px-3 text-base font-semibold text-gray-600 underline underline-offset-2"
+        >
+          나가기
+        </button>
+      )}
     </div>
   );
 }

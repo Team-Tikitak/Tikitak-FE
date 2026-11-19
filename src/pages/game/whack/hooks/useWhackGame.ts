@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { triggerHaptic } from '@/shared/lib/native/haptics';
 import { playSound, unlockAudio } from '@/shared/lib/sound';
 import {
-  BAD_PENALTY,
+  DIFFICULTY_SETTINGS,
   GAME_SECONDS,
   HOLE_COUNT,
   createWhackState,
@@ -12,6 +12,7 @@ import {
   tickWhack,
   type Mole,
   type MoleKind,
+  type WhackDifficulty,
 } from '../lib/whackEngine';
 
 export type WhackStatus = 'ready' | 'playing' | 'over';
@@ -104,16 +105,19 @@ export const useWhackGame = (onGameOver: (score: number) => void) => {
     return () => window.clearInterval(timer);
   }, [status, syncView]);
 
-  const start = useCallback(() => {
-    unlockAudio();
-    const now = performance.now();
-    stateRef.current = createWhackState(now);
-    effectsRef.current = [];
-    lastTickSecondRef.current = 0;
-    lastSpawnIdRef.current = stateRef.current.nextId;
-    syncView(now);
-    setStatus('playing');
-  }, [syncView]);
+  const start = useCallback(
+    (difficulty: WhackDifficulty = 'normal') => {
+      unlockAudio();
+      const now = performance.now();
+      stateRef.current = createWhackState(now, difficulty);
+      effectsRef.current = [];
+      lastTickSecondRef.current = 0;
+      lastSpawnIdRef.current = stateRef.current.nextId;
+      syncView(now);
+      setStatus('playing');
+    },
+    [syncView],
+  );
 
   const whack = useCallback(
     (index: number) => {
@@ -123,13 +127,14 @@ export const useWhackGame = (onGameOver: (score: number) => void) => {
       const kind = hitHole(stateRef.current, index);
       if (!kind) return;
 
+      const { takPoints, badPenalty } = DIFFICULTY_SETTINGS[stateRef.current.difficulty];
       const now = performance.now();
       effectIdRef.current += 1;
       effectsRef.current.push({
         id: effectIdRef.current,
         hole: index,
         kind,
-        label: kind === 'tak' ? '+1' : `-${BAD_PENALTY}`,
+        label: kind === 'tak' ? `+${takPoints}` : `-${badPenalty}`,
         at: now,
       });
       triggerHaptic(kind === 'tak' ? 'light' : 'error');

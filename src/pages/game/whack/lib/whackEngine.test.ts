@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BAD_PENALTY,
+  DIFFICULTY_SETTINGS,
   GAME_SECONDS,
   createWhackState,
   getRemainingSeconds,
@@ -44,7 +44,7 @@ describe('whackEngine', () => {
     expect(hitHole(state, 0)).toBe('tak');
     expect(state.score).toBe(1);
     expect(hitHole(state, 1)).toBe('bad');
-    expect(state.score).toBe(Math.max(0, 1 - BAD_PENALTY));
+    expect(state.score).toBe(Math.max(0, 1 - DIFFICULTY_SETTINGS.normal.badPenalty));
     expect(hitHole(state, 2)).toBe('bad');
     expect(state.score).toBe(0);
   });
@@ -63,5 +63,39 @@ describe('whackEngine', () => {
     expect(isWhackOver(state, 1000 + GAME_SECONDS * 1000 - 1)).toBe(false);
     expect(isWhackOver(state, 1000 + GAME_SECONDS * 1000)).toBe(true);
     expect(getRemainingSeconds(state, 1000 + 10_000)).toBe(GAME_SECONDS - 10);
+  });
+
+  describe('어려움', () => {
+    it('Tak를 잡으면 기본보다 점수를 더 주고 감점도 더 크다', () => {
+      expect(DIFFICULTY_SETTINGS.hard.takPoints).toBeGreaterThan(
+        DIFFICULTY_SETTINGS.normal.takPoints,
+      );
+      const state = createWhackState(0, 'hard');
+      state.holes[0] = { id: 1, kind: 'tak', variant: 0, lifetime: 1000, expiresAt: 5000 };
+      state.holes[1] = { id: 2, kind: 'bad', variant: 0, lifetime: 1000, expiresAt: 5000 };
+
+      hitHole(state, 0);
+      expect(state.score).toBe(DIFFICULTY_SETTINGS.hard.takPoints);
+      hitHole(state, 1);
+      expect(state.score).toBe(
+        Math.max(0, DIFFICULTY_SETTINGS.hard.takPoints - DIFFICULTY_SETTINGS.hard.badPenalty),
+      );
+    });
+
+    it('두더지가 더 짧게 머물고 더 자주 나온다', () => {
+      const normal = createWhackState(0, 'normal');
+      const hard = createWhackState(0, 'hard');
+      tickWhack(normal, 400, () => 0.5);
+      tickWhack(hard, 400, () => 0.5);
+
+      expect(hard.holes.find(Boolean)?.lifetime).toBeLessThan(
+        normal.holes.find(Boolean)?.lifetime ?? 0,
+      );
+      expect(hard.nextSpawnAt).toBeLessThan(normal.nextSpawnAt);
+    });
+
+    it('난이도를 정하지 않으면 기본이다', () => {
+      expect(createWhackState(0).difficulty).toBe('normal');
+    });
   });
 });

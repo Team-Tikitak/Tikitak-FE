@@ -22,6 +22,11 @@ export interface KeyLayout {
  * 글자 배치는 실제 한글 자판을 따른다.
  */
 export const KEY_LAYOUT: KeyLayout[] = [
+  { span: 2, main: '1', tone: 'white' },
+  { span: 2, main: '2', tone: 'pink' },
+  { span: 2, main: '3', tone: 'white' },
+  { span: 2, main: '4', tone: 'white' },
+  { span: 2, main: 'Back', tone: 'blue' },
   { span: 2, main: 'Q', sub: 'ㅂ', tone: 'white' },
   { span: 2, main: 'W', sub: 'ㅈ', tone: 'white' },
   { span: 2, art: 'sun', tone: 'white' },
@@ -54,13 +59,19 @@ export interface Stage {
   maxLit: number;
 }
 
-/** 위로 갈수록 컴퓨터가 빠르다. 초고수는 사람의 반응 속도에 가까워 거의 이기기 어렵다. */
+/** 위로 갈수록 컴퓨터가 빠르다. 초고수는 사람의 반응 속도에 가까워 거의 이기기 어렵고, 불가능은 사람이 이기기 어려운 속도다. */
 export const STAGES: Stage[] = [
   { label: KEYCAP_STAGE_LABELS[0], botStart: 1400, botMin: 800, botJitter: 350, maxLit: 3 },
   { label: KEYCAP_STAGE_LABELS[1], botStart: 1100, botMin: 600, botJitter: 300, maxLit: 3 },
   { label: KEYCAP_STAGE_LABELS[2], botStart: 850, botMin: 450, botJitter: 250, maxLit: 4 },
   { label: KEYCAP_STAGE_LABELS[3], botStart: 520, botMin: 300, botJitter: 120, maxLit: 4 },
+  { label: KEYCAP_STAGE_LABELS[4], botStart: 330, botMin: 170, botJitter: 50, maxLit: 5 },
 ];
+
+/** 불가능은 초고수를 클리어한 사람이 직접 고를 때만 도전한다 */
+export const IMPOSSIBLE_STAGE_INDEX = STAGES.length - 1;
+/** 모두가 순서대로 올라가는 마지막 단계(초고수) */
+export const LAST_REGULAR_STAGE_INDEX = IMPOSSIBLE_STAGE_INDEX - 1;
 
 const RELEASE_MS = 450;
 const LIGHT_INTERVAL_MS = 250;

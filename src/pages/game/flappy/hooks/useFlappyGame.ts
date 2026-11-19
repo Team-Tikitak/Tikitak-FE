@@ -49,9 +49,33 @@ export const useFlappyGame = (onGameOver: (score: number) => void) => {
 
     // 3배 해상도는 픽셀이 너무 많아 느려지므로 2배까지만 쓴다
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = GAME_WIDTH * ratio;
-    canvas.height = GAME_HEIGHT * ratio;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    // 화면이 게임판(9:16)보다 길면 남는 위아래까지 캔버스를 늘려 하늘·기둥·땅을 이어 그린다.
+    // overscanY는 위(와 아래)로 더 보이는 높이이고, 게임판 좌표 기준이다
+    let overscanY = 0;
+    const applyLayout = () => {
+      const parent = canvas.parentElement;
+      const parentWidth = parent?.clientWidth ?? 0;
+      const parentHeight = parent?.clientHeight ?? 0;
+      if (parentWidth <= 0 || parentHeight <= 0) {
+        canvas.width = GAME_WIDTH * ratio;
+        canvas.height = GAME_HEIGHT * ratio;
+        overscanY = 0;
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        return;
+      }
+      const cssWidth = Math.min(parentWidth, (parentHeight * GAME_WIDTH) / GAME_HEIGHT);
+      const scale = cssWidth / GAME_WIDTH;
+      canvas.style.width = `${cssWidth}px`;
+      canvas.style.height = `${parentHeight}px`;
+      canvas.width = Math.round(cssWidth * ratio);
+      canvas.height = Math.round(parentHeight * ratio);
+      overscanY = Math.max(0, (parentHeight / scale - GAME_HEIGHT) / 2);
+      context.setTransform(ratio * scale, 0, 0, ratio * scale, 0, ratio * scale * overscanY);
+    };
+    applyLayout();
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(applyLayout);
+    if (canvas.parentElement) resizeObserver?.observe(canvas.parentElement);
 
     const assets = createGameAssets();
 
@@ -66,7 +90,8 @@ export const useFlappyGame = (onGameOver: (score: number) => void) => {
       const fx = fxRef.current;
 
       if (statusRef.current === 'playing') {
-        const isOver = stepGame(state, dt);
+        // 화면이 길어 하늘이 위로 이어져 보이면, 보이지 않는 천장에 부딪히지 않도록 보이는 화면의 맨 위를 천장으로 쓴다
+        const isOver = stepGame(state, dt, Math.random, -overscanY);
         if (state.score !== shownScore) {
           shownScore = state.score;
           fx.scorePop = SCORE_POP_SECONDS;
@@ -87,12 +112,15 @@ export const useFlappyGame = (onGameOver: (score: number) => void) => {
       }
 
       updateFx(fx, dt, statusRef.current);
-      drawGame(context, state, assets, fx, statusRef.current);
+      drawGame(context, state, assets, fx, statusRef.current, overscanY);
       frameId = requestAnimationFrame(tick);
     };
 
     frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    return () => {
+      cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
+    };
   }, [changeStatus]);
 
   const press = useCallback(() => {

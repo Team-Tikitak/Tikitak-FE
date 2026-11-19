@@ -43,7 +43,7 @@ const GAME_CARDS = [
   {
     id: 'keycap',
     title: '티키타닥',
-    description: '컴퓨터보다 먼저 키캡을 눌러요. 초고수까지 도전!',
+    description: '컴퓨터보다 먼저 키캡을 눌러요',
     formatScore: formatKeycapScore,
     path: PATHS.KEYCAP_GAME,
     thumbnailUrl: keycapThumbnailUrl,
@@ -173,7 +173,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
             <span className="title-2 text-black">{game.title}</span>
             {myEntry && (
               <span className="bg-main-000 text-main-002 rounded-full px-2.5 py-0.5 text-xs font-bold">
-                내 {myEntry.rank}위
+                내 순위 {myEntry.rank}위
               </span>
             )}
           </span>
@@ -197,8 +197,8 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
         )}
       >
         <div className="overflow-hidden">
-          {/* 설명과 순위는 일반 요소로 두고, 실제 버튼은 "플레이" 하나다. 버튼의 클릭 영역만 카드 전체로 넓힌다 */}
-          <div className="relative flex w-full gap-4 px-4 pt-1 pb-4 active:scale-[0.99] motion-safe:transition-transform">
+          {/* 눌리는 곳은 "플레이"와 "전체 순위 보기" 버튼뿐이고, 카드 나머지는 눌러도 아무 일도 없다 */}
+          <div className="flex w-full gap-4 px-4 pt-1 pb-4">
             {/* 실제 게임 화면을 캡처한 이미지 */}
             <img
               src={game.thumbnailUrl}
@@ -239,7 +239,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
                 <button
                   type="button"
                   onClick={openRanking}
-                  className="relative z-10 -mt-1 self-start text-xs font-semibold text-gray-600 underline underline-offset-2"
+                  className="-mx-2 -mt-2 flex min-h-11 items-center self-start px-2 text-sm font-semibold text-gray-600 underline underline-offset-2 active:text-black"
                 >
                   전체 순위 보기 ({entries.length}명)
                 </button>
@@ -249,7 +249,7 @@ const GameCard = ({ game, teamId, myTeamMemberId }: GameCardProps) => {
                 type="button"
                 onClick={handlePlay}
                 aria-label={`${game.title} 플레이`}
-                className="bg-main-001 button-1 mt-auto flex h-11 items-center justify-center rounded-full text-white after:absolute after:inset-0 after:content-['']"
+                className="bg-main-001 button-1 mt-auto flex h-11 items-center justify-center rounded-full text-white"
               >
                 플레이
               </button>
