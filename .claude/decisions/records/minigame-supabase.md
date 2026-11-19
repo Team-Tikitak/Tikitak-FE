@@ -199,15 +199,32 @@ $$;
 - 기록일: 2026-11-19
 
 **결정**: 티키타닥(`game_id = 'keycap'`)은 초보 → 중수 → 고수 → 초고수 순서로 컴퓨터를 이기며 올라가는
-게임이다. 서버에는 한 판의 결과를 `클리어한 단계 수 × 100 + 모든 단계에서 가져온 키캡 수(최대 99)` 한 숫자로
+게임이다. 서버에는 한 판의 결과를 `클리어한 단계 수 × 1000 + 모든 단계에서 가져온 키캡 수(최대 999)` 한 숫자로
 저장한다(`shared/lib/game/keycapScore.ts`). 화면에서는 `formatKeycapScore`로 "중수 클리어 · 31점"처럼 바꿔 보여준다.
 
 **근거**:
 
 - 서버의 `game_scores`는 "높을수록 좋은 점수 하나"만 받는다. 이렇게 합치면 테이블과 SQL을 바꾸지 않고도
   "높은 단계까지 간 사람이 먼저, 같은 단계면 많이 가져온 사람이 먼저"로 순위가 매겨진다.
-- 최대 값이 499라 서버 상한(999) 안에 들어간다.
-- 단계를 더 늘려도 한 단계당 100을 쓰므로 9단계까지 같은 방식으로 늘릴 수 있다.
+- 최대 값이 4999라 키캡 점수만 서버 상한을 4999로 올린다(다른 게임은 999 그대로).
+- 처음엔 ×100(키캡 최대 99)이었는데 "99점"이 상한인지 실제 점수인지 구분되지 않아 ×1000으로 바꿨다. 상한에 닿으면 "999점 이상"으로 보여준다.
+- 단계를 더 늘려도 한 단계당 1000을 쓰므로 4단계를 넘어도 같은 방식으로 늘릴 수 있다.
+
+```sql
+-- 이미 ×100 방식으로 저장된 기록을 ×1000 방식으로 옮기고, 키캡만 상한을 4999로 올린다
+alter table public.game_scores drop constraint game_scores_score_check;
+alter table public.game_scores add constraint game_scores_score_check
+  check (score between 0 and (case when game_id = 'keycap' then 4999 else 999 end));
+
+update public.game_scores
+set score = (score / 100) * 1000 + (score % 100)
+where game_id = 'keycap' and score < 1000;
+-- 위 update는 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 1000 미만의 새 기록이 있으면 잘못 바뀐다)
+
+-- submit_game_score의 점수 검사만 아래로 바꾼다
+--   or p_score < 0 or p_score > case when p_game_id = 'keycap' then 4999 else 999 end
+```
+
 - 단계 난이도(컴퓨터의 반응 속도)는 `keycapEngine.ts`의 `STAGES`에서 조절한다.
 
 ## 이달의 게임왕 칭호

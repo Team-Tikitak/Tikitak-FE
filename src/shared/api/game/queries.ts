@@ -31,7 +31,7 @@ export const useSubmitGameScore = () => {
   // meta.errorMessage는 일부러 두지 않는다: 게임이 끝난 직후의 백그라운드 저장이라 실패해도 경고 창으로 막지 않는다
   return useMutation({
     mutationFn: ({ gameId, teamId, teamMemberId, score }: SubmitGameScoreVariables) =>
-      submitGameScore(gameId, teamId, teamMemberId, getGameMonth(), clampGameScore(score)),
+      submitGameScore(gameId, teamId, teamMemberId, getGameMonth(), clampGameScore(score, gameId)),
     onSuccess: (_data, { gameId, teamId }) =>
       queryClient.invalidateQueries({ queryKey: gameKeys.leaderboards(gameId, teamId) }),
   });

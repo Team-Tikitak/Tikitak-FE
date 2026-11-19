@@ -1,9 +1,15 @@
-import { MAX_GAME_SCORE, type GameLeaderboardEntry, type GameScoreRow } from './types';
+import {
+  MAX_GAME_SCORE,
+  MAX_KEYCAP_SCORE,
+  type GameId,
+  type GameLeaderboardEntry,
+  type GameScoreRow,
+} from './types';
 import type { TeamMember } from '../team/types';
 
 /** 서버 상한을 넘는 점수는 거부되어 기록이 사라지므로 상한에 맞춘다 */
-export const clampGameScore = (score: number) =>
-  Math.min(MAX_GAME_SCORE, Math.max(0, Math.floor(score)));
+export const clampGameScore = (score: number, gameId?: GameId) =>
+  Math.min(gameId === 'keycap' ? MAX_KEYCAP_SCORE : MAX_GAME_SCORE, Math.max(0, Math.floor(score)));
 
 /** 월 키는 한국 시간 기준 YYYY-MM. 서버에도 같은 값을 저장한다. */
 export const getGameMonth = (date: Date = new Date()) =>
