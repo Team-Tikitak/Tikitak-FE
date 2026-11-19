@@ -89,6 +89,8 @@ export const KeycapGamePage = () => {
   const clearedAll = run.clearedStages === STAGES.length;
   // 초고수를 깬 사람에게만 불가능 도전을 고르게 한다
   const isImpossibleOffer = stageIndex === LAST_REGULAR_STAGE_INDEX;
+  // 선택 화면이 떠 있는 동안 뒤의 게임 화면은 키보드·스크린리더로 닿지 않게 한다
+  const isOfferOpen = status === 'stageClear' && isImpossibleOffer;
 
   const overDescription = clearedAll
     ? '불가능 난이도까지 모두 클리어! 인간이 이겼어요'
@@ -107,7 +109,7 @@ export const KeycapGamePage = () => {
       }
       contentClassName="bg-tak-ink relative flex flex-col overflow-hidden"
     >
-      <div className="flex flex-col gap-3 px-5 pt-4">
+      <div className="flex flex-col gap-3 px-5 pt-4" inert={isOfferOpen}>
         <div className="flex justify-center">
           <span
             className={cn(
@@ -151,7 +153,10 @@ export const KeycapGamePage = () => {
         </div>
       </div>
 
-      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-5">
+      <div
+        className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-5"
+        inert={isOfferOpen}
+      >
         <KeycapBoard keys={keys} effects={effects} onPress={press} onRelease={release} />
 
         <div role="radiogroup" aria-label="키 소리" className="flex gap-2">
@@ -239,7 +244,7 @@ export const KeycapGamePage = () => {
         )}
       </div>
 
-      {status === 'stageClear' && isImpossibleOffer && (
+      {isOfferOpen && (
         <ImpossibleOffer
           profileImgUrl={myProfileImgUrl}
           onChallenge={nextStage}

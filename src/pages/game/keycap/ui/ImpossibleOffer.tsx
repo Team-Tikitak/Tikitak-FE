@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import takBurnerUrl from '@/shared/assets/Character/TakBurner.svg';
 import { playSound, unlockAudio } from '@/shared/lib/sound';
 import { Button } from '@/shared/ui';
@@ -42,9 +42,12 @@ const NAME_TAG_CLASS =
  */
 export const ImpossibleOffer = ({ profileImgUrl, onChallenge, onFinish }: ImpossibleOfferProps) => {
   // 화면이 나올 때 긴장감 있는 효과음을 한 번 낸다(소리를 꺼 둔 사용자에게는 나지 않는다)
+  const dialogRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     unlockAudio();
     playSound('impossible');
+    // 키보드·스크린리더 사용자가 뒤의 게임 화면이 아니라 이 화면에서 시작하도록 포커스를 옮긴다
+    dialogRef.current?.focus();
   }, []);
 
   return (
@@ -52,7 +55,7 @@ export const ImpossibleOffer = ({ profileImgUrl, onChallenge, onFinish }: Imposs
       role="dialog"
       aria-modal="true"
       aria-label="불가능 도전"
-      className="bg-tak-ink absolute inset-0 z-30 overflow-hidden motion-safe:animate-[vs-overlay-in_600ms_ease-out_both]"
+      className="bg-tak-ink absolute inset-0 z-30 overflow-hidden outline-none motion-safe:animate-[vs-overlay-in_600ms_ease-out_both]"
     >
       {/* 사선으로 나뉜 푸른쪽(나)과 붉은쪽(컴퓨터). 햇살 모양 줄무늬로 대결 분위기를 낸다 */}
       <div className="absolute inset-0 motion-safe:animate-[vs-slide-left_450ms_ease-out_both]">
