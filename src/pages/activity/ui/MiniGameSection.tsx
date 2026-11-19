@@ -43,7 +43,7 @@ const GAME_CARDS = [
   {
     id: 'keycap',
     title: '티키타닥',
-    description: '컴퓨터보다 먼저 키캡을 눌러요. 초고수까지 도전!',
+    description: '컴퓨터보다 먼저 키캡을 눌러요',
     formatScore: formatKeycapScore,
     path: PATHS.KEYCAP_GAME,
     thumbnailUrl: keycapThumbnailUrl,

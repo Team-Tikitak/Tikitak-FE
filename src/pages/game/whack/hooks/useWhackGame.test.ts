@@ -89,4 +89,18 @@ describe('useWhackGame', () => {
 
     expect(result.current.score).toBe(0);
   });
+
+  it('어려움으로 시작하면 Tak를 잡을 때 점수를 더 준다', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const { result } = renderHook(() => useWhackGame(vi.fn()));
+    act(() => result.current.start('hard'));
+
+    for (let elapsed = 0; elapsed < 10_000 && result.current.score === 0; elapsed += 50) {
+      advance(50);
+      const index = result.current.holes.findIndex((mole) => mole?.kind === 'tak');
+      if (index >= 0) act(() => result.current.whack(index));
+    }
+
+    expect(result.current.score).toBe(2);
+  });
 });
