@@ -100,6 +100,16 @@ describe('createBgm', () => {
     expect(fake.source.start).not.toHaveBeenCalled();
   });
 
+  it('파일을 받는 중에 시작-멈춤-시작을 이어서 해도 한 번만 재생한다', async () => {
+    const bgm = createBgm('bgm.mp3', 0.3);
+    bgm.start();
+    bgm.stop();
+    bgm.start();
+    await flush();
+
+    expect(fake.source.start).toHaveBeenCalledTimes(1);
+  });
+
   it('소리 파일을 못 받거나 오디오를 쓸 수 없으면 조용히 넘어간다', async () => {
     loadAudioBuffer.mockResolvedValue(null);
     const bgm = createBgm('bgm.mp3', 0.3);

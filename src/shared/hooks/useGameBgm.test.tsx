@@ -77,6 +77,24 @@ describe('useGameBgm', () => {
     expect(bgm.start).not.toHaveBeenCalled();
   });
 
+  it('앱을 내리면 멈추고 다시 돌아오면 이어서 튼다', () => {
+    const setHidden = (hidden: boolean) => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
+      document.dispatchEvent(new Event('visibilitychange'));
+    };
+    const bgm = createBgmMock();
+    renderHook(() => useGameBgm(bgm, true), { wrapper });
+    bgm.stop.mockClear();
+    bgm.start.mockClear();
+
+    act(() => setHidden(true));
+    expect(bgm.stop).toHaveBeenCalled();
+    expect(bgm.start).not.toHaveBeenCalled();
+
+    act(() => setHidden(false));
+    expect(bgm.start).toHaveBeenCalledTimes(1);
+  });
+
   it('화면이 정리되면 멈춘다', () => {
     const bgm = createBgmMock();
     const { unmount } = renderHook(() => useGameBgm(bgm, true), { wrapper });

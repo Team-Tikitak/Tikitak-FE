@@ -211,17 +211,18 @@ $$;
 - 단계를 더 늘려도 한 단계당 1000을 쓰므로 4단계를 넘어도 같은 방식으로 늘릴 수 있다.
 
 ```sql
--- 이미 ×100 방식으로 저장된 기록을 ×1000 방식으로 옮기고, 키캡만 상한을 5999로 올린다
+-- 1단계: 키캡만 상한을 5999로 올린다
 alter table public.game_scores drop constraint game_scores_score_check;
 alter table public.game_scores add constraint game_scores_score_check
   check (score between 0 and (case when game_id = 'keycap' then 5999 else 999 end));
 
+-- 2단계: 이미 ×100 방식으로 저장된 기록을 ×1000 방식으로 옮긴다. 이 update를 빠뜨리면 옛 기록이 그대로 남는다.
+-- 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 100~999 사이의 새 기록이 있으면 잘못 바뀐다)
 update public.game_scores
 set score = (score / 100) * 1000 + (score % 100)
 where game_id = 'keycap' and score between 100 and 999;
--- 위 update는 한 번만 실행한다(다시 실행하면 이미 옮긴 값은 건드리지 않지만, 1000 미만의 새 기록이 있으면 잘못 바뀐다)
 
--- submit_game_score의 점수 검사만 아래로 바꾼다
+-- 3단계: submit_game_score의 점수 검사만 아래로 바꾼다
 --   or p_score < 0 or p_score > case when p_game_id = 'keycap' then 5999 else 999 end
 ```
 
