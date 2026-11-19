@@ -1,5 +1,6 @@
 import keySpriteUrl from '@/shared/assets/Sound/keypress-sprite.wav';
 import tokSpriteUrl from '@/shared/assets/Sound/keypress-tok-sprite.wav';
+import impossibleStingUrl from '@/shared/assets/Sound/sting-impossible.mp3';
 import { useSoundStore, type KeySwitch } from '@/shared/stores/soundStore';
 import {
   getAudioContext,
@@ -23,6 +24,7 @@ export const SOUND_NAMES = [
   'keyBot',
   'keyRelease',
   'keyMiss',
+  'impossible',
 ] as const;
 export type SoundName = (typeof SOUND_NAMES)[number];
 
@@ -85,6 +87,7 @@ const KEY_FLAVORS: Record<KeySwitch, KeyFlavor> = {
 export const preloadKeySounds = () => {
   void loadAudioBuffer(TOPRE_SPRITE.url);
   void loadAudioBuffer(CLACKY_SPRITE.url);
+  void loadAudioBuffer(impossibleStingUrl);
 };
 
 const keyPress = (context: AudioContext, keySwitch: KeySwitch, rate: number, volume = 1) => {
@@ -144,6 +147,61 @@ const keyRelease = (context: AudioContext, keySwitch: KeySwitch) => {
 
   playNoise(context, { filter: 'highpass', frequency: 3200, duration: 0.012, volume: 0.1 });
   playTone(context, { from: 420, to: 260, duration: 0.03, volume: 0.08 });
+};
+
+/**
+ * 불가능 도전 선택 화면의 긴장감 있는 효과음. 녹음이 아직 없을 때 대신 내는 합성음(약 3초)은 화면 연출의 타이밍에 맞춰 둔다:
+ * 심장 박동이 빨라지며 낮은 소리가 차오르다가(0~1.5초) VS가 부딪히는 순간 쿵(1.5초),
+ * 말풍선이 나올 때 불길한 불협화음(2.1초).
+ */
+const impossibleSting = (context: AudioContext) => {
+  // 실제 녹음(약 9초)이 준비돼 있으면 그것을 낸다. 아직이면 아래의 합성음으로 대신한다
+  const recording = getLoadedBuffer(impossibleStingUrl);
+  if (recording) {
+    // 너무 크지 않게 볼륨만 낮춘다. 음 높이와 부드러운 음색은 파일을 만들 때 미리 처리해 두었다
+    // (재생 때 속도를 바꾸거나 필터를 겹치면 칩튠 소리가 깨져 들린다)
+    playSlice(context, recording, { offset: 0, duration: recording.duration, volume: 0.25 });
+    return;
+  }
+
+  const start = context.currentTime;
+
+  // 낮은 소리가 점점 크고 높아지며 차오른다
+  const swell = context.createOscillator();
+  const swellFilter = context.createBiquadFilter();
+  const swellGain = context.createGain();
+  swell.type = 'sawtooth';
+  swell.frequency.setValueAtTime(70, start);
+  swell.frequency.exponentialRampToValueAtTime(240, start + 1.5);
+  swellFilter.type = 'lowpass';
+  swellFilter.frequency.setValueAtTime(250, start);
+  swellFilter.frequency.exponentialRampToValueAtTime(1600, start + 1.5);
+  swellGain.gain.setValueAtTime(0.0001, start);
+  swellGain.gain.exponentialRampToValueAtTime(0.06, start + 1.45);
+  swellGain.gain.exponentialRampToValueAtTime(0.0001, start + 1.55);
+  swell.connect(swellFilter).connect(swellGain).connect(context.destination);
+  swell.start(start);
+  swell.stop(start + 1.6);
+
+  // 점점 빨라지는 심장 박동
+  [0, 0.5, 0.9, 1.2, 1.4].forEach((delay) =>
+    playTone(context, { from: 75, to: 42, duration: 0.2, volume: 0.18, delay }),
+  );
+
+  // VS가 부딪히는 순간의 쿵
+  playTone(context, { from: 150, to: 32, duration: 0.8, volume: 0.28, delay: 1.5 });
+  playNoise(context, {
+    filter: 'lowpass',
+    frequency: 1400,
+    duration: 0.5,
+    volume: 0.2,
+    delay: 1.5,
+  });
+
+  // 말풍선이 나올 때의 묵직한 한 방(부드러운 파형이라 너무 무섭지 않게)
+  playTone(context, { type: 'triangle', from: 233, duration: 0.9, volume: 0.06, delay: 2.1 });
+  playTone(context, { type: 'triangle', from: 247, duration: 0.9, volume: 0.06, delay: 2.1 });
+  playTone(context, { type: 'triangle', from: 116, duration: 0.9, volume: 0.08, delay: 2.1 });
 };
 
 const SOUNDS: Record<SoundName, (context: AudioContext, rate: number) => void> = {
@@ -210,6 +268,7 @@ const SOUNDS: Record<SoundName, (context: AudioContext, rate: number) => void> =
   keyRelease: (context) => keyRelease(context, useSoundStore.getState().keySwitch),
   keyMiss: (context) =>
     playTone(context, { type: 'square', from: 140, duration: 0.08, volume: 0.1 }),
+  impossible: impossibleSting,
 };
 
 /** 소리가 꺼져 있거나 재생할 수 없는 환경이면 조용히 넘어간다. 효과음은 부가 요소라 실패해도 게임을 막지 않는다. */
