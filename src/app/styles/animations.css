@@ -428,7 +428,16 @@
   }
 }
 
-/* 불가능 도전 선택 화면: 내 쪽 → 컴퓨터 쪽 → VS → 말풍선 → 버튼 순서로 등장한다 */
+/* 불가능 도전 선택 화면: 화면이 서서히 어두워지며 나타난 뒤, 내 쪽 → 컴퓨터 쪽 → VS → 말풍선 → 버튼 순서로 등장한다 */
+@keyframes vs-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes vs-slide-left {
   from {
     transform: translateX(-100%);
