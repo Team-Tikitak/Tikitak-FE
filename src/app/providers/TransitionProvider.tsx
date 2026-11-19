@@ -13,6 +13,8 @@ import { topSheet } from './topSheet';
 import type { PropsWithChildren } from 'react';
 
 const TAB_FADE_DURATION_MS = 80;
+// 활동 탭에서 미니게임으로 들어가고 나올 때는 탭 전환(80ms)보다 조금 길게 부드럽게 나타난다
+const GAME_FADE_DURATION_MS = 300;
 const SLIDE_DURATION_MS = 500;
 // WebAnimation samples at 60 Hz and adds two settled frames after reaching the target.
 const SETTLE_OVERHEAD_MS = (2 * 1000) / 60;
@@ -65,6 +67,11 @@ const timedTransition = (duration: number, direction?: number) => ({
 const tabTransitions = fade({ paths: tabPaths }).map((rule) => ({
   ...rule,
   transition: timedTransition(TAB_FADE_DURATION_MS),
+}));
+
+const gameTransitions = fade({ paths: [PATHS.ACTIVITY, '/game/*'] }).map((rule) => ({
+  ...rule,
+  transition: timedTransition(GAME_FADE_DURATION_MS),
 }));
 
 const fastSlide = (paths: [string, string]) =>
@@ -164,6 +171,9 @@ const ssgoiConfig: SsgoiConfig = {
     // 활동의 추억 카드(모두의 PICK·지역별)는 사진이 커지는 hero 대신 오른쪽에서 밀려 들어오는 푸시 전환을 쓴다
     ...fastSlide([PATHS.ACTIVITY, '/activity/*']),
     ...fastSlide([PATHS.ACTIVITY, '/feed/*']),
+
+    // 미니게임 진입·복귀는 간단한 페이드. 아래의 전체 기본 페이드보다 먼저 와야 이 규칙이 쓰인다
+    ...gameTransitions,
 
     ...fade({ paths: ['*'] }),
   ].map(withReleasedAnimations),
