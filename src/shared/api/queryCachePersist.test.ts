@@ -29,15 +29,15 @@ const readPersistedKeys = () => {
 };
 
 describe('shouldPersistQuery', () => {
-  it('me, agreements, 홈 쿼리는 저장한다', () => {
+  it('me, agreements, 내 팀 목록, 홈 쿼리는 저장한다', () => {
     expect(shouldPersistQuery(userKeys.me())).toBe(true);
     expect(shouldPersistQuery(userKeys.agreements())).toBe(true);
+    expect(shouldPersistQuery(userKeys.teams())).toBe(true);
     expect(shouldPersistQuery(homeKeys.regions(1))).toBe(true);
   });
 
-  it('세션·팀·피드 쿼리는 저장하지 않는다', () => {
+  it('세션·팀 상세·멤버·피드 쿼리는 저장하지 않는다', () => {
     expect(shouldPersistQuery(authKeys.session())).toBe(false);
-    expect(shouldPersistQuery(userKeys.teams())).toBe(false);
     expect(shouldPersistQuery(teamKeys.detail(1))).toBe(false);
     expect(shouldPersistQuery(teamKeys.members(1))).toBe(false);
     expect(shouldPersistQuery(feedKeys.all)).toBe(false);
