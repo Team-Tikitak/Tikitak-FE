@@ -7,13 +7,14 @@ TanStack Query 캐시를 localStorage에 일부 저장해 앱 콜드 스타트 �
 - 상태: accepted
 - 기록일: 2026-10-05
 
-**결정**: `me`, `agreements`, 홈 쿼리만 localStorage에 저장하고, 앱 시작 시 렌더 전에 복원한다. 구현은 `src/shared/api/queryCachePersist.ts`, 복원·구독은 `src/main.tsx`.
+**결정**: `me`, `agreements`, 내 팀 목록(`userKeys.teams()`), 홈 쿼리만 localStorage에 저장하고, 앱 시작 시 렌더 전에 복원한다. 구현은 `src/shared/api/queryCachePersist.ts`, 복원·구독은 `src/main.tsx`.
 
 **근거**:
 
 - 콜드 스타트에서 `setupFlowLoader`는 `me`·`agreements`를 **await** 한다. 라우트 진입이 이 네트워크 왕복에 막힌다. 캐시를 복원하면 이 대기를 건너뛴다.
 - 세션 복구(refresh token → access token)는 영속화 대상이 아니다. 부트 흐름의 핵심이라 건드리면 스플래시 멈춤·깜빡임 회귀 위험이 커서 제외했다.
-- 저장 대상은 읽기 위주이고 계정 식별이 필요 없는 쿼리로 제한한다(`shouldPersistQuery`). 세션, 팀 목록·멤버·상세, 피드는 저장하지 않는다.
+- 저장 대상은 읽기 위주이고 계정 식별이 필요 없는 쿼리로 제한한다(`shouldPersistQuery`). 세션, 팀 멤버·상세, 피드는 저장하지 않는다.
+- 내 팀 목록은 2026-11 추가했다. 콜드 스타트 직후 마이페이지 인원수·팀 카드가 스켈레톤 뒤에 늦게 뜨는 문제 때문이다. `staleTime` 30초라 열 때마다 뒤에서 갱신되고, 강퇴·권한 변경은 갱신 전까지 몇 초간 이전 값으로 보일 수 있다(탈퇴 가능 여부 등은 서버가 다시 검증).
 - 팀 상세는 처음엔 포함했으나 뺐다. 강퇴·권한 변경이 최대 24시간 오래된 값으로 보일 수 있는 반면, 콜드 스타트 경로(홈 진입)에서 얻는 이득은 작다.
 - `maxAge`는 24시간. 오래된 정보가 계속 보이는 것을 막는다.
 - 앱은 번들이 기기 안에 있지 않고 `server.url`(원격 웹)을 로드한다. 영속화 코드는 웹 배포 즉시 모든 앱 버전에 적용된다(`capacitor-bundling-strategy.md` 참고).

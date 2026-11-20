@@ -15,9 +15,11 @@ const QUERY_CACHE_BUSTER = __BUILD_ID__;
 
 // 읽기 위주 + 계정 식별 불필요한 쿼리만 저장한다. 세션(authKeys)은 부트 흐름이라 제외.
 // 팀 상세는 강퇴·권한 변경이 오래된 값으로 보일 수 있어 제외.
+// 내 팀 목록(마이페이지 인원수 등)은 콜드 스타트에서 바로 보이도록 저장한다. staleTime 30초라 열 때마다 뒤에서 갱신된다.
 const PERSISTED_KEY_PREFIXES: readonly (readonly unknown[])[] = [
   userKeys.me(),
   userKeys.agreements(),
+  userKeys.teams(),
   homeKeys.all,
 ];
 
