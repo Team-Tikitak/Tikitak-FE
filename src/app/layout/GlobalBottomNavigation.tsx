@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router';
 import { PATHS } from '@/app/routes/paths';
+import { usePrefetchGameLeaderboards } from '@/shared/api/game/queries';
 import { useMe } from '@/shared/api/user/queries';
 import { useNativeKeyboardVisible } from '@/shared/hooks/useNativeKeyboardVisible';
 import { cn } from '@/shared/lib/cn';
@@ -25,6 +26,8 @@ export const GlobalBottomNavigation = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: me } = useMe({ enabled: showTabBar && Boolean(accessToken) });
   const hasActiveTeam = Boolean(me?.activeTeamId);
+  // 활동 탭의 게임 순위·게임왕이 늦게 뜨지 않도록 다른 탭에 있을 때 미리 받아 둔다
+  usePrefetchGameLeaderboards(showTabBar ? me?.activeTeamId : undefined);
   const activeTab = isTabPath(location.pathname)
     ? ACTIVE_TAB_BY_PATH[location.pathname]
     : undefined;

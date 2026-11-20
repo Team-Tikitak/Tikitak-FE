@@ -64,3 +64,13 @@ export const useGameLeaderboard = (gameId: GameId, teamId: number | null | undef
     isError: isGameServerConfigured && (isMembersError || isScoresError),
   };
 };
+
+/**
+ * 활동 탭을 열기 전에 세 게임의 순위표를 미리 받아 둔다.
+ * 같은 쿼리 키를 그대로 쓰므로 활동 탭에 들어가면 캐시를 바로 보여주고, 오래됐으면 뒤에서 조용히 갱신한다.
+ */
+export const usePrefetchGameLeaderboards = (teamId: number | null | undefined) => {
+  useGameLeaderboard('flappy', teamId);
+  useGameLeaderboard('whack', teamId);
+  useGameLeaderboard('keycap', teamId);
+};
