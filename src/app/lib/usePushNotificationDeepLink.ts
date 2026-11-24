@@ -8,6 +8,7 @@ import { restoreSession } from '@/shared/api/auth/restoreSession';
 import { feedKeys } from '@/shared/api/feed/keys';
 import { feedCommentKeys } from '@/shared/api/feedComment/keys';
 import { useReadNotification } from '@/shared/api/notification/queries';
+import { NOTIFICATION_TYPES, type NotificationType } from '@/shared/api/notification/types';
 import { usePatchActiveTeam } from '@/shared/api/user/queries';
 import { useActiveTeamId } from '@/shared/hooks/team/useActiveTeamId';
 import { clearFeedPushNotifications } from '@/shared/lib/native/clearFeedPushNotifications';
@@ -21,11 +22,22 @@ import { saveRedirectAfterLogin } from '@/shared/lib/routing/redirectAfterLogin'
 import { useAuthStore } from '@/shared/stores/authStore';
 import { openConfirmDialog } from '@/shared/ui/ConfirmDialog/openConfirmDialog';
 
-const FEED_DETAIL_TYPES = new Set([
-  'FEED_COMMENT',
-  'FEED_COMMENT_REPLIED',
-  'DAILY_QUESTION_UPLOADED',
-]);
+type PushNotificationTarget = 'feedDetail';
+
+// 새 알림 타입을 추가하면 이동할 화면을 여기서 정해야 컴파일된다
+const PUSH_NOTIFICATION_TARGETS = {
+  FEED_COMMENT: 'feedDetail',
+  FEED_COMMENT_REPLIED: 'feedDetail',
+  DAILY_QUESTION_UPLOADED: 'feedDetail',
+  FEED_UPLOADED: 'feedDetail',
+  FEED_TAGGED: 'feedDetail',
+} satisfies Record<NotificationType, PushNotificationTarget>;
+
+const isNotificationType = (type: string | undefined): type is NotificationType =>
+  (NOTIFICATION_TYPES as readonly string[]).includes(type ?? '');
+
+const isFeedDetailNotification = (type: string | undefined): boolean =>
+  isNotificationType(type) && PUSH_NOTIFICATION_TARGETS[type] === 'feedDetail';
 
 const isReadyForDeepLink = () =>
   Boolean(useAuthStore.getState().accessToken) && window.location.pathname !== PATHS.ROOT;
@@ -40,7 +52,7 @@ const getNotificationId = (data: PushNotificationData) => parsePositiveInteger(d
 const getTargetTeamId = (data: PushNotificationData) => parsePositiveInteger(data.teamId);
 
 export const getPushNotificationTargetPath = (data: PushNotificationData): string | null => {
-  if (!data.type || !FEED_DETAIL_TYPES.has(data.type) || !data.feedId) {
+  if (!isFeedDetailNotification(data.type) || !data.feedId) {
     return null;
   }
 
@@ -53,7 +65,7 @@ export const shouldInvalidateFeedQueries = (
   currentPathname: string,
   targetPath: string | null,
 ): boolean =>
-  Boolean(targetPath) && FEED_DETAIL_TYPES.has(data.type ?? '') && currentPathname === targetPath;
+  Boolean(targetPath) && isFeedDetailNotification(data.type) && currentPathname === targetPath;
 
 export const usePushNotificationDeepLink = () => {
   const navigate = useNavigate();

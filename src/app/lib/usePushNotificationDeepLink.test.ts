@@ -97,6 +97,8 @@ describe('getPushNotificationTargetPath', () => {
     expect(getPushNotificationTargetPath({ type: 'DAILY_QUESTION_UPLOADED', feedId: '56' })).toBe(
       '/feed/56',
     );
+    expect(getPushNotificationTargetPath({ type: 'FEED_UPLOADED', feedId: '78' })).toBe('/feed/78');
+    expect(getPushNotificationTargetPath({ type: 'FEED_TAGGED', feedId: '90' })).toBe('/feed/90');
   });
 
   it('지원하지 않는 알림이나 feedId 없는 데이터는 경로를 만들지 않는다', () => {
@@ -109,6 +111,15 @@ describe('shouldInvalidateFeedQueries', () => {
   it('이미 같은 피드 상세를 보고 있는 댓글 알림이면 무효화한다', () => {
     expect(
       shouldInvalidateFeedQueries({ type: 'FEED_COMMENT', feedId: '12' }, '/feed/12', '/feed/12'),
+    ).toBe(true);
+  });
+
+  it('이미 같은 피드 상세를 보고 있는 업로드·태그 알림이면 무효화한다', () => {
+    expect(
+      shouldInvalidateFeedQueries({ type: 'FEED_UPLOADED', feedId: '12' }, '/feed/12', '/feed/12'),
+    ).toBe(true);
+    expect(
+      shouldInvalidateFeedQueries({ type: 'FEED_TAGGED', feedId: '12' }, '/feed/12', '/feed/12'),
     ).toBe(true);
   });
 

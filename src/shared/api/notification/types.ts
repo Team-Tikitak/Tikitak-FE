@@ -9,7 +9,15 @@ export interface DeleteDeviceTokenRequest {
   fcmToken: string;
 }
 
-export type NotificationType = 'FEED_COMMENT' | 'FEED_COMMENT_REPLIED' | 'DAILY_QUESTION_UPLOADED';
+export const NOTIFICATION_TYPES = [
+  'FEED_COMMENT',
+  'FEED_COMMENT_REPLIED',
+  'DAILY_QUESTION_UPLOADED',
+  'FEED_UPLOADED',
+  'FEED_TAGGED',
+] as const;
+
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 export interface NotificationListItem {
   notificationId: number;
