@@ -19,6 +19,16 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: '#ffffff',
   },
+  experimental: {
+    ios: {
+      spm: {
+        swiftToolsVersion: '6.1',
+        packageTraits: {
+          '@capacitor-firebase/analytics': ['AnalyticsWithoutAdIdSupport'],
+        },
+      },
+    },
+  },
   plugins: {
     Keyboard: {
       resize: 'native',
