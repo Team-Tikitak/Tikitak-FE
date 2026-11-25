@@ -1501,6 +1501,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor-firebase/analytics@npm:^8.3.0":
+  version: 8.6.0
+  resolution: "@capacitor-firebase/analytics@npm:8.6.0"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+    firebase: ^12.6.0
+  peerDependenciesMeta:
+    firebase:
+      optional: true
+  checksum: 10c0/5aaa47fb69dfa1ecf541aa87595dc4addec493bc267d3765c6d009164f1d07dd231a2836c4be0f8aa057a0eee01f4c8c635316e300734faf5ad19dddb12aeec6
+  languageName: node
+  linkType: hard
+
 "@capacitor-firebase/messaging@npm:^8.3.0":
   version: 8.3.0
   resolution: "@capacitor-firebase/messaging@npm:8.3.0"
@@ -4892,6 +4905,7 @@ __metadata:
   dependencies:
     "@aparajita/capacitor-secure-storage": "npm:^8.0.1"
     "@axe-core/playwright": "npm:^4.11.3"
+    "@capacitor-firebase/analytics": "npm:^8.3.0"
     "@capacitor-firebase/messaging": "npm:^8.3.0"
     "@capacitor/action-sheet": "npm:^8.1.1"
     "@capacitor/android": "npm:^8.3.4"

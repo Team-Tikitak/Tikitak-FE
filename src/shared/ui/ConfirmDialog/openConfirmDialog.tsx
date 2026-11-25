@@ -1,4 +1,5 @@
 import { cn } from '@/shared/lib/cn';
+import { triggerHaptic } from '@/shared/lib/native/haptics';
 import {
   alertDialog,
   confirmDialog,
@@ -37,6 +38,7 @@ export const openConfirmDialog = ({
     void (async () => {
       if (!showCancel) {
         await alertDialog(description ?? title, title, confirmLabel);
+        triggerHaptic('light');
         onConfirm?.();
         return;
       }
@@ -49,6 +51,7 @@ export const openConfirmDialog = ({
       });
 
       if (confirmed) {
+        triggerHaptic(destructive ? 'medium' : 'light');
         onConfirm?.();
         return;
       }

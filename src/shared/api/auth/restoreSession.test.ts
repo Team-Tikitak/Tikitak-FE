@@ -2,17 +2,29 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError, NetworkError } from '../error';
 import { restoreSession } from './restoreSession';
 
-const { fetchQueryMock } = vi.hoisted(() => ({ fetchQueryMock: vi.fn() }));
+const { fetchQueryMock, setPostHogConsentMock, setFirebaseAnalyticsEnabledMock } = vi.hoisted(
+  () => ({
+    fetchQueryMock: vi.fn(),
+    setPostHogConsentMock: vi.fn(),
+    setFirebaseAnalyticsEnabledMock: vi.fn(),
+  }),
+);
 
 vi.mock('@/app/providers/queryClient', () => ({
   queryClient: { fetchQuery: fetchQueryMock },
 }));
 vi.mock('./sessionQuery', () => ({ sessionQueryOptions: {} }));
+vi.mock('@/shared/lib/posthog', () => ({ setPostHogConsent: setPostHogConsentMock }));
+vi.mock('@/shared/lib/native/analytics', () => ({
+  setFirebaseAnalyticsEnabled: setFirebaseAnalyticsEnabledMock,
+}));
 
 describe('restoreSession', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     fetchQueryMock.mockReset();
+    setPostHogConsentMock.mockReset();
+    setFirebaseAnalyticsEnabledMock.mockReset();
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
@@ -59,5 +71,27 @@ describe('restoreSession', () => {
 
     await expect(result).resolves.toBe('authenticated');
     expect(fetchQueryMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('세션이 없다고 확정되면 분석 수집을 끈다', async () => {
+    fetchQueryMock.mockRejectedValue(new ApiError({ status: 401, code: 'AUTH007' }));
+
+    await restoreSession();
+
+    expect(setPostHogConsentMock).toHaveBeenCalledWith(false);
+    expect(setFirebaseAnalyticsEnabledMock).toHaveBeenCalledWith(false);
+  });
+
+  it('복원에 성공하거나 서버 장애면 분석 수집 설정을 건드리지 않는다', async () => {
+    fetchQueryMock.mockResolvedValueOnce('token');
+    await restoreSession();
+
+    fetchQueryMock.mockRejectedValue(new ApiError({ status: 503 }));
+    const result = restoreSession();
+    await vi.advanceTimersByTimeAsync(1600);
+    await result;
+
+    expect(setPostHogConsentMock).not.toHaveBeenCalled();
+    expect(setFirebaseAnalyticsEnabledMock).not.toHaveBeenCalled();
   });
 });

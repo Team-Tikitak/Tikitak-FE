@@ -3,13 +3,23 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { openConfirmDialog } from './openConfirmDialog';
 import type { OverlayControllerComponent } from 'overlay-kit';
 
-const { alertDialogMock, confirmDialogMock, isNativeDialogPlatformMock, openOverlayMock } =
-  vi.hoisted(() => ({
-    alertDialogMock: vi.fn(),
-    confirmDialogMock: vi.fn(),
-    isNativeDialogPlatformMock: vi.fn(),
-    openOverlayMock: vi.fn(),
-  }));
+const {
+  alertDialogMock,
+  confirmDialogMock,
+  isNativeDialogPlatformMock,
+  openOverlayMock,
+  triggerHapticMock,
+} = vi.hoisted(() => ({
+  alertDialogMock: vi.fn(),
+  confirmDialogMock: vi.fn(),
+  isNativeDialogPlatformMock: vi.fn(),
+  openOverlayMock: vi.fn(),
+  triggerHapticMock: vi.fn(),
+}));
+
+vi.mock('@/shared/lib/native/haptics', () => ({
+  triggerHaptic: triggerHapticMock,
+}));
 
 vi.mock('@/shared/lib/native/nativeDialog', () => ({
   alertDialog: alertDialogMock,
@@ -50,6 +60,23 @@ describe('openConfirmDialog', () => {
     });
     expect(onCancel).not.toHaveBeenCalled();
     expect(openOverlayMock).not.toHaveBeenCalled();
+    expect(triggerHapticMock).toHaveBeenCalledWith('light');
+  });
+
+  it('앱에서 destructive confirm을 확인하면 medium 햅틱을 준다', async () => {
+    const onConfirm = vi.fn();
+    isNativeDialogPlatformMock.mockReturnValue(true);
+    confirmDialogMock.mockResolvedValue(true);
+
+    openConfirmDialog({
+      title: '삭제할까요?',
+      confirmLabel: '삭제하기',
+      destructive: true,
+      onConfirm,
+    });
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalledTimes(1));
+    expect(triggerHapticMock).toHaveBeenCalledWith('medium');
   });
 
   it('앱에서는 네이티브 confirm을 취소하면 onCancel을 실행한다', async () => {
@@ -76,6 +103,7 @@ describe('openConfirmDialog', () => {
     );
     expect(onConfirm).not.toHaveBeenCalled();
     expect(openOverlayMock).not.toHaveBeenCalled();
+    expect(triggerHapticMock).not.toHaveBeenCalled();
   });
 
   it('웹에서는 기존 커스텀 오버레이를 사용한다', () => {
@@ -108,6 +136,7 @@ describe('openConfirmDialog', () => {
       '오류',
       '확인',
     );
+    expect(triggerHapticMock).toHaveBeenCalledWith('light');
     expect(confirmDialogMock).not.toHaveBeenCalled();
     expect(openOverlayMock).not.toHaveBeenCalled();
   });

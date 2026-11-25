@@ -113,7 +113,7 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 600,
       rolldownOptions: {
-        external: ['firebase/messaging'],
+        external: ['firebase/messaging', 'firebase/analytics'],
         output: {
           manualChunks: (id) => {
             if (!id.includes('node_modules')) return undefined;

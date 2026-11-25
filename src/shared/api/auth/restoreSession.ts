@@ -1,4 +1,6 @@
 import { queryClient } from '@/app/providers/queryClient';
+import { setFirebaseAnalyticsEnabled } from '@/shared/lib/native/analytics';
+import { setPostHogConsent } from '@/shared/lib/posthog';
 import { ApiError, NetworkError } from '../error';
 import { sessionQueryOptions } from './sessionQuery';
 
@@ -19,7 +21,12 @@ export const restoreSession = async (): Promise<SessionRestoreResult> => {
     } catch (error) {
       // 인스펙터에서 원인을 구분할 수 있도록 남긴다: AUTH006(쿠키 없음) / AUTH007(토큰 무효·만료) / 5xx·Network(서버 장애)
       console.error('세션 복구 실패', error);
-      if (!isUnavailable(error)) return 'unauthenticated';
+      if (!isUnavailable(error)) {
+        // 세션이 없다고 확정된 경우에만 끔
+        setPostHogConsent(false);
+        setFirebaseAnalyticsEnabled(false);
+        return 'unauthenticated';
+      }
       if (attempt >= RETRY_COUNT) return 'unavailable';
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
